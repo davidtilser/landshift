@@ -5,15 +5,15 @@ The game combines the local San José map with authored teaching rules. It is an
 ## Playable loop
 
 1. Place or rotate the illustrative campus. Check the mapped footprint conflicts.
-2. Follow three short steps: **Cool it → Add nature → Share**. Spend a fictional 100-credit upgrade allowance on the choices.
+2. Tap one large illustrated card per step: **Cool → Grow → Share**. Spend a fictional 100-credit upgrade allowance on the choices.
 3. Switch between dry summer, heatwave and heavy rain tests. Inspect Now, Year 5 and Year 10.
-4. **See it in 10 years** shows a short, plain-language payoff: less water, the electricity trade-off, growing trees and shared benefits. The fixed reference and current sketch use the same weather and year; the numeric comparison is optional.
+4. **See 10 years** plays Today → Year 5 → Year 10 on the map. The deck then shrinks to a short outcome strip, keeping the landscape visible. **Compare plans** opens the optional reference comparison under the same year and weather.
 5. Save up to three experiments in this tab and restore them to explore alternatives.
 6. Optionally record a preference, reason, accepted compromise and question for a planner. These notes stay in memory and with saved experiments for this tab; a reload clears them. Nothing is transmitted, scored or treated as community agreement.
 
 The reference is our illustrative campus at the starting location with evaporative cooling and no upgrades. It is **not the applicant's engineering proposal**. Moving the campus changes the current site's GIS checks; the reference site remains fixed. Comparisons preserve the map camera. Saved experiments retain their own weather selection, which is shown beside them.
 
-The main map uses everyday labels such as “Water-wise,” “Uses more power” and “Growing.” Numeric indices, equations, source links, alternative weather tests and the longer reflection are optional details. There is no mandatory quiz.
+The main interface is a picture-card deck over the map. Blue water and yellow power columns change with cooling choices; these are symbolic qualitative game gauges, not physical tanks, emissions, or measured levels. Proposed trees, restoration and a public walk are drawn around the campus. Numeric indices, equations, source links, alternative weather tests and the longer reflection remain optional. There is no mandatory quiz.
 
 ## What comes from GIS
 
@@ -59,6 +59,18 @@ Tree survival in the stress test is 82% in drought and 90% otherwise. Surviving 
 
 Planned planting surrounds the movable campus. A schematic 38 × 140 m restoration patch and a 7 × 140 m walking strip illustrate the selected interventions. These are **proposals**, not detected restoration sites or approved public access. Greening extensions are not checked for ownership, environmental suitability, conflicts, setbacks or available land. The geometry is not used to claim a verified restored area or quantified ecological gain.
 
+### Pictorial card bundles
+
+The nature cards pair existing model inputs: **Keep it simple** = 0 trees and no restoration (0 credits); **Trees + meadow** = 60 trees and meadow (48 credits); **Trees + rain garden** = 24 trees and rain garden (42 credits). The sharing cards choose no commitment, paid training, or a public path. The underlying coefficients are unchanged.
+
+### Imagined city life
+
+Twelve stylized cars follow nearby polylines from the downloaded city road layer. Twelve walkers circulate around the concept campus or the proposed walking strip. Up to twelve additional characters gather with placards. They are authored roleplay, not live traffic, real residents, polling or a prediction of opposition.
+
+The scripted gathering highlights one unresolved concern, in priority order: mapped water/park footprint conflict; existing-building overlap; water-intensive cooling; no new planting/restoration; no shared benefit. These concerns are not canceled by unrelated upgrades. A quiet scripted crowd does not establish public approval, suitable land ownership or flood safety.
+
+Animation runs at up to 24 frames per second, pauses in hidden tabs, and becomes static under reduced-motion settings. Small illustrated markers keep people and cars readable at game zoom levels; closer views retain their 3D geometry. Character sizes and motions are stylized for legibility. Their geometry and the resource gauges are excluded from terrain-height sampling.
+
 ### Individual game indices
 
 All indices are rounded and clamped to 0–100. They are neither physical units nor measured biodiversity, health, temperatures or public approval.
@@ -89,4 +101,4 @@ Ecological recovery, soil condition, flood protection, emissions, desertificatio
 
 ## Verification
 
-`consequences.test.ts` tests resource trade-offs, delayed growth, heat stress, persistent siting conflicts, non-cancellation of flood exposure, training/resource separation, and multiple feasible game strategies. Existing campus movement and rendering regression tests remain in place. Browser verification covers the choice → visible map change → comparison → revision loop.
+`consequences.test.ts` tests resource trade-offs, delayed growth, heat stress, persistent siting conflicts, non-cancellation of flood exposure, training/resource separation, and multiple feasible game strategies. Seven additional tests cover the fictional neighbor-reaction rule. Existing campus movement and rendering regression tests remain in place. Browser verification covers the choice → visible map change → comparison → revision loop.

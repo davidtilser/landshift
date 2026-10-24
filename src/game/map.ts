@@ -45,8 +45,15 @@ import { boundary, campus } from './geometry.ts'
 import { createLocalTerrain, sampleElevation } from './terrain.ts'
 import { CampusGraphics } from './campus-graphics.ts'
 import { LandscapeGraphics } from './landscape-graphics.ts'
-import { DEFAULT_CHOICES } from './consequences.ts'
-import type { PlanChoices, GameYear, Weather } from './consequences.ts'
+import { DecisionEffects } from './decision-effects.ts'
+import { AmbientLife } from './ambient-life.ts'
+import { DEFAULT_CHOICES, assessSite } from './consequences.ts'
+import type {
+  PlanChoices,
+  GameYear,
+  Weather,
+  SiteContext,
+} from './consequences.ts'
 import {
   beginCampusDrag,
   dragCampus,
@@ -138,9 +145,18 @@ export class GameScene {
   private readonly facade = facadeTexture()
   private readonly campusGraphics: CampusGraphics
   private readonly landscapeGraphics: LandscapeGraphics
+  private readonly decisionEffects: DecisionEffects
+  private readonly ambientLife: AmbientLife
   private landscapeChoices: PlanChoices = { ...DEFAULT_CHOICES }
   private landscapeYear: GameYear = 0
   private landscapeWeather: Weather = 'drought'
+  private placementSite: SiteContext = {
+    buildings: 0,
+    trees: 0,
+    water: 0,
+    parks: 0,
+    flood: 0,
+  }
   private tileset: Cesium3DTileset | undefined
   private activeToken = ''
   private campusCenter: LngLat
@@ -242,6 +258,10 @@ export class GameScene {
     this.campusGraphics = new CampusGraphics(this.group('campus'), this.facade)
     this.landscapeGraphics = new LandscapeGraphics(
       this.group('proposed-landscape'),
+    )
+    this.decisionEffects = new DecisionEffects(this.group('game-gauges'))
+    this.ambientLife = new AmbientLife(viewer, pack, (lng, lat) =>
+      this.heightAt(lng, lat),
     )
     this.updateCampus(
       campus(this.campusCenter, 28).volumes,
@@ -483,20 +503,33 @@ export class GameScene {
     this.campusCenter = center
     this.campusBearing = bearing
     let ground = this.dragging ? this.campusHeight : this.heightAt(...center)
-    const group = this.group('campus')
     if (
       !this.dragging &&
       this.style === 'reality' &&
       this.viewer.scene.sampleHeightSupported
     ) {
-      const measured = this.viewer.scene.sampleHeight(
-        Cartographic.fromDegrees(...center),
-        group.entities.values,
-      )
+      const measured = this.sampleSceneGround(center)
       if (measured !== undefined && Number.isFinite(measured)) ground = measured
     }
     this.campusHeight = ground
     this.campusGraphics.update(volumes, ground)
+    if (!this.dragging)
+      this.placementSite = assessSite(this.pack, center, bearing)
+    this.decisionEffects.update(
+      center,
+      bearing,
+      ground,
+      this.landscapeChoices,
+      this.placementSite,
+    )
+    if (!this.dragging)
+      this.ambientLife.update(
+        center,
+        bearing,
+        ground,
+        this.landscapeChoices,
+        this.placementSite,
+      )
     this.landscapeGraphics.update(
       center,
       bearing,
@@ -512,6 +545,20 @@ export class GameScene {
     this.landscapeChoices = { ...choices }
     this.landscapeYear = year
     this.landscapeWeather = weather
+    this.decisionEffects.update(
+      this.campusCenter,
+      this.campusBearing,
+      this.campusHeight,
+      choices,
+      this.placementSite,
+    )
+    this.ambientLife.update(
+      this.campusCenter,
+      this.campusBearing,
+      this.campusHeight,
+      choices,
+      this.placementSite,
+    )
     this.landscapeGraphics.update(
       this.campusCenter,
       this.campusBearing,
@@ -521,6 +568,28 @@ export class GameScene {
       weather,
     )
     this.viewer.scene.requestRender()
+  }
+
+  setFocus(stage: string): void {
+    this.decisionEffects.setFocus(stage)
+    this.viewer.scene.requestRender()
+  }
+
+  private sampleSceneGround(center: LngLat): number | undefined {
+    const excluded: object[] = []
+    for (let index = 0; index < this.viewer.dataSources.length; index++)
+      excluded.push(...this.viewer.dataSources.get(index).entities.values)
+    // Ignore every authored game piece, including passing cars and people.
+    const height = this.viewer.scene.sampleHeight(
+      Cartographic.fromDegrees(...center),
+      excluded,
+    )
+    // Coarse globe tiles can report deep false hits before the city loads.
+    return height !== undefined &&
+      Number.isFinite(height) &&
+      Math.abs(height - this.heightAt(...center)) < 120
+      ? height
+      : undefined
   }
 
   private pickPlacement(position: Cartesian2Value): LngLat | undefined {
@@ -726,7 +795,7 @@ export class GameScene {
           accessToken: token,
         })
         const tileset = await Cesium3DTileset.fromUrl(resource, {
-          maximumScreenSpaceError: 8,
+          maximumScreenSpaceError: 12,
           cacheBytes: 384 * 1024 * 1024,
           maximumCacheOverflowBytes: 128 * 1024 * 1024,
           showCreditsOnScreen: true,
@@ -760,10 +829,7 @@ export class GameScene {
             !this.viewer.scene.sampleHeightSupported
           )
             return
-          const height = this.viewer.scene.sampleHeight(
-            Cartographic.fromDegrees(...this.campusCenter),
-            this.group('campus').entities.values,
-          )
+          const height = this.sampleSceneGround(this.campusCenter)
           if (
             height !== undefined &&
             Math.abs(height - this.campusHeight) > 0.25
@@ -795,17 +861,39 @@ export class GameScene {
   }
 
   setCamera(preset: CameraPreset, duration = 1.6): void {
-    const [lng, lat] = this.pack.manifest.center
-    const target = Cartesian3.fromDegrees(lng, lat, this.heightAt(lng, lat))
+    const [lng, lat] =
+      preset === 'neighborhood' ? this.pack.manifest.center : this.campusCenter
+    const angle = (this.campusBearing * Math.PI) / 180
+    const targetLng =
+      preset === 'street'
+        ? lng -
+          (Math.sin(angle) * 95) / (111320 * Math.cos((lat * Math.PI) / 180))
+        : lng
+    const targetLat =
+      preset === 'street' ? lat - (Math.cos(angle) * 95) / 111320 : lat
+    const target = Cartesian3.fromDegrees(
+      targetLng,
+      targetLat,
+      preset === 'street'
+        ? this.campusHeight - 70
+        : this.heightAt(lng, lat) - (preset === 'site' ? 65 : 0),
+    )
     const ranges: Record<CameraPreset, number> = {
       neighborhood: 2600,
       site: 1050,
-      street: 360,
+      street:
+        550 *
+        Math.max(
+          1,
+          this.viewer.canvas.clientWidth /
+            this.viewer.canvas.clientHeight /
+            1.35,
+        ),
     }
     const pitches: Record<CameraPreset, number> = {
       neighborhood: -43,
       site: -34,
-      street: -12,
+      street: -40,
     }
     const options = {
       offset: new HeadingPitchRange(
@@ -904,6 +992,7 @@ export class GameScene {
   }
   destroy(): void {
     this.finishDrag(true)
+    this.ambientLife.destroy()
     this.connectionRevision++
     this.removeCameraListener()
     this.removeRenderListener()

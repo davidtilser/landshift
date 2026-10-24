@@ -1,4 +1,5 @@
 import './gameplay.css'
+import { choiceArt } from './choice-art.ts'
 import type { DataPack } from './data.ts'
 import type { LngLat } from './geometry.ts'
 import {
@@ -6,7 +7,6 @@ import {
   evaluatePlan,
   DEFAULT_CHOICES,
   COOLING,
-  RESTORATION,
   WEATHER,
   MODEL_SOURCES,
 } from './consequences.ts'
@@ -34,6 +34,8 @@ interface Reflection {
 }
 interface GameCallbacks {
   beforeExperiment: () => void
+  stageChanged: (stage: string) => void
+  revealFuture: () => void
   landscapeChanged: (
     choices: PlanChoices,
     year: GameYear,
@@ -53,10 +55,23 @@ const choiceCard = (
   group: string,
   value: string,
   title: string,
-  description: string,
+  caption: string,
   cost: number,
+  art: string,
 ): string =>
-  `<button class="choice-card" data-choice="${group}" data-value="${value}" aria-pressed="false"><span class="choice-radio"></span><span><strong>${title}</strong><small>${description}</small></span><b>${cost ? '+' + String(cost) : '0'}<small>credits</small></b></button>`
+  '<button class="choice-card" data-choice="' +
+  group +
+  '" data-value="' +
+  value +
+  '" aria-pressed="false"><span class="card-cost">' +
+  String(cost) +
+  '<small> ●</small></span>' +
+  choiceArt(art) +
+  '<strong>' +
+  title +
+  '</strong><small class="card-caption">' +
+  caption +
+  '</small><span class="card-check" aria-hidden="true">✓</span></button>'
 
 export class Gameplay {
   private readonly pack: DataPack
@@ -68,6 +83,10 @@ export class Gameplay {
   private choices: PlanChoices = { ...DEFAULT_CHOICES }
   private activeTab = 'cooling'
   private year: GameYear = 0
+  private futureReady = false
+  private running = false
+  private playbackTimers: number[] = []
+  private feedbackText = 'Try a card. Watch the map.'
   private weather: Weather = 'drought'
   private site: SiteContext = { ...emptySite }
   private center: LngLat
@@ -89,54 +108,117 @@ export class Gameplay {
     this.panel = document.createElement('aside')
     this.panel.className = 'gameplay-panel panel'
     this.panel.setAttribute('aria-label', 'Design choices and challenge')
-    this.panel.innerHTML = `
-      <div class="gameplay-heading"><div><span class="eyebrow">SMALL CHOICES. LASTING CHANGE.</span><h2>Make your move.</h2></div><button class="model-info" data-action="model" aria-label="Explain game estimates">?</button></div>
-      <div class="game-budget"><span>Your upgrade budget</span><strong id="credits-left">100 <small>/ 100 credits</small></strong><div class="budget-track"><span id="budget-fill"></span></div></div>
-      <details class="challenge-picker"><summary id="challenge-label">Challenge: a dry summer</summary><div class="weather-picks" role="group" aria-label="Choose a stress test">${Object.entries(
-        WEATHER,
-      )
-        .map(
-          ([id, item]) =>
-            `<button data-weather="${id}" aria-pressed="false"><span>${item.icon}</span>${item.title}</button>`,
-        )
-        .join('')}</div>
-      <p class="weather-story" id="weather-story"></p></details><div id="mission-targets" class="mission-targets"></div>
-      <div class="choice-tabs" role="tablist" aria-label="Design categories"><button id="tab-cooling" role="tab" aria-selected="true" aria-controls="choices-cooling" data-tab="cooling">1 · Cool it</button><button id="tab-land" role="tab" aria-selected="false" aria-controls="choices-land" data-tab="land">2 · Add nature</button><button id="tab-people" role="tab" aria-selected="false" aria-controls="choices-people" data-tab="people">3 · Share</button></div>
-      <div class="choice-pages">
-        <section id="choices-cooling" role="tabpanel" aria-labelledby="tab-cooling"><p class="choice-intro">How will you cool the servers?</p>${Object.entries(
-          COOLING,
-        )
-          .map(([id, item]) =>
-            choiceCard('cooling', id, item.title, item.summary, item.cost),
-          )
-          .join('')}<p class="choice-lesson" id="cooling-lesson"></p></section>
-        <section id="choices-land" role="tabpanel" aria-labelledby="tab-land" hidden><p class="choice-intro">What could grow here?</p><div class="land-label">Plant and care for native trees</div><div class="tree-picks" role="group" aria-label="Number of proposed trees">${[0, 24, 60].map((count, index) => `<button data-choice="trees" data-value="${String(count)}" aria-pressed="false"><strong>${String(count)}</strong><span>trees</span><small>${String([0, 14, 30][index] ?? 0)} credits</small></button>`).join('')}</div><div class="land-label">Restore the land</div>${Object.entries(
-          RESTORATION,
-        )
-          .map(([id, item]) =>
-            choiceCard('restoration', id, item.title, item.summary, item.cost),
-          )
-          .join(
-            '',
-          )}<p class="choice-lesson">Planting is the start. Shade and soil benefits build over years; upkeep is included in the game cost.</p></section>
-        <section id="choices-people" role="tabpanel" aria-labelledby="tab-people" hidden><p class="choice-intro">What will you offer your neighbors?</p>${choiceCard('training', 'toggle', 'Paid training for local people', 'Help young people build new skills.', 12)}${choiceCard('access', 'toggle', 'A green place to walk', 'Share some green space with neighbors.', 10)}<div class="livelihood-card"><span>A PROPOSAL TO DISCUSS</span><strong>Share skills. Care for the land.</strong><p id="livelihood-note"></p></div><p class="choice-lesson">Training places are fictional commitments in this game. Actual employment and eligibility need evidence and negotiation.</p></section>
-      </div>
-      <div class="time-control"><span>Watch the land recover</span><div role="group" aria-label="Simulation year"><button data-year="0" aria-pressed="true">Now</button><button data-year="5" aria-pressed="false">Year 5</button><button data-year="10" aria-pressed="false">Year 10</button></div></div>
-      <p id="site-finding" class="site-finding"></p><details class="site-feedback"><summary id="site-summary">Read the consequences</summary><div id="consequence-feed"></div></details>
-      <div id="saved-plans" class="saved-plans"></div>
-      <div class="gameplay-footer"><button class="test-plan" data-action="test"><span>Next: add nature</span><span>↗</span></button><p>Try a choice. Watch what changes.</p></div>
-    `
+    this.panel.innerHTML = [
+      '<header class="deck-heading"><div><span class="quest-kicker" id="quest-step">YOUR CITY · 1 / 3</span><h2 id="choice-question">Keep the servers cool.</h2></div><nav class="choice-tabs" role="tablist" aria-label="Your mission"><button id="tab-cooling" role="tab" aria-selected="true" aria-controls="choices-cooling" data-tab="cooling" title="Cooling">1<span>Cool</span></button><button id="tab-land" role="tab" aria-selected="false" aria-controls="choices-land" data-tab="land" title="Nature">2<span>Grow</span></button><button id="tab-people" role="tab" aria-selected="false" aria-controls="choices-people" data-tab="people" title="Neighbors">3<span>Share</span></button></nav><div class="game-budget" aria-label="Game credits remaining"><span class="coin">●</span><strong id="credits-left">100</strong><small>credits</small></div></header>',
+      '<div class="choice-pages"><section id="choices-cooling" role="tabpanel" aria-labelledby="tab-cooling">' +
+        choiceCard(
+          'cooling',
+          'evaporative',
+          'Use water',
+          'Less power · more water',
+          0,
+          'water',
+        ) +
+        choiceCard(
+          'cooling',
+          'hybrid',
+          'Mix air + water',
+          'Balance both resources',
+          32,
+          'hybrid',
+        ) +
+        choiceCard(
+          'cooling',
+          'dry',
+          'Use air',
+          'Less water · more power',
+          44,
+          'air',
+        ) +
+        '</section>',
+      '<section id="choices-land" role="tabpanel" aria-labelledby="tab-land" hidden>' +
+        choiceCard(
+          'nature',
+          'none',
+          'Keep it simple',
+          'No new planting',
+          0,
+          'bare',
+        ) +
+        choiceCard(
+          'nature',
+          'grove',
+          'Trees + meadow',
+          '60 trees · native habitat',
+          48,
+          'grove',
+        ) +
+        choiceCard(
+          'nature',
+          'garden',
+          'Trees + rain garden',
+          '24 trees · slow the rain',
+          42,
+          'garden',
+        ) +
+        '</section>',
+      '<section id="choices-people" role="tabpanel" aria-labelledby="tab-people" hidden>' +
+        choiceCard(
+          'sharing',
+          'none',
+          'Keep it private',
+          'No shared space or training',
+          0,
+          'private',
+        ) +
+        choiceCard(
+          'sharing',
+          'training',
+          'Teach new skills',
+          'Fund paid local training',
+          12,
+          'training',
+        ) +
+        choiceCard(
+          'sharing',
+          'access',
+          'Open a green path',
+          'Give neighbors a place to walk',
+          10,
+          'walk',
+        ) +
+        '</section></div>',
+      '<div class="deck-outcome" id="deck-outcome" hidden></div><footer class="deck-footer"><button class="deck-back" data-action="back" aria-label="Previous choice">←</button><p id="action-hint">Try a card. Watch the map.</p><button class="test-plan" data-action="test"><span>Grow next</span><b>→</b></button></footer>',
+      '<div class="time-reveal" role="status" hidden><span>FAST FORWARD</span><strong id="reveal-year">Year 0</strong><small>Watch your choices grow.</small></div>',
+    ].join('')
     this.metrics = document.createElement('section')
-    this.metrics.className = 'impact-strip panel'
-    this.metrics.setAttribute('aria-label', 'Illustrative consequences')
-    this.metrics.innerHTML = `<div class="impact-heading"><span><i></i> YOUR PLAN · <strong id="impact-year">YEAR 0</strong></span><button data-action="model">Game estimates · Details ↗</button></div><div id="impact-values" class="impact-values"></div>`
+    this.metrics.className = 'play-hud'
+    this.metrics.setAttribute('aria-label', 'Game world controls')
+    this.metrics.innerHTML = [
+      '<div class="year-hud"><span id="impact-year">NOW</span><div role="group" aria-label="View the future"><button data-year="0" aria-pressed="true">Now</button><button data-year="5" aria-pressed="false">5 years</button><button data-year="10" aria-pressed="false">10 years</button></div></div>',
+      '<div class="hud-actions"><details class="challenge-picker"><summary id="challenge-label">☀ Dry summer</summary><div class="weather-picks" role="group" aria-label="Choose a weather test">' +
+        Object.entries(WEATHER)
+          .map(
+            ([id, item]) =>
+              '<button data-weather="' +
+              id +
+              '" aria-pressed="false">' +
+              item.icon +
+              ' ' +
+              item.title +
+              '</button>',
+          )
+          .join('') +
+        '</div></details><details class="history-hud" hidden><summary>My plans</summary><div id="saved-plans"></div></details><button class="help-orb" data-action="model" aria-label="Game rules and sources">?</button></div>',
+      '<button class="map-alert" id="map-alert" data-action="model"></button><span class="life-caption" title="Cars, pedestrians and reactions are authored game characters">Imagined city life</span>',
+    ].join('')
     this.dialog = document.createElement('dialog')
     this.dialog.className = 'results-dialog'
     this.dialog.setAttribute('aria-labelledby', 'results-title')
     this.modelDialog = document.createElement('dialog')
     this.modelDialog.className = 'model-dialog'
     this.modelDialog.setAttribute('aria-labelledby', 'model-title')
-    this.modelDialog.innerHTML = `<button class="dialog-close" data-action="close-model" aria-label="Close model explanation">×</button><span class="eyebrow">REAL GEOGRAPHY · SIMPLIFIED RULES</span><h2 id="model-title">What is real?<br>What is a game estimate?</h2><p>Buildings, waterbodies, street trees, parks, and mapped flood hazards come from the downloaded San José pack. The full campus pad is checked for overlaps. Coverage and dates vary; private trees are missing from the street-tree inventory.</p><h3>Our sandbox assumptions</h3><p>This concept uses <strong>24 MW IT capacity at 70% average load</strong>, unrelated to the real applicant's design. Daily direct cooling water = average IT kW × 24 hours × water-use factor ÷ 1,000. Electricity = average IT MW × PUE × weather factor × 8,760 hours. The power figure annualizes the selected scenario; it is not a weather forecast.</p><table><caption>Illustrative cooling coefficients</caption><thead><tr><th>Cooling</th><th>PUE</th><th>Water L/kWh IT</th></tr></thead><tbody>${Object.values(
+    this.modelDialog.innerHTML = `<button class="dialog-close" data-action="close-model" aria-label="Close model explanation">×</button><span class="eyebrow">REAL GEOGRAPHY · SIMPLIFIED RULES</span><h2 id="model-title">What is real?<br>What is a game estimate?</h2><p>Buildings, waterbodies, street trees, parks, and mapped flood hazards come from the downloaded San José pack. The full campus pad is checked for overlaps. Coverage and dates vary; private trees are missing from the street-tree inventory.</p><p>Cars follow the downloaded street lines. People, gatherings and placards are imagined game characters, not observed traffic or a prediction of public opinion. The blue and yellow columns are symbolic water and power gauges, not physical infrastructure or measurements.</p><h3>Our sandbox assumptions</h3><p>This concept uses <strong>24 MW IT capacity at 70% average load</strong>, unrelated to the real applicant's design. Daily direct cooling water = average IT kW × 24 hours × water-use factor ÷ 1,000. Electricity = average IT MW × PUE × weather factor × 8,760 hours. The power figure annualizes the selected scenario; it is not a weather forecast.</p><table><caption>Illustrative cooling coefficients</caption><thead><tr><th>Cooling</th><th>PUE</th><th>Water L/kWh IT</th></tr></thead><tbody>${Object.values(
       COOLING,
     )
       .map(
@@ -217,6 +299,9 @@ export class Gameplay {
     this.callbacks.landscapeChanged(this.choices, this.year, this.weather)
   }
   reset(): void {
+    this.destroy()
+    this.running = false
+    this.futureReady = false
     this.choices = { ...DEFAULT_CHOICES }
     this.activeTab = 'cooling'
     this.selectTab('cooling')
@@ -234,47 +319,37 @@ export class Gameplay {
   }
   private render(): void {
     const result = this.result()
+    const baseline = evaluatePlan(
+      this.referenceSite,
+      DEFAULT_CHOICES,
+      this.year,
+      this.weather,
+    )
     const credits = this.panel.querySelector('#credits-left')
-    if (credits)
-      credits.innerHTML = `${String(result.remaining)} <small>/ 100 credits</small>`
+    if (credits) credits.textContent = String(result.remaining)
     this.panel.classList.toggle('over-budget', result.remaining < 0)
-    const fill = this.panel.querySelector('#budget-fill')
-    if (fill instanceof HTMLElement)
-      fill.style.width = `${String(Math.max(0, Math.min(100, result.remaining)))}%`
-    const challenge = this.panel.querySelector('#challenge-label')
-    if (challenge)
-      challenge.textContent =
-        'Challenge: ' + WEATHER[this.weather].title.toLowerCase() + ' ⌄'
-    const story = this.panel.querySelector('#weather-story')
-    if (story) story.textContent = WEATHER[this.weather].description
-    const targets = this.panel.querySelector('#mission-targets')
-    if (targets) {
-      const weatherTarget =
-        this.weather === 'drought'
-          ? 'Water ≤ 300 m³/day'
-          : this.weather === 'heatwave'
-            ? 'Shade ≥ 45'
-            : 'Runoff ≤ 45'
-      targets.innerHTML = [weatherTarget, 'Nature ≥ 55', 'Benefits ≥ 60']
-        .map((label) => `<span>${label}</span>`)
-        .join('')
-    }
-    const finding = this.panel.querySelector('#site-finding')
-    if (finding) {
-      finding.textContent =
-        result.blockers[0] ??
-        (this.site.flood
-          ? '⚠ Mapped flood hazard here. A rain garden does not remove exposure.'
-          : this.site.trees
-            ? '⚠ The footprint contains street-tree records. Check the consequences.'
-            : 'No mapped footprint conflict. Ownership and other constraints still need checking.')
-      finding.classList.toggle(
-        'warning',
-        Boolean(result.blockers.length || this.site.flood || this.site.trees),
-      )
-    }
-    const lesson = this.panel.querySelector('#cooling-lesson')
-    if (lesson) lesson.textContent = COOLING[this.choices.cooling].lesson
+    this.panel.classList.toggle('future-ready', this.futureReady)
+    this.panel.classList.toggle('is-running', this.running)
+    const question = this.panel.querySelector('#choice-question')
+    const step = this.panel.querySelector('#quest-step')
+    if (question)
+      question.textContent = this.futureReady
+        ? 'Ten years. Your choices.'
+        : this.activeTab === 'cooling'
+          ? 'Keep the servers cool.'
+          : this.activeTab === 'land'
+            ? 'Bring this place to life.'
+            : 'Be a good neighbor.'
+    if (step)
+      step.textContent = this.futureReady
+        ? 'YOUR FUTURE'
+        : 'YOUR CITY · ' +
+          (this.activeTab === 'cooling'
+            ? '1'
+            : this.activeTab === 'land'
+              ? '2'
+              : '3') +
+          ' / 3'
     for (const button of this.panel.querySelectorAll<HTMLButtonElement>(
       '[data-choice]',
     )) {
@@ -283,150 +358,177 @@ export class Gameplay {
       const selected =
         group === 'cooling'
           ? this.choices.cooling === value
-          : group === 'trees'
-            ? String(this.choices.trees) === value
-            : group === 'restoration'
-              ? this.choices.restoration === value
-              : group === 'training'
+          : group === 'nature'
+            ? value === 'none'
+              ? this.choices.restoration === 'none'
+              : value === 'grove'
+                ? this.choices.restoration === 'meadow'
+                : this.choices.restoration === 'rain-garden'
+            : value === 'none'
+              ? !this.choices.training && !this.choices.access
+              : value === 'training'
                 ? this.choices.training
                 : this.choices.access
       button.setAttribute('aria-pressed', String(selected))
     }
-    for (const button of this.panel.querySelectorAll<HTMLButtonElement>(
-      '[data-weather]',
-    ))
-      button.setAttribute(
-        'aria-pressed',
-        String(button.dataset['weather'] === this.weather),
-      )
-    for (const button of this.panel.querySelectorAll<HTMLButtonElement>(
+    for (const button of this.metrics.querySelectorAll<HTMLButtonElement>(
       '[data-year]',
     ))
       button.setAttribute(
         'aria-pressed',
         String(button.dataset['year'] === String(this.year)),
       )
-    const note = this.panel.querySelector('#livelihood-note')
-    if (note)
-      note.textContent =
-        String(result.apprenticeships) +
-        ' paid training places / year. ' +
-        (this.choices.restoration === 'none'
-          ? 'Restoration could also create land-care opportunities.'
-          : 'Your restoration choice includes long-term land care.')
+    for (const button of this.metrics.querySelectorAll<HTMLButtonElement>(
+      '[data-weather]',
+    ))
+      button.setAttribute(
+        'aria-pressed',
+        String(button.dataset['weather'] === this.weather),
+      )
     const year = this.metrics.querySelector('#impact-year')
-    if (year)
-      year.textContent = this.year ? `YEAR ${String(this.year)}` : 'YEAR 0'
-    const baseline = evaluatePlan(
-      this.referenceSite,
-      DEFAULT_CHOICES,
-      this.year,
-      this.weather,
-    )
-    const values = this.metrics.querySelector('#impact-values')
-    const waterChange = Math.round((1 - result.water / baseline.water) * 100)
-    const powerChange = Math.round((result.power / baseline.power - 1) * 100)
-    if (values)
-      values.innerHTML = [
-        this.simpleMetric(
-          'Water',
-          result.water < 300
-            ? 'Water-wise'
-            : result.water > 500
-              ? 'Thirsty'
-              : 'Moderate',
-          waterChange
-            ? String(Math.abs(waterChange)) +
-                '% ' +
-                (waterChange > 0 ? 'less' : 'more') +
-                ' than the start'
-            : 'Your starting plan',
-          waterChange > 0,
+    if (year) year.textContent = this.year ? 'YEAR ' + String(this.year) : 'NOW'
+    const challenge = this.metrics.querySelector('#challenge-label')
+    if (challenge)
+      challenge.textContent =
+        WEATHER[this.weather].icon + ' ' + WEATHER[this.weather].title
+    const alert = this.metrics.querySelector('#map-alert')
+    if (alert) {
+      alert.textContent = this.site.buildings
+        ? '⚠ Building in the way'
+        : this.site.water || this.site.parks
+          ? '⚠ Protect this corridor'
+          : this.site.flood
+            ? '⚑ Flood map: check this spot'
+            : '✓ No mapped footprint conflict'
+      alert.classList.toggle(
+        'warning',
+        Boolean(
+          this.site.buildings ||
+          this.site.water ||
+          this.site.parks ||
+          this.site.flood,
         ),
-        this.simpleMetric(
-          'Power',
-          powerChange > 0 ? 'Uses more' : 'Starting use',
-          powerChange
-            ? '+' + String(powerChange) + '% electricity'
-            : 'Your starting plan',
-          false,
-        ),
-        this.simpleMetric(
-          'Nature',
-          result.nature > 55
-            ? 'More life'
-            : this.choices.trees || this.choices.restoration !== 'none'
-              ? 'Growing'
-              : 'Little cover',
-          this.choices.trees
-            ? String(this.year ? result.survivingTrees : this.choices.trees) +
-                (this.year ? ' trees growing' : ' young trees')
-            : this.choices.restoration !== 'none'
-              ? 'New planting'
-              : 'Try trees or a garden',
-          result.nature > baseline.nature,
-        ),
-        this.simpleMetric(
-          'Neighbors',
-          this.choices.training || this.choices.access
-            ? 'Something shared'
-            : 'Not yet',
-          this.choices.training && this.choices.access
-            ? 'Skills + green space'
-            : this.choices.training
-              ? 'Paid training'
-              : this.choices.access
-                ? 'A place to walk'
-                : 'What could you offer?',
-          this.choices.training || this.choices.access,
-        ),
-      ].join('')
-    const feed = this.panel.querySelector('#consequence-feed')
-    if (feed)
-      feed.innerHTML = result.feedback
+      )
+    }
+    const pages = this.panel.querySelector('.choice-pages')
+    const outcome = this.panel.querySelector('#deck-outcome')
+    if (pages instanceof HTMLElement) pages.hidden = this.futureReady
+    if (outcome instanceof HTMLElement) {
+      outcome.hidden = !this.futureReady
+      const water = Math.round((1 - result.water / baseline.water) * 100)
+      const power = Math.round((result.power / baseline.power - 1) * 100)
+      outcome.innerHTML =
+        '<span><b>💧 ' +
+        String(Math.abs(water)) +
+        '% ' +
+        (water >= 0 ? 'less' : 'more') +
+        '</b>cooling water</span><span><b>⚡ ' +
+        String(power) +
+        '% more</b>electricity</span><span><b>🌳 ' +
+        String(result.survivingTrees) +
+        '</b>trees growing</span>'
+    }
+    const hint = this.panel.querySelector('#action-hint')
+    if (hint)
+      hint.textContent =
+        result.remaining < 0
+          ? 'Too many upgrades. Swap a card.'
+          : this.futureReady
+            ? 'Look around. What would you change?'
+            : this.feedbackText
+    const back = this.panel.querySelector('[data-action="back"]')
+    if (back instanceof HTMLButtonElement)
+      back.disabled = this.activeTab === 'cooling' && !this.futureReady
+    const next = this.panel.querySelector('[data-action="test"] > span')
+    if (next)
+      next.textContent = this.futureReady
+        ? 'Compare plans'
+        : this.activeTab === 'cooling'
+          ? 'Grow next'
+          : this.activeTab === 'land'
+            ? 'Share next'
+            : 'See 10 years'
+    const reveal = this.panel.querySelector('.time-reveal')
+    if (reveal instanceof HTMLElement) reveal.hidden = !this.running
+    const revealYear = this.panel.querySelector('#reveal-year')
+    if (revealYear)
+      revealYear.textContent = this.year ? 'Year ' + String(this.year) : 'Today'
+    const saved = this.metrics.querySelector('#saved-plans')
+    if (saved)
+      saved.innerHTML = this.saved
         .map(
-          (item) =>
-            `<article class="consequence ${item.tone}"><strong>${item.title}</strong><p>${item.detail}</p></article>`,
+          (plan, index) =>
+            '<button data-restore="' +
+            String(index) +
+            '">' +
+            plan.name +
+            '<span>' +
+            String(plan.result.goals.filter((goal) => goal.passed).length) +
+            '/4 goals ↗</span></button>',
         )
         .join('')
-    const summary = this.panel.querySelector('#site-summary')
-    if (summary)
-      summary.textContent = `${result.feedback.filter((item) => item.tone === 'warning').length ? '⚠ ' : '↳ '}Read ${String(result.feedback.length)} consequences`
-    const saved = this.panel.querySelector('#saved-plans')
-    if (saved)
-      saved.innerHTML = this.saved.length
-        ? `<span class="land-label">YOUR EXPERIMENTS · YEAR 10</span>${this.saved.map((plan, index) => `<button data-restore="${String(index)}"><span>${plan.name}<small>${WEATHER[plan.weather].title} · ${String(plan.result.water)} m³/day</small></span><b>${String(plan.result.goals.filter((goal) => goal.passed).length)}/4<small>restore ↗</small></b></button>`).join('')}`
-        : ''
-  }
-  private simpleMetric(
-    label: string,
-    value: string,
-    note: string,
-    positive: boolean,
-  ): string {
-    return `<div class="impact-metric simple"><span>${label}</span><strong>${value}</strong><em class="${positive ? 'improved' : ''}">${note}</em></div>`
+    const history = this.metrics.querySelector('.history-hud')
+    if (history instanceof HTMLElement) history.hidden = !this.saved.length
   }
   private selectTab(tab: string): void {
+    if (this.running) return
     this.activeTab = tab
-    this.panel.scrollTop = 0
-    for (const item of this.panel.querySelectorAll<HTMLButtonElement>(
+    this.futureReady = false
+    this.feedbackText =
+      tab === 'cooling'
+        ? 'Watch the water and power markers.'
+        : tab === 'land'
+          ? 'Plant now. Fast-forward to see it grow.'
+          : 'Your neighbors have something to say.'
+    for (const button of this.panel.querySelectorAll<HTMLButtonElement>(
       '[data-tab]',
     )) {
-      item.setAttribute('aria-selected', String(item.dataset['tab'] === tab))
-      item.tabIndex = item.dataset['tab'] === tab ? 0 : -1
+      const selected = button.dataset['tab'] === tab
+      button.setAttribute('aria-selected', String(selected))
+      button.tabIndex = selected ? 0 : -1
     }
     for (const section of this.panel.querySelectorAll<HTMLElement>(
       '[role="tabpanel"]',
     ))
       section.hidden = section.id !== 'choices-' + tab
-    const next = this.panel.querySelector('[data-action="test"] > span')
-    if (next)
-      next.textContent =
-        tab === 'cooling'
-          ? 'Next: add nature'
-          : tab === 'land'
-            ? 'Next: share the benefits'
-            : 'See it in 10 years'
+    this.callbacks.stageChanged(tab)
+    this.render()
+  }
+  private startFuture(): void {
+    if (this.running) return
+    this.running = true
+    this.futureReady = false
+    this.year = 0
+    this.render()
+    this.callbacks.stageChanged('future')
+    this.callbacks.revealFuture()
+    this.callbacks.landscapeChanged(this.choices, this.year, this.weather)
+    const reduced = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+    const finish = (): void => {
+      this.year = 10
+      this.running = false
+      this.futureReady = true
+      this.render()
+      this.callbacks.landscapeChanged(this.choices, this.year, this.weather)
+    }
+    if (reduced) {
+      finish()
+      return
+    }
+    this.playbackTimers.push(
+      window.setTimeout(() => {
+        this.year = 5
+        this.render()
+        this.callbacks.landscapeChanged(this.choices, this.year, this.weather)
+      }, 700),
+    )
+    this.playbackTimers.push(window.setTimeout(finish, 1800))
+  }
+  destroy(): void {
+    for (const timer of this.playbackTimers) window.clearTimeout(timer)
+    this.playbackTimers = []
   }
   private comparisonRows(result: PlanResult): string {
     const reference = evaluatePlan(
@@ -537,7 +639,7 @@ export class Gameplay {
   private readonly onClick = (event: MouseEvent): void => {
     if (!(event.target instanceof Element)) return
     const button = event.target.closest('button')
-    if (!(button instanceof HTMLButtonElement)) return
+    if (!(button instanceof HTMLButtonElement) || this.running) return
     if (
       button.dataset['choice'] ||
       button.dataset['weather'] ||
@@ -573,9 +675,37 @@ export class Gameplay {
       (value === 'none' || value === 'meadow' || value === 'rain-garden')
     )
       this.choices.restoration = value
-    if (group === 'training') this.choices.training = !this.choices.training
-    if (group === 'access') this.choices.access = !this.choices.access
+    if (
+      group === 'nature' &&
+      (value === 'none' || value === 'grove' || value === 'garden')
+    ) {
+      this.choices.trees = value === 'none' ? 0 : value === 'grove' ? 60 : 24
+      this.choices.restoration =
+        value === 'none' ? 'none' : value === 'grove' ? 'meadow' : 'rain-garden'
+    }
+    if (
+      group === 'sharing' &&
+      (value === 'none' || value === 'training' || value === 'access')
+    ) {
+      this.choices.training = value === 'training'
+      this.choices.access = value === 'access'
+    }
     if (weather || year || group) {
+      this.futureReady = false
+      this.feedbackText =
+        group === 'cooling'
+          ? this.choices.cooling === 'evaporative'
+            ? 'Water rises. Power stays lower.'
+            : this.choices.cooling === 'hybrid'
+              ? 'Water down. A little more power.'
+              : 'Water drops. Power climbs.'
+          : group === 'nature'
+            ? this.choices.restoration === 'none'
+              ? 'A quieter landscape.'
+              : this.choices.restoration === 'meadow'
+                ? 'New trees. New habitat.'
+                : 'A garden that slows the rain.'
+            : 'Watch the neighborhood react.'
       this.render()
       this.callbacks.landscapeChanged(this.choices, this.year, this.weather)
     }
@@ -595,9 +725,17 @@ export class Gameplay {
     }
     const action = button.dataset['action']
     if (action === 'test') {
-      if (this.activeTab === 'cooling') this.selectTab('land')
+      if (this.futureReady) this.showResults()
+      else if (this.activeTab === 'cooling') this.selectTab('land')
       else if (this.activeTab === 'land') this.selectTab('people')
-      else this.showResults()
+      else this.startFuture()
+    }
+    if (action === 'back') {
+      if (this.futureReady) {
+        this.year = 0
+        this.selectTab('cooling')
+        this.callbacks.landscapeChanged(this.choices, this.year, this.weather)
+      } else this.selectTab(this.activeTab === 'people' ? 'land' : 'cooling')
     }
     if (action === 'close-results') this.dialog.close()
     if (action === 'model') this.modelDialog.showModal()

@@ -55,22 +55,14 @@ root.innerHTML = `
       <div class="breadcrumbs"><span>California</span><span class="crumb-divider">/</span><span>San José</span><span class="edition">CESIUM 3D</span></div>
       <nav class="top-actions" aria-label="Studio actions"><span class="offline-badge"><span></span> <span id="connection-label">Local aerial</span></span>${tool('credits', 'info', 'Data sources and limitations')}<button id="map-layers-toggle" class="text-button" aria-expanded="false">Map layers</button><button id="reset-plan" class="text-button">Reset design ${icon('reset', 15)}</button></nav>
     </header>
-    <section class="project-panel panel" aria-labelledby="project-title">
-      <div class="eyebrow"><span class="tiny-dot"></span> MISSION 01 · SAN JOSÉ</div>
-      <h1 id="project-title">Build a better<br>neighbor.</h1>
-      <p class="project-subtitle">Place it. Make choices.<br>See what ten years can change.</p>
-      <div class="project-reference"><span class="reference-icon">${icon('pin', 17)}</span><div><strong>North San José</strong><span>San José Data Center 04 · CP23-008</span></div></div>
-      <div class="mode-tabs" role="group" aria-label="Workspace mode"><button id="mode-explore" aria-pressed="false">${icon('eye', 15)} Explore</button><button id="mode-design" class="selected" aria-pressed="true">${icon('cube', 15)} Design</button></div>
-      <section class="design-section" aria-label="Concept campus controls">
-        <div class="section-heading"><h2>Your concept campus</h2><span class="small-pill">SKETCH 01</span></div>
-        <div class="concept-summary"><div class="concept-icon">${icon('cube', 38)}</div><div><strong>Two blocks. More possibility.</strong><span>4 floors · illustrative alternative</span></div></div>
-        <div class="design-stat"><span>Building footprint</span><strong id="footprint">—</strong></div>
-        <label class="rotation-label" for="rotation"><span>Orientation</span><output id="rotation-value">28°</output></label>
-        <input id="rotation" type="range" min="0" max="359" value="28" aria-label="Campus orientation in degrees">
-        <button id="place" class="primary-button">${icon('move', 17)} Move campus <span>${icon('arrow', 17)}</span></button>
-        <p id="placement-hint" class="field-note">Drag the green handle, or choose a new spot on the map.</p>
+    <section class="project-panel" aria-label="Move and rotate the campus">
+      <h1 id="project-title" hidden>Build a better neighbor.</h1>
+      <div hidden><button id="mode-explore">Explore</button><button id="mode-design">Design</button><span id="footprint"></span></div>
+      <section class="design-section" aria-label="Campus tools">
+        <button id="place" class="primary-button" aria-pressed="false">${icon('move', 17)} Move</button>
+        <details class="rotation-tool"><summary title="Rotate the campus" aria-label="Rotate the campus">${icon('reset', 20)}</summary><div class="rotation-popover"><label class="rotation-label" for="rotation"><span>Rotate</span><output id="rotation-value">28°</output></label><input id="rotation" type="range" min="0" max="359" value="28" aria-label="Campus orientation in degrees"></div></details>
+        <p id="placement-hint" class="field-note">Grab the green handle and move it.</p>
       </section>
-
     </section>
     <aside class="layers-panel panel" aria-labelledby="layers-title">
       <div class="section-heading"><h2 id="layers-title">Read the landscape</h2>${icon('layers', 17)}</div>
@@ -266,6 +258,12 @@ async function start(): Promise<void> {
     mapError: toast,
   })
   const gameplay = new Gameplay(pack, {
+    stageChanged: (stage) => {
+      scene.setFocus(stage)
+    },
+    revealFuture: () => {
+      scene.setCamera('site', 0.8)
+    },
     beforeExperiment: () => {
       setPlacing(false)
       scene.cancelDrag()
@@ -495,6 +493,7 @@ async function start(): Promise<void> {
   window.addEventListener(
     'pagehide',
     () => {
+      gameplay.destroy()
       scene.destroy()
     },
     { once: true },

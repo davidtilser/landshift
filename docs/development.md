@@ -78,6 +78,12 @@ The source's network policy permits only the local origin and the explicit Cesiu
 
 `src/game/placement.ts` projects pointer rays onto a fixed tangent plane and preserves the initial grab offset. Dragging does not depth-pick the moving campus's own roofs, and release commits the last projected position. Camera inputs are restored on release, cancellation, or loss of pointer capture. Terrain height stays fixed during a drag and is sampled again when it ends.
 
+### Game board and city life
+
+`src/game/gameplay.ts` manages the large picture-card deck and the on-map future reveal. `src/game/choice-art.ts` draws its local SVG game pieces. `src/game/decision-effects.ts` owns the symbolic water/power gauges. `src/game/ambient-life.ts` animates bounded traffic on city road polylines and fictional pedestrians/gatherings around the campus. It stops animation when hidden or reduced motion is requested. `Gameplay.destroy()` clears future-reveal timers; `GameScene.destroy()` disposes the city-life loop.
+
+Checkpoint `687efda` was pushed before this game-board redesign and includes the prior dashboard-style game plus the team's documentation updates.
+
 ### Rollback checkpoint
 
 Commit `537167b` contains the complete MapLibre game before this renderer change. It also records the geographic pack manifest and preparation scripts. The ignored local data remains compatible with that version; the Cesium heightmap is an additional asset.

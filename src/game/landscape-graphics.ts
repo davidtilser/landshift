@@ -25,6 +25,8 @@ interface TreeShape {
 export class LandscapeGraphics {
   private readonly source: CustomDataSource
   private readonly trees: TreeShape[] = []
+  private readonly blooms: Cartesian3[] = []
+  private bloomCount = 0
   private radii = new Cartesian3(1, 1, 1.5)
   private treeCount = 0
   private patch = new PolygonHierarchy([])
@@ -70,6 +72,29 @@ export class LandscapeGraphics {
           bottomRadius: 0.3,
           slices: 5,
           material: Color.fromCssColorString('#846b4a'),
+        },
+      })
+    }
+    for (let index = 0; index < 32; index++) {
+      this.blooms.push(new Cartesian3())
+      source.entities.add({
+        id: 'proposed-bloom-' + String(index),
+        position: new CallbackPositionProperty(() => this.blooms[index], false),
+        ellipsoid: {
+          show: new CallbackProperty(
+            () => this.showPatch && index < this.bloomCount,
+            false,
+          ),
+          radii: new Cartesian3(1.6, 1.6, 0.85),
+          material: Color.fromCssColorString(
+            index % 3 === 0
+              ? '#f2d877'
+              : index % 3 === 1
+                ? '#eadcc6'
+                : '#c49daf',
+          ),
+          stackPartitions: 5,
+          slicePartitions: 6,
         },
       })
     }
@@ -129,7 +154,7 @@ export class LandscapeGraphics {
     weather: Weather,
   ): void {
     const growth = year === 0 ? 0.25 : year === 5 ? 0.6 : 1
-    this.radii = new Cartesian3(3.8 * growth, 3.8 * growth, 5.2 * growth)
+    this.radii = new Cartesian3(5 * growth, 5 * growth, 6.8 * growth)
     this.treeCount =
       year === 0
         ? choices.trees
@@ -156,11 +181,23 @@ export class LandscapeGraphics {
       const point = this.offset(center, bearing, east, north)
       tree.position = Cartesian3.fromDegrees(
         ...point,
-        ground + 2.5 + 5.2 * growth,
+        ground + 2.5 + 6.8 * growth,
       )
       tree.trunk = Cartesian3.fromDegrees(...point, ground + 1.5)
     })
     this.showPatch = choices.restoration !== 'none'
+    this.bloomCount = year === 0 ? 8 : year === 5 ? 20 : 32
+    this.blooms.forEach((_point, index) => {
+      this.blooms[index] = Cartesian3.fromDegrees(
+        ...this.offset(
+          center,
+          bearing,
+          112 + (index % 4) * 9,
+          -56 + Math.floor(index / 4) * 16,
+        ),
+        ground + 1.25,
+      )
+    })
     this.showPath = choices.access
     const recovery = year === 0 ? 0.3 : year === 5 ? 0.65 : 1
     this.patchColor = Color.fromCssColorString(
