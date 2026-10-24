@@ -38,12 +38,12 @@ The hackathon target is a focused, working interactive prototype. Scenarios, gam
 
 The challenge brief suggests the following resources; integrations have not been selected or implemented.
 
-| Resource | Potential use |
-| --- | --- |
-| ESA WorldCover | Land-cover baseline for a small starting landscape |
-| Trends.Earth | Historical land degradation and restoration context |
-| Stanford NatCap Data Hub and InVEST | Ecosystem-service inputs or scenario modeling |
-| FAO Earth Map | Climate, vegetation, and water context |
+| Resource                            | Potential use                                       |
+| ----------------------------------- | --------------------------------------------------- |
+| ESA WorldCover                      | Land-cover baseline for a small starting landscape  |
+| Trends.Earth                        | Historical land degradation and restoration context |
+| Stanford NatCap Data Hub and InVEST | Ecosystem-service inputs or scenario modeling       |
+| FAO Earth Map                       | Climate, vegetation, and water context              |
 
 Observed data can describe the starting landscape or historical conditions. Showing the consequences of a player's actions requires a separate, documented rule or model. Dataset suitability, licensing, attribution, and model assumptions must be checked before integration.
 
@@ -53,7 +53,31 @@ Linking educational credits to real planning or restoration funding is an option
 
 ## Project status
 
-Repository initialized for the hackathon. Application code, a technology stack, and local setup commands will be added as implementation begins.
+The app is scaffolded as a Vite + TypeScript project. Scenarios and gameplay are still to be selected.
+
+### Getting started
+
+Requires Node 24 or newer (see `.nvmrc`).
+
+```sh
+npm install
+npm run dev
+```
+
+Other scripts: `npm run build`, `npm test`, `npm run lint`, `npm run typecheck`, `npm run format`.
+
+### Stack
+
+| Concern         | Choice                                           |
+| --------------- | ------------------------------------------------ |
+| Build tool      | Vite                                             |
+| UI              | Vanilla TypeScript; frameworks added when needed |
+| Package manager | npm                                              |
+| Runtime         | Node 24 LTS                                      |
+| Lint and format | ESLint and Prettier                              |
+| Tests           | Vitest                                           |
+| Server          | Not decided; depends on the game loop            |
+| Hosting         | Not decided; kept host-agnostic                  |
 
 ### First milestones
 
