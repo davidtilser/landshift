@@ -1,0 +1,173 @@
+.ui-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  font: inherit;
+  color: #fff;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ui-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ui-button:focus-visible,
+.ui-icon-button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.ui-button-primary {
+  border-color: transparent;
+  font-weight: 600;
+  color: #04050a;
+  background: #e6f3ff;
+}
+
+.ui-button-primary:hover {
+  background: #fff;
+}
+
+.ui-button-quiet {
+  min-height: 36px;
+  padding: 6px 10px;
+  border-color: transparent;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.ui-button-quiet:hover {
+  color: #fff;
+}
+
+.ui-icon-button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 50%;
+  font:
+    italic 600 17px/1 Georgia,
+    'Times New Roman',
+    serif;
+  color: #fff;
+  background: rgba(4, 5, 10, 0.6);
+  cursor: pointer;
+}
+
+.ui-icon-button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.ui-centered-view {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  text-align: center;
+  color: #fff;
+  background: #04050a;
+}
+
+.ui-centered-view h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  line-height: 1.2;
+}
+
+.ui-centered-view h1:focus {
+  outline: none;
+}
+
+.credits-panel {
+  width: min(32rem, calc(100vw - 32px));
+  max-height: min(80vh, 40rem);
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.4;
+  color: #fff;
+  background: #0e111c;
+  color-scheme: dark;
+}
+
+.credits-panel::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.credits-panel-body {
+  padding: 20px 24px 24px;
+}
+
+.credits-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.credits-panel h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.credits-panel ul {
+  display: grid;
+  gap: 14px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.credits-panel li {
+  display: grid;
+  gap: 2px;
+}
+
+.credits-panel a {
+  color: #9fd3ff;
+}
+
+.credits-panel a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.credits-panel-meta {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.66);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ui-button,
+  .ui-icon-button {
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
+  }
+}
