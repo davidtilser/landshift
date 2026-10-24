@@ -258,6 +258,15 @@ async function start(): Promise<void> {
     mapError: toast,
   })
   const gameplay = new Gameplay(pack, {
+    communityChanged: (voice) => {
+      scene.setCommunityVoice(voice)
+    },
+    moveRequested: () => {
+      setPlacing(true)
+      toast(
+        'Try a new spot. The footprint and flood checks update when you place it.',
+      )
+    },
     stageChanged: (stage) => {
       scene.setFocus(stage)
     },

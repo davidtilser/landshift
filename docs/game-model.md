@@ -71,6 +71,12 @@ The scripted gathering highlights one unresolved concern, in priority order: map
 
 Animation runs at up to 24 frames per second, pauses in hidden tabs, and becomes static under reduced-motion settings. Small illustrated markers keep people and cars readable at game zoom levels; closer views retain their 3D geometry. Character sizes and motions are stylized for legibility. Their geometry and the resource gauges are excluded from terrain-height sampling.
 
+### Community voices and mini challenges
+
+Three fictional speakers—a neighbor, a nature volunteer and a local student—offer short, decision-dependent speech bubbles over game characters. One bubble is visible at a time. The current choice step selects a relevant speaker; the three speaker buttons let players hear another perspective without changing their plan. The same quote is available as a screen-reader announcement.
+
+One mini challenge suggests the next experiment, prioritizing footprint conflicts, spending above 100 credits, cooling water, nature, shared benefits, and remaining mapped flood exposure. Once those issues are addressed, it suggests comparing ten years. Tapping the challenge opens the relevant choices or enables placement; it never buys an upgrade or moves the campus automatically. Completing the current challenge shows a short success cue. These are exploration prompts, not additional ecological scores, permitting advice, or proof of public approval. A water-saving choice can still increase power use, and planting cannot satisfy the flood-exposure challenge.
+
 ### Individual game indices
 
 All indices are rounded and clamped to 0–100. They are neither physical units nor measured biodiversity, health, temperatures or public approval.
@@ -101,4 +107,4 @@ Ecological recovery, soil condition, flood protection, emissions, desertificatio
 
 ## Verification
 
-`consequences.test.ts` tests resource trade-offs, delayed growth, heat stress, persistent siting conflicts, non-cancellation of flood exposure, training/resource separation, and multiple feasible game strategies. Seven additional tests cover the fictional neighbor-reaction rule. Existing campus movement and rendering regression tests remain in place. Browser verification covers the choice → visible map change → comparison → revision loop.
+`consequences.test.ts` tests resource trade-offs, delayed growth, heat stress, persistent siting conflicts, non-cancellation of flood exposure, training/resource separation, and multiple feasible game strategies. Seven additional tests cover the fictional neighbor-reaction rule. `community.test.ts` checks short distinct voices, non-cancellation of concerns, challenge priorities, completion, and alternative ways to improve a plan. Existing campus movement and rendering regression tests remain in place. Browser verification covers the choice → visible map change → comparison → revision loop, switching speakers, and following a mini challenge.

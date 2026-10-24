@@ -22,6 +22,21 @@ import type { Position } from 'geojson'
 import type { DataPack } from './data.ts'
 import type { LngLat } from './geometry.ts'
 import type { PlanChoices, SiteContext } from './consequences.ts'
+import type { CommunityVoice } from './community.ts'
+
+function bubbleText(voice: CommunityVoice): string {
+  const lines: string[] = []
+  let line = ''
+  for (const word of voice.quote.split(' ')) {
+    if (line && line.length + word.length + 1 > 27) {
+      lines.push(line)
+      line = ''
+    }
+    line += (line ? ' ' : '') + word
+  }
+  if (line) lines.push(line)
+  return voice.name.toUpperCase() + '\n“' + lines.join('\n') + '”'
+}
 
 interface RoadPath {
   points: LngLat[]
@@ -235,7 +250,8 @@ export class AmbientLife {
   private datumOffset = 0
   private publicWalk = false
   private protestCount = 8
-  private protestText = 'Water matters'
+  private speechText = 'NEIGHBOR\n“Could we cool it\nwith less water?”'
+  private speaker = 0
   private signPosition = new Cartesian3()
   private elapsed = 0
   private previous = performance.now()
@@ -294,20 +310,39 @@ export class AmbientLife {
       id: 'imagined-neighbors-sign',
       position: new CallbackPositionProperty(() => this.signPosition, false),
       label: {
-        show: new CallbackProperty(() => this.protestCount > 0, false),
-        text: new CallbackProperty(
-          () => this.protestText + '\nGame characters',
-          false,
-        ),
+        text: new CallbackProperty(() => this.speechText, false),
         font: '600 13px sans-serif',
-        style: LabelStyle.FILL_AND_OUTLINE,
-        fillColor: Color.fromCssColorString('#fff7da'),
-        outlineColor: Color.fromCssColorString('#5d4534'),
-        outlineWidth: 2,
+        style: LabelStyle.FILL,
+        fillColor: Color.fromCssColorString('#294b3d'),
         showBackground: true,
-        backgroundColor: Color.fromCssColorString('#5f473c').withAlpha(0.9),
-        backgroundPadding: new Cartesian2(9, 7),
-        pixelOffset: new Cartesian2(0, -44),
+        backgroundColor: Color.fromCssColorString('#fffbed').withAlpha(0.97),
+        backgroundPadding: new Cartesian2(12, 10),
+        pixelOffset: new Cartesian2(0, -48),
+        scaleByDistance: new NearFarScalar(250, 1.1, 1800, 0.7),
+        distanceDisplayCondition: new DistanceDisplayCondition(0, 2000),
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      },
+    })
+    const tail = document.createElement('canvas')
+    tail.width = 24
+    tail.height = 20
+    const pen = tail.getContext('2d')
+    if (pen) {
+      pen.fillStyle = '#fffbed'
+      pen.beginPath()
+      pen.moveTo(0, 0)
+      pen.lineTo(24, 0)
+      pen.lineTo(12, 20)
+      pen.fill()
+    }
+    this.source.entities.add({
+      id: 'community-speech-tail',
+      position: new CallbackPositionProperty(() => this.signPosition, false),
+      billboard: {
+        image: tail,
+        width: 12,
+        height: 10,
+        pixelOffset: new Cartesian2(0, -16),
         scaleByDistance: new NearFarScalar(250, 1.1, 1800, 0.7),
         distanceDisplayCondition: new DistanceDisplayCondition(0, 2000),
         disableDepthTestDistance: Number.POSITIVE_INFINITY,
@@ -349,8 +384,17 @@ export class AmbientLife {
     this.publicWalk = choices.access
     const reaction = neighborReaction(choices, site)
     this.protestCount = reaction.count
-    this.protestText = reaction.text
     this.refresh(0, true)
+    this.viewer.scene.requestRender()
+  }
+
+  setVoice(voice: CommunityVoice): void {
+    const text = bubbleText(voice)
+    const speaker = voice.id === 'nature' ? 4 : voice.id === 'student' ? 8 : 0
+    if (text === this.speechText && speaker === this.speaker) return
+    this.speechText = text
+    this.speaker = speaker
+    this.refresh(0)
     this.viewer.scene.requestRender()
   }
 
@@ -747,14 +791,11 @@ export class AmbientLife {
         new HeadingPitchRoll(heading, 0, 0),
       )
     }
-    const signPoint = this.offset(0, -112)
-    this.signPosition = Cartesian3.fromDegrees(
-      ...signPoint,
-      this.heightAt(...signPoint) +
-        this.datumOffset +
-        (this.people[12]?.footing.correction ?? 0) +
-        8,
-    )
+    const speaker =
+      this.people[
+        this.speaker === 0 && this.protestCount > 0 ? 12 : this.speaker
+      ]
+    if (speaker) this.signPosition = speaker.head
   }
 
   private readonly onCameraStopped = (): void => {

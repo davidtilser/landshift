@@ -1,5 +1,11 @@
 import './gameplay.css'
 import { choiceArt } from './choice-art.ts'
+import {
+  communityVoices,
+  nextChallenge,
+  challengeCompleted,
+} from './community.ts'
+import type { CommunityVoice, VoiceId, MiniChallenge } from './community.ts'
 import type { DataPack } from './data.ts'
 import type { LngLat } from './geometry.ts'
 import {
@@ -33,6 +39,8 @@ interface Reflection {
   question: string
 }
 interface GameCallbacks {
+  communityChanged: (voice: CommunityVoice) => void
+  moveRequested: () => void
   beforeExperiment: () => void
   stageChanged: (stage: string) => void
   revealFuture: () => void
@@ -87,6 +95,9 @@ export class Gameplay {
   private running = false
   private playbackTimers: number[] = []
   private feedbackText = 'Try a card. Watch the map.'
+  private voiceId: VoiceId = 'neighbor'
+  private miniChallenge: MiniChallenge | undefined
+  private challengeWin = ''
   private weather: Weather = 'drought'
   private site: SiteContext = { ...emptySite }
   private center: LngLat
@@ -110,6 +121,7 @@ export class Gameplay {
     this.panel.setAttribute('aria-label', 'Design choices and challenge')
     this.panel.innerHTML = [
       '<header class="deck-heading"><div><span class="quest-kicker" id="quest-step">YOUR CITY · 1 / 3</span><h2 id="choice-question">Keep the servers cool.</h2></div><nav class="choice-tabs" role="tablist" aria-label="Your mission"><button id="tab-cooling" role="tab" aria-selected="true" aria-controls="choices-cooling" data-tab="cooling" title="Cooling">1<span>Cool</span></button><button id="tab-land" role="tab" aria-selected="false" aria-controls="choices-land" data-tab="land" title="Nature">2<span>Grow</span></button><button id="tab-people" role="tab" aria-selected="false" aria-controls="choices-people" data-tab="people" title="Neighbors">3<span>Share</span></button></nav><div class="game-budget" aria-label="Game credits remaining"><span class="coin">●</span><strong id="credits-left">100</strong><small>credits</small></div></header>',
+      '<div class="community-quest"><button class="mini-challenge" data-action="challenge"><span id="mini-challenge-status">MINI CHALLENGE</span><strong id="mini-challenge-title"></strong><b aria-hidden="true">↗</b></button><div class="voice-picks" role="group" aria-label="Hear fictional community voices"><button data-voice="neighbor" aria-label="Hear the neighbor" aria-pressed="true">💧</button><button data-voice="nature" aria-label="Hear the nature volunteer" aria-pressed="false">🌱</button><button data-voice="student" aria-label="Hear the local student" aria-pressed="false">🎒</button></div></div><p class="sr-only" id="community-quote" aria-live="polite"></p>',
       '<div class="choice-pages"><section id="choices-cooling" role="tabpanel" aria-labelledby="tab-cooling">' +
         choiceCard(
           'cooling',
@@ -303,6 +315,8 @@ export class Gameplay {
     this.running = false
     this.futureReady = false
     this.choices = { ...DEFAULT_CHOICES }
+    this.miniChallenge = undefined
+    this.challengeWin = ''
     this.activeTab = 'cooling'
     this.selectTab('cooling')
     this.year = 0
@@ -319,6 +333,38 @@ export class Gameplay {
   }
   private render(): void {
     const result = this.result()
+    const next = nextChallenge(this.choices, this.site)
+    if (this.miniChallenge && this.miniChallenge.id !== next.id) {
+      this.challengeWin = challengeCompleted(
+        this.miniChallenge.id,
+        this.choices,
+        this.site,
+      )
+        ? this.miniChallenge.celebration
+        : ''
+    }
+    this.miniChallenge = next
+    const questTitle = this.panel.querySelector('#mini-challenge-title')
+    if (questTitle) questTitle.textContent = next.title
+    const questStatus = this.panel.querySelector('#mini-challenge-status')
+    if (questStatus)
+      questStatus.textContent = this.challengeWin
+        ? '✓ ' + this.challengeWin
+        : 'MINI CHALLENGE'
+    const voices = communityVoices(this.choices, this.site)
+    const voice = voices.find((item) => item.id === this.voiceId)
+    if (voice) {
+      const quote = this.panel.querySelector('#community-quote')
+      if (quote) quote.textContent = voice.name + ': ' + voice.quote
+      this.callbacks.communityChanged(voice)
+    }
+    for (const button of this.panel.querySelectorAll<HTMLButtonElement>(
+      '[data-voice]',
+    ))
+      button.setAttribute(
+        'aria-pressed',
+        String(button.dataset['voice'] === this.voiceId),
+      )
     const baseline = evaluatePlan(
       this.referenceSite,
       DEFAULT_CHOICES,
@@ -439,9 +485,9 @@ export class Gameplay {
     const back = this.panel.querySelector('[data-action="back"]')
     if (back instanceof HTMLButtonElement)
       back.disabled = this.activeTab === 'cooling' && !this.futureReady
-    const next = this.panel.querySelector('[data-action="test"] > span')
-    if (next)
-      next.textContent = this.futureReady
+    const nextButton = this.panel.querySelector('[data-action="test"] > span')
+    if (nextButton)
+      nextButton.textContent = this.futureReady
         ? 'Compare plans'
         : this.activeTab === 'cooling'
           ? 'Grow next'
@@ -473,6 +519,8 @@ export class Gameplay {
   private selectTab(tab: string): void {
     if (this.running) return
     this.activeTab = tab
+    this.voiceId =
+      tab === 'land' ? 'nature' : tab === 'people' ? 'student' : 'neighbor'
     this.futureReady = false
     this.feedbackText =
       tab === 'cooling'
@@ -640,6 +688,26 @@ export class Gameplay {
     if (!(event.target instanceof Element)) return
     const button = event.target.closest('button')
     if (!(button instanceof HTMLButtonElement) || this.running) return
+    const voice = button.dataset['voice']
+    if (voice === 'neighbor' || voice === 'nature' || voice === 'student') {
+      this.voiceId = voice
+      this.render()
+      return
+    }
+    if (button.dataset['action'] === 'challenge') {
+      const target = this.miniChallenge?.target
+      this.callbacks.beforeExperiment()
+      if (target === 'move') {
+        this.voiceId = 'neighbor'
+        this.render()
+        this.callbacks.moveRequested()
+      } else if (target === 'future') {
+        this.startFuture()
+      } else if (target) {
+        this.selectTab(target)
+      }
+      return
+    }
     if (
       button.dataset['choice'] ||
       button.dataset['weather'] ||

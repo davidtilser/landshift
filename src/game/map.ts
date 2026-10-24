@@ -47,6 +47,7 @@ import { CampusGraphics } from './campus-graphics.ts'
 import { LandscapeGraphics } from './landscape-graphics.ts'
 import { DecisionEffects } from './decision-effects.ts'
 import { AmbientLife } from './ambient-life.ts'
+import type { CommunityVoice } from './community.ts'
 import { DEFAULT_CHOICES, assessSite } from './consequences.ts'
 import type {
   PlanChoices,
@@ -573,6 +574,10 @@ export class GameScene {
   setFocus(stage: string): void {
     this.decisionEffects.setFocus(stage)
     this.viewer.scene.requestRender()
+  }
+
+  setCommunityVoice(voice: CommunityVoice): void {
+    this.ambientLife.setVoice(voice)
   }
 
   private sampleSceneGround(center: LngLat): number | undefined {
