@@ -7,9 +7,13 @@
     "node": ">=24"
   },
   "scripts": {
+    "predev": "node scripts/setup-cesium.mjs",
+    "predev:game": "node scripts/setup-cesium.mjs",
+    "prebuild": "node scripts/setup-cesium.mjs",
     "dev": "vite",
     "dev:game": "vite --open /game.html",
-    "data:prepare": "node scripts/data/prepare-san-jose.mjs",
+    "data:prepare": "node scripts/data/prepare-san-jose.mjs && node scripts/data/prepare-cesium.mjs",
+    "data:cesium": "node scripts/data/prepare-cesium.mjs",
     "data:verify": "node scripts/data/verify-san-jose.mjs",
     "data:bundle": "npm run data:verify && tar -czf data/san-jose-dc04.tar.gz -C public/data san-jose-dc04",
     "build": "tsc && vite build",
@@ -37,10 +41,13 @@
     "vitest": "^4.1.12"
   },
   "dependencies": {
+    "@cesium/core": "^0.1.0",
+    "@cesium/engine": "^26.4.0",
     "@turf/area": "^7.4.0",
     "@turf/boolean-intersects": "^7.4.0",
     "@turf/helpers": "^7.4.0",
-    "maplibre-gl": "^6.15.0",
+    "cesium": "^1.146.0",
+    "earcut": "^3.2.4",
     "zod": "^4.6.7"
   }
 }

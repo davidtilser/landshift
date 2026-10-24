@@ -986,3 +986,306 @@ dialog ul {
     padding-bottom: 10px;
   }
 }
+
+/* Cesium scene and streamed imagery controls. */
+#map .cesium-viewer,
+#map .cesium-viewer-cesiumWidgetContainer,
+#map .cesium-widget,
+#map canvas {
+  width: 100%;
+  height: 100%;
+}
+#map .cesium-viewer-bottom {
+  bottom: 60px;
+}
+#map canvas:focus-visible {
+  outline: 2px solid #9bba93;
+  outline-offset: -3px;
+}
+.reality-button {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 13px 11px;
+  margin-top: 16px;
+  border: 1px solid #a3b79b;
+  border-radius: 8px;
+  background: linear-gradient(125deg, #e2ebdc, #f4f7ee);
+  text-align: left;
+  color: #476b45;
+  transition:
+    background 0.2s,
+    border 0.2s;
+}
+.reality-button > span:nth-child(2) {
+  flex: 1;
+}
+.reality-button strong {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+}
+.reality-button small {
+  display: block;
+  margin-top: 4px;
+  font-size: 8px;
+  color: #84977a;
+}
+.reality-button.active {
+  background: #365643;
+  border-color: #3e634c;
+  color: #f3f7ed;
+}
+.reality-button.active small {
+  color: #bdceb1;
+}
+.reality-orb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    #e4eeb9,
+    #8daf84 35%,
+    #4d7b73 65%,
+    #1e4449
+  );
+  box-shadow:
+    inset -3px -3px 6px #0f353c33,
+    0 1px 5px #35563826;
+  flex-shrink: 0;
+}
+.reality-button.connecting .reality-orb {
+  animation: breathe 1.5s infinite;
+}
+.offline-badge[data-connection='online'] > span:first-child {
+  background: #68a3ae;
+}
+.offline-badge[data-connection='connecting'] > span:first-child {
+  background: #b59d61;
+  animation: breathe 1.2s infinite;
+}
+.camera-presets {
+  position: absolute;
+  bottom: 112px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px;
+  display: flex;
+  gap: 3px;
+  z-index: 2;
+  border-radius: 7px;
+}
+.camera-presets button {
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #7b8c72;
+  font-size: 10px;
+}
+.camera-presets button.active {
+  background: #e0e9d6;
+  color: #3c603c;
+}
+.view-controls {
+  flex-direction: row;
+  bottom: 88px;
+}
+.control-divider {
+  width: 1px;
+  height: 21px;
+  margin: 6px 3px;
+}
+.location-chip {
+  bottom: 65px;
+}
+#cesium-credits {
+  position: absolute;
+  bottom: 58px;
+  right: 20px;
+  z-index: 3;
+  max-width: calc(50% - 145px);
+  color: #fff;
+  background: #172b32b0;
+  border-radius: 3px;
+  padding: 3px 6px;
+  font-size: 10px;
+  line-height: 1.5;
+}
+#cesium-credits:empty {
+  display: none;
+}
+#cesium-credits a {
+  color: #fff;
+}
+#cesium-credits .cesium-credit-textContainer {
+  font-size: 10px;
+}
+#cesium-credits img {
+  max-height: 22px;
+  vertical-align: middle;
+}
+#connect-form > label {
+  display: block;
+  margin: 25px 0 9px;
+  font-size: 12px;
+  font-weight: 550;
+}
+#ion-token {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #b7c6aa;
+  border-radius: 7px;
+  background: #fcfdf7;
+  color: #35523b;
+  font-size: 13px;
+}
+#connect-submit {
+  margin-top: 20px;
+  padding: 14px;
+}
+#connect-submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+#connect-message {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #887449;
+}
+.account-link {
+  font-size: 11px;
+  color: #597b4d;
+  text-underline-offset: 4px;
+}
+.campus-handle {
+  touch-action: none;
+  user-select: none;
+}
+.offline-badge {
+  white-space: nowrap;
+}
+@media (max-width: 1100px) {
+  .camera-presets {
+    left: 55%;
+  }
+  .camera-presets button {
+    padding: 8px;
+    font-size: 9px;
+  }
+  #cesium-credits {
+    right: 14px;
+    max-width: 300px;
+    bottom: 57px;
+  }
+  .location-chip {
+    left: 16px;
+    transform: none;
+    font-size: 8px;
+  }
+  .view-controls {
+    right: 16px;
+  }
+}
+@media (max-width: 760px) {
+  .reality-button {
+    margin-top: 10px;
+    padding: 9px;
+    gap: 7px;
+  }
+  .reality-button strong {
+    font-size: 9px;
+  }
+  .reality-button small {
+    font-size: 7px;
+  }
+  .reality-orb {
+    width: 20px;
+    height: 20px;
+  }
+  .camera-presets {
+    bottom: 155px;
+    left: auto;
+    right: 12px;
+    transform: none;
+    flex-direction: column;
+  }
+  .camera-presets button {
+    padding: 7px 9px;
+  }
+  .view-controls {
+    bottom: 92px;
+    right: 12px;
+  }
+  .location-chip {
+    bottom: 65px;
+  }
+  #cesium-credits {
+    max-width: 46%;
+    font-size: 9px;
+  }
+}
+.offline-badge > span:not(:first-child) {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  display: inline;
+}
+#cesium-credits {
+  width: min(580px, calc(100% - 350px));
+  max-width: none;
+  box-sizing: border-box;
+  text-align: right;
+}
+#cesium-credits .cesium-widget-credits {
+  position: static;
+  display: block;
+  max-width: 100%;
+  padding: 0;
+  line-height: 1.4;
+  white-space: normal;
+}
+#cesium-credits .cesium-credit-logoContainer,
+#cesium-credits .cesium-credit-textContainer {
+  display: inline;
+  white-space: normal;
+}
+@media (max-width: 1100px) {
+  #cesium-credits {
+    width: calc(100% - 310px);
+    max-width: none;
+    font-size: 9px;
+  }
+  .topbar {
+    gap: 16px;
+  }
+  .top-actions {
+    gap: 10px;
+  }
+  .offline-badge {
+    font-size: 9px;
+  }
+}
+.location-chip {
+  top: 90px;
+  bottom: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
+@media (max-width: 1100px) {
+  .location-chip {
+    top: 85px;
+    bottom: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    padding: 6px 9px;
+  }
+}
+
+.view-controls {
+  bottom: 126px;
+}

@@ -4,7 +4,7 @@ import prettier from 'eslint-config-prettier/flat'
 import tseslint from 'typescript-eslint'
 
 export default defineConfig([
-  globalIgnores(['dist/**', 'coverage/**']),
+  globalIgnores(['dist/**', 'coverage/**', 'public/cesium/**']),
   js.configs.recommended,
   {
     files: ['**/*.{ts,tsx,mts,cts}'],

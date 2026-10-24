@@ -1,10 +1,11 @@
-import 'maplibre-gl/dist/maplibre-gl.css'
+import 'cesium/Build/Cesium/Widgets/widgets.css'
 import './style.css'
-import { Marker } from 'maplibre-gl'
 import { readGameLaunch } from '../shared/game-launch.ts'
 import { getScenario, SAN_JOSE_SCENARIO_ID } from '../shared/scenarios.ts'
 import { loadDataPack } from './data.ts'
-import { createMap, addMapLayers, updateCampus } from './map.ts'
+import { GameScene } from './map.ts'
+import type { OnlineState } from './map.ts'
+import { loadElevationGrid } from './terrain.ts'
 import { campus, insideBounds, intersectingFeatures } from './geometry.ts'
 import type { LngLat } from './geometry.ts'
 
@@ -50,13 +51,13 @@ root.innerHTML = `
     <div id="map" aria-label="Interactive 3D map of North San José"></div>
     <header class="topbar">
       <a class="brand" href="./" aria-label="Landshift onboarding"><span class="brand-icon">${icon('leaf', 24)}</span>landshift<span class="brand-dot">.</span></a>
-      <div class="breadcrumbs"><span>California</span><span class="crumb-divider">/</span><span>San José</span><span class="edition">DESIGN LAB</span></div>
-      <nav class="top-actions" aria-label="Studio actions"><span class="offline-badge"><span></span> Offline map</span>${tool('credits', 'info', 'Data sources and limitations')}<button id="reset-plan" class="text-button">Reset design ${icon('reset', 15)}</button></nav>
+      <div class="breadcrumbs"><span>California</span><span class="crumb-divider">/</span><span>San José</span><span class="edition">CESIUM 3D</span></div>
+      <nav class="top-actions" aria-label="Studio actions"><span class="offline-badge"><span></span> <span id="connection-label">Local aerial</span></span>${tool('credits', 'info', 'Data sources and limitations')}<button id="reset-plan" class="text-button">Reset design ${icon('reset', 15)}</button></nav>
     </header>
     <section class="project-panel panel" aria-labelledby="project-title">
       <div class="eyebrow"><span class="tiny-dot"></span> A REAL PLACE. YOUR POSSIBILITIES.</div>
       <h1 id="project-title">A new kind<br>of neighbor.</h1>
-      <p class="project-subtitle">Reimagine a data center.<br>Make room for a better neighborhood.</p>
+      <p class="project-subtitle">Explore a real neighborhood.<br>Design what happens next.</p>
       <div class="project-reference"><span class="reference-icon">${icon('pin', 17)}</span><div><strong>North San José</strong><span>San José Data Center 04 · CP23-008</span></div></div>
       <div class="mode-tabs" role="group" aria-label="Workspace mode"><button id="mode-explore" aria-pressed="false">${icon('eye', 15)} Explore</button><button id="mode-design" class="selected" aria-pressed="true">${icon('cube', 15)} Design</button></div>
       <section class="design-section" aria-label="Concept campus controls">
@@ -73,7 +74,7 @@ root.innerHTML = `
     </section>
     <aside class="layers-panel panel" aria-labelledby="layers-title">
       <div class="section-heading"><h2 id="layers-title">Read the landscape</h2>${icon('layers', 17)}</div>
-      <div class="basemap-picker" role="group" aria-label="Basemap"><button id="landscape" class="active" aria-pressed="true"><span class="map-swatch landscape-swatch"></span>Landscape</button><button id="aerial" aria-pressed="false"><span class="map-swatch aerial-swatch"></span>Aerial</button></div>
+      <button id="reality" class="reality-button" aria-pressed="false"><span class="reality-orb"></span><span><strong>Photorealistic 3D</strong><small>Explore the real city</small></span>${icon('arrow', 16)}</button><div class="basemap-picker" role="group" aria-label="Local basemap"><button id="landscape" aria-pressed="false"><span class="map-swatch landscape-swatch"></span>Landscape</button><button id="aerial" class="active" aria-pressed="true"><span class="map-swatch aerial-swatch"></span>Aerial</button></div>
       <div class="layer-list">
         <label><span><i class="legend-square buildings-key"></i>3D buildings</span><input type="checkbox" data-layer="buildings" checked></label>
         <label><span><i class="legend-circle trees-key"></i>Street trees</span><input type="checkbox" data-layer="trees" checked></label>
@@ -85,11 +86,12 @@ root.innerHTML = `
       <button id="layer-credits" class="source-link">Real geography. Transparent assumptions. ${icon('arrow', 13)}</button>
     </aside>
     <div class="view-controls panel" role="group" aria-label="Map navigation">${tool('zoom-in', 'plus', 'Zoom in')}${tool('zoom-out', 'minus', 'Zoom out')}<span class="control-divider"></span>${tool('north', 'compass', 'Face north')}<button id="perspective" class="icon-button view-label" aria-label="Switch to top-down view" aria-pressed="true">3D</button>${tool('home-view', 'expand', 'Frame project site')}</div>
-    <div class="location-chip">${icon('pin', 14)} <span id="coordinates">37.3786° N · 121.9332° W</span><span class="location-divider"></span><span id="zoom-label">Z 16.1</span></div>
-    <footer class="bottom-bar"><div class="navigation-hint"><span>${icon('move', 15)} Drag to pan</span><span><kbd>Scroll</kbd> Zoom</span><span><kbd>Right drag</kbd> Orbit & tilt</span><button id="help">More controls</button></div><div class="attribution">© OpenStreetMap · City of San José · USDA NAIP · Mapzen</div></footer>
+    <nav class="camera-presets panel" aria-label="Camera views"><button data-camera="neighborhood">Neighborhood</button><button data-camera="site" class="active">Project site</button><button data-camera="street">Close-up</button></nav><div id="cesium-credits"></div><div class="location-chip">${icon('pin', 14)} <span id="coordinates">37.3786° N · 121.9332° W</span><span class="location-divider"></span><span id="zoom-label">CESIUM 3D</span></div>
+    <footer class="bottom-bar"><div class="navigation-hint"><span>${icon('move', 15)} Drag to pan</span><span><kbd>Scroll</kbd> Zoom</span><span><kbd>Right drag</kbd> Orbit & tilt</span><button id="help">More controls</button></div><div class="attribution">CesiumJS · City of San José · Local data + streamed 3D</div></footer>
     <div id="toast" role="status" aria-live="polite" hidden></div>
-    <div id="loading" class="loading-screen"><div class="loading-card"><span class="loading-mark">${icon('leaf', 34)}</span><h2>Getting to know the neighborhood.</h2><p id="loading-message">Opening your local San José geography…</p><div class="loading-line"></div></div></div>
-    <dialog id="info-dialog"><div class="dialog-top"><span class="eyebrow">BEHIND THE LANDSCAPE</span>${tool('close-dialog', 'close', 'Close information')}</div><h2>A real place.<br>A clearly labeled possibility.</h2><p>This is a local planning sketch around the real San José Data Center 04 proposal. The movable campus is an illustrative alternative, not the applicant’s engineering design.</p><div id="pack-summary"></div><h3>Move through the neighborhood</h3><div class="keyboard-guide"><span>Pan</span><strong>Drag · arrow keys · W A S D</strong><span>Zoom</span><strong>Scroll · + / −</strong><span>Orbit & tilt</span><strong>Right drag · Shift + arrows</strong><span>Place campus</span><strong>Drag green handle · Move campus, then click</strong><span>Move focused handle</span><strong>Arrow keys · Shift for larger steps</strong><span>Cancel placement</span><strong>Esc</strong></div><h3>Know what the data can tell you</h3><ul id="limitations"></ul><p class="dialog-footnote">All map assets are served from this computer. No external mapping API is used while you explore. Environmental, economic, and social consequence models are a next step.</p></dialog>
+    <div id="loading" class="loading-screen"><div class="loading-card"><span class="loading-mark">${icon('leaf', 34)}</span><h2>Welcome to the neighborhood.</h2><p id="loading-message">Opening the 3D planning scene…</p><div class="loading-line"></div></div></div>
+    <dialog id="connect-dialog"><div class="dialog-top"><span class="eyebrow">GOOGLE PHOTOREALISTIC 3D · CESIUM ION</span><button id="close-connect" class="icon-button" aria-label="Close connection settings">${icon('close')}</button></div><h2>A real city.<br>In a new dimension.</h2><p>Connect your Cesium ion account to explore San José with photorealistic buildings, trees and terrain. This view uses an internet connection and your account quota.</p><form id="connect-form"><label for="ion-token">Cesium ion access token</label><input id="ion-token" type="password" autocomplete="off" spellcheck="false" placeholder="Your browser-safe, read-only token" required><p class="field-note">Kept in this tab’s session, never committed to the repository. You can also configure VITE_CESIUM_ION_TOKEN in .env.local.</p><button id="connect-submit" class="primary-button" type="submit">Connect photorealistic 3D ${icon('arrow', 17)}</button><p id="connect-message" role="status"></p></form><a class="account-link" href="https://ion.cesium.com/tokens" target="_blank" rel="noopener noreferrer">Open Cesium ion access tokens ↗</a></dialog>
+    <dialog id="info-dialog"><div class="dialog-top"><span class="eyebrow">BEHIND THE LANDSCAPE</span>${tool('close-dialog', 'close', 'Close information')}</div><h2>A real place.<br>A clearly labeled possibility.</h2><p>This is a local planning sketch around the real San José Data Center 04 proposal. The movable campus is an illustrative alternative, not the applicant’s engineering design.</p><div id="pack-summary"></div><p>Photorealistic mode streams Google 3D Tiles through your Cesium ion account and requires internet. Aerial and landscape views use the local pack. Building heights in local views may be approximations.</p><h3>Move through the neighborhood</h3><div class="keyboard-guide"><span>Pan</span><strong>Drag · arrow keys · W A S D</strong><span>Zoom</span><strong>Scroll · + / −</strong><span>Orbit & tilt</span><strong>Right drag · Shift + arrows</strong><span>Place campus</span><strong>Drag green handle · Move campus, then click</strong><span>Move focused handle</span><strong>Arrow keys · Shift for larger steps</strong><span>Cancel placement</span><strong>Esc</strong></div><h3>Know what the data can tell you</h3><ul id="limitations"></ul><p class="dialog-footnote">Local views use downloaded assets. Photorealistic mode streams Google 3D Tiles with provider attribution; it is not stored in the offline pack. Environmental, economic, and social consequence models are a next step.</p></dialog>
   </main>
 `
 
@@ -121,11 +123,10 @@ async function start(): Promise<void> {
       'This scenario is not available. Return to onboarding and choose San José Data Center 04.',
     )
   const pack = await loadDataPack()
-  const map = createMap(pack)
+  const grid = await loadElevationGrid(pack.baseUrl)
   let center: LngLat = [...pack.manifest.center]
   let bearing = 28
   let placing = false
-  let aerial = false
   let is3D = true
   const handle = document.createElement('button')
   handle.className = 'campus-handle'
@@ -135,24 +136,58 @@ async function start(): Promise<void> {
     'aria-label',
     'Move concept campus. Drag, or focus and use arrow keys.',
   )
-  const marker = new Marker({
-    element: handle,
-    draggable: true,
-    anchor: 'bottom',
-    offset: [0, -26],
-  }).setLngLat(center)
   const rotation = el('#rotation', HTMLInputElement)
   const placeButton = el('#place', HTMLButtonElement)
   const hint = el('#placement-hint', HTMLParagraphElement)
+  const connectDialog = el('#connect-dialog', HTMLDialogElement)
+  const connectionMessage = el('#connect-message', HTMLParagraphElement)
+  const tokenField = el('#ion-token', HTMLInputElement)
+  const connectSubmit = el('#connect-submit', HTMLButtonElement)
+  const configuredToken: unknown = import.meta.env['VITE_CESIUM_ION_TOKEN']
+  let token = typeof configuredToken === 'string' ? configuredToken.trim() : ''
+  try {
+    token = sessionStorage.getItem('landshift.cesium.token') || token
+  } catch {
+    /* Session storage may be disabled. */
+  }
 
-  function setPlacing(value: boolean): void {
-    placing = value
-    placeButton.classList.toggle('placing', value)
-    placeButton.setAttribute('aria-pressed', String(value))
-    hint.textContent = value
-      ? 'Click a spot inside the study area. Esc to cancel.'
-      : 'Drag the green handle, or choose a new spot on the map.'
-    map.getCanvas().style.cursor = value ? 'crosshair' : ''
+  function setBasemapButtons(selected: string): void {
+    for (const id of ['aerial', 'landscape', 'reality']) {
+      const button = el(`#${id}`, HTMLButtonElement)
+      button.classList.toggle('active', id === selected)
+      button.setAttribute('aria-pressed', String(id === selected))
+    }
+  }
+  function onlineState(state: OnlineState): void {
+    const labels: Record<OnlineState, string> = {
+      local: 'Local aerial',
+      connecting: 'Connecting 3D…',
+      online: 'Photorealistic 3D',
+      error: 'Local fallback',
+    }
+    el('#connection-label', HTMLSpanElement).textContent = labels[state]
+    el('.offline-badge', HTMLSpanElement).dataset['connection'] = state
+    el('#reality', HTMLButtonElement).classList.toggle(
+      'connecting',
+      state === 'connecting',
+    )
+    const buildingToggle = document
+      .querySelector<HTMLInputElement>('[data-layer="buildings"]')
+      ?.closest('label')
+    if (buildingToggle instanceof HTMLElement)
+      buildingToggle.hidden = state === 'online'
+    if (state === 'online') {
+      setBasemapButtons('reality')
+      connectionMessage.textContent =
+        'Connected. Explore the photorealistic neighborhood.'
+      connectDialog.close()
+    }
+    if (state === 'error') {
+      setBasemapButtons('aerial')
+      toast(
+        'Photorealistic 3D could not connect. The local aerial map is still available.',
+      )
+    }
   }
   function refreshSignals(): void {
     const proposal = campus(center, bearing)
@@ -164,10 +199,12 @@ async function start(): Promise<void> {
       proposal.footprints,
       pack.layers.trees,
     )
-    const floodCount = intersectingFeatures(
-      proposal.footprints,
-      pack.layers.flood,
-    )
+    const floodCount = intersectingFeatures(proposal.footprints, {
+      type: 'FeatureCollection',
+      features: pack.layers.flood.features.filter(
+        (f) => f.properties?.['SFHATF'] === 'T',
+      ),
+    })
     el('#signals-content', HTMLDivElement).innerHTML = `
       <div class="signal-row"><span class="signal-icon good">${icon('check', 13)}</span><span>Inside the study area</span><strong>Yes</strong></div>
       <div class="signal-row"><span class="signal-icon ${buildingCount ? 'caution' : 'good'}">${icon(buildingCount ? 'cube' : 'check', 13)}</span><span>Building overlaps</span><strong>${String(buildingCount)}</strong></div>
@@ -177,107 +214,132 @@ async function start(): Promise<void> {
   }
   function update(check = false): void {
     const proposal = campus(center, bearing)
-    updateCampus(map, proposal.volumes)
-    marker.setLngLat(center)
+    scene.updateCampus(proposal.volumes, center, bearing)
     el('#rotation-value', HTMLOutputElement).value = `${bearing.toFixed(0)}°`
     el('#footprint', HTMLElement).textContent =
       `${Math.round(proposal.area).toLocaleString()} m²`
     if (check) refreshSignals()
   }
-  function move(next: LngLat): void {
+  function move(next: LngLat, check: boolean): void {
     if (
       !insideBounds(campus(next, bearing).volumes, pack.manifest.playableBounds)
     ) {
-      marker.setLngLat(center)
-      toast(
-        'Keep the whole campus inside the study area. Zoom out to see its boundary.',
-      )
+      if (check)
+        toast(
+          'Keep the whole campus inside the study area. Choose the neighborhood view to see its boundary.',
+        )
       return
     }
     center = next
-    update(true)
+    update(check)
   }
+  function setPlacing(value: boolean): void {
+    placing = value
+    scene.setPlacing(value)
+    placeButton.classList.toggle('placing', value)
+    placeButton.setAttribute('aria-pressed', String(value))
+    hint.textContent = value
+      ? 'Click a spot inside the study area. Esc to cancel.'
+      : 'Drag the green handle, or choose a new spot on the map.'
+  }
+  const scene = new GameScene(pack, grid, handle, {
+    cameraChanged: (camera) => {
+      el('#coordinates', HTMLSpanElement).textContent =
+        `${camera.lat.toFixed(4)}° N · ${Math.abs(camera.lng).toFixed(4)}° W`
+      el('#zoom-label', HTMLSpanElement).textContent =
+        `${Math.round(camera.height).toLocaleString()} m`
+      el('#north', HTMLButtonElement).style.setProperty(
+        '--bearing',
+        `${(-camera.heading).toFixed(1)}deg`,
+      )
+      is3D = camera.is3D
+      const button = el('#perspective', HTMLButtonElement)
+      button.textContent = is3D ? '3D' : '2D'
+      button.setAttribute(
+        'aria-label',
+        is3D ? 'Switch to top-down view' : 'Switch to 3D view',
+      )
+      button.setAttribute('aria-pressed', String(is3D))
+    },
+    positionRequested: (position) => {
+      move(position, true)
+      setPlacing(false)
+    },
+    dragged: (position, finished) => {
+      move(position, finished)
+    },
+    onlineChanged: onlineState,
+    mapError: toast,
+  })
+  update(true)
+  el('#loading', HTMLDivElement).hidden = true
 
-  const summary = el('#pack-summary', HTMLDivElement)
-  const summaryText = document.createElement('p')
-  summaryText.className = 'pack-facts'
-  summaryText.textContent = `Aerial photography: ${pack.manifest.imageryDate} · Original resolution: 60 cm · Local pack: ${(pack.manifest.totalBytes / 1024 / 1024).toFixed(1)} MiB. Includes ${String(pack.layers.buildings.features.length)} building tile features, ${String(pack.layers.parcels.features.length)} parcels and ${pack.layers.trees.features.length.toLocaleString()} street-tree records.`
-  summary.append(summaryText)
+  const summary = document.createElement('p')
+  summary.className = 'pack-facts'
+  summary.textContent = `Local imagery: ${pack.manifest.imageryDate} · Source resolution: 60 cm · Local pack: ${(pack.manifest.totalBytes / 1024 / 1024).toFixed(1)} MiB. Photorealistic mode uses a separate streamed dataset whose imagery dates vary.`
+  el('#pack-summary', HTMLDivElement).append(summary)
   for (const text of pack.manifest.limitations) {
     const item = document.createElement('li')
     item.textContent = text
     el('#limitations', HTMLUListElement).append(item)
   }
-  map.on('error', (event) => {
-    console.error('Local map error:', event.error)
-    toast(
-      'A local map asset could not load. Check the data pack before presenting.',
-    )
-  })
-  map.on('load', () => {
-    addMapLayers(map, pack)
-    marker.addTo(map)
-    update(true)
-    el('#loading', HTMLDivElement).hidden = true
-  })
-  map.on('move', () => {
-    const camera = map.getCenter()
-    el('#coordinates', HTMLSpanElement).textContent =
-      `${camera.lat.toFixed(4)}° N · ${Math.abs(camera.lng).toFixed(4)}° W`
-    el('#zoom-label', HTMLSpanElement).textContent =
-      `Z ${map.getZoom().toFixed(1)}`
-    el('#north', HTMLButtonElement).style.setProperty(
-      '--bearing',
-      `${(-map.getBearing()).toFixed(1)}deg`,
-    )
-  })
-  map.on('moveend', () => {
-    is3D = map.getPitch() > 1
-    const button = el('#perspective', HTMLButtonElement)
-    button.textContent = is3D ? '3D' : '2D'
-    button.setAttribute(
-      'aria-label',
-      is3D ? 'Switch to top-down view' : 'Switch to 3D view',
-    )
-    button.setAttribute('aria-pressed', String(is3D))
-  })
-  map.on('click', (event) => {
-    if (!placing) return
-    move([event.lngLat.lng, event.lngLat.lat])
-    setPlacing(false)
-  })
-  marker.on('drag', () => {
-    const p = marker.getLngLat()
-    if (
-      insideBounds(
-        campus([p.lng, p.lat], bearing).volumes,
-        pack.manifest.playableBounds,
-      )
-    ) {
-      center = [p.lng, p.lat]
-      updateCampus(map, campus(center, bearing).volumes)
+  async function connect(): Promise<void> {
+    if (!token) {
+      connectDialog.showModal()
+      tokenField.focus()
+      return
     }
+    connectSubmit.disabled = true
+    connectionMessage.textContent = 'Connecting to Cesium ion…'
+    try {
+      await scene.connectPhotorealistic(token)
+      try {
+        sessionStorage.setItem('landshift.cesium.token', token)
+      } catch {
+        /* Session storage is optional. */
+      }
+    } catch (error: unknown) {
+      connectionMessage.textContent =
+        error instanceof Error
+          ? error.message
+          : 'Could not connect to 3D imagery.'
+    } finally {
+      connectSubmit.disabled = false
+    }
+  }
+  el('#reality', HTMLButtonElement).addEventListener('click', () => {
+    void connect()
   })
-  marker.on('dragend', () => {
-    const p = marker.getLngLat()
-    move([p.lng, p.lat])
+  el('#connect-form', HTMLFormElement).addEventListener('submit', (event) => {
+    event.preventDefault()
+    token = tokenField.value.trim()
+    void connect()
   })
-  handle.addEventListener('click', (event) => {
-    event.stopPropagation()
+  el('#close-connect', HTMLButtonElement).addEventListener('click', () => {
+    connectDialog.close()
   })
+  connectDialog.addEventListener('click', (event) => {
+    if (event.target === connectDialog) connectDialog.close()
+  })
+  if (token) void connect()
+  else
+    toast(
+      'Cesium 3D is ready. Connect your ion account for photorealistic surroundings.',
+    )
+
   handle.addEventListener('keydown', (event) => {
     const step = event.shiftKey ? 0.0002 : 0.00004
-    const delta: Record<string, LngLat> = {
+    const deltas: Record<string, LngLat> = {
       ArrowLeft: [-step, 0],
       ArrowRight: [step, 0],
       ArrowUp: [0, step],
       ArrowDown: [0, -step],
     }
-    const value = delta[event.key]
-    if (!value) return
+    const delta = deltas[event.key]
+    if (!delta) return
     event.preventDefault()
     event.stopPropagation()
-    move([center[0] + value[0], center[1] + value[1]])
+    move([center[0] + delta[0], center[1] + delta[1]], true)
   })
   rotation.addEventListener('input', () => {
     const next = Number(rotation.value)
@@ -294,11 +356,8 @@ async function start(): Promise<void> {
   placeButton.addEventListener('click', () => {
     setPlacing(!placing)
   })
-
   function setMode(design: boolean): void {
-    handle.dataset['mode'] = design ? 'design' : 'explore'
-    handle.hidden = !design
-    marker.setDraggable(design)
+    scene.setDesignMode(design)
     el('.design-section', HTMLElement).hidden = !design
     for (const [id, active] of [
       ['mode-design', design],
@@ -311,8 +370,6 @@ async function start(): Promise<void> {
       )
     }
     setPlacing(false)
-    if (!design)
-      toast('Explore the real neighborhood. Your concept stays on the map.')
   }
   el('#mode-design', HTMLButtonElement).addEventListener('click', () => {
     setMode(true)
@@ -324,73 +381,41 @@ async function start(): Promise<void> {
     '[data-layer]',
   ))
     input.addEventListener('change', () => {
-      const name = input.dataset['layer']
-      if (name)
-        map.setLayoutProperty(
-          name,
-          'visibility',
-          input.checked ? 'visible' : 'none',
-        )
+      const layer = input.dataset['layer']
+      if (layer) scene.setLayer(layer, input.checked)
     })
-  function setBasemap(value: boolean): void {
-    aerial = value
-    map.setLayoutProperty('aerial', 'visibility', aerial ? 'visible' : 'none')
-    map.setPaintProperty('roads', 'line-opacity', aerial ? 0.18 : 1)
-    map.setPaintProperty('roads-outline', 'line-opacity', aerial ? 0 : 1)
-    map.setPaintProperty(
-      'buildings',
-      'fill-extrusion-opacity',
-      aerial ? 0.65 : 0.96,
-    )
-    for (const [id, active] of [
-      ['aerial', aerial],
-      ['landscape', !aerial],
-    ] as const) {
-      el(`#${id}`, HTMLButtonElement).classList.toggle('active', active)
-      el(`#${id}`, HTMLButtonElement).setAttribute(
-        'aria-pressed',
-        String(active),
-      )
-    }
-    if (aerial)
-      toast(
-        `USDA NAIP aerial photography · ${pack.manifest.imageryDate} · historical snapshot`,
-      )
-  }
-  el('#aerial', HTMLButtonElement).addEventListener('click', () => {
-    setBasemap(true)
-  })
-  el('#landscape', HTMLButtonElement).addEventListener('click', () => {
-    setBasemap(false)
-  })
+  for (const id of ['aerial', 'landscape'] as const)
+    el(`#${id}`, HTMLButtonElement).addEventListener('click', () => {
+      scene.setLocalStyle(id)
+      setBasemapButtons(id)
+      el('#connection-label', HTMLSpanElement).textContent =
+        id === 'aerial' ? 'Local aerial' : 'Local landscape'
+    })
+  for (const button of document.querySelectorAll<HTMLButtonElement>(
+    '[data-camera]',
+  ))
+    button.addEventListener('click', () => {
+      const preset = button.dataset['camera']
+      if (preset !== 'site' && preset !== 'street' && preset !== 'neighborhood')
+        return
+      scene.setCamera(preset)
+      for (const item of document.querySelectorAll('[data-camera]'))
+        item.classList.toggle('active', item === button)
+    })
   el('#zoom-in', HTMLButtonElement).addEventListener('click', () => {
-    map.zoomIn()
+    scene.zoom(true)
   })
   el('#zoom-out', HTMLButtonElement).addEventListener('click', () => {
-    map.zoomOut()
+    scene.zoom(false)
   })
   el('#north', HTMLButtonElement).addEventListener('click', () => {
-    map.easeTo({ bearing: 0, duration: 700 })
+    scene.faceNorth()
   })
   el('#home-view', HTMLButtonElement).addEventListener('click', () => {
-    map.flyTo({
-      center: pack.manifest.center,
-      zoom: 16.1,
-      pitch: 54,
-      bearing: -28,
-      duration: 1400,
-    })
+    scene.setCamera('site')
   })
   el('#perspective', HTMLButtonElement).addEventListener('click', () => {
-    is3D = !is3D
-    map.easeTo({ pitch: is3D ? 54 : 0, duration: 800 })
-    const button = el('#perspective', HTMLButtonElement)
-    button.textContent = is3D ? '3D' : '2D'
-    button.setAttribute(
-      'aria-label',
-      is3D ? 'Switch to top-down view' : 'Switch to 3D view',
-    )
-    button.setAttribute('aria-pressed', String(is3D))
+    scene.topDown(is3D)
   })
   el('#reset-plan', HTMLButtonElement).addEventListener('click', () => {
     center = [...pack.manifest.center]
@@ -404,6 +429,7 @@ async function start(): Promise<void> {
     if (event.key === 'Escape') setPlacing(false)
     if (
       dialog.open ||
+      connectDialog.open ||
       event.target instanceof HTMLInputElement ||
       event.target instanceof HTMLButtonElement ||
       event.metaKey ||
@@ -411,22 +437,34 @@ async function start(): Promise<void> {
       event.altKey
     )
       return
-    const delta: Record<string, [number, number]> = {
-      w: [0, -80],
-      a: [-80, 0],
-      s: [0, 80],
-      d: [80, 0],
+    const deltas: Record<string, [number, number]> = {
+      w: [0, -65],
+      a: [-65, 0],
+      s: [0, 65],
+      d: [65, 0],
     }
-    const direction = delta[event.key.toLowerCase()]
-    if (!direction) return
+    const delta = deltas[event.key.toLowerCase()]
+    const arrows: Record<string, [number, number]> = {
+      ArrowLeft: [-65, 0],
+      ArrowRight: [65, 0],
+      ArrowUp: [0, -65],
+      ArrowDown: [0, 65],
+    }
+    const arrow = arrows[event.key]
+    if (arrow) {
+      event.preventDefault()
+      if (event.shiftKey) scene.orbit(arrow[0] / 10, -arrow[1] / 10)
+      else scene.pan(...arrow)
+      return
+    }
+    if (!delta) return
     event.preventDefault()
-    map.panBy(direction, { duration: 180 })
+    scene.pan(...delta)
   })
   window.addEventListener(
     'pagehide',
     () => {
-      marker.remove()
-      map.remove()
+      scene.destroy()
     },
     { once: true },
   )
@@ -434,9 +472,8 @@ async function start(): Promise<void> {
 
 void start().catch((error: unknown) => {
   el('#loading-message', HTMLParagraphElement).textContent =
-    error instanceof Error ? error.message : 'The local map could not start.'
+    error instanceof Error ? error.message : 'The 3D scene could not start.'
   el('.loading-card h2', HTMLElement).textContent =
-    'The map needs a little preparation.'
+    'The scene needs a little preparation.'
   el('.loading-line', HTMLElement).hidden = true
-  console.error(error)
 })

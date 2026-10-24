@@ -1,6 +1,6 @@
 # Geographic data workspace
 
-All external downloads happen during data preparation. The running demo uses local files only, including map styles, imagery, elevation, fonts, icons, and models.
+Local aerial and landscape views use prepared files only. The optional Cesium photorealistic view streams Google 3D Tiles through a configured Cesium ion account; that provider data is not included in this offline pack.
 
 ## Layout
 
@@ -8,7 +8,7 @@ All external downloads happen during data preparation. The running demo uses loc
 - `data/processed/`: temporary processing outputs; ignored by Git.
 - `public/data/`: prepared runtime packs; large generated files are ignored by Git.
 
-The first San José pack is prepared locally: about 31 MiB across 905 runtime assets. It includes a 4096 × 4096 aerial mosaic and 819 derived raster tiles, a local elevation pyramid, building geometry, city GIS layers and map glyphs. `data/manifests/san-jose-dc04.json` records sources, acquisition dates, checksums and limitations. A placeholder must never be presented as a measured real-world feature.
+The first San José pack is prepared locally: about 31 MiB across 906 runtime assets, including the Cesium elevation adapter. It includes a 4096 × 4096 aerial mosaic and 819 derived raster tiles, a local elevation pyramid, building geometry, city GIS layers and map glyphs. `data/manifests/san-jose-dc04.json` records sources, acquisition dates, checksums and limitations. A placeholder must never be presented as a measured real-world feature.
 
 ## Prepare, verify and share
 
@@ -16,6 +16,8 @@ The first San José pack is prepared locally: about 31 MiB across 905 runtime as
 npm install
 npm run data:prepare  # Internet required only during preparation
 npm run data:verify   # Checks hashes, file sizes, imagery and WGS84 geometry
+# For an existing pack from the MapLibre version, run once:
+npm run data:cesium   # Derives Cesium terrain locally; no downloads
 npm run dev:game      # Runtime assets all come from localhost
 ```
 
@@ -31,7 +33,7 @@ tar -xzf data/san-jose-dc04.tar.gz -C public/data
 npm run data:verify
 ```
 
-`npm run build` copies the prepared pack into `dist/data/`. The resulting build can be served entirely offline over localhost. Browsers still load files on demand from the local server; the data does not all need to be held in memory. The game page enforces `connect-src 'self'` and the renderer rejects external map requests.
+`npm run build` copies the prepared pack into `dist/data/`. Its local aerial and landscape views can be served entirely offline over localhost. Photorealistic 3D requires an internet connection and a configured account token. Browsers still load files on demand from the local server; the data does not all need to be held in memory. The local views do not require external map requests. The page permits the specific Cesium/Google hosts needed for the optional streamed view.
 
 ## First pack: `san-jose-dc04`
 

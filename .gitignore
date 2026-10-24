@@ -19,6 +19,7 @@ dist-ssr
 /data/*.tar.gz
 /public/data/*
 !/public/data/.gitkeep
+/public/cesium/
 
 # Editor directories and files
 .vscode/*

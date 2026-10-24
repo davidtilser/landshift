@@ -54,4 +54,24 @@ When both parts are ready, the visible integration work is one start button call
 4. **Placement:** move and rotate an illustrative two-block campus inside the playable boundary; building, tree and special flood-area intersections are shown.
 5. **Learning loop:** compare development and restoration choices with documented environmental, social, and economic consequences.
 
-The current game page is a working map proposal. Drag to pan, scroll to zoom, right-drag to orbit and tilt, and use the 2D/3D toggle or frame-site control to reset the view. Move the concept with its handle or click **Move campus** and select a location. Focus the handle and use arrow keys for precise movement. Consequence and restoration models are not implemented yet.
+The current game page uses CesiumJS. Drag to pan, scroll to zoom, right-drag to orbit and tilt, and use the 2D/3D toggle or frame-site control to reset the view. Camera presets fly between neighborhood, project and close-up views. Move the concept with its handle or click **Move campus** and select a location. Focus the handle and use arrow keys for precise movement. Consequence and restoration models are not implemented yet.
+
+## Cesium renderer
+
+`src/game/map.ts` owns the Cesium scene, camera, local geometry and streamed tiles. `src/game/terrain.ts` adapts the prepared elevation grid. The native `CesiumWidget` is used with our own UI, avoiding the default Viewer widgets and their script-evaluation requirement. Cesium's engine and core packages are the renderer; the `cesium` package supplies version-matched static workers, decoders and assets.
+
+The `predev`, `predev:game` and `prebuild` hooks copy those static resources into ignored `public/cesium/`. They are served locally and included in production builds. Do not edit copied vendor resources.
+
+### Local and photorealistic views
+
+- **Aerial / Landscape:** use the local NAIP imagery, prepared heightmap, OSM-derived buildings and city GIS layers.
+- **Photorealistic 3D:** streams Google 3D Tiles from Cesium ion asset `2275207`. The local globe imagery and OSM buildings are hidden to avoid duplicate surfaces. City inventory overlays and the proposed campus remain independent layers. Cesium's native provider credits remain visible.
+- **No token or a failed connection:** the local scene remains available. The online dataset is not downloaded into the offline pack.
+
+Configure `VITE_CESIUM_ION_TOKEN` in ignored `.env.local`, or use the connection dialog, which stores a supplied token in session storage only. Restart Vite after changing its environment configuration. Google Photorealistic 3D Tiles must be available to the account/token. A browser token is visible to the client; use read-only permissions and appropriate URL restrictions.
+
+The source's network policy permits only the local origin and the explicit Cesium/Google provider hosts needed for streaming. It retains script restrictions; WebAssembly decoding is allowed for the tile codecs.
+
+### Rollback checkpoint
+
+Commit `537167b` contains the complete MapLibre game before this renderer change. It also records the geographic pack manifest and preparation scripts. The ignored local data remains compatible with that version; the Cesium heightmap is an additional asset.

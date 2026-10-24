@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; connect-src 'self'; img-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; object-src 'none'"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self' https://*.cesium.com https://tile.googleapis.com https://storage.googleapis.com; img-src 'self' blob: data: https://*.cesium.com https://tile.googleapis.com https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; object-src 'none'"
     />
     <title>Landshift — Planning studio</title>
   </head>

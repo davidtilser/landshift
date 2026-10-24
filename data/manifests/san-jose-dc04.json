@@ -4695,9 +4695,14 @@
       "path": "zoning.geojson",
       "bytes": 364402,
       "sha256": "e1d86388b064bc2f155ed71288203c9038c43edd35262990c53ca557db59a632"
+    },
+    {
+      "path": "cesium-heightmap.json",
+      "bytes": 280807,
+      "sha256": "f87f1435560b062720343b116a7407c694b287447ebed21804e4580eaaee603c"
     }
   ],
-  "totalBytes": 32510243,
+  "totalBytes": 32791050,
   "limitations": [
     "Aerial imagery is a historical NAIP snapshot, not current construction conditions.",
     "Building footprints are OSM-derived and may be incomplete; heights may be approximations.",

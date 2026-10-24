@@ -66,7 +66,11 @@ npm install
 npm run dev
 ```
 
-Open `/` for onboarding or `/game.html?scenario=san-jose-dc04` for the game. `npm run dev:game` opens the game directly. Prepare or extract the local geographic pack first: see [data preparation and sharing](data/README.md). The game includes offline aerial imagery, terrain, 3D buildings, layer controls and a movable concept campus. Consequence modeling is the next step.
+Open `/` for onboarding or `/game.html?scenario=san-jose-dc04` for the game. `npm run dev:game` opens the game directly. Prepare or extract the local geographic pack first: see [data preparation and sharing](data/README.md). CesiumJS renders the game with a movable concept campus, local aerial/terrain fallback, and optional Google Photorealistic 3D Tiles streamed through Cesium ion. Consequence modeling is the next step.
+
+For the photorealistic view, copy `.env.example` to `.env.local`, add a browser-safe, read-only `VITE_CESIUM_ION_TOKEN`, and restart the dev server. Enable Google Photorealistic 3D Tiles in your ion account. A token can also be entered in the game's connection dialog for the current tab session. Tokens are not committed. Existing local packs need `npm run data:cesium` once to prepare the local terrain adapter.
+
+The MapLibre version is preserved in checkpoint commit `537167b` before the Cesium migration.
 
 Other scripts: `npm run build`, `npm test`, `npm run lint`, `npm run typecheck`, `npm run format`.
 
@@ -84,6 +88,7 @@ Run `npm run check` before pushing. The same command runs on every push and pull
 | Concern         | Choice                                           |
 | --------------- | ------------------------------------------------ |
 | Build tool      | Vite                                             |
+| 3D renderer     | CesiumJS (`@cesium/engine` and `@cesium/core`)   |
 | UI              | Vanilla TypeScript; frameworks added when needed |
 | Package manager | npm                                              |
 | Runtime         | Node 24 LTS                                      |
