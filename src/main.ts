@@ -4,7 +4,12 @@ import typescriptLogo from './assets/typescript.svg'
 import viteLogo from './assets/vite.svg'
 import { setupCounter } from './counter.ts'
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+const app = document.querySelector('#app')
+if (!(app instanceof HTMLDivElement)) {
+  throw new Error('Missing #app container')
+}
+
+app.innerHTML = `
 <section id="center">
   <div class="hero">
     <img src="${heroImg}" class="base" width="170" height="179">
@@ -57,4 +62,9 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <section id="spacer"></section>
 `
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+const counter = document.querySelector('#counter')
+if (!(counter instanceof HTMLButtonElement)) {
+  throw new Error('Missing #counter button')
+}
+
+setupCounter(counter)

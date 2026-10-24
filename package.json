@@ -11,7 +11,9 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "typecheck": "tsc",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "npm run lint -- --fix",
+    "check": "npm run lint && npm run typecheck && npm run format:check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run"

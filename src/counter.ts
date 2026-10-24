@@ -1,9 +1,13 @@
-export function setupCounter(element: HTMLButtonElement) {
+export function setupCounter(
+  element: Pick<HTMLButtonElement, 'innerHTML' | 'addEventListener'>,
+): void {
   let counter = 0
-  const setCounter = (count: number) => {
+  const setCounter = (count: number): void => {
     counter = count
-    element.innerHTML = `Count is ${counter}`
+    element.innerHTML = `Count is ${counter.toString()}`
   }
-  element.addEventListener('click', () => setCounter(counter + 1))
+  element.addEventListener('click', () => {
+    setCounter(counter + 1)
+  })
   setCounter(0)
 }

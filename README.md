@@ -66,6 +66,15 @@ npm run dev
 
 Other scripts: `npm run build`, `npm test`, `npm run lint`, `npm run typecheck`, `npm run format`.
 
+### TypeScript and lint checks
+
+Run `npm run check` before pushing. The same command runs on every push and pull request in `.github/workflows/lint.yml`, using Node from `.nvmrc`, cached npm downloads, and a clean install from the lockfile. It checks ESLint, TypeScript, and Prettier; lint warnings fail the check. Use `npm run lint:fix` and `npm run format` for automatic fixes.
+
+- Keep TypeScript strict mode enabled. Indexed access can return `undefined`, optional properties must distinguish absence from explicit `undefined`, and every returning code path must be handled. Source files, tests, and `vite.config.ts` are type-checked.
+- Type-aware ESLint rejects explicit `any`, unsafe assignments and casts, non-null assertions, floating or misused promises, and non-exhaustive union switches. Use `unknown` for external input and validate it before use.
+- Declare function return types and public parameter types, use `import type` for type-only imports, and narrow nullable values with runtime guards. Let TypeScript infer local variables and inline callbacks where their types are already known.
+- Prefer discriminated unions and exhaustive handling for states. Fix type errors at their source instead of bypassing them with assertions or disabling rules.
+
 ### Stack
 
 | Concern         | Choice                                           |

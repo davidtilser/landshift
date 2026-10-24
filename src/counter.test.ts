@@ -5,7 +5,7 @@ describe('setupCounter', () => {
   it('renders the count and increments on click', () => {
     const button = Object.assign(new EventTarget(), {
       innerHTML: '',
-    }) as unknown as HTMLButtonElement
+    })
 
     setupCounter(button)
     expect(button.innerHTML).toBe('Count is 0')
