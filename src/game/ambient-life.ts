@@ -35,7 +35,9 @@ function bubbleText(voice: CommunityVoice): string {
     line += (line ? ' ' : '') + word
   }
   if (line) lines.push(line)
-  return voice.name.toUpperCase() + '\n“' + lines.join('\n') + '”'
+  return (
+    voice.name.toUpperCase() + '\n“' + lines.join('\n') + '”\nTap to chat ↗'
+  )
 }
 
 interface RoadPath {
@@ -317,7 +319,7 @@ export class AmbientLife {
         showBackground: true,
         backgroundColor: Color.fromCssColorString('#fffbed').withAlpha(0.97),
         backgroundPadding: new Cartesian2(12, 10),
-        pixelOffset: new Cartesian2(0, -48),
+        pixelOffset: new Cartesian2(0, -58),
         scaleByDistance: new NearFarScalar(250, 1.1, 1800, 0.7),
         distanceDisplayCondition: new DistanceDisplayCondition(0, 2000),
         disableDepthTestDistance: Number.POSITIVE_INFINITY,

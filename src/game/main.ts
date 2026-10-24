@@ -225,6 +225,9 @@ async function start(): Promise<void> {
       : 'Drag the green handle, or choose a new spot on the map.'
   }
   const scene = new GameScene(pack, grid, handle, {
+    communityRequested: () => {
+      gameplay.openDiscussion()
+    },
     cameraChanged: (camera) => {
       el('#coordinates', HTMLSpanElement).textContent =
         `${camera.lat.toFixed(4)}° N · ${Math.abs(camera.lng).toFixed(4)}° W`

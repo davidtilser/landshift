@@ -82,6 +82,8 @@ The source's network policy permits only the local origin and the explicit Cesiu
 
 `src/game/gameplay.ts` manages the large picture-card deck and the on-map future reveal. `src/game/choice-art.ts` draws its local SVG game pieces. `src/game/decision-effects.ts` owns the symbolic water/power gauges. `src/game/ambient-life.ts` animates bounded traffic on city road polylines and fictional pedestrians/gatherings around the campus. It stops animation when hidden or reduced motion is requested. `Gameplay.destroy()` clears future-reveal timers; `GameScene.destroy()` disposes the city-life loop.
 
+`src/game/character-chat.ts` manages accessible character conversations and per-speaker tab memory. Cesium picks on the speech label/tail call `Gameplay.openDiscussion()`; a keyboard-accessible button opens the same dialog. `src/game/discussion.ts` provides the typed `DiscussionProvider` boundary and the current deterministic, local mock. Replace that adapter when integrating Gemma; keep credentials on a server and retain current-plan context on every turn. No inference dependency is installed for the mock. Reset aborts pending replies and clears conversations; final destruction also removes the dialog.
+
 Checkpoint `687efda` was pushed before this game-board redesign and includes the prior dashboard-style game plus the team's documentation updates.
 
 ### Rollback checkpoint

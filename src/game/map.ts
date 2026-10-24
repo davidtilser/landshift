@@ -15,6 +15,7 @@ import {
   HeightReference,
   VerticalOrigin,
   HorizontalOrigin,
+  Entity,
 } from '@cesium/engine'
 import {
   Cartesian2,
@@ -77,6 +78,7 @@ export interface CameraState {
   is3D: boolean
 }
 export interface SceneCallbacks {
+  communityRequested: () => void
   cameraChanged: (state: CameraState) => void
   positionRequested: (position: LngLat) => void
   positionPreviewed: (position: LngLat) => void
@@ -180,6 +182,7 @@ export class GameScene {
   private placementSurface: Plane | undefined
   private placementControls: { rotate: boolean; translate: boolean } | undefined
   private connectionRevision = 0
+  private hoverCheckedAt = 0
   private readonly layerVisibility: Record<string, boolean> = {
     buildings: true,
     trees: true,
@@ -275,6 +278,10 @@ export class GameScene {
     this.handler = new ScreenSpaceEventHandler(viewer.scene.canvas)
     this.handler.setInputAction(
       (event: ScreenSpaceEventHandler.PositionedEvent) => {
+        if (this.pickCommunityBubble(event.position)) {
+          callbacks.communityRequested()
+          return
+        }
         if (!this.placing) return
         const position = this.pickPlacement(event.position)
         if (position) callbacks.positionRequested(position)
@@ -283,7 +290,19 @@ export class GameScene {
     )
     this.handler.setInputAction(
       (event: ScreenSpaceEventHandler.MotionEvent) => {
-        if (!this.placing || this.dragging) return
+        if (this.dragging) return
+        if (!this.placing) {
+          const now = performance.now()
+          if (now - this.hoverCheckedAt > 90) {
+            this.hoverCheckedAt = now
+            viewer.canvas.style.cursor = this.pickCommunityBubble(
+              event.endPosition,
+            )
+              ? 'pointer'
+              : ''
+          }
+          return
+        }
         const position = this.pickPlacement(event.endPosition)
         if (position) callbacks.positionPreviewed(position)
       },
@@ -595,6 +614,19 @@ export class GameScene {
       Math.abs(height - this.heightAt(...center)) < 120
       ? height
       : undefined
+  }
+
+  private pickCommunityBubble(position: Cartesian2Value): boolean {
+    const picked: unknown = this.viewer.scene.pick(position)
+    return Boolean(
+      picked &&
+      typeof picked === 'object' &&
+      'id' in picked &&
+      picked.id instanceof Entity &&
+      ['imagined-neighbors-sign', 'community-speech-tail'].includes(
+        picked.id.id,
+      ),
+    )
   }
 
   private pickPlacement(position: Cartesian2Value): LngLat | undefined {

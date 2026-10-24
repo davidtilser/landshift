@@ -1,5 +1,6 @@
 import './gameplay.css'
 import { choiceArt } from './choice-art.ts'
+import { CharacterChat } from './character-chat.ts'
 import {
   communityVoices,
   nextChallenge,
@@ -88,6 +89,7 @@ export class Gameplay {
   private readonly metrics: HTMLElement
   private readonly dialog: HTMLDialogElement
   private readonly modelDialog: HTMLDialogElement
+  private readonly chat: CharacterChat
   private choices: PlanChoices = { ...DEFAULT_CHOICES }
   private activeTab = 'cooling'
   private year: GameYear = 0
@@ -288,7 +290,35 @@ export class Gameplay {
         tabs[next]?.click()
         tabs[next]?.focus()
       })
+    const speakers = this.panel.querySelector('.voice-picks')
+    const chatButton = document.createElement('button')
+    chatButton.type = 'button'
+    chatButton.dataset['action'] = 'chat'
+    chatButton.setAttribute('aria-label', 'Chat with this character')
+    chatButton.title = 'Chat with this character'
+    chatButton.textContent = '💬'
+    speakers?.append(chatButton)
+    this.chat = new CharacterChat({
+      getContext: () => ({
+        choices: { ...this.choices },
+        site: { ...this.site },
+        year: this.year,
+        weather: this.weather,
+      }),
+      tryChallenge: () => {
+        this.followChallenge()
+      },
+    })
     this.render()
+  }
+
+  openDiscussion(): void {
+    if (this.running) return
+    this.callbacks.beforeExperiment()
+    const voice = communityVoices(this.choices, this.site).find(
+      (item) => item.id === this.voiceId,
+    )
+    if (voice) this.chat.open(voice)
   }
 
   setSite(center: LngLat, bearing: number): void {
@@ -311,7 +341,8 @@ export class Gameplay {
     this.callbacks.landscapeChanged(this.choices, this.year, this.weather)
   }
   reset(): void {
-    this.destroy()
+    this.clearPlayback()
+    this.chat.reset()
     this.running = false
     this.futureReady = false
     this.choices = { ...DEFAULT_CHOICES }
@@ -574,9 +605,28 @@ export class Gameplay {
     )
     this.playbackTimers.push(window.setTimeout(finish, 1800))
   }
-  destroy(): void {
+  private clearPlayback(): void {
     for (const timer of this.playbackTimers) window.clearTimeout(timer)
     this.playbackTimers = []
+  }
+  destroy(): void {
+    this.clearPlayback()
+    this.chat.destroy()
+  }
+
+  private followChallenge(): void {
+    if (this.running) return
+    const target = this.miniChallenge?.target
+    this.callbacks.beforeExperiment()
+    if (target === 'move') {
+      this.voiceId = 'neighbor'
+      this.render()
+      this.callbacks.moveRequested()
+    } else if (target === 'future') {
+      this.startFuture()
+    } else if (target) {
+      this.selectTab(target)
+    }
   }
   private comparisonRows(result: PlanResult): string {
     const reference = evaluatePlan(
@@ -688,6 +738,10 @@ export class Gameplay {
     if (!(event.target instanceof Element)) return
     const button = event.target.closest('button')
     if (!(button instanceof HTMLButtonElement) || this.running) return
+    if (button.dataset['action'] === 'chat') {
+      this.openDiscussion()
+      return
+    }
     const voice = button.dataset['voice']
     if (voice === 'neighbor' || voice === 'nature' || voice === 'student') {
       this.voiceId = voice
@@ -695,17 +749,7 @@ export class Gameplay {
       return
     }
     if (button.dataset['action'] === 'challenge') {
-      const target = this.miniChallenge?.target
-      this.callbacks.beforeExperiment()
-      if (target === 'move') {
-        this.voiceId = 'neighbor'
-        this.render()
-        this.callbacks.moveRequested()
-      } else if (target === 'future') {
-        this.startFuture()
-      } else if (target) {
-        this.selectTab(target)
-      }
+      this.followChallenge()
       return
     }
     if (
