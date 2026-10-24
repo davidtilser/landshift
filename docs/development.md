@@ -54,7 +54,7 @@ When both parts are ready, the visible integration work is one start button call
 4. **Placement:** move and rotate an illustrative two-block campus inside the playable boundary; building, tree and special flood-area intersections are shown.
 5. **Learning loop:** compare development and restoration choices with documented environmental, social, and economic consequences.
 
-The current game page uses CesiumJS. Drag to pan, scroll to zoom, right-drag to orbit and tilt, and use the 2D/3D toggle or frame-site control to reset the view. Camera presets fly between neighborhood, project and close-up views. Move the concept with its handle or click **Move campus** and select a location. Focus the handle and use arrow keys for precise movement. Consequence and restoration models are not implemented yet.
+The current game page uses CesiumJS. Drag to pan, scroll to zoom, right-drag to orbit and tilt, and use the 2D/3D toggle or frame-site control to reset the view. Camera presets fly between neighborhood, project and close-up views. Move the concept with its handle or click **Move campus**, preview a location with the pointer, and click to place. Invalid clicks keep placement active; Escape restores the position before the preview. Focus the handle and use arrow keys for precise movement. Consequence and restoration models are not implemented yet.
 
 ## Cesium renderer
 
@@ -71,6 +71,12 @@ The `predev`, `predev:game` and `prebuild` hooks copy those static resources int
 Configure `VITE_CESIUM_ION_TOKEN` in ignored `.env.local`, or use the connection dialog, which stores a supplied token in session storage only. Restart Vite after changing its environment configuration. Google Photorealistic 3D Tiles must be available to the account/token. A browser token is visible to the client; use read-only permissions and appropriate URL restrictions.
 
 The source's network policy permits only the local origin and the explicit Cesium/Google provider hosts needed for streaming. It retains script restrictions; WebAssembly decoding is allowed for the tile codecs.
+
+### Placement rendering
+
+`src/game/campus-graphics.ts` keeps campus entities alive and uses nonconstant geometry properties so Cesium updates them synchronously during movement and rotation. Deleting and recreating static entities on every pointer event leaves a gap while their worker geometry is rebuilding.
+
+`src/game/placement.ts` projects pointer rays onto a fixed tangent plane and preserves the initial grab offset. Dragging does not depth-pick the moving campus's own roofs, and release commits the last projected position. Camera inputs are restored on release, cancellation, or loss of pointer capture. Terrain height stays fixed during a drag and is sampled again when it ends.
 
 ### Rollback checkpoint
 

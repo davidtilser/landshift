@@ -127,6 +127,7 @@ async function start(): Promise<void> {
   let center: LngLat = [...pack.manifest.center]
   let bearing = 28
   let placing = false
+  let placementOrigin: LngLat | undefined
   let is3D = true
   const handle = document.createElement('button')
   handle.className = 'campus-handle'
@@ -220,7 +221,7 @@ async function start(): Promise<void> {
       `${Math.round(proposal.area).toLocaleString()} m²`
     if (check) refreshSignals()
   }
-  function move(next: LngLat, check: boolean): void {
+  function move(next: LngLat, check: boolean): boolean {
     if (
       !insideBounds(campus(next, bearing).volumes, pack.manifest.playableBounds)
     ) {
@@ -228,18 +229,27 @@ async function start(): Promise<void> {
         toast(
           'Keep the whole campus inside the study area. Choose the neighborhood view to see its boundary.',
         )
-      return
+      return false
     }
     center = next
     update(check)
+    return true
   }
-  function setPlacing(value: boolean): void {
+  function setPlacing(value: boolean, committed = false): void {
+    if (value && !placing) placementOrigin = [...center]
+    if (!value && placementOrigin) {
+      if (!committed) {
+        center = placementOrigin
+        update(true)
+      }
+      placementOrigin = undefined
+    }
     placing = value
     scene.setPlacing(value)
     placeButton.classList.toggle('placing', value)
     placeButton.setAttribute('aria-pressed', String(value))
     hint.textContent = value
-      ? 'Click a spot inside the study area. Esc to cancel.'
+      ? 'Move the mouse to preview, then click to place. Esc to cancel.'
       : 'Drag the green handle, or choose a new spot on the map.'
   }
   const scene = new GameScene(pack, grid, handle, {
@@ -262,8 +272,12 @@ async function start(): Promise<void> {
       button.setAttribute('aria-pressed', String(is3D))
     },
     positionRequested: (position) => {
-      move(position, true)
-      setPlacing(false)
+      if (move(position, true)) setPlacing(false, true)
+    },
+    positionPreviewed: (position) => {
+      hint.textContent = move(position, false)
+        ? 'Click to place here. Esc to cancel.'
+        : 'Outside the study area. Move back inside to place.'
     },
     dragged: (position, finished) => {
       move(position, finished)
@@ -347,6 +361,9 @@ async function start(): Promise<void> {
       !insideBounds(campus(center, next).volumes, pack.manifest.playableBounds)
     ) {
       rotation.value = String(bearing)
+      toast(
+        'That rotation crosses the study boundary. Move the campus farther inside first.',
+      )
       return
     }
     bearing = next
@@ -418,6 +435,7 @@ async function start(): Promise<void> {
     scene.topDown(is3D)
   })
   el('#reset-plan', HTMLButtonElement).addEventListener('click', () => {
+    setPlacing(false)
     center = [...pack.manifest.center]
     bearing = 28
     rotation.value = '28'
@@ -426,7 +444,10 @@ async function start(): Promise<void> {
     toast('Concept campus returned to its starting position.')
   })
   window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') setPlacing(false)
+    if (event.key === 'Escape') {
+      setPlacing(false)
+      scene.cancelDrag()
+    }
     if (
       dialog.open ||
       connectDialog.open ||

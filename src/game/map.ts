@@ -1,7 +1,6 @@
 import {
   CesiumWidget,
   CustomDataSource,
-  ImageMaterialProperty,
   UrlTemplateImageryProvider,
   WebMercatorTilingScheme,
   ScreenSpaceEventHandler,
@@ -44,6 +43,15 @@ import type { DataPack } from './data.ts'
 import type { LngLat } from './geometry.ts'
 import { boundary, campus } from './geometry.ts'
 import { createLocalTerrain, sampleElevation } from './terrain.ts'
+import { CampusGraphics } from './campus-graphics.ts'
+import {
+  beginCampusDrag,
+  dragCampus,
+  placementPlane,
+  positionOnPlane,
+} from './placement.ts'
+import type { CampusDrag } from './placement.ts'
+import type { Plane } from '@cesium/core'
 import type { ElevationGrid } from './terrain.ts'
 import type { ImageryLayer } from '@cesium/engine'
 
@@ -60,6 +68,7 @@ export interface CameraState {
 export interface SceneCallbacks {
   cameraChanged: (state: CameraState) => void
   positionRequested: (position: LngLat) => void
+  positionPreviewed: (position: LngLat) => void
   dragged: (position: LngLat, finished: boolean) => void
   onlineChanged: (state: OnlineState) => void
   mapError: (message: string) => void
@@ -124,6 +133,7 @@ export class GameScene {
   private readonly handler: ScreenSpaceEventHandler
   private readonly handle: HTMLButtonElement
   private readonly facade = facadeTexture()
+  private readonly campusGraphics: CampusGraphics
   private tileset: Cesium3DTileset | undefined
   private activeToken = ''
   private campusCenter: LngLat
@@ -132,6 +142,19 @@ export class GameScene {
   private style: SceneStyle = 'aerial'
   private placing = false
   private dragging = false
+  private drag:
+    | {
+        projection: CampusDrag
+        pointerId: number
+        start: Cartesian2Value
+        original: LngLat
+        last: LngLat
+        moved: boolean
+        cameraInputs: boolean
+      }
+    | undefined
+  private placementSurface: Plane | undefined
+  private placementControls: { rotate: boolean; translate: boolean } | undefined
   private connectionRevision = 0
   private readonly layerVisibility: Record<string, boolean> = {
     buildings: true,
@@ -209,6 +232,7 @@ export class GameScene {
       )
     })
     this.buildLocalScene()
+    this.campusGraphics = new CampusGraphics(this.group('campus'), this.facade)
     this.updateCampus(
       campus(this.campusCenter, 28).volumes,
       this.campusCenter,
@@ -221,15 +245,25 @@ export class GameScene {
     this.handler.setInputAction(
       (event: ScreenSpaceEventHandler.PositionedEvent) => {
         if (!this.placing) return
-        const position = this.pickGround(event.position)
+        const position = this.pickPlacement(event.position)
         if (position) callbacks.positionRequested(position)
       },
       ScreenSpaceEventType.LEFT_CLICK,
     )
+    this.handler.setInputAction(
+      (event: ScreenSpaceEventHandler.MotionEvent) => {
+        if (!this.placing || this.dragging) return
+        const position = this.pickPlacement(event.endPosition)
+        if (position) callbacks.positionPreviewed(position)
+      },
+      ScreenSpaceEventType.MOUSE_MOVE,
+    )
     handle.addEventListener('pointerdown', this.onPointerDown)
     handle.addEventListener('pointermove', this.onPointerMove)
     handle.addEventListener('pointerup', this.onPointerUp)
-    handle.addEventListener('pointercancel', this.onPointerUp)
+    handle.addEventListener('pointercancel', this.onPointerCancel)
+    handle.addEventListener('lostpointercapture', this.onPointerCancel)
+    window.addEventListener('blur', this.onPointerCancel)
     this.removeCameraListener = viewer.camera.changed.addEventListener(() => {
       this.reportCamera()
     })
@@ -438,9 +472,13 @@ export class GameScene {
   ): void {
     this.campusCenter = center
     this.campusBearing = bearing
-    let ground = this.heightAt(...center)
+    let ground = this.dragging ? this.campusHeight : this.heightAt(...center)
     const group = this.group('campus')
-    if (this.style === 'reality' && this.viewer.scene.sampleHeightSupported) {
+    if (
+      !this.dragging &&
+      this.style === 'reality' &&
+      this.viewer.scene.sampleHeightSupported
+    ) {
       const measured = this.viewer.scene.sampleHeight(
         Cartographic.fromDegrees(...center),
         group.entities.values,
@@ -448,44 +486,19 @@ export class GameScene {
       if (measured !== undefined && Number.isFinite(measured)) ground = measured
     }
     this.campusHeight = ground
-    group.entities.suspendEvents()
-    group.entities.removeAll()
-    volumes.features.forEach((feature, index) => {
-      const ring = feature.geometry.coordinates[0]
-      if (!ring) return
-      const base = numberProperty(feature, 'base', 0),
-        height = numberProperty(feature, 'height', 0)
-      const css = textProperty(feature, 'color') || '#aab9ad'
-      const color = Color.fromCssColorString(css)
-      group.entities.add({
-        id: `campus-${String(index)}`,
-        polygon: {
-          hierarchy: new PolygonHierarchy(positions(ring, 0)),
-          height: ground + base,
-          extrudedHeight: ground + height,
-          material: color,
-          shadows: ShadowMode.ENABLED,
-          outline: false,
-        },
-      })
-      if (height - base > 10) {
-        group.entities.add({
-          wall: {
-            positions: positions(ring, 0),
-            minimumHeights: ring.map(() => ground + base + 0.03),
-            maximumHeights: ring.map(() => ground + height - 0.03),
-            material: new ImageMaterialProperty({
-              image: this.facade,
-              repeat: new Cartesian2(10, 1),
-              transparent: false,
-            }),
-            shadows: ShadowMode.ENABLED,
-          },
-        })
-      }
-    })
-    group.entities.resumeEvents()
+    this.campusGraphics.update(volumes, ground)
     this.viewer.scene.requestRender()
+  }
+
+  private pickPlacement(position: Cartesian2Value): LngLat | undefined {
+    const ray = this.viewer.camera.getPickRay(position)
+    if (!ray) return undefined
+    // Placement uses a stable ground plane, never the campus or a building roof.
+    // The separate depth pick remains useful for navigating the real 3D scene.
+    const plane =
+      this.placementSurface ??
+      placementPlane(this.campusCenter, this.campusHeight)
+    return positionOnPlane(ray, plane)
   }
 
   private pickGround(position: Cartesian2Value): LngLat | undefined {
@@ -505,39 +518,82 @@ export class GameScene {
       CesiumMath.toDegrees(cartographic.latitude),
     ]
   }
+  private pointerPosition(event: PointerEvent): Cartesian2Value {
+    const rectangle = this.viewer.scene.canvas.getBoundingClientRect()
+    return new Cartesian2(
+      event.clientX - rectangle.left,
+      event.clientY - rectangle.top,
+    )
+  }
   private readonly onPointerDown = (event: PointerEvent): void => {
-    if (this.handle.hidden) return
+    if (
+      this.handle.hidden ||
+      event.button !== 0 ||
+      !event.isPrimary ||
+      this.drag
+    )
+      return
+    if (this.placing) {
+      event.preventDefault()
+      event.stopPropagation()
+      this.callbacks.positionRequested(this.campusCenter)
+      return
+    }
+    const start = this.pointerPosition(event)
+    const ray = this.viewer.camera.getPickRay(start)
+    const projection =
+      ray && beginCampusDrag(this.campusCenter, this.campusHeight + 34, ray)
+    if (!projection) return
     event.preventDefault()
     event.stopPropagation()
+    this.viewer.camera.cancelFlight()
+    this.drag = {
+      projection,
+      pointerId: event.pointerId,
+      start,
+      original: [...this.campusCenter],
+      last: [...this.campusCenter],
+      moved: false,
+      cameraInputs: this.viewer.scene.screenSpaceCameraController.enableInputs,
+    }
     this.dragging = true
+    this.handle.classList.add('dragging')
     this.handle.setPointerCapture(event.pointerId)
     this.viewer.scene.screenSpaceCameraController.enableInputs = false
   }
   private readonly onPointerMove = (event: PointerEvent): void => {
-    if (!this.dragging) return
-    const rectangle = this.viewer.scene.canvas.getBoundingClientRect()
-    const position = this.pickGround(
-      new Cartesian2(
-        event.clientX - rectangle.left,
-        event.clientY - rectangle.top,
-      ),
-    )
-    if (position) this.callbacks.dragged(position, false)
+    const drag = this.drag
+    if (!drag || event.pointerId !== drag.pointerId) return
+    const pointer = this.pointerPosition(event)
+    if (!drag.moved && Cartesian2.distance(drag.start, pointer) < 3) return
+    const ray = this.viewer.camera.getPickRay(pointer)
+    const position = ray && dragCampus(drag.projection, ray)
+    if (!position) return
+    drag.moved = true
+    drag.last = position
+    this.callbacks.dragged(position, false)
+  }
+  private finishDrag(cancelled: boolean): void {
+    const drag = this.drag
+    if (!drag) return
+    this.drag = undefined
+    this.dragging = false
+    this.handle.classList.remove('dragging')
+    if (this.handle.hasPointerCapture(drag.pointerId))
+      this.handle.releasePointerCapture(drag.pointerId)
+    this.viewer.scene.screenSpaceCameraController.enableInputs =
+      drag.cameraInputs
+    // Do not depth-pick again on release: the just-moved building occupies that pixel.
+    if (drag.moved)
+      this.callbacks.dragged(cancelled ? drag.original : drag.last, true)
   }
   private readonly onPointerUp = (event: PointerEvent): void => {
-    if (!this.dragging) return
-    this.dragging = false
-    if (this.handle.hasPointerCapture(event.pointerId))
-      this.handle.releasePointerCapture(event.pointerId)
-    this.viewer.scene.screenSpaceCameraController.enableInputs = true
-    const rectangle = this.viewer.scene.canvas.getBoundingClientRect()
-    const position = this.pickGround(
-      new Cartesian2(
-        event.clientX - rectangle.left,
-        event.clientY - rectangle.top,
-      ),
-    )
-    if (position) this.callbacks.dragged(position, true)
+    if (this.drag?.pointerId !== event.pointerId) return
+    this.onPointerMove(event)
+    this.finishDrag(false)
+  }
+  private readonly onPointerCancel = (): void => {
+    this.finishDrag(true)
   }
   private positionHandle(): void {
     if (this.viewer.isDestroyed()) return
@@ -570,10 +626,30 @@ export class GameScene {
   }
 
   setPlacing(value: boolean): void {
+    const controls = this.viewer.scene.screenSpaceCameraController
+    if (value && !this.placing) {
+      this.placementControls = {
+        rotate: controls.enableRotate,
+        translate: controls.enableTranslate,
+      }
+      controls.enableRotate = false
+      controls.enableTranslate = false
+    } else if (!value && this.placementControls) {
+      controls.enableRotate = this.placementControls.rotate
+      controls.enableTranslate = this.placementControls.translate
+      this.placementControls = undefined
+    }
     this.placing = value
+    this.placementSurface = value
+      ? placementPlane(this.campusCenter, this.campusHeight)
+      : undefined
     this.viewer.canvas.style.cursor = value ? 'crosshair' : ''
   }
+  cancelDrag(): void {
+    this.finishDrag(true)
+  }
   setDesignMode(value: boolean): void {
+    if (!value) this.finishDrag(true)
     this.handle.hidden = !value
     this.viewer.scene.requestRender()
   }
@@ -636,7 +712,7 @@ export class GameScene {
         this.activeToken = token
         this.viewer.scene.primitives.add(tileset)
         tileset.initialTilesLoaded.addEventListener(() => {
-          if (this.style === 'reality')
+          if (this.style === 'reality' && !this.dragging && !this.placing)
             this.updateCampus(
               campus(this.campusCenter, this.campusBearing).volumes,
               this.campusCenter,
@@ -646,6 +722,8 @@ export class GameScene {
         tileset.allTilesLoaded.addEventListener(() => {
           if (
             this.style !== 'reality' ||
+            this.dragging ||
+            this.placing ||
             !this.viewer.scene.sampleHeightSupported
           )
             return
@@ -792,6 +870,7 @@ export class GameScene {
     })
   }
   destroy(): void {
+    this.finishDrag(true)
     this.connectionRevision++
     this.removeCameraListener()
     this.removeRenderListener()
@@ -799,7 +878,9 @@ export class GameScene {
     this.handle.removeEventListener('pointerdown', this.onPointerDown)
     this.handle.removeEventListener('pointermove', this.onPointerMove)
     this.handle.removeEventListener('pointerup', this.onPointerUp)
-    this.handle.removeEventListener('pointercancel', this.onPointerUp)
+    this.handle.removeEventListener('pointercancel', this.onPointerCancel)
+    this.handle.removeEventListener('lostpointercapture', this.onPointerCancel)
+    window.removeEventListener('blur', this.onPointerCancel)
     this.viewer.destroy()
   }
 }

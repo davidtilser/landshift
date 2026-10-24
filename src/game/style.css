@@ -682,6 +682,13 @@ kbd {
 .campus-handle:active {
   cursor: grabbing;
 }
+.campus-handle.dragging {
+  cursor: grabbing;
+  background: #274d3a;
+  box-shadow:
+    0 0 0 5px #f8fbe94d,
+    0 4px 18px #18372d50;
+}
 .maplibregl-canvas:focus-visible {
   outline-offset: -4px;
 }
