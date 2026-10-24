@@ -1,0 +1,442 @@
+import 'maplibre-gl/dist/maplibre-gl.css'
+import './style.css'
+import { Marker } from 'maplibre-gl'
+import { readGameLaunch } from '../shared/game-launch.ts'
+import { getScenario, SAN_JOSE_SCENARIO_ID } from '../shared/scenarios.ts'
+import { loadDataPack } from './data.ts'
+import { createMap, addMapLayers, updateCampus } from './map.ts'
+import { campus, insideBounds, intersectingFeatures } from './geometry.ts'
+import type { LngLat } from './geometry.ts'
+
+function el<T extends HTMLElement>(
+  selector: string,
+  expected: { new (): T },
+): T {
+  const value = document.querySelector(selector)
+  if (!(value instanceof expected))
+    throw new Error(`Missing interface element: ${selector}`)
+  return value
+}
+
+const paths: Record<string, string> = {
+  leaf: '<path d="M19 4C10 3 4 6 4 13a6 6 0 0 0 6 6c7 0 10-6 9-15Z"/><path d="m5 19 9-9M10 14v-4m0 4h4"/>',
+  layers: '<path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/>',
+  move: '<path d="M12 3v18M3 12h18m-12-6 3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3m12-6 3 3-3 3"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  minus: '<path d="M5 12h14"/>',
+  compass: '<path d="m15 9-2 4-4 2 2-4 4-2Z"/><circle cx="12" cy="12" r="9"/>',
+  reset: '<path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/>',
+  arrow: '<path d="M5 12h14m-5-5 5 5-5 5"/>',
+  eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/>',
+  check: '<path d="m5 12 4 4L19 6"/>',
+  close: '<path d="m6 6 12 12M6 18 18 6"/>',
+  cube: '<path d="m12 2 9 5v10l-9 5-9-5V7l9-5Zm0 10 9-5m-9 5L3 7m9 5v10"/>',
+  pin: '<path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2"/>',
+  expand: '<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>',
+}
+function icon(name: string, size = 20): string {
+  return `<svg width="${String(size)}" height="${String(size)}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] ?? ''}</svg>`
+}
+function tool(id: string, name: string, label: string): string {
+  return `<button id="${id}" class="icon-button" title="${label}" aria-label="${label}">${icon(name)}</button>`
+}
+
+const root = el('#game', HTMLDivElement)
+const launch = readGameLaunch(new URL(window.location.href))
+const scenario = getScenario(launch?.scenarioId ?? SAN_JOSE_SCENARIO_ID)
+root.innerHTML = `
+  <main class="studio">
+    <div id="map" aria-label="Interactive 3D map of North San José"></div>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Landshift onboarding"><span class="brand-icon">${icon('leaf', 24)}</span>landshift<span class="brand-dot">.</span></a>
+      <div class="breadcrumbs"><span>California</span><span class="crumb-divider">/</span><span>San José</span><span class="edition">DESIGN LAB</span></div>
+      <nav class="top-actions" aria-label="Studio actions"><span class="offline-badge"><span></span> Offline map</span>${tool('credits', 'info', 'Data sources and limitations')}<button id="reset-plan" class="text-button">Reset design ${icon('reset', 15)}</button></nav>
+    </header>
+    <section class="project-panel panel" aria-labelledby="project-title">
+      <div class="eyebrow"><span class="tiny-dot"></span> A REAL PLACE. YOUR POSSIBILITIES.</div>
+      <h1 id="project-title">A new kind<br>of neighbor.</h1>
+      <p class="project-subtitle">Reimagine a data center.<br>Make room for a better neighborhood.</p>
+      <div class="project-reference"><span class="reference-icon">${icon('pin', 17)}</span><div><strong>North San José</strong><span>San José Data Center 04 · CP23-008</span></div></div>
+      <div class="mode-tabs" role="group" aria-label="Workspace mode"><button id="mode-explore" aria-pressed="false">${icon('eye', 15)} Explore</button><button id="mode-design" class="selected" aria-pressed="true">${icon('cube', 15)} Design</button></div>
+      <section class="design-section" aria-label="Concept campus controls">
+        <div class="section-heading"><h2>Your concept campus</h2><span class="small-pill">SKETCH 01</span></div>
+        <div class="concept-summary"><div class="concept-icon">${icon('cube', 38)}</div><div><strong>Two blocks. More possibility.</strong><span>4 floors · illustrative alternative</span></div></div>
+        <div class="design-stat"><span>Building footprint</span><strong id="footprint">—</strong></div>
+        <label class="rotation-label" for="rotation"><span>Orientation</span><output id="rotation-value">28°</output></label>
+        <input id="rotation" type="range" min="0" max="359" value="28" aria-label="Campus orientation in degrees">
+        <button id="place" class="primary-button">${icon('move', 17)} Move campus <span>${icon('arrow', 17)}</span></button>
+        <p id="placement-hint" class="field-note">Drag the green handle, or choose a new spot on the map.</p>
+      </section>
+      <section class="signals" aria-labelledby="signals-title"><div class="section-heading"><h2 id="signals-title">What’s already here?</h2><span class="live-dot"></span></div><div id="signals-content"><p class="field-note">Reading local geography…</p></div><p class="signal-note">Geometry checks, not a permit assessment.</p></section>
+      <div class="next-chapter"><span>${icon('leaf', 17)}</span><p><strong>Build less impact. Leave more life.</strong><br>Restoration and resource tradeoffs come next.</p></div>
+    </section>
+    <aside class="layers-panel panel" aria-labelledby="layers-title">
+      <div class="section-heading"><h2 id="layers-title">Read the landscape</h2>${icon('layers', 17)}</div>
+      <div class="basemap-picker" role="group" aria-label="Basemap"><button id="landscape" class="active" aria-pressed="true"><span class="map-swatch landscape-swatch"></span>Landscape</button><button id="aerial" aria-pressed="false"><span class="map-swatch aerial-swatch"></span>Aerial</button></div>
+      <div class="layer-list">
+        <label><span><i class="legend-square buildings-key"></i>3D buildings</span><input type="checkbox" data-layer="buildings" checked></label>
+        <label><span><i class="legend-circle trees-key"></i>Street trees</span><input type="checkbox" data-layer="trees" checked></label>
+        <label><span><i class="legend-line parcels-key"></i>Parcel boundaries</span><input type="checkbox" data-layer="parcels"></label>
+        <label><span><i class="legend-square zoning-key"></i>Zoning context</span><input type="checkbox" data-layer="zoning"></label>
+        <label><span><i class="legend-square flood-key"></i>Special flood-hazard areas</span><input type="checkbox" data-layer="flood"></label>
+      </div>
+      <div class="map-key"><span class="reference-line"></span>Official project outline</div>
+      <button id="layer-credits" class="source-link">Real geography. Transparent assumptions. ${icon('arrow', 13)}</button>
+    </aside>
+    <div class="view-controls panel" role="group" aria-label="Map navigation">${tool('zoom-in', 'plus', 'Zoom in')}${tool('zoom-out', 'minus', 'Zoom out')}<span class="control-divider"></span>${tool('north', 'compass', 'Face north')}<button id="perspective" class="icon-button view-label" aria-label="Switch to top-down view" aria-pressed="true">3D</button>${tool('home-view', 'expand', 'Frame project site')}</div>
+    <div class="location-chip">${icon('pin', 14)} <span id="coordinates">37.3786° N · 121.9332° W</span><span class="location-divider"></span><span id="zoom-label">Z 16.1</span></div>
+    <footer class="bottom-bar"><div class="navigation-hint"><span>${icon('move', 15)} Drag to pan</span><span><kbd>Scroll</kbd> Zoom</span><span><kbd>Right drag</kbd> Orbit & tilt</span><button id="help">More controls</button></div><div class="attribution">© OpenStreetMap · City of San José · USDA NAIP · Mapzen</div></footer>
+    <div id="toast" role="status" aria-live="polite" hidden></div>
+    <div id="loading" class="loading-screen"><div class="loading-card"><span class="loading-mark">${icon('leaf', 34)}</span><h2>Getting to know the neighborhood.</h2><p id="loading-message">Opening your local San José geography…</p><div class="loading-line"></div></div></div>
+    <dialog id="info-dialog"><div class="dialog-top"><span class="eyebrow">BEHIND THE LANDSCAPE</span>${tool('close-dialog', 'close', 'Close information')}</div><h2>A real place.<br>A clearly labeled possibility.</h2><p>This is a local planning sketch around the real San José Data Center 04 proposal. The movable campus is an illustrative alternative, not the applicant’s engineering design.</p><div id="pack-summary"></div><h3>Move through the neighborhood</h3><div class="keyboard-guide"><span>Pan</span><strong>Drag · arrow keys · W A S D</strong><span>Zoom</span><strong>Scroll · + / −</strong><span>Orbit & tilt</span><strong>Right drag · Shift + arrows</strong><span>Place campus</span><strong>Drag green handle · Move campus, then click</strong><span>Move focused handle</span><strong>Arrow keys · Shift for larger steps</strong><span>Cancel placement</span><strong>Esc</strong></div><h3>Know what the data can tell you</h3><ul id="limitations"></ul><p class="dialog-footnote">All map assets are served from this computer. No external mapping API is used while you explore. Environmental, economic, and social consequence models are a next step.</p></dialog>
+  </main>
+`
+
+function toast(message: string): void {
+  const target = el('#toast', HTMLDivElement)
+  target.textContent = message
+  target.hidden = false
+  window.clearTimeout(toastTimer)
+  toastTimer = window.setTimeout(() => {
+    target.hidden = true
+  }, 3800)
+}
+let toastTimer = 0
+const dialog = el('#info-dialog', HTMLDialogElement)
+for (const id of ['credits', 'layer-credits', 'help'])
+  el(`#${id}`, HTMLButtonElement).addEventListener('click', () => {
+    dialog.showModal()
+  })
+el('#close-dialog', HTMLButtonElement).addEventListener('click', () => {
+  dialog.close()
+})
+dialog.addEventListener('click', (event) => {
+  if (event.target === dialog) dialog.close()
+})
+
+async function start(): Promise<void> {
+  if (!scenario)
+    throw new Error(
+      'This scenario is not available. Return to onboarding and choose San José Data Center 04.',
+    )
+  const pack = await loadDataPack()
+  const map = createMap(pack)
+  let center: LngLat = [...pack.manifest.center]
+  let bearing = 28
+  let placing = false
+  let aerial = false
+  let is3D = true
+  const handle = document.createElement('button')
+  handle.className = 'campus-handle'
+  handle.type = 'button'
+  handle.innerHTML = `${icon('move', 17)}<span>YOUR CAMPUS</span>`
+  handle.setAttribute(
+    'aria-label',
+    'Move concept campus. Drag, or focus and use arrow keys.',
+  )
+  const marker = new Marker({
+    element: handle,
+    draggable: true,
+    anchor: 'bottom',
+    offset: [0, -26],
+  }).setLngLat(center)
+  const rotation = el('#rotation', HTMLInputElement)
+  const placeButton = el('#place', HTMLButtonElement)
+  const hint = el('#placement-hint', HTMLParagraphElement)
+
+  function setPlacing(value: boolean): void {
+    placing = value
+    placeButton.classList.toggle('placing', value)
+    placeButton.setAttribute('aria-pressed', String(value))
+    hint.textContent = value
+      ? 'Click a spot inside the study area. Esc to cancel.'
+      : 'Drag the green handle, or choose a new spot on the map.'
+    map.getCanvas().style.cursor = value ? 'crosshair' : ''
+  }
+  function refreshSignals(): void {
+    const proposal = campus(center, bearing)
+    const buildingCount = intersectingFeatures(
+      proposal.footprints,
+      pack.layers.buildings,
+    )
+    const treeCount = intersectingFeatures(
+      proposal.footprints,
+      pack.layers.trees,
+    )
+    const floodCount = intersectingFeatures(
+      proposal.footprints,
+      pack.layers.flood,
+    )
+    el('#signals-content', HTMLDivElement).innerHTML = `
+      <div class="signal-row"><span class="signal-icon good">${icon('check', 13)}</span><span>Inside the study area</span><strong>Yes</strong></div>
+      <div class="signal-row"><span class="signal-icon ${buildingCount ? 'caution' : 'good'}">${icon(buildingCount ? 'cube' : 'check', 13)}</span><span>Building overlaps</span><strong>${String(buildingCount)}</strong></div>
+      <div class="signal-row"><span class="signal-icon ${treeCount ? 'caution' : 'good'}">${icon('leaf', 13)}</span><span>Street-tree records in footprint</span><strong>${String(treeCount)}</strong></div>
+      ${floodCount ? '<div class="signal-row flood-signal"><span>Intersects mapped flood area</span><strong>Check layer</strong></div>' : ''}
+    `
+  }
+  function update(check = false): void {
+    const proposal = campus(center, bearing)
+    updateCampus(map, proposal.volumes)
+    marker.setLngLat(center)
+    el('#rotation-value', HTMLOutputElement).value = `${bearing.toFixed(0)}°`
+    el('#footprint', HTMLElement).textContent =
+      `${Math.round(proposal.area).toLocaleString()} m²`
+    if (check) refreshSignals()
+  }
+  function move(next: LngLat): void {
+    if (
+      !insideBounds(campus(next, bearing).volumes, pack.manifest.playableBounds)
+    ) {
+      marker.setLngLat(center)
+      toast(
+        'Keep the whole campus inside the study area. Zoom out to see its boundary.',
+      )
+      return
+    }
+    center = next
+    update(true)
+  }
+
+  const summary = el('#pack-summary', HTMLDivElement)
+  const summaryText = document.createElement('p')
+  summaryText.className = 'pack-facts'
+  summaryText.textContent = `Aerial photography: ${pack.manifest.imageryDate} · Original resolution: 60 cm · Local pack: ${(pack.manifest.totalBytes / 1024 / 1024).toFixed(1)} MiB. Includes ${String(pack.layers.buildings.features.length)} building tile features, ${String(pack.layers.parcels.features.length)} parcels and ${pack.layers.trees.features.length.toLocaleString()} street-tree records.`
+  summary.append(summaryText)
+  for (const text of pack.manifest.limitations) {
+    const item = document.createElement('li')
+    item.textContent = text
+    el('#limitations', HTMLUListElement).append(item)
+  }
+  map.on('error', (event) => {
+    console.error('Local map error:', event.error)
+    toast(
+      'A local map asset could not load. Check the data pack before presenting.',
+    )
+  })
+  map.on('load', () => {
+    addMapLayers(map, pack)
+    marker.addTo(map)
+    update(true)
+    el('#loading', HTMLDivElement).hidden = true
+  })
+  map.on('move', () => {
+    const camera = map.getCenter()
+    el('#coordinates', HTMLSpanElement).textContent =
+      `${camera.lat.toFixed(4)}° N · ${Math.abs(camera.lng).toFixed(4)}° W`
+    el('#zoom-label', HTMLSpanElement).textContent =
+      `Z ${map.getZoom().toFixed(1)}`
+    el('#north', HTMLButtonElement).style.setProperty(
+      '--bearing',
+      `${(-map.getBearing()).toFixed(1)}deg`,
+    )
+  })
+  map.on('moveend', () => {
+    is3D = map.getPitch() > 1
+    const button = el('#perspective', HTMLButtonElement)
+    button.textContent = is3D ? '3D' : '2D'
+    button.setAttribute(
+      'aria-label',
+      is3D ? 'Switch to top-down view' : 'Switch to 3D view',
+    )
+    button.setAttribute('aria-pressed', String(is3D))
+  })
+  map.on('click', (event) => {
+    if (!placing) return
+    move([event.lngLat.lng, event.lngLat.lat])
+    setPlacing(false)
+  })
+  marker.on('drag', () => {
+    const p = marker.getLngLat()
+    if (
+      insideBounds(
+        campus([p.lng, p.lat], bearing).volumes,
+        pack.manifest.playableBounds,
+      )
+    ) {
+      center = [p.lng, p.lat]
+      updateCampus(map, campus(center, bearing).volumes)
+    }
+  })
+  marker.on('dragend', () => {
+    const p = marker.getLngLat()
+    move([p.lng, p.lat])
+  })
+  handle.addEventListener('click', (event) => {
+    event.stopPropagation()
+  })
+  handle.addEventListener('keydown', (event) => {
+    const step = event.shiftKey ? 0.0002 : 0.00004
+    const delta: Record<string, LngLat> = {
+      ArrowLeft: [-step, 0],
+      ArrowRight: [step, 0],
+      ArrowUp: [0, step],
+      ArrowDown: [0, -step],
+    }
+    const value = delta[event.key]
+    if (!value) return
+    event.preventDefault()
+    event.stopPropagation()
+    move([center[0] + value[0], center[1] + value[1]])
+  })
+  rotation.addEventListener('input', () => {
+    const next = Number(rotation.value)
+    if (
+      !insideBounds(campus(center, next).volumes, pack.manifest.playableBounds)
+    ) {
+      rotation.value = String(bearing)
+      return
+    }
+    bearing = next
+    update()
+  })
+  rotation.addEventListener('change', refreshSignals)
+  placeButton.addEventListener('click', () => {
+    setPlacing(!placing)
+  })
+
+  function setMode(design: boolean): void {
+    handle.dataset['mode'] = design ? 'design' : 'explore'
+    handle.hidden = !design
+    marker.setDraggable(design)
+    el('.design-section', HTMLElement).hidden = !design
+    for (const [id, active] of [
+      ['mode-design', design],
+      ['mode-explore', !design],
+    ] as const) {
+      el(`#${id}`, HTMLButtonElement).classList.toggle('selected', active)
+      el(`#${id}`, HTMLButtonElement).setAttribute(
+        'aria-pressed',
+        String(active),
+      )
+    }
+    setPlacing(false)
+    if (!design)
+      toast('Explore the real neighborhood. Your concept stays on the map.')
+  }
+  el('#mode-design', HTMLButtonElement).addEventListener('click', () => {
+    setMode(true)
+  })
+  el('#mode-explore', HTMLButtonElement).addEventListener('click', () => {
+    setMode(false)
+  })
+  for (const input of document.querySelectorAll<HTMLInputElement>(
+    '[data-layer]',
+  ))
+    input.addEventListener('change', () => {
+      const name = input.dataset['layer']
+      if (name)
+        map.setLayoutProperty(
+          name,
+          'visibility',
+          input.checked ? 'visible' : 'none',
+        )
+    })
+  function setBasemap(value: boolean): void {
+    aerial = value
+    map.setLayoutProperty('aerial', 'visibility', aerial ? 'visible' : 'none')
+    map.setPaintProperty('roads', 'line-opacity', aerial ? 0.18 : 1)
+    map.setPaintProperty('roads-outline', 'line-opacity', aerial ? 0 : 1)
+    map.setPaintProperty(
+      'buildings',
+      'fill-extrusion-opacity',
+      aerial ? 0.65 : 0.96,
+    )
+    for (const [id, active] of [
+      ['aerial', aerial],
+      ['landscape', !aerial],
+    ] as const) {
+      el(`#${id}`, HTMLButtonElement).classList.toggle('active', active)
+      el(`#${id}`, HTMLButtonElement).setAttribute(
+        'aria-pressed',
+        String(active),
+      )
+    }
+    if (aerial)
+      toast(
+        `USDA NAIP aerial photography · ${pack.manifest.imageryDate} · historical snapshot`,
+      )
+  }
+  el('#aerial', HTMLButtonElement).addEventListener('click', () => {
+    setBasemap(true)
+  })
+  el('#landscape', HTMLButtonElement).addEventListener('click', () => {
+    setBasemap(false)
+  })
+  el('#zoom-in', HTMLButtonElement).addEventListener('click', () => {
+    map.zoomIn()
+  })
+  el('#zoom-out', HTMLButtonElement).addEventListener('click', () => {
+    map.zoomOut()
+  })
+  el('#north', HTMLButtonElement).addEventListener('click', () => {
+    map.easeTo({ bearing: 0, duration: 700 })
+  })
+  el('#home-view', HTMLButtonElement).addEventListener('click', () => {
+    map.flyTo({
+      center: pack.manifest.center,
+      zoom: 16.1,
+      pitch: 54,
+      bearing: -28,
+      duration: 1400,
+    })
+  })
+  el('#perspective', HTMLButtonElement).addEventListener('click', () => {
+    is3D = !is3D
+    map.easeTo({ pitch: is3D ? 54 : 0, duration: 800 })
+    const button = el('#perspective', HTMLButtonElement)
+    button.textContent = is3D ? '3D' : '2D'
+    button.setAttribute(
+      'aria-label',
+      is3D ? 'Switch to top-down view' : 'Switch to 3D view',
+    )
+    button.setAttribute('aria-pressed', String(is3D))
+  })
+  el('#reset-plan', HTMLButtonElement).addEventListener('click', () => {
+    center = [...pack.manifest.center]
+    bearing = 28
+    rotation.value = '28'
+    update(true)
+    setMode(true)
+    toast('Concept campus returned to its starting position.')
+  })
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') setPlacing(false)
+    if (
+      dialog.open ||
+      event.target instanceof HTMLInputElement ||
+      event.target instanceof HTMLButtonElement ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.altKey
+    )
+      return
+    const delta: Record<string, [number, number]> = {
+      w: [0, -80],
+      a: [-80, 0],
+      s: [0, 80],
+      d: [80, 0],
+    }
+    const direction = delta[event.key.toLowerCase()]
+    if (!direction) return
+    event.preventDefault()
+    map.panBy(direction, { duration: 180 })
+  })
+  window.addEventListener(
+    'pagehide',
+    () => {
+      marker.remove()
+      map.remove()
+    },
+    { once: true },
+  )
+}
+
+void start().catch((error: unknown) => {
+  el('#loading-message', HTMLParagraphElement).textContent =
+    error instanceof Error ? error.message : 'The local map could not start.'
+  el('.loading-card h2', HTMLElement).textContent =
+    'The map needs a little preparation.'
+  el('.loading-line', HTMLElement).hidden = true
+  console.error(error)
+})

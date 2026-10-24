@@ -1,2 +1,5 @@
 dist
 package-lock.json
+data/raw
+data/processed
+public/data/san-jose-dc04

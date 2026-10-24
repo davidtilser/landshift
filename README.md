@@ -53,7 +53,9 @@ Linking educational credits to real planning or restoration funding is an option
 
 ## Project status
 
-The app is scaffolded as a Vite + TypeScript project. Scenarios and gameplay are still to be selected.
+The app uses Vite + TypeScript. The first scenario is a North San José data-center planning sketch, with a prepared local geographic pack and an interactive 3D game map.
+
+Onboarding and the game have independent entry points in the same app. See [development and ownership](docs/development.md) for the repository split and onboarding-to-game handoff, and [geographic data preparation](data/README.md) for the local data pack plan.
 
 ### Getting started
 
@@ -63,6 +65,8 @@ Requires Node 24 or newer (see `.nvmrc`).
 npm install
 npm run dev
 ```
+
+Open `/` for onboarding or `/game.html?scenario=san-jose-dc04` for the game. `npm run dev:game` opens the game directly. Prepare or extract the local geographic pack first: see [data preparation and sharing](data/README.md). The game includes offline aerial imagery, terrain, 3D buildings, layer controls and a movable concept campus. Consequence modeling is the next step.
 
 Other scripts: `npm run build`, `npm test`, `npm run lint`, `npm run typecheck`, `npm run format`.
 

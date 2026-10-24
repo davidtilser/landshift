@@ -13,6 +13,13 @@ dist
 dist-ssr
 *.local
 
+# Geographic downloads and generated runtime packs
+/data/raw/
+/data/processed/
+/data/*.tar.gz
+/public/data/*
+!/public/data/.gitkeep
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
