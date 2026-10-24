@@ -2,21 +2,28 @@
 
 **Experience mechanism and user stories for team review**
 
-LandShift is an interactive learning experience built around **San José Data Center 04**, a proposed new datacentre development in San José, California.
-
-The player explores what could happen as the datacentre is built and begins operating: how the project changes the land, requires water and electricity, affects access and roads, and raises questions about employment, soil health, and longer-term land degradation.
-
-The experience has three connected use cases:
+LandShift is an interactive learning experience built around **San José Data Center 04**, a proposed development in San José, California. The player explores its land, resource, economic, and community implications through two core use cases:
 
 1. **Understand the proposed datacentre and its impacts.**
 2. **Change the proposal and compare the implications.**
-3. **Create an alternative datacentre plan within the same region.**
 
-The three use cases describe the broader product direction. The approved hackathon scope below limits what we implement and demonstrate. The current HTML prototype tests one site-preparation milestone, optional explanations, and one illustrative area alternative; the environmental baseline and concrete trade-off described below still need to be defined.
+Creating a plan at another location is a future nice-to-have, not a third core flow.
+
+**Current prototype:** one site-preparation milestone, optional explanations, and an illustrative area alternative. Its parcel and layouts are authored; no environmental GIS layers are integrated. The vegetation baseline and concrete layout trade-off below remain to be defined.
+
+## Data and modelling principles
+
+- **Public data describe the place.** Use public geographic and environmental data for existing vegetation, surfaces, terrain, weather, waterways, and surrounding uses. Check date, resolution, and suitability for the decision; a regional layer may not resolve a narrow strip or individual trees.
+- **Shared models explain consequences.** Reuse transparent rules across projects. Distinguish physical or accounting relationships from empirical benchmarks and teaching assumptions. For example, energy equals average power multiplied by time; an assumed utilization rate is a scenario input.
+- **Project data supply essential parameters.** Add the intervention boundary, basic layout, capacity, technology, and material constraints or mitigation measures as needed for the selected milestone. Project-specific data can also be public. Use reliable project values in place of generic defaults when available.
+- **Aim for a reusable majority.** Roughly two-thirds shared data, models, and assumptions to one-third project enrichment is a design intention, not a fixed quota, measured implementation ratio, or accuracy claim.
+- **Calculate only supported effects.** Each milestone shows relevant consequences, not a required metric for every topic. Less preparation area does not automatically mean less electricity, cooling water, runoff, or land degradation. State missing evidence as an open question; use scenario ranges only with explicit assumptions.
+- **Make provenance visible.** Distinguish observations, project estimates, our calculations, and teaching assumptions. State material conditions and uncertainty; a benchmark-based estimate is not measured project performance.
+- **Keep comparisons fair.** Use the same baseline and external conditions. Show differences in delivered capacity, feasibility, and benefits alongside resource savings; do not combine incompatible technology assumptions into an unrealistically favourable alternative.
 
 ## Approved hackathon demo scope
 
-**One project, one milestone, one decision:** Today → Site preparation for the San José datacentre scenario. **Option A** is the functional learning loop: understand the original proposal and test one prepared alternative. **Option B** is a static concept preview of proposing an alternative location within the same region.
+**One project, one milestone, one decision:** Today → Site preparation. Understand the original proposal and test one prepared alternative on the same parcel.
 
 > As a young resident, I want to understand what site preparation changes, compare one alternative, and explain which option I support, its compromise, and a question that needs further investigation.
 
@@ -24,21 +31,15 @@ The three use cases describe the broader product direction. The approved hackath
 
 The proposed experiment compares the original preparation footprint with an alternative that leaves a defined strip outside the works. Before extending the prototype, define both what is preserved and what preserving it requires us to change.
 
-| Perspective                   | Minimum for the functional demo                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Environment**               | Show a defined existing vegetation-cover baseline and the area removed or retained by preparation in each version. Use sourced cover where available or an explicitly authored teaching baseline. Unprepared area alone does not establish healthy soil, protected habitat, reduced runoff, or lower desertification risk.                                                                                                                                                                                         |
-| **Economics and feasibility** | Show one concrete consequence for layout, development scope, or cost. Define the project's space requirement and show what must be reduced or redesigned to retain the strip. A sourced or explicitly authored teaching constraint is acceptable. “The buildings might not fit” alone is an uncertainty, not a demonstrated trade-off. Add a cost or budget only if its rule is supportable; do not invent a surcharge to balance the options. Land purchase price does not change when the parcel stays the same. |
-| **People and community**      | Connect one documented local concern or clearly labelled scenario perspective to this decision. Let the player express their own preference, reason, accepted compromise, and question for a developer or planner. This is practice for informed participation, not evidence of community agreement or actual influence on planning.                                                                                                                                                                               |
+| Perspective                   | Minimum for the functional demo                                                                                                                                                                                                                                                                                                                                              |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Environment**               | Define the existing vegetation baseline and show the area removed or retained in each version. Use sourced cover or an explicitly authored teaching baseline. Unprepared land alone does not establish healthy soil, protected habitat, or reduced runoff or desertification risk.                                                                                           |
+| **Economics and feasibility** | Define a space requirement and show what retaining the strip requires us to reduce or redesign. A sourced or labelled teaching constraint is acceptable. “The buildings might not fit” is an uncertainty, not a demonstrated trade-off. Add costs only with a supportable rule; do not invent a balancing surcharge. Land purchase price stays unchanged on the same parcel. |
+| **People and community**      | Connect one documented local concern or labelled scenario perspective to the decision. Invite a preference, reason, accepted compromise, and question for a planner. This practices informed participation; it does not demonstrate community agreement or influence on planning.                                                                                            |
 
-The main result overview must show the consequence and compromise without requiring any investigation to be opened. All detailed investigations remain optional: the player can open none, one, several, or all. Editing stays separate from explanations; an experiment shows its high-level result first, then offers an optional replay from the shared baseline.
+Show the consequence and compromise in the main result overview. Detailed investigations are optional and never gate progress. Editing stays separate from explanations; show results first, then offer a replay from the shared baseline.
 
-The player may support the original, prefer the alternative, or withhold judgment pending evidence. Do not presume equal delivered service if the alternative reduces development scope. The learning check is whether the player can explain their choice, its consequence, its compromise, and a useful next question; it does not require a mandatory quiz or monitoring system.
-
-### Option B: alternative-location concept preview
-
-Show a single static UI mock for approximately **10 seconds** of the presentation. It illustrates the intended future sequence: propose another site within the region → investigate land, infrastructure, and community constraints → compare with the reference proposal.
-
-Label the screen **“Concept preview — not functional.”** It contains no working site selection, placement, simulation, calculations, generated comparison results, or validated candidate-site claims. It demonstrates a possible future experience, not an implemented relocation capability. Use case 3 below remains the longer-term user story.
+Supporting the original, preferring the alternative, or withholding judgment are all valid. The learning check is whether the player can explain a choice, consequence, compromise, and useful next question; no mandatory quiz or monitoring system is required.
 
 ### Five-minute presentation
 
@@ -49,41 +50,38 @@ Label the screen **“Concept preview — not functional.”** It contains no wo
 | 1:30–2:40 | One separate edit and immediate comparison of the environmental consequence, concrete compromise, and affected perspective. |
 | 2:40–3:30 | A short optional Why replay from the same baseline.                                                                         |
 | 3:30–4:20 | The player's preference, reason, accepted compromise, and next question.                                                    |
-| 4:20–4:30 | Option B: the static alternative-location concept preview.                                                                  |
-| 4:30–5:00 | Learning takeaway, scope limitations, and buffer.                                                                           |
+| 4:20–5:00 | Learning takeaway, scope limitations, and buffer; optionally up to 10 seconds for the nice-to-have concept preview below.   |
 
-Do not implement the full lifecycle, an unrestricted new-plan editor, additional locations, employment projections, happiness scores, a complete financial model, or water, flood, soil-carbon, and desertification simulations for this demo. Employment, water, roads, and electricity can provide sourced context where relevant, without implying calculated responses to the chosen change. Five minutes is the presentation limit; remaining development time and team capacity have not been established.
+Outside this demo: the full lifecycle, unrestricted planning, additional locations, employment projections, happiness scores, complete financial modelling, and water, flood, soil-carbon, or desertification simulations. Employment, water, roads, and electricity may provide sourced context without implying calculated responses to the chosen change. The presentation limit is five minutes; remaining development time and team capacity are not established.
 
 This scope follows the [challenge brief](challenge-brief.md): a focused working learning loop with understandable consequences and social, environmental, and economic trade-offs. The [UNCCD working reference](research/unccd-land-planning-condensed.md) informs tool selection, context, and participation; it is not a mandatory feature checklist.
 
 ## The shared mechanism: follow the datacentre through time
 
-In the broader product experience, the player explores the project on a map of its surrounding area. A timeline follows the proposed development through major milestones; the functional hackathon demo includes only Today → Site preparation:
+In the broader experience, a map and timeline explain one consistent proposal. Only Today → Site preparation is in the functional hackathon demo:
 
 **The place today → Site preparation → Construction → Opening → Operation**
 
-At each milestone, the player sees a short introduction to the main event, followed by optional investigations into its implications.
+Each milestone introduces one event, followed by optional investigations:
 
-| Topic                                         | Questions the player can investigate                                                                                                                                  |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Water**                                     | What water does construction or operation require? Where would it come from? How might changes to the ground affect rainfall and drainage?                            |
-| **Soil and land**                             | What existing land cover is removed or retained? Where is soil disturbed? Which surfaces eventually become built or paved?                                            |
-| **Costs and feasibility**                     | What does a change cost or require us to redesign? What space, budget, or service constraint does it create, and who bears it?                                        |
-| **Employment**                                | What kinds of work might construction and operation create? When do those opportunities occur, and what evidence supports the estimates?                              |
-| **Roads and access**                          | How would workers, deliveries, and equipment reach the site? Which routes and nearby uses need consideration?                                                         |
-| **Land degradation and desertification risk** | Which relevant pressures on soil, vegetation, and water should be investigated? What regional evidence exists, and what can reasonably be attributed to this project? |
-| **Electricity and infrastructure**            | What connections and capacity would the datacentre need before it could operate?                                                                                      |
-| **People and community**                      | Who might experience the benefits and burdens, and what questions would they want answered?                                                                           |
+| Topic                              | Questions the player can investigate                                                                       |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Water**                          | What water is needed, from which source? What changes to rainfall drainage need investigation?             |
+| **Soil and land**                  | What vegetation is removed or retained? Where is soil disturbed or land eventually built or paved?         |
+| **Costs and feasibility**          | What must be redesigned, reduced, or paid for, and by whom?                                                |
+| **Employment**                     | Which temporary or permanent jobs are estimated, and on what evidence?                                     |
+| **Roads and access**               | How do workers, deliveries, and equipment reach the site, and who is affected?                             |
+| **Land degradation**               | Which soil, vegetation, and water pressures warrant investigation? What can be attributed to this project? |
+| **Electricity and infrastructure** | What connections, capacity, and operating energy are needed?                                               |
+| **People and community**           | Who experiences benefits or burdens, and what questions would they raise?                                  |
 
-These are broader investigation topics, not a commitment to implement a model for each topic in the hackathon demo. Quantified impacts require appropriate evidence and models. In particular, soil disturbance or vegetation removal should not automatically be presented as desertification.
-
-**Every investigation is optional.** The player can open none, one, several, or all before continuing. Five milestones with three investigations each must never become fifteen compulsory tasks.
+These are investigation topics, not a commitment to model each one. Quantification requires suitable evidence; soil disturbance or vegetation removal must not automatically be presented as desertification.
 
 Each investigation follows:
 
 **What changes → Why it happens → What it means → What remains uncertain**
 
-The player can ask contextual questions during the walkthrough. Editing happens separately, so each walkthrough explains one consistent proposal.
+Players choose their depth, can ask contextual questions, and can continue without opening an investigation. Milestones must not become a chain of compulsory tasks.
 
 ## Use case 1 — Understand the proposed datacentre
 
@@ -93,21 +91,17 @@ The player can ask contextual questions during the walkthrough. Editing happens 
 
 ### Player journey
 
-1. Select the datacentre project and inspect the existing landscape and surrounding area.
-2. Understand what is proposed, what the facility would provide, and what infrastructure it would require.
-3. Follow the development through its milestones.
-4. At each milestone, choose which implications to investigate.
-5. Explore explanations and contextual questions at their own pace.
+1. Select the project on the map and inspect the existing landscape, surrounding uses, and nearby infrastructure.
+2. Open the proposal to understand what would be built, what service it would provide, and what land and infrastructure it requires.
+3. Start from the place today and follow the timeline, with a short introduction to what changes at each milestone.
+4. Open none, one, several, or all investigations into land, water, economics, or other relevant topics without blocking progression.
+5. Ask contextual questions, distinguish sourced information from assumptions, and continue at their own pace with unresolved questions visible.
 
-For example, at **site preparation**, the player sees the proposed preparation footprint. They can investigate soil disturbance, retained vegetation, drainage questions, or access arrangements.
-
-At **construction**, investigations might address temporary work, deliveries, construction activity, and resource requirements.
-
-At **operation**, the focus shifts toward ongoing water and electricity demand, permanent employment, infrastructure dependencies, and longer-term effects.
+At **site preparation**, inspect vegetation, disturbance, drainage questions, and access. **Construction** introduces works, deliveries, and temporary resource needs. **Opening** explains readiness and infrastructure dependencies. **Operation** introduces recurring water and electricity needs, permanent employment, and longer-term questions. These later milestones describe future scope; their timing and calculations require supporting inputs.
 
 ### Successful outcome
 
-The player can explain a datacentre-related consequence, its cause, and an important uncertainty. They can complete this use case without changing the proposal.
+The player can explain a datacentre-related consequence, its cause, and an important uncertainty. They can complete this use case without changing the proposal. For example, they can describe what vegetation preparation removes, why that area is needed, and what evidence is still missing about drainage or an affected community perspective.
 
 ## Use case 2 — Change the datacentre proposal
 
@@ -117,14 +111,16 @@ The player can explain a datacentre-related consequence, its cause, and an impor
 
 ### Player journey
 
-1. Leave the walkthrough and enter a separate editing step.
-2. Create an alternative using supported decisions.
-3. Run the comparison.
-4. Immediately see the main differences.
-5. Optionally explore why those differences occur through the milestones.
-6. Revise and repeat.
+1. Leave the walkthrough and enter a separate editing step, preserving the original proposal.
+2. Choose a supported change and save an alternative with the changed parameter clearly identified.
+3. Run the comparison from the same baseline and external conditions as the original.
+4. Immediately see the main differences, including benefits, compromises, any change in delivered service, and unknowns.
+5. Optionally replay the milestones from the shared starting point to investigate where and why the proposals diverge.
+6. Revise and repeat, keep the original, or withhold judgment pending more evidence.
 
-Supported experiments could concern the development footprint, retained land, cooling configuration, scale, or construction approach. The exact available decisions depend on the evidence and calculations we can support.
+Future experiments could concern footprint, retained land, cooling, scale, or construction approach, subject to evidence and supported calculations. The hackathon supports only the prepared site-preparation alternative.
+
+For example, a smaller preparation footprint can retain more existing vegetation while reducing space for the facility and supporting works. The comparison must identify what needs to move, shrink, or be redesigned. Building fit, computing service, water, and employment implications each require their own evaluation.
 
 ### Feedback has two layers
 
@@ -133,9 +129,7 @@ Supported experiments could concern the development footprint, retained land, co
 | **Result overview**         | “What did my change cause?” | Original and alternative outcomes, differences, benefits, compromises, and unknowns. |
 | **Explanation walkthrough** | “Why did that happen?”      | A replay from the same starting point, highlighting where the proposals diverge.     |
 
-For example, a smaller preparation footprint could leave more land outside the works while leaving less space for the facility and supporting infrastructure. Any implications for building fit, computing service, water, or employment require their own evaluation.
-
-During comparison, switching proposals preserves the selected milestone, topic, and map view. Unchanged events can be passed quickly, and investigations remain optional.
+Switching proposals preserves the selected milestone, topic, and map view. Unchanged events can be passed quickly.
 
 ### Successful outcome
 
@@ -144,60 +138,25 @@ The player can connect a design decision to its consequences and explain whether
 ### Design boundaries
 
 - The original proposal remains preserved.
-- Comparable alternatives use the same conditions.
-- Reducing development scale also reveals any reduction in delivered benefits.
 - Keeping the original is valid.
 - Individual outcomes remain visible rather than being compressed into one universal “best project” score.
 
-## Use case 3 — Create an alternative datacentre plan
-
-**Hackathon status:** Option B is represented only by the static 10-second concept preview described above. The journey and outcome below describe future functionality, not a working part of this demo.
-
-### User story
-
-> As a player, I want to propose a different datacentre plan within the San José region, so that I can investigate whether another location or arrangement could better address environmental and community needs.
-
-The player starts a new proposal over the existing landscape. The datacentre remains the development being considered, and relocation stays within the defined region.
-
-### Player journey
-
-1. Understand the development objective, regional boundary, and constraints.
-2. Start a new proposal.
-3. Choose among supported candidate locations and planning decisions.
-4. Evaluate the plan and inspect its main implications.
-5. Explore its milestone-based explanation.
-6. Compare it with the reference proposal or another saved alternative.
-7. Revise and prepare a recommendation.
-
-Potential decisions include location, footprint, scale, layout, and infrastructure approach. The exact decisions and eligible locations remain to be defined.
-
-### Successful outcome
-
-The player can present an alternative datacentre plan and explain its benefits, compromises, feasibility questions, and missing evidence.
-
-### Design boundaries
-
-- A new proposal retains the existing landscape as its baseline.
-- Candidate sites are distinguished from locations with unknown suitability or availability.
-- Comparisons reveal differences in the service and benefits provided.
-- This use case reuses the same timeline, investigation, and comparison mechanism.
-
-## Principles shared across all three use cases
+## Experience principles
 
 - **Optional depth:** players choose which implications to investigate.
 - **Stable walkthroughs:** parameters remain unchanged while a proposal is being explained.
 - **Results before explanation:** experiments first show the differences, then offer the causal walkthrough.
-- **Traceable consequences:** observations, project information, calculations, and assumptions remain distinguishable.
-- **Visible uncertainty:** unsupported effects become explicit questions.
-- **Open conclusions:** retaining, changing, relocating, deferring, or requesting more evidence can all be reasoned outcomes.
+- **Open conclusions:** retaining, changing, deferring, or requesting more evidence can all be reasoned outcomes.
 - **Learning through reasoning:** success means understanding a consequence and its trade-offs.
+
+## Nice-to-have — Alternative datacentre location (former use case 3)
+
+A future extension could compare another site within the same region, after checking land, infrastructure, and community constraints. It is not a core flow or functional demo requirement. If useful, show a static preview for up to 10 seconds, labelled **“Concept preview — not functional.”** The preview must not suggest working site selection, simulations, generated comparisons, or validated candidate sites.
 
 ## Questions for the team’s review
 
-1. Do these three use cases describe the datacentre experience we want?
-2. Does the milestone structure make the project understandable without requiring every investigation?
-3. Does separating explanations from editing make experimentation clearer?
-4. Does the result-first, explanation-second sequence provide useful feedback?
-5. Which impacts and planning decisions should the first usable version support?
+1. Do the two core flows make the project and its trade-offs understandable?
+2. Are results clear before optional explanations, with editing kept separate?
+3. Which public baseline, project inputs, and concrete layout compromise can we support for the first milestone?
 
 **The immediate goal remains to validate the mechanism on one milestone before expanding the datacentre lifecycle or planning freedom.**
