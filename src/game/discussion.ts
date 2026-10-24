@@ -1,6 +1,6 @@
 import { evaluatePlan } from './consequences.ts'
-import { communityVoices, nextChallenge } from './community.ts'
-import type { CommunityVoice, VoiceId } from './community.ts'
+import { nextChallenge } from './community.ts'
+import type { CommunityVoice, VoiceId, MiniChallenge } from './community.ts'
 import type {
   GameYear,
   PlanChoices,
@@ -23,10 +23,12 @@ export interface DiscussionRequest {
   question: string
   history: DiscussionTurn[]
   context: DiscussionContext
+  topic?: DiscussionTopic
 }
 export interface DiscussionReply {
   text: string
   source: 'scripted' | 'gemma'
+  topic: DiscussionTopic
 }
 /** Replace this adapter with Gemma later; the UI does not depend on an SDK. */
 export interface DiscussionProvider {
@@ -36,18 +38,20 @@ export interface DiscussionProvider {
   ) => Promise<DiscussionReply>
 }
 
-type Topic =
+export type DiscussionTopic =
   | 'water'
   | 'power'
   | 'nature'
   | 'flood'
   | 'benefit'
+  | 'training'
+  | 'access'
   | 'budget'
   | 'site'
   | 'next'
   | 'hello'
   | 'other'
-function topicOf(text: string): Topic {
+function topicOf(text: string): DiscussionTopic {
   if (/flood|hazard|safe|storm|rainwater/.test(text)) return 'flood'
   if (/water|cool|drought|dry summer/.test(text)) return 'water'
   if (/power|electric|energy|grid/.test(text)) return 'power'
@@ -57,12 +61,9 @@ function topicOf(text: string): Topic {
     )
   )
     return 'nature'
-  if (
-    /job|train|skill|benefit|student|young|youth|walk|path|access|communit/.test(
-      text,
-    )
-  )
-    return 'benefit'
+  if (/job|train|skill/.test(text)) return 'training'
+  if (/walk|path|access/.test(text)) return 'access'
+  if (/benefit|student|young|youth|communit/.test(text)) return 'benefit'
   if (/budget|credit|cost|money|afford/.test(text)) return 'budget'
   if (/where|site|place|footprint|building|river|park/.test(text)) return 'site'
   if (
@@ -87,8 +88,9 @@ export function scriptedDiscussion(
 ): DiscussionReply {
   const { voice, context, question } = request
   const { choices, site, year, weather } = context
-  let topic = topicOf(question.toLowerCase())
+  let topic = request.topic ?? topicOf(question.toLowerCase())
   if (
+    !request.topic &&
     /^(why|how so|what about that|tell me more|how would that help)[?!. ]*$/i.test(
       question.trim(),
     )
@@ -104,38 +106,52 @@ export function scriptedDiscussion(
     case 'water':
       text =
         choices.cooling === 'evaporative'
-          ? 'Water cooling saves electricity, but uses the most cooling water in our game. Try “Mix air + water” and watch both columns. Would that compromise work for you?'
-          : 'Your cooling choice uses less direct water than water cooling, but needs more electricity in our game. Saving water is a win with a trade-off. Would you compare it with the other cooling cards?'
+          ? 'Water cooling saves electricity but uses the most cooling water in our game. Hybrid or air cooling saves water, with more power needed.'
+          : 'Your plan uses less direct water, but more electricity than water cooling in our game. Which matters more to you?'
       break
     case 'power':
       text =
-        'Air cooling uses the most electricity in our model while saving the most cooling water. Hybrid sits between the two. Which resource would you protect first, and why?'
+        'Air cooling saves the most water but uses the most power in our game. Hybrid is the middle option.'
       break
     case 'nature':
       text =
-        choices.restoration === 'none' && !choices.trees
-          ? 'This plan has no new planting yet. Trees can add shade as they grow; a meadow offers habitat, and a rain garden slows rainfall. Try a nature card and then visit Year 10.'
-          : choices.restoration === 'rain-garden'
-            ? 'Your rain garden can slow rainfall, and your trees need time and care to grow. It does not remove mapped flood exposure. What changes when you jump to Year 10?'
-            : 'Your planting makes room for nature in this game. Young trees need years of care before they offer much shade. Compare Now and Year 10—what would you keep funding after opening day?'
+        site.buildings || site.water || site.parks
+          ? 'Planting adds habitat, but cannot cancel a mapped footprint conflict. We still need to compare another spot.'
+          : site.flood && /rain|flood/i.test(question)
+            ? 'A rain garden can slow rainfall and add habitat. It does not remove this mapped flood exposure. We still need to compare locations.'
+            : choices.restoration === 'none' && !choices.trees
+              ? 'Trees bring shade over time. A meadow adds habitat; a rain garden slows rainfall. What would you make room for?'
+              : choices.restoration === 'rain-garden'
+                ? 'Your rain garden slows rainfall. It does not remove mapped flood exposure. Trees still need time and care.'
+                : 'New habitat is a start! Trees need years of care before they give much shade. Peek at Year 10.'
       break
     case 'flood':
       text = site.flood
-        ? 'The downloaded flood map flags this footprint. Trees and rain gardens do not remove that exposure. Try another spot and compare the warning; this game cannot tell us flood depth or approve a safe site.'
-        : 'This footprint has no flagged overlap in our downloaded flood layer. That is a useful check, not a guarantee of safety. A planner would still need more evidence, including flood depths and site conditions.'
+        ? 'This map flags flood exposure. Trees do not remove it. We cannot tell flood depth here—try comparing another spot.'
+        : 'No flagged flood overlap here. That is not a guarantee of safety; a planner still needs more evidence.'
+      break
+    case 'training':
+      text = choices.training
+        ? 'Your training card offers 12 fictional places per year. It is not a forecast of real jobs. Who should get to apply?'
+        : 'Paid training could share new skills: 12 fictional places a year for 12 game credits. That is not a forecast of real jobs.'
+      break
+    case 'access':
+      text = choices.access
+        ? 'Your green path shares space beyond the gates. It still needs suitable land and real access permission. Who would use it?'
+        : 'A green path costs 10 game credits and offers space to walk. Real access still needs permission. Would you choose space or skills?'
       break
     case 'benefit':
       text = choices.training
-        ? 'You chose paid local training: 12 fictional places a year in this game. That offers a way to learn skills; it is not a forecast of real jobs. How would you make those opportunities fair to apply for?'
+        ? 'Training shares skills. A path shares space. Different neighbors might value each differently—who else should we ask?'
         : choices.access
-          ? 'Your proposed green path gives neighbors somewhere to walk outside the secure campus. Real access would still need permission and suitable land. Who should help design that space?'
-          : 'The current plan offers neither training nor a shared path. The Share cards let you fund paid local training or propose a green walking space. Which would matter most to people here?'
+          ? 'A path gives people somewhere to walk. Training offers skills instead. There is more than one way to share a benefit.'
+          : 'No training or shared path yet. We could share skills, or a place to walk. Which would help people here?'
       break
     case 'budget':
       text =
         result.remaining < 0
-          ? `Your upgrades are ${String(-result.remaining)} game credits over budget. Try swapping a cooling or nature card, then compare what you give up. Credits are a game allowance, not real construction costs.`
-          : `You have ${String(result.remaining)} game credits left. Spend them on the trade-off that matters to you, or keep comparing alternatives. These credits are not real money or a construction estimate.`
+          ? `We are ${String(-result.remaining)} game credits over. Something has to give—cooling, planting, or shared benefits. These are fictional credits, not real costs.`
+          : `${String(result.remaining)} game credits left. What would you fund first? Game credits are not real construction costs.`
       break
     case 'site': {
       const conflicts = [
@@ -144,37 +160,33 @@ export function scriptedDiscussion(
         site.parks ? 'a park or trail corridor' : '',
       ].filter(Boolean)
       text = conflicts.length
-        ? `The footprint overlaps mapped ${conflicts.join(' and ')}. Adding trees or training cannot cancel that conflict. Use Move to try a clear footprint and check the map again.`
+        ? `Mapped ${conflicts.join(' and ')} overlap this footprint. Trees cannot cancel that conflict. Let’s compare another spot.`
         : site.flood
-          ? 'The footprint is clear of the mapped buildings, water, and parks we check, but it still overlaps a mapped flood area. Try another location and compare. A clear map check alone is not permission to build.'
-          : 'The footprint is clear of the mapped overlaps this game checks. Ownership, permits, and detailed environmental suitability still need evidence. Could another location offer a better balance?'
+          ? 'No building, water or park overlap—but this spot has mapped flood exposure. A clear footprint alone is not permission to build.'
+          : 'The mapped footprint checks are clear. We still need evidence about ownership, permits and environmental suitability.'
       break
     }
     case 'next': {
       const challenge = nextChallenge(choices, site)
-      const reason =
-        challenge.id === 'water'
-          ? 'Our water-heavy cooling choice saves electricity but puts more demand on water.'
-          : challenge.id === 'flood'
-            ? 'Planting and shared benefits leave the mapped flood exposure unresolved.'
-            : challenge.id === 'site'
-              ? 'The mapped footprint conflict stays even if we add upgrades.'
-              : challenge.id === 'budget'
-                ? 'We need to make a compromise to stay within the game allowance.'
-                : perspectives[voice.id]
-      text = `${reason} My next experiment would be: ${challenge.title.toLowerCase()}. Tap “Try the challenge” to explore it yourself.`
+      const reasons: Record<MiniChallenge['id'], string> = {
+        water: 'Watch for the electricity trade-off.',
+        nature: 'What would you trade for shade or habitat?',
+        share: 'Would you share skills or a place to walk?',
+        budget: 'Every upgrade means a compromise.',
+        site: 'Upgrades cannot erase a mapped overlap.',
+        flood: 'Planting does not remove mapped flood exposure.',
+        compare: 'Trees grow slowly; compare Now with Year 10.',
+      }
+      text = challenge.title + '. ' + reasons[challenge.id]
       break
     }
     case 'hello':
-      text = `${perspectives[voice.id]} What would you like to discuss about your plan?`
+      text = perspectives[voice.id] + ' What should we explore?'
       break
-    case 'other': {
-      const current = communityVoices(choices, site).find(
-        (item) => item.id === voice.id,
-      )
-      text = `${current?.quote ?? perspectives[voice.id]} In this demo, I can discuss water, power, nature, flood checks, shared benefits, or your budget. Which one shall we explore?`
+    case 'other':
+      text =
+        'In this demo, pick water, power, nature, flood maps, benefits or budget. Which trade-off shall we explore?'
       break
-    }
   }
   if (topic !== 'next' && topic !== 'hello' && topic !== 'other') {
     const lead =
@@ -187,7 +199,7 @@ export function scriptedDiscussion(
             : ''
     text = lead + text
   }
-  return { text, source: 'scripted' }
+  return { text, source: 'scripted', topic }
 }
 
 export const mockDiscussionProvider: DiscussionProvider = {
@@ -204,7 +216,7 @@ export const mockDiscussionProvider: DiscussionProvider = {
       const timer = window.setTimeout(() => {
         signal.removeEventListener('abort', cancel)
         resolve(scriptedDiscussion(request))
-      }, 350)
+      }, 180)
       signal.addEventListener('abort', cancel, { once: true })
     }),
 }

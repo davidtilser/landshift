@@ -28,7 +28,7 @@ describe('scripted character discussion', () => {
     const before = structuredClone(context)
     const reply = scriptedDiscussion(request('What should I try?'))
     expect(reply.source).toBe('scripted')
-    expect(reply.text).toContain('Try the challenge')
+    expect(reply.text).toContain('cooling with less water')
     expect(context).toEqual(before)
   })
   it('responds to the latest cooling choice rather than an old conversation', () => {
@@ -61,7 +61,7 @@ describe('scripted character discussion', () => {
       request('Is it safe from flooding now?', 'nature', current),
     )
     expect(reply.text).toContain('do not remove')
-    expect(reply.text).toContain('cannot tell us flood depth')
+    expect(reply.text).toContain('cannot tell flood depth')
   })
   it('does not call an unflagged footprint guaranteed safe', () => {
     const current: DiscussionContext = {

@@ -84,6 +84,8 @@ The source's network policy permits only the local origin and the explicit Cesiu
 
 `src/game/character-chat.ts` manages accessible character conversations and per-speaker tab memory. Cesium picks on the speech label/tail call `Gameplay.openDiscussion()`; a keyboard-accessible button opens the same dialog. `src/game/discussion.ts` provides the typed `DiscussionProvider` boundary and the current deterministic, local mock. Replace that adapter when integrating Gemma; keep credentials on a server and retain current-plan context on every turn. No inference dependency is installed for the mock. Reset aborts pending replies and clears conversations; final destruction also removes the dialog.
 
+`src/game/dialogue-choices.ts` owns the authored three-choice branches and their typed map targets. Chosen lines pass an explicit topic to the mock; optional typed questions use topic matching. `Gameplay.exploreIdea()` opens the relevant controls without applying choices. Short responses and branch invariants are checked in `dialogue-choices.test.ts`. The main dialogue shows the latest line; transcript history and typing are collapsed by default.
+
 Checkpoint `687efda` was pushed before this game-board redesign and includes the prior dashboard-style game plus the team's documentation updates.
 
 ### Rollback checkpoint

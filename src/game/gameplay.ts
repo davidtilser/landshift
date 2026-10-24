@@ -1,6 +1,7 @@
 import './gameplay.css'
 import { choiceArt } from './choice-art.ts'
 import { CharacterChat } from './character-chat.ts'
+import type { DialogueTarget } from './dialogue-choices.ts'
 import {
   communityVoices,
   nextChallenge,
@@ -305,8 +306,8 @@ export class Gameplay {
         year: this.year,
         weather: this.weather,
       }),
-      tryChallenge: () => {
-        this.followChallenge()
+      tryIdea: (target) => {
+        this.exploreIdea(target)
       },
     })
     this.render()
@@ -615,8 +616,10 @@ export class Gameplay {
   }
 
   private followChallenge(): void {
+    this.exploreIdea(this.miniChallenge?.target)
+  }
+  private exploreIdea(target: DialogueTarget | undefined): void {
     if (this.running) return
-    const target = this.miniChallenge?.target
     this.callbacks.beforeExperiment()
     if (target === 'move') {
       this.voiceId = 'neighbor'
