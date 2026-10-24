@@ -106,4 +106,6 @@ Run `npm run check` before pushing. The same command runs on every push and pull
 
 ## Brief
 
+Read the full [challenge brief from the Notion hackpack](docs/challenge-brief.md).
+
 This README summarizes the team-provided track brief, **Engaging Youth in Sustainable Land-Use Decisions**. It describes the intended direction and constraints, not completed functionality.
