@@ -64,7 +64,7 @@ npm install
 npm run dev
 ```
 
-Other scripts: `npm run build`, `npm test`, `npm run lint`, `npm run typecheck`, `npm run format`.
+Other scripts: `npm run build`, `npm test`, `npm run lint`, `npm run typecheck`, `npm run format`, and `npm run textures` (regenerates `public/textures/` from NASA originals cached in `.cache/textures/`).
 
 ### TypeScript and lint checks
 
@@ -74,6 +74,7 @@ Run `npm run check` before pushing. The same command runs on every push and pull
 - Type-aware ESLint rejects explicit `any`, unsafe assignments and casts, non-null assertions, floating or misused promises, and non-exhaustive union switches. Use `unknown` for external input and validate it before use.
 - Declare function return types and public parameter types, use `import type` for type-only imports, and narrow nullable values with runtime guards. Let TypeScript infer local variables and inline callbacks where their types are already known.
 - Prefer discriminated unions and exhaustive handling for states. Fix type errors at their source instead of bypassing them with assertions or disabling rules.
+- `scripts/` is type-checked through `scripts/tsconfig.json` with Node types. Keep it to erasable syntax only, because Node runs these files by stripping types.
 
 ### Stack
 
