@@ -1,17 +1,18 @@
 import { findRegion, isSelectable } from '../regions/regions.ts'
+import { findScenario, isPlayableIn } from '../scenarios/scenarios.ts'
 
+/** `regionFocused` is the brief card with the region's scenarios. */
 export type LandingState =
   | { screen: 'idle' }
-  | { screen: 'explore'; hoveredRegionId: string | null }
+  | { screen: 'explore' }
   | { screen: 'regionFocused'; regionId: string }
-  | { screen: 'handoff'; regionId: string }
+  | { screen: 'handoff'; regionId: string; scenarioId: string }
 
 export type LandingEvent =
   | { type: 'explore' }
-  | { type: 'hoverRegion'; regionId: string | null }
   | { type: 'selectRegion'; regionId: string }
   | { type: 'back' }
-  | { type: 'startGame' }
+  | { type: 'startGame'; scenarioId: string }
   | { type: 'handoffFailed' }
 
 export type LandingListener = (state: LandingState) => void
@@ -32,7 +33,7 @@ function back(state: LandingState): LandingState {
     case 'explore':
       return { screen: 'idle' }
     case 'regionFocused':
-      return { screen: 'explore', hoveredRegionId: null }
+      return { screen: 'explore' }
   }
 }
 
@@ -41,13 +42,18 @@ function canSelect(state: LandingState, regionId: string): boolean {
   if (region === undefined || !isSelectable(region)) return false
   switch (state.screen) {
     case 'idle':
+    case 'handoff':
+      return false
     case 'explore':
       return true
     case 'regionFocused':
       return state.regionId !== regionId
-    case 'handoff':
-      return false
   }
+}
+
+function canStart(regionId: string, scenarioId: string): boolean {
+  const scenario = findScenario(scenarioId)
+  return scenario !== undefined && isPlayableIn(scenario, regionId)
 }
 
 /** Returns `state` itself when `event` does not apply. */
@@ -57,18 +63,7 @@ export function transition(
 ): LandingState {
   switch (event.type) {
     case 'explore':
-      return state.screen === 'idle'
-        ? { screen: 'explore', hoveredRegionId: null }
-        : state
-    case 'hoverRegion':
-      if (
-        state.screen !== 'explore' ||
-        state.hoveredRegionId === event.regionId ||
-        (event.regionId !== null && findRegion(event.regionId) === undefined)
-      ) {
-        return state
-      }
-      return { screen: 'explore', hoveredRegionId: event.regionId }
+      return state.screen === 'idle' ? { screen: 'explore' } : state
     case 'selectRegion':
       return canSelect(state, event.regionId)
         ? { screen: 'regionFocused', regionId: event.regionId }
@@ -76,8 +71,13 @@ export function transition(
     case 'back':
       return back(state)
     case 'startGame':
-      return state.screen === 'regionFocused'
-        ? { screen: 'handoff', regionId: state.regionId }
+      return state.screen === 'regionFocused' &&
+        canStart(state.regionId, event.scenarioId)
+        ? {
+            screen: 'handoff',
+            regionId: state.regionId,
+            scenarioId: event.scenarioId,
+          }
         : state
     case 'handoffFailed':
       return state.screen === 'handoff'
@@ -89,7 +89,7 @@ export function transition(
 export function createLandingStore(initial: LandingState): LandingStore {
   let state = initial
   const listeners = new Set<LandingListener>()
-  // Listeners may dispatch (focus moves fire hover events); queue so each sees states in order.
+  // Listeners may dispatch (a failed handoff reports back mid-render); queue so each sees states in order.
   const queue: LandingEvent[] = []
   let notifying = false
 

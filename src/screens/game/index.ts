@@ -1,12 +1,18 @@
 import { findRegion } from '../../regions/regions.ts'
+import { findScenario } from '../../scenarios/scenarios.ts'
 import '../../ui/ui.css'
 
-export function mountGame(root: HTMLElement, regionId: string): void {
-  const label = findRegion(regionId)?.label ?? regionId
+export function mountGame(
+  root: HTMLElement,
+  regionId: string,
+  scenarioId: string,
+): void {
+  const regionLabel = findRegion(regionId)?.label ?? regionId
+  const scenarioLabel = findScenario(scenarioId)?.label ?? scenarioId
 
   const heading = document.createElement('h1')
   heading.tabIndex = -1
-  heading.textContent = `Game coming soon for ${label}`
+  heading.textContent = `Game coming soon: ${scenarioLabel} in ${regionLabel}`
 
   const back = document.createElement('button')
   back.type = 'button'

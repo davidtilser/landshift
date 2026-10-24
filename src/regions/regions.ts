@@ -10,6 +10,8 @@ export interface Region {
   center: LatLng
   /** Camera height above the surface when focused, in globe radii. */
   altitude: number
+  /** One-line brief shown when the region opens; `null` for regions that cannot be opened. */
+  summary: string | null
   children: readonly Region[]
 }
 
@@ -23,11 +25,20 @@ interface RegionPlacement {
 
 interface LeafPlacement extends RegionPlacement {
   enabled: boolean
+  summary?: string
 }
 
 function leaf(placement: LeafPlacement): Region {
   const { id, label, lat, lng, altitude, enabled } = placement
-  return { id, label, enabled, center: { lat, lng }, altitude, children: [] }
+  return {
+    id,
+    label,
+    enabled,
+    center: { lat, lng },
+    altitude,
+    summary: placement.summary ?? null,
+    children: [],
+  }
 }
 
 // A container is browsable exactly when something inside it can be played.
@@ -39,6 +50,7 @@ function area(placement: RegionPlacement, children: readonly Region[]): Region {
     enabled: children.some((child) => child.enabled),
     center: { lat, lng },
     altitude,
+    summary: null,
     children,
   }
 }
@@ -69,6 +81,8 @@ export const regions: readonly Region[] = [
             lng: -122.3,
             altitude: 0.35,
             enabled: true,
+            summary:
+              'Cities, farms, and wild land in the SF Bay Area compete for the same soil and water.',
           }),
           leaf({
             id: 'los-angeles-basin',
@@ -190,6 +204,9 @@ function indexRegions(list: readonly Region[]): void {
   for (const region of list) {
     if (regionsById.has(region.id)) {
       throw new Error(`Duplicate region id: ${region.id}`)
+    }
+    if (isSelectable(region) && region.summary === null) {
+      throw new Error(`Selectable region ${region.id} needs a summary`)
     }
     regionsById.set(region.id, region)
     indexRegions(region.children)

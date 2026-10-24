@@ -1,15 +1,25 @@
 import { createLandingStore } from '../../app/state.ts'
 import { mountLanding } from '../../screens/landing/landing.ts'
-import type {
-  GlobeTarget,
-  LandingGlobe,
-  LandingMarker,
+import {
+  OVERVIEW,
+  type GlobeTarget,
+  type LandingGlobe,
+  type LandingMarker,
 } from '../../screens/landing/landingGlobe.ts'
 import './menu-preview.css'
 
 interface FakeGlobe extends LandingGlobe {
   destroy(): void
 }
+
+interface Pill {
+  marker: LandingMarker
+  button: HTMLButtonElement
+}
+
+const DEGREES_PER_PIXEL = 0.3
+// Matches the real globe's default flyTo duration so the preview feels the same.
+const FLY_DURATION_MS = 1500
 
 function formatTarget(target: GlobeTarget | null): string {
   if (!target) return 'none'
@@ -22,51 +32,115 @@ function line(text: string): HTMLDivElement {
   return element
 }
 
+/** Wraps a longitude difference into [-180, 180). */
+function wrapDegrees(degrees: number): number {
+  return ((((degrees + 180) % 360) + 360) % 360) - 180
+}
+
+function toRadians(degrees: number): number {
+  return (degrees * Math.PI) / 180
+}
+
 function createFakeGlobe(host: HTMLElement): FakeGlobe {
   let highlighted: string | null = null
   let target: GlobeTarget | null = null
+  let viewLng = OVERVIEW.lng
   let autoRotate = true
   let paused = false
+  let interactive = true
+  let dragStartX: number | null = null
+  let flight = 0
   const clickListeners = new Set<(id: string) => void>()
-  const markerButtons = new Map<string, HTMLButtonElement>()
+  let pills: Pill[] = []
 
-  const info = document.createElement('div')
-  info.className = 'fake-globe'
-  const markerList = document.createElement('div')
-  markerList.className = 'fake-globe-markers'
+  const sphere = document.createElement('div')
+  sphere.className = 'fake-globe'
+  const status = document.createElement('div')
+  status.className = 'fake-globe-status'
   const stage = document.createElement('div')
   stage.className = 'fake-globe-stage'
-  stage.append(info, markerList)
+  stage.append(sphere, status)
   host.append(stage)
 
   function log(method: string, ...args: unknown[]): void {
     console.info(`[fake globe] ${method}`, ...args)
   }
 
-  function draw(): void {
-    info.replaceChildren(
-      line(`highlighted: ${highlighted ?? 'none'}`),
-      line(`target: ${formatTarget(target)}`),
-      line(`auto-rotate: ${autoRotate ? 'on' : 'off'}`),
-      line(`paused: ${paused ? 'yes' : 'no'}`),
-    )
-    for (const [id, button] of markerButtons) {
-      button.toggleAttribute('data-highlighted', id === highlighted)
+  // Equirectangular-on-disk is enough to show which side of the planet faces the viewer.
+  function placePills(): void {
+    for (const { marker, button } of pills) {
+      const offset = wrapDegrees(marker.lng - viewLng)
+      button.hidden = Math.abs(offset) > 90
+      const x =
+        50 + 46 * Math.sin(toRadians(offset)) * Math.cos(toRadians(marker.lat))
+      const y = 50 - 46 * Math.sin(toRadians(marker.lat))
+      button.style.left = `${x.toFixed(2)}%`
+      button.style.top = `${y.toFixed(2)}%`
+      button.toggleAttribute('data-highlighted', marker.id === highlighted)
     }
   }
 
-  function createMarkerButton(marker: LandingMarker): HTMLButtonElement {
+  function draw(): void {
+    status.replaceChildren(
+      line(`view: ${viewLng.toFixed(1)}° lng`),
+      line(`highlighted: ${highlighted ?? 'none'}`),
+      line(`target: ${formatTarget(target)}`),
+      line(`auto-rotate: ${autoRotate ? 'on' : 'off'}`),
+      line(`interactive: ${interactive ? 'on' : 'off'}`),
+      line(`paused: ${paused ? 'yes' : 'no'}`),
+    )
+    stage.toggleAttribute('data-interactive', interactive)
+    placePills()
+  }
+
+  function createPill(marker: LandingMarker): Pill {
     const button = document.createElement('button')
     button.type = 'button'
+    button.tabIndex = -1
+    button.className = marker.enabled
+      ? 'fake-pill fake-pill-enabled'
+      : 'fake-pill fake-pill-disabled'
     button.textContent = marker.enabled
       ? marker.label
-      : `${marker.label} (disabled)`
+      : `${marker.label} · Coming soon`
+    if (!marker.enabled) button.setAttribute('aria-disabled', 'true')
     button.addEventListener('click', () => {
-      log('marker click', marker.id)
+      if (!marker.enabled || !interactive) {
+        log('pill click ignored', marker.id)
+        return
+      }
+      log('pill click', marker.id)
       for (const listener of [...clickListeners]) listener(marker.id)
     })
-    return button
+    return { marker, button }
   }
+
+  const onDragMove = (event: PointerEvent): void => {
+    if (dragStartX === null) return
+    viewLng = wrapDegrees(
+      viewLng - (event.clientX - dragStartX) * DEGREES_PER_PIXEL,
+    )
+    dragStartX = event.clientX
+    draw()
+  }
+  const endDrag = (): void => {
+    window.removeEventListener('pointermove', onDragMove)
+    window.removeEventListener('pointerup', endDrag)
+    window.removeEventListener('pointercancel', endDrag)
+    if (dragStartX === null) return
+    dragStartX = null
+    log('drag end', viewLng)
+  }
+  stage.addEventListener('pointerdown', (event) => {
+    if (!interactive) return
+    if (event.target instanceof Element && event.target.closest('button')) {
+      return
+    }
+    dragStartX = event.clientX
+    window.addEventListener('pointermove', onDragMove)
+    window.addEventListener('pointerup', endDrag)
+    window.addEventListener('pointercancel', endDrag)
+  })
 
   draw()
 
@@ -75,9 +149,23 @@ function createFakeGlobe(host: HTMLElement): FakeGlobe {
       log('flyTo', next)
       target = next
       autoRotate = false
-      draw()
+      const startLng = viewLng
+      const delta = wrapDegrees(next.lng - startLng)
+      const startedAt = performance.now()
+      cancelAnimationFrame(flight)
       return new Promise((resolve) => {
-        setTimeout(resolve, 600)
+        const step = (now: number): void => {
+          const t = Math.min(1, (now - startedAt) / FLY_DURATION_MS)
+          const eased = t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2
+          viewLng = wrapDegrees(startLng + delta * eased)
+          draw()
+          if (t < 1) {
+            flight = requestAnimationFrame(step)
+          } else {
+            resolve()
+          }
+        }
+        flight = requestAnimationFrame(step)
       })
     },
     setAutoRotate(enabled: boolean): void {
@@ -87,11 +175,8 @@ function createFakeGlobe(host: HTMLElement): FakeGlobe {
     },
     setMarkers(markers: readonly LandingMarker[]): void {
       log('setMarkers', markers)
-      markerButtons.clear()
-      for (const marker of markers) {
-        markerButtons.set(marker.id, createMarkerButton(marker))
-      }
-      markerList.replaceChildren(...markerButtons.values())
+      pills = markers.map(createPill)
+      sphere.replaceChildren(...pills.map((pill) => pill.button))
       draw()
     },
     highlightMarker(id: string | null): void {
@@ -105,6 +190,12 @@ function createFakeGlobe(host: HTMLElement): FakeGlobe {
       return () => {
         clickListeners.delete(listener)
       }
+    },
+    setInteractive(enabled: boolean): void {
+      log('setInteractive', enabled)
+      interactive = enabled
+      if (!enabled) dragStartX = null
+      draw()
     },
     pause(): void {
       log('pause')
@@ -142,7 +233,7 @@ const globe = createFakeGlobe(globeHost)
 const unmountLanding = mountLanding(app, store, {
   globeHost,
   globe,
-  onHandoff: (regionId) => {
+  onHandoff: (regionId, scenarioId) => {
     import('../../screens/game/index.ts')
       .then((game) => {
         if (simulateHandoffFailure) {
@@ -154,7 +245,7 @@ const unmountLanding = mountLanding(app, store, {
         ({ mountGame }) => {
           unmountLanding()
           globe.destroy()
-          mountGame(app, regionId)
+          mountGame(app, regionId, scenarioId)
         },
         (error: unknown) => {
           console.error('Could not load the game', error)
