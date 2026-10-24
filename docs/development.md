@@ -52,9 +52,9 @@ When both parts are ready, the visible integration work is one start button call
 2. **Real geographic pack:** bounded San José pack prepared; see `data/README.md` for reproduction and sharing.
 3. **Map:** local aerial imagery, terrain, buildings and geographic overlays implemented.
 4. **Placement:** move and rotate an illustrative two-block campus inside the playable boundary; building, tree and special flood-area intersections are shown.
-5. **Learning loop:** compare development and restoration choices with documented environmental, social, and economic consequences.
+5. **Learning loop:** cooling, trees, restoration and community choices; weather tests; 0/5/10-year views; fixed-reference comparison and optional reflection (implemented as an illustrative sandbox). See [game rules and assumptions](game-model.md).
 
-The current game page uses CesiumJS. Drag to pan, scroll to zoom, right-drag to orbit and tilt, and use the 2D/3D toggle or frame-site control to reset the view. Camera presets fly between neighborhood, project and close-up views. Move the concept with its handle or click **Move campus**, preview a location with the pointer, and click to place. Invalid clicks keep placement active; Escape restores the position before the preview. Focus the handle and use arrow keys for precise movement. Consequence and restoration models are not implemented yet.
+The current game page uses CesiumJS. Drag to pan, scroll to zoom, right-drag to orbit and tilt, and use the 2D/3D toggle or frame-site control to reset the view. Camera presets fly between neighborhood, project and close-up views. Move the concept with its handle or click **Move campus**, preview a location with the pointer, and click to place. Invalid clicks keep placement active; Escape restores the position before the preview. Focus the handle and use arrow keys for precise movement. The consequence sandbox uses local GIS checks and explicit teaching rules; see `src/game/consequences.ts`, `src/game/gameplay.ts` and `src/game/landscape-graphics.ts`. It does not predict the real project’s outcomes.
 
 ## Cesium renderer
 

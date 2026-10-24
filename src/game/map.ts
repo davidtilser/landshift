@@ -44,6 +44,9 @@ import type { LngLat } from './geometry.ts'
 import { boundary, campus } from './geometry.ts'
 import { createLocalTerrain, sampleElevation } from './terrain.ts'
 import { CampusGraphics } from './campus-graphics.ts'
+import { LandscapeGraphics } from './landscape-graphics.ts'
+import { DEFAULT_CHOICES } from './consequences.ts'
+import type { PlanChoices, GameYear, Weather } from './consequences.ts'
 import {
   beginCampusDrag,
   dragCampus,
@@ -134,6 +137,10 @@ export class GameScene {
   private readonly handle: HTMLButtonElement
   private readonly facade = facadeTexture()
   private readonly campusGraphics: CampusGraphics
+  private readonly landscapeGraphics: LandscapeGraphics
+  private landscapeChoices: PlanChoices = { ...DEFAULT_CHOICES }
+  private landscapeYear: GameYear = 0
+  private landscapeWeather: Weather = 'drought'
   private tileset: Cesium3DTileset | undefined
   private activeToken = ''
   private campusCenter: LngLat
@@ -233,6 +240,9 @@ export class GameScene {
     })
     this.buildLocalScene()
     this.campusGraphics = new CampusGraphics(this.group('campus'), this.facade)
+    this.landscapeGraphics = new LandscapeGraphics(
+      this.group('proposed-landscape'),
+    )
     this.updateCampus(
       campus(this.campusCenter, 28).volumes,
       this.campusCenter,
@@ -487,6 +497,29 @@ export class GameScene {
     }
     this.campusHeight = ground
     this.campusGraphics.update(volumes, ground)
+    this.landscapeGraphics.update(
+      center,
+      bearing,
+      ground,
+      this.landscapeChoices,
+      this.landscapeYear,
+      this.landscapeWeather,
+    )
+    this.viewer.scene.requestRender()
+  }
+
+  setLandscape(choices: PlanChoices, year: GameYear, weather: Weather): void {
+    this.landscapeChoices = { ...choices }
+    this.landscapeYear = year
+    this.landscapeWeather = weather
+    this.landscapeGraphics.update(
+      this.campusCenter,
+      this.campusBearing,
+      this.campusHeight,
+      choices,
+      year,
+      weather,
+    )
     this.viewer.scene.requestRender()
   }
 

@@ -53,7 +53,7 @@ Linking educational credits to real planning or restoration funding is an option
 
 ## Project status
 
-The app uses Vite + TypeScript. The first scenario is a North San José data-center planning sketch, with a prepared local geographic pack and an interactive 3D game map.
+The app uses Vite + TypeScript. The first scenario is a North San José data-center planning game, with a prepared local geographic pack and an interactive Cesium 3D map. Choose cooling, trees, restoration and community commitments, test a decade, and compare resource trade-offs with a fixed reference sketch. [Rules, sources and limitations](docs/game-model.md) distinguish real map observations from authored game estimates.
 
 Onboarding and the game have independent entry points in the same app. See [development and ownership](docs/development.md) for the repository split and onboarding-to-game handoff, and [geographic data preparation](data/README.md) for the local data pack plan.
 

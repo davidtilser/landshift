@@ -6,8 +6,9 @@ import { loadDataPack } from './data.ts'
 import { GameScene } from './map.ts'
 import type { OnlineState } from './map.ts'
 import { loadElevationGrid } from './terrain.ts'
-import { campus, insideBounds, intersectingFeatures } from './geometry.ts'
+import { campus, insideBounds } from './geometry.ts'
 import type { LngLat } from './geometry.ts'
+import { Gameplay } from './gameplay.ts'
 
 function el<T extends HTMLElement>(
   selector: string,
@@ -52,12 +53,12 @@ root.innerHTML = `
     <header class="topbar">
       <a class="brand" href="./" aria-label="Landshift onboarding"><span class="brand-icon">${icon('leaf', 24)}</span>landshift<span class="brand-dot">.</span></a>
       <div class="breadcrumbs"><span>California</span><span class="crumb-divider">/</span><span>San José</span><span class="edition">CESIUM 3D</span></div>
-      <nav class="top-actions" aria-label="Studio actions"><span class="offline-badge"><span></span> <span id="connection-label">Local aerial</span></span>${tool('credits', 'info', 'Data sources and limitations')}<button id="reset-plan" class="text-button">Reset design ${icon('reset', 15)}</button></nav>
+      <nav class="top-actions" aria-label="Studio actions"><span class="offline-badge"><span></span> <span id="connection-label">Local aerial</span></span>${tool('credits', 'info', 'Data sources and limitations')}<button id="map-layers-toggle" class="text-button" aria-expanded="false">Map layers</button><button id="reset-plan" class="text-button">Reset design ${icon('reset', 15)}</button></nav>
     </header>
     <section class="project-panel panel" aria-labelledby="project-title">
-      <div class="eyebrow"><span class="tiny-dot"></span> A REAL PLACE. YOUR POSSIBILITIES.</div>
-      <h1 id="project-title">A new kind<br>of neighbor.</h1>
-      <p class="project-subtitle">Explore a real neighborhood.<br>Design what happens next.</p>
+      <div class="eyebrow"><span class="tiny-dot"></span> MISSION 01 · SAN JOSÉ</div>
+      <h1 id="project-title">Build a better<br>neighbor.</h1>
+      <p class="project-subtitle">Place it. Make choices.<br>See what ten years can change.</p>
       <div class="project-reference"><span class="reference-icon">${icon('pin', 17)}</span><div><strong>North San José</strong><span>San José Data Center 04 · CP23-008</span></div></div>
       <div class="mode-tabs" role="group" aria-label="Workspace mode"><button id="mode-explore" aria-pressed="false">${icon('eye', 15)} Explore</button><button id="mode-design" class="selected" aria-pressed="true">${icon('cube', 15)} Design</button></div>
       <section class="design-section" aria-label="Concept campus controls">
@@ -69,8 +70,7 @@ root.innerHTML = `
         <button id="place" class="primary-button">${icon('move', 17)} Move campus <span>${icon('arrow', 17)}</span></button>
         <p id="placement-hint" class="field-note">Drag the green handle, or choose a new spot on the map.</p>
       </section>
-      <section class="signals" aria-labelledby="signals-title"><div class="section-heading"><h2 id="signals-title">What’s already here?</h2><span class="live-dot"></span></div><div id="signals-content"><p class="field-note">Reading local geography…</p></div><p class="signal-note">Geometry checks, not a permit assessment.</p></section>
-      <div class="next-chapter"><span>${icon('leaf', 17)}</span><p><strong>Build less impact. Leave more life.</strong><br>Restoration and resource tradeoffs come next.</p></div>
+
     </section>
     <aside class="layers-panel panel" aria-labelledby="layers-title">
       <div class="section-heading"><h2 id="layers-title">Read the landscape</h2>${icon('layers', 17)}</div>
@@ -91,7 +91,7 @@ root.innerHTML = `
     <div id="toast" role="status" aria-live="polite" hidden></div>
     <div id="loading" class="loading-screen"><div class="loading-card"><span class="loading-mark">${icon('leaf', 34)}</span><h2>Welcome to the neighborhood.</h2><p id="loading-message">Opening the 3D planning scene…</p><div class="loading-line"></div></div></div>
     <dialog id="connect-dialog"><div class="dialog-top"><span class="eyebrow">GOOGLE PHOTOREALISTIC 3D · CESIUM ION</span><button id="close-connect" class="icon-button" aria-label="Close connection settings">${icon('close')}</button></div><h2>A real city.<br>In a new dimension.</h2><p>Connect your Cesium ion account to explore San José with photorealistic buildings, trees and terrain. This view uses an internet connection and your account quota.</p><form id="connect-form"><label for="ion-token">Cesium ion access token</label><input id="ion-token" type="password" autocomplete="off" spellcheck="false" placeholder="Your browser-safe, read-only token" required><p class="field-note">Kept in this tab’s session, never committed to the repository. You can also configure VITE_CESIUM_ION_TOKEN in .env.local.</p><button id="connect-submit" class="primary-button" type="submit">Connect photorealistic 3D ${icon('arrow', 17)}</button><p id="connect-message" role="status"></p></form><a class="account-link" href="https://ion.cesium.com/tokens" target="_blank" rel="noopener noreferrer">Open Cesium ion access tokens ↗</a></dialog>
-    <dialog id="info-dialog"><div class="dialog-top"><span class="eyebrow">BEHIND THE LANDSCAPE</span>${tool('close-dialog', 'close', 'Close information')}</div><h2>A real place.<br>A clearly labeled possibility.</h2><p>This is a local planning sketch around the real San José Data Center 04 proposal. The movable campus is an illustrative alternative, not the applicant’s engineering design.</p><div id="pack-summary"></div><p>Photorealistic mode streams Google 3D Tiles through your Cesium ion account and requires internet. Aerial and landscape views use the local pack. Building heights in local views may be approximations.</p><h3>Move through the neighborhood</h3><div class="keyboard-guide"><span>Pan</span><strong>Drag · arrow keys · W A S D</strong><span>Zoom</span><strong>Scroll · + / −</strong><span>Orbit & tilt</span><strong>Right drag · Shift + arrows</strong><span>Place campus</span><strong>Drag green handle · Move campus, then click</strong><span>Move focused handle</span><strong>Arrow keys · Shift for larger steps</strong><span>Cancel placement</span><strong>Esc</strong></div><h3>Know what the data can tell you</h3><ul id="limitations"></ul><p class="dialog-footnote">Local views use downloaded assets. Photorealistic mode streams Google 3D Tiles with provider attribution; it is not stored in the offline pack. Environmental, economic, and social consequence models are a next step.</p></dialog>
+    <dialog id="info-dialog"><div class="dialog-top"><span class="eyebrow">BEHIND THE LANDSCAPE</span>${tool('close-dialog', 'close', 'Close information')}</div><h2>A real place.<br>A clearly labeled possibility.</h2><p>This is a local planning sketch around the real San José Data Center 04 proposal. The movable campus is an illustrative alternative, not the applicant’s engineering design.</p><div id="pack-summary"></div><p>Photorealistic mode streams Google 3D Tiles through your Cesium ion account and requires internet. Aerial and landscape views use the local pack. Building heights in local views may be approximations.</p><h3>Move through the neighborhood</h3><div class="keyboard-guide"><span>Pan</span><strong>Drag · arrow keys · W A S D</strong><span>Zoom</span><strong>Scroll · + / −</strong><span>Orbit & tilt</span><strong>Right drag · Shift + arrows</strong><span>Place campus</span><strong>Drag green handle · Move campus, then click</strong><span>Move focused handle</span><strong>Arrow keys · Shift for larger steps</strong><span>Cancel placement</span><strong>Esc</strong></div><h3>Know what the data can tell you</h3><ul id="limitations"></ul><p class="dialog-footnote">Local views use downloaded assets. Photorealistic mode streams Google 3D Tiles with provider attribution; it is not stored in the offline pack. The game uses simplified environmental and social rules. Open “Game estimates” for all assumptions and sources.</p></dialog>
   </main>
 `
 
@@ -191,27 +191,7 @@ async function start(): Promise<void> {
     }
   }
   function refreshSignals(): void {
-    const proposal = campus(center, bearing)
-    const buildingCount = intersectingFeatures(
-      proposal.footprints,
-      pack.layers.buildings,
-    )
-    const treeCount = intersectingFeatures(
-      proposal.footprints,
-      pack.layers.trees,
-    )
-    const floodCount = intersectingFeatures(proposal.footprints, {
-      type: 'FeatureCollection',
-      features: pack.layers.flood.features.filter(
-        (f) => f.properties?.['SFHATF'] === 'T',
-      ),
-    })
-    el('#signals-content', HTMLDivElement).innerHTML = `
-      <div class="signal-row"><span class="signal-icon good">${icon('check', 13)}</span><span>Inside the study area</span><strong>Yes</strong></div>
-      <div class="signal-row"><span class="signal-icon ${buildingCount ? 'caution' : 'good'}">${icon(buildingCount ? 'cube' : 'check', 13)}</span><span>Building overlaps</span><strong>${String(buildingCount)}</strong></div>
-      <div class="signal-row"><span class="signal-icon ${treeCount ? 'caution' : 'good'}">${icon('leaf', 13)}</span><span>Street-tree records in footprint</span><strong>${String(treeCount)}</strong></div>
-      ${floodCount ? '<div class="signal-row flood-signal"><span>Intersects mapped flood area</span><strong>Check layer</strong></div>' : ''}
-    `
+    gameplay.setSite(center, bearing)
   }
   function update(check = false): void {
     const proposal = campus(center, bearing)
@@ -285,6 +265,35 @@ async function start(): Promise<void> {
     onlineChanged: onlineState,
     mapError: toast,
   })
+  const gameplay = new Gameplay(pack, {
+    beforeExperiment: () => {
+      setPlacing(false)
+      scene.cancelDrag()
+    },
+    landscapeChanged: (choices, year, weather) => {
+      scene.setLandscape(choices, year, weather)
+    },
+    restoreSite: (position, orientation) => {
+      setPlacing(false)
+      center = position
+      bearing = orientation
+      rotation.value = String(orientation)
+      update(true)
+    },
+    message: toast,
+  })
+  const mapLayers = el('.layers-panel', HTMLElement)
+  const mapLayersToggle = el('#map-layers-toggle', HTMLButtonElement)
+  mapLayers.hidden = true
+  mapLayersToggle.addEventListener('click', () => {
+    mapLayers.hidden = !mapLayers.hidden
+    const gamePanel = el('.gameplay-panel', HTMLElement)
+    gamePanel.hidden = !mapLayers.hidden
+    mapLayersToggle.setAttribute('aria-expanded', String(!mapLayers.hidden))
+    mapLayersToggle.textContent = mapLayers.hidden
+      ? 'Map layers'
+      : 'Game choices'
+  })
   update(true)
   el('#loading', HTMLDivElement).hidden = true
 
@@ -293,6 +302,7 @@ async function start(): Promise<void> {
   summary.textContent = `Local imagery: ${pack.manifest.imageryDate} · Source resolution: 60 cm · Local pack: ${(pack.manifest.totalBytes / 1024 / 1024).toFixed(1)} MiB. Photorealistic mode uses a separate streamed dataset whose imagery dates vary.`
   el('#pack-summary', HTMLDivElement).append(summary)
   for (const text of pack.manifest.limitations) {
+    if (text.startsWith('No environmental, employment')) continue
     const item = document.createElement('li')
     item.textContent = text
     el('#limitations', HTMLUListElement).append(item)
@@ -441,6 +451,7 @@ async function start(): Promise<void> {
     rotation.value = '28'
     update(true)
     setMode(true)
+    gameplay.reset()
     toast('Concept campus returned to its starting position.')
   })
   window.addEventListener('keydown', (event) => {
@@ -449,8 +460,7 @@ async function start(): Promise<void> {
       scene.cancelDrag()
     }
     if (
-      dialog.open ||
-      connectDialog.open ||
+      document.querySelector('dialog[open]') ||
       event.target instanceof HTMLInputElement ||
       event.target instanceof HTMLButtonElement ||
       event.metaKey ||
