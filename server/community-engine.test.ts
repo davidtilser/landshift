@@ -42,6 +42,21 @@ const request: CommunityRequest = {
     weather: 'drought',
   },
 }
+const simulatedMood = {
+  angry: 5,
+  concerned: 90,
+  neutral: 4,
+  hopeful: 1,
+  reason: 'People are worried about losing the grove.',
+}
+function withMoods(
+  messages: CommunityReply['messages'],
+): CommunityReply['messages'] {
+  return messages.map((message) => ({
+    ...message,
+    communityMood: simulatedMood,
+  }))
+}
 const settings = {
   apiKey: 'test-key-not-a-real-credential',
   model: DEFAULT_COMMUNITY_MODEL,
@@ -133,7 +148,7 @@ describe('server-side community generation', () => {
       message: '',
     }
     const exchange = {
-      messages: [
+      messages: withMoods([
         { speaker: 'neighbor', text: 'This setting is part of the memorial.' },
         {
           speaker: 'operator',
@@ -143,7 +158,7 @@ describe('server-side community generation', () => {
           speaker: 'nature',
           text: 'And we need space to meet and play. How would we protect that?',
         },
-      ],
+      ]),
     }
     await expect(
       generateCommunityReply(
@@ -153,7 +168,27 @@ describe('server-side community generation', () => {
         new AbortController().signal,
         mockClient(exchange, []),
       ),
-    ).resolves.toMatchObject({ source: 'live', messages: exchange.messages })
+    ).resolves.toMatchObject({
+      source: 'live',
+      messages: exchange.messages,
+    })
+    await expect(
+      generateCommunityReply(
+        publicRequest,
+        context,
+        settings,
+        new AbortController().signal,
+        mockClient(
+          {
+            messages: exchange.messages.map((line) => ({
+              ...line,
+              communityMood: { ...simulatedMood, concerned: 95 },
+            })),
+          },
+          [],
+        ),
+      ),
+    ).rejects.toThrow('total 100')
     await expect(
       generateCommunityReply(
         publicRequest,
@@ -196,7 +231,7 @@ describe('server-side community generation', () => {
   })
   it('accepts a natural continuation without requiring the original poster to speak again', async () => {
     const exchange = {
-      messages: [
+      messages: withMoods([
         {
           speaker: 'operator',
           text: 'Could we compare another site and choose a less water-intensive design?',
@@ -209,7 +244,7 @@ describe('server-side community generation', () => {
           speaker: 'student',
           text: 'And it could protect our place to meet. What evidence would help compare locations?',
         },
-      ],
+      ]),
     }
     await expect(
       generateCommunityReply(
@@ -219,7 +254,10 @@ describe('server-side community generation', () => {
         new AbortController().signal,
         mockClient(exchange, []),
       ),
-    ).resolves.toMatchObject({ source: 'live', messages: exchange.messages })
+    ).resolves.toMatchObject({
+      source: 'live',
+      messages: exchange.messages,
+    })
   })
   it('grounds characters in cultural and ecological limits without agreement scores', () => {
     const prompt = communityPrompt(request, context)
@@ -228,6 +266,9 @@ describe('server-side community generation', () => {
     expect(prompt).toContain('not persuading the player')
     expect(prompt).toContain('PRIVATE: produce exactly one')
     expect(prompt).toContain('Street-tree records are incomplete')
+    expect(prompt).not.toContain('PUBLIC MOOD:')
+    expect(prompt).not.toContain('"id":"operator"')
+    expect(prompt).toContain('"id":"neighbor"')
     expect(prompt).not.toContain(settings.apiKey)
   })
   it('passes a specific public reply target and the shared history to the model', async () => {
@@ -250,7 +291,7 @@ describe('server-side community generation', () => {
       new AbortController().signal,
       mockClient(
         {
-          messages: [
+          messages: withMoods([
             {
               speaker: 'nature',
               text: 'Keeping the grove would protect this mature habitat.',
@@ -263,7 +304,7 @@ describe('server-side community generation', () => {
               speaker: 'student',
               text: 'And compare what happens to the places people already share.',
             },
-          ],
+          ]),
         },
         captured,
       ),

@@ -28,6 +28,22 @@ const plan: PlannerState = {
   weather: 'drought',
 }
 describe('one public thread with independent private conversations', () => {
+  it('remembers free typing for that person across reopening and plan changes, until reset', () => {
+    const session = new CommunitySession(),
+      profiles = communityProfiles(context)
+    session.sync(plan, profiles)
+    const first = profiles[0],
+      second = profiles[1]
+    if (!first || !second) throw new Error('Missing fixture')
+    const conversation = session.privateThread(first)
+    expect(conversation.freeText).toBe(false)
+    session.useFreeText(conversation)
+    session.sync({ ...plan, year: 10 }, profiles)
+    expect(session.privateThread(first).freeText).toBe(true)
+    expect(session.privateThread(second).freeText).toBe(false)
+    session.reset()
+    expect(session.privateThread(first).freeText).toBe(false)
+  })
   it('starts with one proposal and all four perspectives replying to it', () => {
     const session = new CommunitySession()
     session.sync(plan, communityProfiles(context))

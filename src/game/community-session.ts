@@ -2,9 +2,11 @@ import type {
   CommunityId,
   ConversationLine,
   PlannerState,
+  CommunityMoodBreakdown,
 } from '../shared/community-contract.ts'
 import type { CommunityProfile } from './community-profiles.ts'
 import type { DiscussionTopic } from './discussion.ts'
+import { initialCommunityMoodBreakdown } from './community-mood.ts'
 
 export interface CommunityLine extends ConversationLine {
   id: number
@@ -14,6 +16,7 @@ export interface CommunityLine extends ConversationLine {
   replyTo?: number
   kind?: 'update'
   category?: string
+  communityMood?: CommunityMoodBreakdown | undefined
 }
 export type NewCommunityLine = Omit<
   CommunityLine,
@@ -24,9 +27,16 @@ export interface CommunityThread {
   lines: CommunityLine[]
   draft: string
   topic: DiscussionTopic | undefined
+  freeText: boolean
 }
 function thread(): CommunityThread {
-  return { revision: 0, lines: [], draft: '', topic: undefined }
+  return {
+    revision: 0,
+    lines: [],
+    draft: '',
+    topic: undefined,
+    freeText: false,
+  }
 }
 function planUpdate(
   previous: PlannerState,
@@ -85,6 +95,7 @@ export class CommunitySession {
   readonly publicThread = thread()
   readonly privateThreads = new Map<CommunityId, CommunityThread>()
   readonly heard = new Set<CommunityId>()
+  publicMood: CommunityMoodBreakdown | undefined
   revision = 0
   private sequence = 0
   private previous: PlannerState | undefined
@@ -97,6 +108,7 @@ export class CommunitySession {
     if (this.previous && this.previous.scenarioId !== plan.scenarioId)
       this.reset()
     this.revision++
+    this.publicMood = initialCommunityMoodBreakdown(profiles)
     if (!this.previous) {
       const [proposal] = this.append(this.publicThread, [
         {
@@ -174,6 +186,10 @@ export class CommunitySession {
     }
     return current
   }
+  useFreeText(current: CommunityThread): void {
+    current.freeText = true
+    current.topic = undefined
+  }
   append(current: CommunityThread, lines: NewCommunityLine[]): CommunityLine[] {
     const added = lines.map((line) => ({
       ...line,
@@ -186,8 +202,11 @@ export class CommunitySession {
     if (current.lines.length > limit)
       current.lines.splice(1, current.lines.length - limit)
     for (const line of added)
-      if (line.speaker !== 'planner' && line.source !== 'scenario')
-        this.heard.add(line.speaker)
+      if (line.speaker !== 'planner') {
+        if (line.source !== 'scenario') this.heard.add(line.speaker)
+        if (current === this.publicThread && line.communityMood)
+          this.publicMood = line.communityMood
+      }
     return added
   }
   history(current: CommunityThread): ConversationLine[] {
@@ -216,8 +235,10 @@ export class CommunitySession {
     this.publicThread.lines = []
     this.publicThread.draft = ''
     this.publicThread.revision = 0
+    this.publicThread.freeText = false
     this.privateThreads.clear()
     this.heard.clear()
+    this.publicMood = undefined
     this.reactions.clear()
     this.revision = 0
     this.previous = undefined

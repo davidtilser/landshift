@@ -1,7 +1,9 @@
 import type {
   CommunityId,
   CommunityReply,
+  CommunityMoodState,
 } from '../shared/community-contract.ts'
+import { initialCommunityMoods } from './community-mood.ts'
 import { communityVoices } from './community.ts'
 import type { DiscussionContext } from './discussion.ts'
 
@@ -16,6 +18,7 @@ export interface CommunityProfile {
   flexible: string
   question: string
   post: string
+  initialMood: CommunityMoodState
 }
 
 /** Fictional individual perspectives, never spokespeople for actual organizations. */
@@ -27,9 +30,11 @@ export function communityProfiles(
     context.site,
   )
   const park = Boolean(context.site.heritageContext)
+  const moods = initialCommunityMoods(context)
   return [
     {
       id: 'neighbor',
+      initialMood: moods.neighbor,
       name: neighbor?.name ?? 'Neighbor',
       icon: neighbor?.icon ?? '💧',
       color: 'amber',
@@ -50,6 +55,7 @@ export function communityProfiles(
     },
     {
       id: 'nature',
+      initialMood: moods.nature,
       name: nature?.name ?? 'Nature volunteer',
       icon: '🌱',
       color: 'green',
@@ -65,6 +71,7 @@ export function communityProfiles(
     },
     {
       id: 'student',
+      initialMood: moods.student,
       name: student?.name ?? 'Local student',
       icon: student?.icon ?? '🎒',
       color: 'blue',
@@ -82,6 +89,7 @@ export function communityProfiles(
     },
     {
       id: 'operator',
+      initialMood: moods.operator,
       name: 'Data-center designer',
       icon: '⚡',
       color: 'purple',

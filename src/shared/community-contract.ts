@@ -8,6 +8,32 @@ export const communityIdSchema = z.enum([
   'operator',
 ])
 export type CommunityId = z.infer<typeof communityIdSchema>
+export const communityMoodSchema = z.enum([
+  'angry',
+  'concerned',
+  'neutral',
+  'hopeful',
+])
+export type CommunityMood = z.infer<typeof communityMoodSchema>
+export interface CommunityMoodState {
+  mood: CommunityMood
+  reason: string
+}
+export const communityMoodBreakdownShape = z.object({
+  angry: z.number().int().min(0).max(100),
+  concerned: z.number().int().min(0).max(100),
+  neutral: z.number().int().min(0).max(100),
+  hopeful: z.number().int().min(0).max(100),
+  reason: z.string().trim().min(1).max(110),
+})
+export const communityMoodBreakdownSchema = communityMoodBreakdownShape.refine(
+  (value) =>
+    value.angry + value.concerned + value.neutral + value.hopeful === 100,
+  'Simulated mood percentages must total 100.',
+)
+export type CommunityMoodBreakdown = z.infer<
+  typeof communityMoodBreakdownSchema
+>
 export const plannerStateSchema = z.object({
   scenarioId: z.enum(['golden-gate-park', 'san-jose-dc04']),
   center: z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]),
@@ -36,6 +62,7 @@ export const communityRequestSchema = z
     history: z.array(conversationLineSchema).max(18),
     message: z.string().trim().max(600),
     replyTo: conversationLineSchema.optional(),
+    previousMood: communityMoodBreakdownSchema.optional(),
   })
   .superRefine((value, context) => {
     if (value.mode === 'private' && !value.message)
@@ -48,6 +75,7 @@ export const communityReplySchema = z.object({
       z.object({
         speaker: communityIdSchema,
         text: z.string().trim().min(1).max(360),
+        communityMood: communityMoodBreakdownSchema.optional(),
       }),
     )
     .min(1)

@@ -131,7 +131,8 @@ export class CharacterChat {
     this.composer.open = true
     this.render()
     if (!this.dialog.open) this.dialog.showModal()
-    this.promptList.querySelector<HTMLButtonElement>('button')?.focus()
+    if (this.currentThread()?.freeText) this.input.focus()
+    else this.promptList.querySelector<HTMLButtonElement>('button')?.focus()
   }
   sync(profiles: CommunityProfile[]): void {
     if (!this.profile || !this.dialog.open) return
@@ -167,6 +168,7 @@ export class CharacterChat {
       : undefined
   }
   private choices(): DialogueChoice[] {
+    if (this.currentThread()?.freeText) return []
     if (this.profile?.id === 'operator')
       return [
         {
@@ -206,6 +208,11 @@ export class CharacterChat {
     this.title.textContent = profile.name
     this.avatar.textContent = profile.icon
     this.dialog.dataset['voice'] = profile.id
+    this.dialog.classList.toggle('is-free-chat', current.freeText)
+    this.promptList.hidden = current.freeText
+    const prompt = this.dialog.querySelector<HTMLElement>('.dialogue-prompt')
+    if (prompt) prompt.hidden = current.freeText
+    if (current.freeText) this.composer.open = true
     this.list.replaceChildren()
     this.transcript.replaceChildren()
     const latestAssistant = current.lines.findLastIndex(
@@ -242,7 +249,7 @@ export class CharacterChat {
           ': ' +
           line.text,
       )
-      if (visible.has(index)) this.list.append(element)
+      if (current.freeText || visible.has(index)) this.list.append(element)
       else this.transcript.append(element)
     }
     const source = current.lines[latestAssistant]?.source
@@ -253,7 +260,7 @@ export class CharacterChat {
         : source === 'demo'
           ? 'Demo reply'
           : 'Scenario greeting')
-    this.history.hidden = !this.transcript.childElementCount
+    this.history.hidden = current.freeText || !this.transcript.childElementCount
     this.promptList.replaceChildren()
     this.choices().forEach((choice, index) => {
       const button = document.createElement('button')
@@ -302,6 +309,7 @@ export class CharacterChat {
     const message = value.trim().slice(0, 600)
     if (!current || !profile || !message || this.pending || this.destroyed)
       return
+    if (topic === undefined) this.options.session.useFreeText(current)
     const history = this.options.session.history(current)
     const lineId = this.options.session.append(current, [
       { speaker: 'planner', text: message, source: 'planner' },

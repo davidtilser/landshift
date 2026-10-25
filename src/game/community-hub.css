@@ -57,10 +57,73 @@
   color: #7d8b72;
   border-bottom: 1px solid #e4e8dd;
 }
-.community-faces {
-  font-size: 15px;
-  letter-spacing: -3px;
-  padding-right: 4px;
+.community-moods {
+  padding: 8px 17px;
+  border-bottom: 1px solid #e4e8dd;
+}
+.community-mood-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+.community-mood-heading > span {
+  color: #7b866f;
+  font-size: 9px;
+}
+.community-mood-bar {
+  display: flex;
+  height: 5px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #e4e8dd;
+  gap: 2px;
+}
+.community-mood-bar > span {
+  flex-shrink: 1;
+  transition: width 500ms ease;
+}
+.community-mood-bar [data-mood='angry'] {
+  background: #db8b75;
+}
+.community-mood-bar [data-mood='concerned'] {
+  background: #e4bc55;
+}
+.community-mood-bar [data-mood='neutral'] {
+  background: #a5b29c;
+}
+.community-mood-bar [data-mood='hopeful'] {
+  background: #7da85b;
+}
+.community-mood-values {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 5px;
+}
+.community-mood {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: center;
+}
+.mood-name {
+  font-size: 10px;
+  line-height: 1.3;
+  color: #6c7d62;
+  white-space: nowrap;
+}
+.mood-value {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.7px;
+}
+.community-mood-reason {
+  margin: 5px 0 0;
+  font-size: 9px;
+  line-height: 1.4;
+  color: #748167;
 }
 .community-engine {
   margin-left: auto;
@@ -211,23 +274,6 @@
   line-height: 1.4;
   margin: 0 2px 8px;
   min-height: 14px;
-}
-.community-controls {
-  display: flex;
-  gap: 7px;
-  margin-bottom: 9px;
-}
-.community-controls button {
-  flex: 1;
-  min-height: 40px;
-  border-radius: 12px;
-  background: #e8edda;
-  font-size: 12px;
-  font-weight: 700;
-}
-.community-controls button:last-child {
-  background: #e8ce8b;
-  color: #5b542c;
 }
 .community-compose-area {
   border: 1px solid #ced8bf;

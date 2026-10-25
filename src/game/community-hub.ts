@@ -1,12 +1,19 @@
 import './community-hub.css'
 import { CharacterChat } from './character-chat.ts'
 import { CommunityClient } from './community-client.ts'
+import { CommunityAutoplay } from './community-autoplay.ts'
+import { revealCommunityReplies } from './community-replies.ts'
 import { CommunitySession } from './community-session.ts'
 import type { CommunityLine } from './community-session.ts'
 import { communityProfiles } from './community-profiles.ts'
+import { MOOD_PRESENTATION } from './community-mood.ts'
 import type { CommunityProfile } from './community-profiles.ts'
 import { communityIdSchema } from '../shared/community-contract.ts'
-import type { CommunityId, PlannerState } from '../shared/community-contract.ts'
+import type {
+  CommunityId,
+  PlannerState,
+  CommunityMood,
+} from '../shared/community-contract.ts'
 import type { CommunityVoice } from './community.ts'
 import type { DiscussionContext } from './discussion.ts'
 import type { DialogueTarget } from './dialogue-choices.ts'
@@ -22,6 +29,7 @@ interface Pending {
   lineId: number | undefined
   message: string
   replyTo: number | undefined
+  delivered: boolean
 }
 function node<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -51,12 +59,13 @@ export class CommunityHub {
   private readonly client = new CommunityClient()
   private readonly session = new CommunitySession()
   private readonly privateChat: CharacterChat
+  private readonly autoplay: CommunityAutoplay
   private readonly root = node('aside', 'community-hub')
   private readonly launcher = action('◎ Community', 'open')
   private readonly timeline = node('div', 'community-timeline')
   private readonly status = node('p', 'community-status')
   private readonly engine = node('span', 'community-engine', 'Connecting…')
-  private readonly controls = node('div', 'community-controls')
+  private readonly moodList = node('div', 'community-moods')
   private readonly composer = node('div', 'community-compose-area')
   private profiles: CommunityProfile[] = []
   private selectedReply: number | undefined
@@ -80,13 +89,9 @@ export class CommunityHub {
     close.setAttribute('aria-label', 'Close community')
     header.append(heading, close)
     const context = node('div', 'community-context')
-    const faces = node('span', 'community-faces', '🕯️ 🌱 🚶 ⚡')
-    faces.setAttribute('aria-hidden', 'true')
-    context.append(
-      faces,
-      node('span', '', 'One shared discussion'),
-      this.engine,
-    )
+    context.append(node('span', '', 'One shared discussion'), this.engine)
+    this.moodList.setAttribute('role', 'group')
+    this.moodList.setAttribute('aria-label', 'Simulated community mood')
     this.timeline.setAttribute('role', 'log')
     this.timeline.setAttribute('aria-label', 'Public community thread')
     this.timeline.setAttribute('aria-live', 'polite')
@@ -95,7 +100,6 @@ export class CommunityHub {
     const footer = node('footer', 'community-footer')
     footer.append(
       this.status,
-      this.controls,
       this.composer,
       node(
         'p',
@@ -103,7 +107,7 @@ export class CommunityHub {
         'Fictional voices. Public replies stay in this game’s shared thread.',
       ),
     )
-    this.root.append(header, context, this.timeline, footer)
+    this.root.append(header, context, this.moodList, this.timeline, footer)
     const studio = document.querySelector('.studio')
     if (!(studio instanceof HTMLElement))
       throw new Error('Missing game workspace')
@@ -132,6 +136,23 @@ export class CommunityHub {
         options.beforeOpen()
       },
     })
+    this.autoplay = new CommunityAutoplay({
+      run: async () => {
+        const success = await this.submit('')
+        return success && this.client.configured
+      },
+      canRun: () =>
+        !this.destroyed &&
+        !this.root.hidden &&
+        !document.hidden &&
+        !this.pending &&
+        !this.session.publicThread.draft.trim() &&
+        this.selectedReply === undefined,
+      onIdle: () => {
+        if (!this.destroyed) this.updateStatus()
+      },
+    })
+    document.addEventListener('visibilitychange', this.onVisibilityChange)
     void this.client.status().then(() => {
       if (!this.destroyed) this.renderMeta()
     })
@@ -141,13 +162,17 @@ export class CommunityHub {
     const plan = this.options.getPlan(),
       key = JSON.stringify(plan)
     if (key === this.planKey) return
+    this.autoplay.stop()
     this.cancel() // Cancel before appending plan updates; never roll an update back with an old reply.
     this.planKey = key
     this.profiles = communityProfiles(this.options.getContext())
     this.session.sync(plan, this.profiles)
     this.privateChat.sync(this.profiles)
     this.error = ''
-    if (!this.root.hidden) this.render(true)
+    if (!this.root.hidden) {
+      this.render(true)
+      this.restartDiscussion(false)
+    }
   }
   open(voice: CommunityVoice): void {
     this.sync()
@@ -173,8 +198,10 @@ export class CommunityHub {
     this.root
       .querySelector<HTMLButtonElement>('.community-header button')
       ?.focus()
+    this.restartDiscussion(true)
   }
   private closePublic(focus = true): void {
+    this.autoplay.stop()
     this.cancel()
     this.root.hidden = true
     document.querySelector('.studio')?.classList.remove('community-open')
@@ -195,6 +222,70 @@ export class CommunityHub {
     this.engine.title = this.client.configured
       ? this.client.model
       : 'AI not connected; authored demo replies.'
+    this.moodList.replaceChildren()
+    const mood = this.session.publicMood
+    if (mood) {
+      const heading = node('div', 'community-mood-heading')
+      heading.append(
+        node('strong', '', 'Community mood'),
+        node('span', '', 'Game simulation'),
+      )
+      const bar = node('div', 'community-mood-bar'),
+        values = node('div', 'community-mood-values')
+      bar.setAttribute('aria-hidden', 'true')
+      for (const key of [
+        'concerned',
+        'angry',
+        'neutral',
+        'hopeful',
+      ] satisfies CommunityMood[]) {
+        const presentation = MOOD_PRESENTATION[key],
+          percent = String(mood[key]) + '%',
+          segment = node('span', ''),
+          badge = node('div', 'community-mood')
+        segment.dataset['mood'] = key
+        segment.style.width = percent
+        badge.dataset['mood'] = key
+        badge.setAttribute('aria-label', percent + ' ' + presentation.label)
+        badge.append(
+          node('strong', 'mood-value', percent),
+          node(
+            'span',
+            'mood-name',
+            presentation.emoji + ' ' + presentation.label,
+          ),
+        )
+        bar.append(segment)
+        values.append(badge)
+      }
+      const reason = node('p', 'community-mood-reason', mood.reason)
+      reason.title =
+        'Fictional crowd reaction, not a real poll or approval rating.'
+      this.moodList.append(heading, bar, values, reason)
+    }
+  }
+  private updateStatus(): void {
+    this.status.textContent =
+      this.error ||
+      (this.pending
+        ? 'The community is replying…'
+        : this.session.publicThread.draft.trim() ||
+            this.selectedReply !== undefined
+          ? 'Your turn.'
+          : this.autoplay.active
+            ? 'The conversation continues…'
+            : 'The community is listening. Add your perspective below.')
+  }
+  private restartDiscussion(immediate: boolean): void {
+    if (this.destroyed || this.root.hidden) return
+    this.autoplay.start(immediate)
+    this.updateStatus()
+  }
+  private readonly onVisibilityChange = (): void => {
+    if (document.hidden) {
+      this.autoplay.stop()
+      if (this.pending?.message === '') this.cancel()
+    } else if (!this.root.hidden) this.restartDiscussion(false)
   }
   private render(scrollToEnd = false): void {
     this.renderMeta()
@@ -280,18 +371,7 @@ export class CommunityHub {
       post.append(avatar, body)
       this.timeline.append(post)
     }
-    this.status.textContent =
-      this.error ||
-      (this.pending
-        ? 'The community is replying…'
-        : 'Read along, or add your perspective.')
-    this.controls.replaceChildren(
-      action(
-        this.pending ? 'Ⅱ Pause' : '▶ Observe',
-        this.pending ? 'pause' : 'observe',
-      ),
-      action('✋ Join in', 'join'),
-    )
+    this.updateStatus()
     this.renderComposer()
     requestAnimationFrame(() => {
       if (!this.root.hidden)
@@ -324,10 +404,16 @@ export class CommunityHub {
     input.disabled = Boolean(this.pending?.message)
     const send = node('button', 'community-send', 'Post ↗')
     send.type = 'submit'
-    send.disabled = Boolean(this.pending) || !current.draft.trim()
+    send.disabled = Boolean(this.pending?.message) || !current.draft.trim()
     input.addEventListener('input', () => {
       current.draft = input.value
-      send.disabled = Boolean(this.pending) || !current.draft.trim()
+      if (current.draft.trim()) {
+        this.autoplay.stop()
+        if (this.pending?.message === '') this.cancel()
+      } else if (this.selectedReply === undefined && !this.pending)
+        this.restartDiscussion(false)
+      this.updateStatus()
+      send.disabled = Boolean(this.pending?.message) || !current.draft.trim()
     })
     input.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' && !event.shiftKey) {
@@ -337,13 +423,19 @@ export class CommunityHub {
     })
     form.addEventListener('submit', (event) => {
       event.preventDefault()
-      void this.submit(input.value)
+      void this.postReply(input.value)
     })
     form.append(label, input, send)
     this.composer.append(form)
   }
-  private async submit(value: string): Promise<void> {
-    if (this.pending || this.destroyed) return
+  private async postReply(value: string): Promise<void> {
+    if (!value.trim() || this.destroyed) return
+    this.autoplay.stop()
+    if (this.pending?.message === '') this.cancel()
+    if (await this.submit(value)) this.restartDiscussion(false)
+  }
+  private async submit(value: string): Promise<boolean> {
+    if (this.pending || this.destroyed) return false
     const message = value.trim().slice(0, 600),
       current = this.session.publicThread
     const parent =
@@ -355,6 +447,7 @@ export class CommunityHub {
       lineId: undefined,
       message,
       replyTo: this.selectedReply,
+      delivered: false,
     }
     this.pending = pending
     this.error = ''
@@ -383,6 +476,9 @@ export class CommunityHub {
           plan: this.options.getPlan(),
           history,
           message,
+          ...(this.session.publicMood
+            ? { previousMood: this.session.publicMood }
+            : {}),
           ...(parent
             ? { replyTo: { speaker: parent.speaker, text: parent.text } }
             : {}),
@@ -390,21 +486,35 @@ export class CommunityHub {
         this.options.getContext(),
         pending.controller.signal,
       )
-      if (!this.isCurrent(pending)) return
-      this.session.replyPublic(
-        response.messages.map((line) => ({ ...line, source: response.source })),
-        replyTo,
+      if (!this.isCurrent(pending)) return false
+      const complete = await revealCommunityReplies(
+        response.messages,
+        pending.controller.signal,
+        (line) => {
+          if (!this.isCurrent(pending)) return
+          const added = this.session.replyPublic(
+            [{ ...line, source: response.source }],
+            replyTo,
+          )
+          replyTo = added[0]?.id ?? replyTo
+          pending.delivered = true
+          this.render(true)
+        },
       )
+      if (!complete || !this.isCurrent(pending)) return false
       if (message) this.selectedReply = undefined
+      return true
     } catch (error) {
-      if (!this.isCurrent(pending)) return
+      if (!this.isCurrent(pending)) return false
       if (pending.lineId !== undefined)
         this.session.remove(current, pending.lineId)
       if (message) current.draft = message
-      this.error =
-        error instanceof Error
+      this.error = message
+        ? error instanceof Error
           ? error.message
           : 'That reply did not arrive. Try again.'
+        : 'The discussion paused for a moment. You can still post a reply.'
+      return false
     } finally {
       if (this.pending === pending) {
         this.pending = undefined
@@ -424,12 +534,13 @@ export class CommunityHub {
     if (!pending) return
     this.pending = undefined
     pending.controller.abort()
-    if (pending.lineId !== undefined)
+    if (pending.lineId !== undefined && !pending.delivered)
       this.session.remove(this.session.publicThread, pending.lineId)
-    if (pending.message) {
+    if (pending.message && !pending.delivered) {
       this.session.publicThread.draft = pending.message
       this.selectedReply = pending.replyTo
     }
+    if (pending.delivered) this.selectedReply = undefined
   }
   private readonly onClick = (event: MouseEvent): void => {
     if (!(event.target instanceof Element)) return
@@ -448,6 +559,7 @@ export class CommunityHub {
         break
       }
       case 'reply':
+        this.autoplay.stop()
         this.cancel()
         this.selectedReply = Number(value)
         this.render()
@@ -457,6 +569,7 @@ export class CommunityHub {
         this.selectedReply = undefined
         this.renderComposer()
         this.root.querySelector('textarea')?.focus()
+        this.restartDiscussion(false)
         break
       case 'parent': {
         const parent = this.root.querySelector<HTMLElement>(
@@ -466,18 +579,6 @@ export class CommunityHub {
         parent?.focus({ preventScroll: true })
         break
       }
-      case 'observe':
-        void this.submit('')
-        break
-      case 'pause':
-        this.cancel()
-        this.render()
-        break
-      case 'join':
-        this.cancel()
-        this.render()
-        this.root.querySelector('textarea')?.focus()
-        break
       case 'open':
         this.openPublic()
         break
@@ -487,6 +588,7 @@ export class CommunityHub {
     }
   }
   reset(): void {
+    this.autoplay.stop()
     this.cancel()
     this.privateChat.reset()
     this.session.reset()
@@ -497,6 +599,8 @@ export class CommunityHub {
   }
   destroy(): void {
     this.destroyed = true
+    this.autoplay.stop()
+    document.removeEventListener('visibilitychange', this.onVisibilityChange)
     this.cancel()
     this.privateChat.destroy()
     this.root.remove()
