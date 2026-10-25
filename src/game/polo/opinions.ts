@@ -20,6 +20,28 @@ const IDEAS: Record<PoloPhase, string> = {
   M6: 'Could we put waste heat to use nearby?',
 }
 
+/** Portrait reactions are available as soon as the player confirms a site. */
+export function poloPortraitOpinions(state: PoloSceneState): PoloOpinion[] {
+  if (!state.confirmed) return []
+  const voices = poloReactions(state).voices
+  return (
+    [
+      { id: 'neighbor', name: 'Maya', avatar: 'maya' },
+      { id: 'nature', name: 'Aisha', avatar: 'aisha' },
+      { id: 'student', name: 'Leo', avatar: 'leo' },
+      { id: 'operator', name: 'Owen', avatar: 'owen' },
+    ] as const
+  ).map((person) => {
+    const id = person.id
+    return {
+      ...person,
+      id,
+      tone: voices[id].mood === 'hopeful' ? 'possibility' : 'concern',
+      text: voices[id].text,
+    }
+  })
+}
+
 /** Fictional conversation invitations, not votes or measured public opinion. */
 export function poloOpinions(state: PoloSceneState): PoloOpinion[] {
   if (!poloConstructionStarted(state)) return []

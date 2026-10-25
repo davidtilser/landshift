@@ -15,6 +15,7 @@ import { setupPoloProjectIntro } from './project-setup.ts'
 import { setupPoloMapShortcuts } from './map-shortcuts.ts'
 import { setupPoloInterventions } from './intervention-ui.ts'
 import { activePoloImprovements } from './interventions.ts'
+import { poloPortraitOpinions } from './opinions.ts'
 import {
   lockPoloForProtest,
   poloExploreAfterProtest,
@@ -35,7 +36,6 @@ import {
   nudgePoloPlacement,
   poloPhaseAt,
   poloPlacementValid,
-  poloConstructionStarted,
 } from './placement.ts'
 
 const PHASE_LABELS: Record<PoloPhase, string> = {
@@ -399,7 +399,19 @@ export async function startPoloDemo(): Promise<void> {
     const proposal = state.proposal ? PROPOSAL_COPY[state.proposal] : undefined
     root.dataset['poloPhase'] = state.phase
     root.dataset['poloConfirmed'] = String(state.confirmed)
-    get('.polo-people', HTMLElement).hidden = !poloConstructionStarted(state)
+    get('.polo-people', HTMLElement).hidden = !state.confirmed
+    for (const opinion of poloPortraitOpinions(state)) {
+      const portrait = get(
+        `.polo-person[data-person="${opinion.id}"]`,
+        HTMLButtonElement,
+      )
+      const bubble = portrait.querySelector('.polo-person-opinion')
+      if (bubble) bubble.textContent = opinion.text
+      portrait.setAttribute(
+        'aria-label',
+        `${opinion.name}: ${opinion.text} Talk privately.`,
+      )
+    }
     root.dataset['poloBearing'] = String(state.bearing)
     get('#polo-bearing', HTMLOutputElement).value =
       `${state.bearing.toFixed(0)}°`
@@ -684,7 +696,7 @@ export async function startPoloDemo(): Promise<void> {
     portrait.alt = ''
     portrait.width = 36
     portrait.height = 36
-    chat.append(portrait)
+    chat.append(portrait, element('span', 'polo-person-opinion'))
     chat.dataset['person'] = person.id
     chat.setAttribute('aria-label', 'Talk privately to ' + person.label)
     chat.title = 'Talk to ' + person.label
@@ -789,10 +801,6 @@ export async function startPoloDemo(): Promise<void> {
     const index = POLO_PHASES.indexOf(state.phase)
     switch (control.dataset['poloAction']) {
       case 'person': {
-        if (protest.pending()) {
-          protest.talk()
-          break
-        }
         const person = people.find(
           (item) => item.id === control.dataset['person'],
         )

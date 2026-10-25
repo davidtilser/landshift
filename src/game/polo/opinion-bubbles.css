@@ -116,9 +116,6 @@
   .polo-opinion-action {
     font-size: 13px;
   }
-  .polo-people {
-    display: none;
-  }
   .polo-studio .polo-deck {
     max-height: min(410px, calc(100dvh - 450px));
   }
