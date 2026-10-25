@@ -43,6 +43,20 @@ export function setupPoloEducation(
   let renderedKey = ''
   let readerStep = 0
   let previousPhase = getState().phase
+  const sourceDialog = document.createElement('dialog')
+  sourceDialog.className = 'polo-reader-sources'
+  sourceDialog.setAttribute('aria-label', 'Chapter sources and assumptions')
+  const sourceClose = document.createElement('button')
+  sourceClose.type = 'button'
+  sourceClose.textContent = 'Close sources ×'
+  sourceClose.addEventListener('click', () => {
+    sourceDialog.close()
+  })
+  const sourceHeading = document.createElement('h2')
+  sourceHeading.textContent = 'Sources and assumptions'
+  const sourceBody = document.createElement('div')
+  sourceDialog.append(sourceClose, sourceHeading, sourceBody)
+  ;(root.querySelector('.polo-studio') ?? root).append(sourceDialog)
   const panel = document.createElement('div')
   panel.className = 'polo-today-panel'
   panel.id = 'polo-today-panel'
@@ -82,7 +96,8 @@ export function setupPoloEducation(
       onTopic(null)
     }
     const restoreRainFocus =
-      panel.contains(document.activeElement) &&
+      (panel.contains(document.activeElement) ||
+        sourceBody.contains(document.activeElement)) &&
       document.activeElement instanceof HTMLButtonElement &&
       document.activeElement.dataset['poloAction'] === 'rain'
     const steps = state.confirmed ? poloChapterSteps(state, activeTab) : []
@@ -99,7 +114,10 @@ export function setupPoloEducation(
         true
     const rainOpen =
       sameCard &&
-      panel.querySelector<HTMLDetailsElement>('.polo-rain-story')?.open === true
+      (sourceBody.querySelector<HTMLDetailsElement>('.polo-rain-story')
+        ?.open === true ||
+        panel.querySelector<HTMLDetailsElement>('.polo-rain-story')?.open ===
+          true)
     renderedKey = key
     for (const button of topics.querySelectorAll('button')) {
       const selected = button.dataset['todayTab'] === activeTab
@@ -247,7 +265,26 @@ export function setupPoloEducation(
       }
       details.append(research)
     }
-    if (!storyOnly) panel.append(details)
+    if (!storyOnly) {
+      const sourceElements = [...details.children].filter(
+        (child) => child !== summary,
+      )
+      const fillSources = (): void => {
+        sourceBody.replaceChildren(...sourceElements)
+      }
+      if (sourceDialog.open) fillSources()
+      const sourceButton = document.createElement('button')
+      sourceButton.type = 'button'
+      sourceButton.className = 'polo-reader-source-button'
+      sourceButton.textContent = 'More info & data sources ↗'
+      sourceButton.setAttribute('aria-haspopup', 'dialog')
+      sourceButton.addEventListener('click', () => {
+        fillSources()
+        sourceDialog.showModal()
+        sourceClose.focus()
+      })
+      panel.append(sourceButton)
+    }
     const lengths = readerLengths(state)
     const position = { tab: activeTab, step: readerStep }
     const before = movePoloReader(position, -1, lengths)
@@ -265,20 +302,16 @@ export function setupPoloEducation(
       back.textContent = '← Back'
     }
     if (next) {
+      next.removeAttribute('title')
       next.textContent = state.confirmed ? 'Next →' : 'Continue →'
       next.disabled = locked || (state.confirmed && last)
     }
-    if (state.confirmed && last) {
-      const ending = paragraph(
-        'End of this chapter. Choose another phase below.',
-        'polo-reader-end',
-      )
-      const content = panel.querySelector('.polo-reader-content')
-      if (content) content.append(ending)
-      else panel.append(ending)
+    if (state.confirmed && last && next) {
+      next.textContent = 'Chapter complete'
+      next.title = 'Choose another phase below.'
     }
     if (sameCard && restoreRainFocus)
-      panel
+      (sourceDialog.open ? sourceBody : panel)
         .querySelector<HTMLButtonElement>('[data-polo-action="rain"]')
         ?.focus({ preventScroll: true })
   }
@@ -354,6 +387,7 @@ export function setupPoloEducation(
       deck.removeAttribute('data-polo-reader')
       topics.remove()
       panel.remove()
+      sourceDialog.remove()
     },
   }
 }

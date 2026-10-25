@@ -1,10 +1,16 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { revealCommunityReplies } from './community-replies.ts'
+import {
+  privateReplyWithTyping,
+  revealCommunityReplies,
+} from './community-replies.ts'
 import { CommunityClient } from './community-client.ts'
 import { DEFAULT_CHOICES } from './consequences.ts'
 import { INITIAL_POLO_STATE } from './polo/model.ts'
 import { poloDiscussionContext } from './polo/context.ts'
-import type { CommunityRequest } from '../shared/community-contract.ts'
+import type {
+  CommunityRequest,
+  CommunityResponse,
+} from '../shared/community-contract.ts'
 import { CommunitySession } from './community-session.ts'
 import type { CommunityReply } from '../shared/community-contract.ts'
 
@@ -43,6 +49,53 @@ const messages: CommunityReply['messages'] = [
 afterEach(() => {
   vi.useRealTimers()
   vi.unstubAllGlobals()
+})
+describe('private reply typing', () => {
+  const response: CommunityResponse = {
+    messages: [{ speaker: 'neighbor', text: 'Our team uses this field.' }],
+    source: 'demo',
+    model: 'Prepared conversation',
+  }
+  it('holds an instant reply for one second', async () => {
+    vi.useFakeTimers()
+    const delivered = vi.fn()
+    const reply = privateReplyWithTyping(
+      () => response,
+      new AbortController().signal,
+    ).then(delivered)
+    await vi.advanceTimersByTimeAsync(999)
+    expect(delivered).not.toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(1)
+    await reply
+    expect(delivered).toHaveBeenCalledWith(response)
+  })
+  it('counts request time toward typing and adds no delay to a slow reply', async () => {
+    vi.useFakeTimers()
+    const delivered = vi.fn()
+    let resolveReply!: (value: CommunityResponse) => void
+    const request = new Promise<CommunityResponse>((resolve) => {
+      resolveReply = resolve
+    })
+    const reply = privateReplyWithTyping(
+      () => request,
+      new AbortController().signal,
+    ).then(delivered)
+    await vi.advanceTimersByTimeAsync(1500)
+    resolveReply(response)
+    await reply
+    expect(delivered).toHaveBeenCalledWith(response)
+    expect(vi.getTimerCount()).toBe(0)
+  })
+  it('cleans up the typing timer on cancellation so the chat can ignore the reply', async () => {
+    vi.useFakeTimers()
+    const controller = new AbortController()
+    const reply = privateReplyWithTyping(() => response, controller.signal)
+    await vi.advanceTimersByTimeAsync(100)
+    controller.abort()
+    await reply
+    expect(controller.signal.aborted).toBe(true)
+    expect(vi.getTimerCount()).toBe(0)
+  })
 })
 describe('public messages and their mood snapshots', () => {
   it('updates percentages with each visible reply rather than the whole round', async () => {

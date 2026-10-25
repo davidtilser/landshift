@@ -1,6 +1,9 @@
 import './character-chat.css'
 import { insertBeforeMapCredits } from './map-credits.ts'
-import { authoredPrivateCommunityReply } from './community-replies.ts'
+import {
+  authoredPrivateCommunityReply,
+  privateReplyWithTyping,
+} from './community-replies.ts'
 import { messageUiText } from './ui-text.ts'
 import { dialogueChoices } from './dialogue-choices.ts'
 import type { DialogueChoice, DialogueTarget } from './dialogue-choices.ts'
@@ -332,9 +335,10 @@ export class CharacterChat {
     })
     this.status.replaceChildren(
       messageUiText(
-        this.error || (this.pending ? profile.name + ' is replying…' : ''),
+        this.error || (this.pending ? profile.name + ' is typing…' : ''),
       ),
     )
+    this.status.classList.toggle('is-typing', Boolean(this.pending))
     this.input.value = current.draft
     this.input.disabled = Boolean(this.pending)
     this.send.disabled = Boolean(this.pending) || !current.draft.trim()
@@ -402,13 +406,16 @@ export class CharacterChat {
         topic !== undefined
           ? authoredPrivateCommunityReply(request, context)
           : undefined
-      const reply =
-        authored ??
-        (await this.options.client.exchange(
-          request,
-          context,
-          pending.controller.signal,
-        ))
+      const reply = await privateReplyWithTyping(
+        () =>
+          authored ??
+          this.options.client.exchange(
+            request,
+            context,
+            pending.controller.signal,
+          ),
+        pending.controller.signal,
+      )
       if (!this.isCurrent(pending)) return
       this.options.session.append(
         current,

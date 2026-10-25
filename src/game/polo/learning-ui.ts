@@ -183,33 +183,39 @@ export function setupPoloLearning(
         card.append(
           top,
           make('span', POLO_LEARNING_IMPACTS[item.id], 'polo-learning-impact'),
-          make('span', item.tradeoff, 'polo-learning-tradeoff'),
         )
-        cards.append(card)
         if (item.id === 'heat') {
-          const example = document.createElement('details')
-          example.className = 'polo-learning-impact-example'
           const heat = POLO_HEAT_IMPACT_EXAMPLE
-          example.append(
+          const benefit = make('span', '', 'polo-learning-benefit')
+          const label = make('span', '', 'polo-learning-benefit-label')
+          label.append(
+            make('span', 'of heating covered'),
             make(
-              'summary',
-              `Example: ${String(heat.coveragePercent)}% of two buildings’ heating`,
-            ),
-            make(
-              'p',
-              `${heat.recipients} · ${String(heat.year)} teaching example. These are separate recipients from the pool shown on the map.`,
-            ),
-            make(
-              'p',
-              `${heat.usefulHeatMWhYear} MWh of useful heat per year against ${String(heat.demandMWhYear)} MWh of assumed heating demand. Recovery adds ${heat.addedElectricityMWhYear} MWh of electricity per year.`,
-            ),
-            make(
-              'p',
-              'Assumed demand, connections and heat-pump performance. Backup heating remains. This is heating coverage, not a neighbourhood electricity-saving percentage.',
+              'span',
+              'Two-building example',
+              'polo-learning-benefit-context',
             ),
           )
-          cards.append(example)
-        }
+          benefit.append(
+            make(
+              'strong',
+              `${String(heat.coveragePercent)}%`,
+              'polo-learning-benefit-value',
+            ),
+            label,
+          )
+          const source = make(
+            'span',
+            `${heat.recipients} · ${String(heat.year)} teaching example: ${heat.usefulHeatMWhYear} MWh of useful heat per year against ${String(heat.demandMWhYear)} MWh of assumed heating demand. Recovery adds ${heat.addedElectricityMWhYear} MWh of electricity per year. Assumed connections and heat-pump performance; backup heating remains. This is separate from the map’s pool and is not a neighbourhood electricity-saving percentage.`,
+          )
+          source.id = 'polo-heat-benefit-source'
+          source.hidden = true
+          card.setAttribute('aria-describedby', source.id)
+          benefit.title = source.textContent
+          card.append(benefit, source)
+        } else
+          card.append(make('span', item.tradeoff, 'polo-learning-tradeoff'))
+        cards.append(card)
       }
       for (const item of customDraft) {
         const row = make('div', '', 'polo-custom-learning')

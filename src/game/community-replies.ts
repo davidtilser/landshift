@@ -19,6 +19,18 @@ function pause(milliseconds: number, signal: AbortSignal): Promise<void> {
   })
 }
 
+/** Give even instant private replies a one-second typing beat, without slowing live replies further. */
+export async function privateReplyWithTyping(
+  reply: () => CommunityResponse | Promise<CommunityResponse>,
+  signal: AbortSignal,
+): Promise<CommunityResponse> {
+  const started = Date.now()
+  const response = await reply()
+  const remaining = 1000 - (Date.now() - started)
+  if (remaining > 0 && !signal.aborted) await pause(remaining, signal)
+  return response
+}
+
 /** Reveal each public reply with its own mood snapshot; canceled turns stay unseen. */
 export async function revealCommunityReplies(
   messages: CommunityReply['messages'],

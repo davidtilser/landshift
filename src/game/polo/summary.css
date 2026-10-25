@@ -2,7 +2,7 @@
   width: min(900px, calc(100vw - 40px));
 }
 .polo-summary-stop {
-  border-left: 1px solid #ddcdeb;
+  border-left: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 0 13px 13px 0;
 }
 .polo-learning.is-summary {
@@ -14,7 +14,7 @@
   max-height: none;
   padding: 20px;
   overflow: hidden;
-  background: #fcf9fff5;
+  background: var(--ls-role-surface);
 }
 .polo-learning.is-summary[hidden] {
   display: none;
@@ -57,9 +57,10 @@
 }
 .polo-summary-metric {
   padding: 14px;
-  border: 1px solid #ecdeeb;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 16px;
-  background: #fff;
+  background: var(--ls-role-inset);
+  color: var(--ls-role-ink);
 }
 .polo-summary-metric-heading {
   display: flex;
@@ -114,18 +115,19 @@
   white-space: nowrap;
 }
 .polo-summary-values strong {
-  color: #382044;
+  color: var(--ls-role-ink);
   font-size: 20px;
+  font-weight: 400;
   line-height: 1.25;
 }
 .polo-summary-arrow {
-  color: #b599cc;
+  color: var(--ls-role-muted);
   font-size: 20px;
 }
 .polo-summary-details {
   margin: 16px 0 8px;
   padding: 0 4px;
-  color: #715c80;
+  color: var(--ls-role-muted);
 }
 .polo-summary-details summary {
   padding: 8px 0;
@@ -138,14 +140,14 @@
 .polo-summary-details a {
   display: block;
   margin: 8px 0;
-  color: #6b2bb9;
+  color: var(--ls-role-ink);
   font-size: 15px;
   line-height: 1.4;
 }
 .polo-summary-footer {
   padding-top: 12px;
   margin-top: 8px;
-  border-top: 1px solid #e4d7ee;
+  border-top: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
 }
 .polo-learning .polo-summary-footer .is-primary {
   min-height: 52px;

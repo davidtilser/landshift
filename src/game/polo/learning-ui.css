@@ -181,18 +181,33 @@ html.ls-system-dark .polo-learning button.is-primary:disabled {
   font-weight: 600;
   line-height: 1.4;
 }
-.polo-learning-impact-example {
-  padding: 0 14px 8px;
-  color: var(--ls-role-muted);
+.polo-learning-benefit {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #edf6de;
+  color: #3c661b;
 }
-.polo-learning-impact-example summary {
-  padding: 8px 0;
-  font-size: 17px;
-  line-height: 1.4;
-  cursor: pointer;
+.polo-learning-benefit-value {
+  flex: 0 0 auto;
+  font-size: 36px;
+  line-height: 1;
+  font-weight: 750;
+  letter-spacing: -1px;
 }
-.polo-learning .polo-learning-impact-example p {
+.polo-learning-benefit-label {
+  display: grid;
+  gap: 3px;
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.2;
+}
+.polo-learning-benefit-context {
   font-size: 16px;
+  font-weight: 450;
 }
 .polo-learning-views {
   display: grid;

@@ -12,7 +12,7 @@ export const POLO_TALK_PEOPLE = [
   { id: 'operator', avatar: 'owen', name: 'Owen', role: 'Campus designer' },
 ] as const
 
-/** One people chooser and private-chat flow across all five chapters. */
+/** Private chats accompany construction milestones after the Today introduction. */
 export function setupPoloTalkPicker(
   root: HTMLElement,
   peopleControls: HTMLElement,
@@ -40,6 +40,7 @@ export function setupPoloTalkPicker(
   let destroyed = false
   let hovered = false
   let focused = false
+  let wasActive = false
   const faceImages = new Map<CommunityId, HTMLImageElement>()
   const faces = launcher.querySelector('.polo-talk-faces')
   for (const person of POLO_TALK_PEOPLE) {
@@ -131,6 +132,7 @@ export function setupPoloTalkPicker(
       person.role +
       '</span>'
     choice.addEventListener('click', () => {
+      if (!canTalk()) return
       dismiss()
       openPerson(person.id)
     })
@@ -142,9 +144,18 @@ export function setupPoloTalkPicker(
   else root.append(picker)
 
   let privateChat: HTMLDialogElement | undefined
-  const active = (): boolean => getState().confirmed
+  const active = (): boolean => {
+    const state = getState()
+    return (
+      state.confirmed &&
+      state.phase !== 'M0' &&
+      root.dataset['poloProtestPending'] !== 'true'
+    )
+  }
+  const canTalk = (): boolean =>
+    active() && !root.hasAttribute('data-polo-learning')
   function open(): void {
-    if (!active() || root.hasAttribute('data-polo-learning')) return
+    if (!canTalk()) return
     if (!picker.open) picker.showModal()
     launcher.setAttribute('aria-expanded', 'true')
     picker.querySelector<HTMLButtonElement>('.polo-talk-choice')?.focus()
@@ -172,16 +183,24 @@ export function setupPoloTalkPicker(
 
   return {
     sync(restart = false): void {
-      launcher.hidden = !active()
-      if (!active()) dismiss()
-      if (!feed.sync(getState(), restart)) return
+      const isActive = active()
+      launcher.hidden = !isActive
+      if (!isActive) {
+        wasActive = false
+        clearTimeout(reactionTimer)
+        dismiss()
+        return
+      }
+      const activated = !wasActive
+      wasActive = true
+      if (!feed.sync(getState(), restart || activated)) return
       clearTimeout(reactionTimer)
       for (const image of faceImages.values())
         image.classList.remove('is-speaking')
       if (preview)
         preview.innerHTML =
           '<span class="polo-talk-waiting">People are sharing their thoughts<span class="polo-talk-typing" aria-hidden="true"><i></i><i></i><i></i></span></span>'
-      if (active()) reactionTimer = setTimeout(showNextReaction, 1200)
+      reactionTimer = setTimeout(showNextReaction, 1200)
     },
     dismiss,
     setReactions(reactions): void {
@@ -218,11 +237,6 @@ export function setupPoloTalkPicker(
   }
 
   function restoreFocus(): void {
-    if (
-      active() &&
-      !root.hasAttribute('data-polo-learning') &&
-      !root.querySelector('dialog[open]')
-    )
-      launcher.focus()
+    if (canTalk() && !root.querySelector('dialog[open]')) launcher.focus()
   }
 }
