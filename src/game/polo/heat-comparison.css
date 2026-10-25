@@ -80,8 +80,20 @@
   margin: 0;
 }
 .polo-heat-comparison-figures > div {
-  padding-top: 10px;
-  border-top: 1px solid color-mix(in srgb, var(--ls-role-ink) 20%, transparent);
+  padding: 10px;
+  border-radius: 10px;
+}
+.polo-heat-comparison-figures > div[data-tone='gain'] {
+  background: #ecf5da;
+  color: #496820;
+}
+.polo-heat-comparison-figures > div[data-tone='demand'] {
+  background: #fce9e7;
+  color: #a23637;
+}
+.polo-heat-comparison-figures dt,
+.polo-heat-comparison-figures dd {
+  color: inherit;
 }
 .polo-heat-comparison-figures dd {
   font-size: 24px;

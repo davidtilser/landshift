@@ -13,6 +13,11 @@ const heat: PoloSceneState = {
 describe('heat-only plan implications', () => {
   it('keeps benefits and added demands visible in either map view without scaling them to campus size', () => {
     const rows = poloHeatComparisonRows(heat)
+    expect(rows.map((row) => row.id)).toEqual([
+      'useful-heat',
+      'electricity',
+      'investment',
+    ])
     expect(rows).toEqual(
       poloHeatComparisonRows({ ...heat, preview: false, areaHa: 6 }),
     )
@@ -22,8 +27,8 @@ describe('heat-only plan implications', () => {
     ).toEqual(['electricity', 'investment'])
     expect(rows.some((row) => row.id === 'water')).toBe(false)
     expect(rows.some((row) => row.id === 'running-cost')).toBe(false)
-    expect(rows.find((row) => row.id === 'backup')?.impact).toContain('remain')
-    expect(rows.find((row) => row.id === 'land')?.outcome).toBe('unchanged')
+    expect(rows.some((row) => row.id === 'backup')).toBe(false)
+    expect(rows.some((row) => row.id === 'land')).toBe(false)
   })
 
   it('does not attribute other selected concepts to heat or promise delivery without a heat user', () => {

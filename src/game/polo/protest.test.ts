@@ -98,7 +98,11 @@ describe('confirm, hear the protest, then explore Today', () => {
       )
       progress = poloProtestTransition(progress, 'next')
     }
-    expect(progress).toMatchObject({ stage: 'finished', outcome: 'heard' })
+    expect(progress).toMatchObject({
+      stage: 'finished',
+      step: 2,
+      outcome: 'heard',
+    })
     const today = poloExploreAfterProtest(locked, progress)
     expect(poloProtestTurnout(today, false)).toBe(0)
     expect(poloConstructionStarted(today)).toBe(false)
@@ -217,19 +221,20 @@ describe('confirm, hear the protest, then explore Today', () => {
     ).toThrow('Hear or skip')
   })
 
-  it('keeps every argument short and names the site conflict despite efficiency', () => {
-    expect(POLO_PROTEST_STEPS).toHaveLength(5)
+  it('keeps three distinct concerns short and ends the third with Explore', () => {
+    expect(POLO_PROTEST_STEPS).toHaveLength(3)
+    expect(POLO_PROTEST_STEPS[2].next).toBe('Explore →')
     for (const step of POLO_PROTEST_STEPS)
       for (const [field, copy] of Object.entries(step))
         expect(Array.from(copy).length).toBeLessThanOrEqual(
           field === 'answer' ? 140 : 70,
         )
     const text = POLO_PROTEST_STEPS.map((step) => step.answer).join(' ')
-    expect(text).toContain('shared public space')
+    expect(text).toContain('shared public playing field')
     expect(text).toContain('living turf')
     expect(text).toContain('water and electricity')
     expect(text).toContain('Players, neighbors and park users')
-    expect(text).toContain('wrong site')
-    expect(text).toContain('Efficiency does not replace our field')
+    expect(text).toContain('We oppose this site')
+    expect(text).toContain('Efficiency cannot replace it')
   })
 })

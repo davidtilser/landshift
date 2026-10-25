@@ -7,7 +7,7 @@ export const POLO_PROTEST_STEPS = [
   {
     question: 'People are protesting. Why?',
     answer:
-      'This is shared public space. We oppose building here. People already meet, walk and play on this field.',
+      'Players, neighbors and park users would lose this shared public playing field. Efficiency cannot replace it. We oppose this site.',
     next: 'Ask about nature →',
   },
   {
@@ -20,18 +20,6 @@ export const POLO_PROTEST_STEPS = [
     question: 'What about water and electricity?',
     answer:
       'Cooling and computing still need water and electricity. Real supply and utility capacity would need checking.',
-    next: 'Ask about people →',
-  },
-  {
-    question: 'Who would be affected?',
-    answer:
-      'Players, neighbors and park users would lose a shared place. Those losses stay even if the equipment becomes more efficient.',
-    next: 'Ask about efficiency →',
-  },
-  {
-    question: 'Would efficient technology change your mind?',
-    answer:
-      'For us, this public playing field is the wrong site. Compare other locations. Efficiency does not replace our field.',
     next: 'Explore →',
   },
 ] as const

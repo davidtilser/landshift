@@ -40,19 +40,6 @@ export function poloHeatComparisonRows(
       impact:
         'Extra equipment, pipework and installation increase upfront cost.',
     },
-    {
-      id: 'land',
-      label: 'Land & playing field',
-      outcome: 'unchanged',
-      impact: 'Same campus footprint; the playing field is still lost.',
-    },
-    {
-      id: 'backup',
-      label: 'Backup systems',
-      outcome: 'unchanged',
-      impact:
-        'Backup cooling and heating remain when heat cannot be supplied or used.',
-    },
   ]
 }
 
@@ -106,20 +93,28 @@ export function appendPoloHeatComparison(
     ),
   )
   const figures = element('dl', '', 'polo-heat-comparison-figures')
-  for (const [label, value, context] of [
-    ['Heat delivered', `+${example.usefulHeatMWhYear}`, 'MWh thermal/year'],
+  for (const [label, value, context, tone] of [
+    [
+      'Heat delivered',
+      `+${example.usefulHeatMWhYear}`,
+      'MWh thermal/year',
+      'gain',
+    ],
     [
       'Heating covered',
       `${String(example.coveragePercent)}%`,
       `of ${String(example.demandMWhYear)} MWh thermal/year`,
+      'gain',
     ],
     [
       'Recovery electricity',
       `+${example.addedElectricityMWhYear}`,
       'MWh electric/year',
+      'demand',
     ],
   ]) {
     const figure = element('div')
+    figure.dataset['tone'] = tone
     figure.append(element('dt', label))
     const valueNode = element('dd', value)
     valueNode.append(element('span', context))
