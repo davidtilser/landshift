@@ -4,9 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": ">=24"
+    "node": "24.x"
   },
   "scripts": {
+    "postinstall": "node scripts/prepare-deployment.mjs --if-vercel",
     "predev": "node scripts/setup-cesium.mjs",
     "predev:game": "node scripts/setup-cesium.mjs",
     "prebuild": "node scripts/setup-cesium.mjs",
@@ -19,6 +20,7 @@
     "data:verify": "node scripts/data/verify-san-jose.mjs",
     "data:bundle": "npm run data:verify && tar -czf data/san-jose-dc04.tar.gz -C public/data san-jose-dc04",
     "build": "tsc && vite build",
+    "build:vercel": "node scripts/prepare-deployment.mjs && npm run build",
     "preview": "vite preview",
     "typecheck": "tsc && tsc -p scripts",
     "lint": "eslint . --max-warnings=0",

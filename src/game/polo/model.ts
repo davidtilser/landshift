@@ -30,6 +30,13 @@ export type PoloProposal = (typeof POLO_PROPOSALS)[number]
 export const POLO_LEARNING_IDS = ['soil', 'water', 'heat', 'roof'] as const
 export type PoloLearningId = (typeof POLO_LEARNING_IDS)[number]
 export type PoloLearnings = Partial<Record<PoloLearningId, boolean | undefined>>
+export const POLO_CUSTOM_LEARNING_LIMIT = 5
+export const POLO_CUSTOM_LEARNING_LENGTH = 160
+export interface PoloCustomLearning {
+  id: string
+  text: string
+  selected: boolean
+}
 export interface PoloSceneState {
   areaHa: number
   center: LngLat
@@ -41,6 +48,7 @@ export interface PoloSceneState {
   recipientAvailable: boolean
   rain: boolean
   learnings?: PoloLearnings | undefined
+  customLearnings?: PoloCustomLearning[] | undefined
   improvements?:
     | Partial<Record<'soil' | 'foundation' | 'grounds', boolean | undefined>>
     | undefined

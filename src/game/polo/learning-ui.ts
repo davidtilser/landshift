@@ -3,15 +3,29 @@ import {
   POLO_LEARNINGS,
   applyPoloLearnings,
   selectedPoloLearnings,
+  selectedCustomPoloLearnings,
 } from './learnings.ts'
-import type { PoloLearnings, PoloSceneState } from './model.ts'
+import {
+  POLO_CUSTOM_LEARNING_LIMIT,
+  POLO_CUSTOM_LEARNING_LENGTH,
+} from './model.ts'
+import type {
+  PoloLearnings,
+  PoloSceneState,
+  PoloCustomLearning,
+} from './model.ts'
+import { appendPoloSummary } from './summary-ui.ts'
+import {
+  POLO_LEARNING_IMPACTS,
+  POLO_HEAT_IMPACT_EXAMPLE,
+} from './learning-impact.ts'
 
 export function setupPoloLearning(
   root: HTMLElement,
   getState: () => PoloSceneState,
   change: (state: PoloSceneState) => void,
   focus: () => void,
-): { open(): void; sync(): void; destroy(): void } {
+): { openSummary(): void; dismiss(): void; sync(): void; destroy(): void } {
   const host = root.querySelector('.polo-studio') ?? root
   const panel = document.createElement('aside')
   panel.className = 'polo-learning'
@@ -22,8 +36,10 @@ export function setupPoloLearning(
   caption.hidden = true
   caption.setAttribute('role', 'status')
   host.append(panel, caption)
-  let mode: 'choose' | 'compare' = 'choose'
+  let mode: 'summary' | 'choose' | 'compare' = 'summary'
   let draft: PoloLearnings = {}
+  let customDraft: PoloCustomLearning[] = []
+  let customText = ''
   let key = ''
 
   const make = (tag: string, text = '', className = ''): HTMLElement => {
@@ -44,43 +60,106 @@ export function setupPoloLearning(
     node.addEventListener('click', action)
     return node
   }
-  function close(): void {
+  function syncTimeline(): void {
+    const summaryOpen = !panel.hidden && mode === 'summary'
+    root
+      .querySelector('[data-polo-action="summary"].polo-stop')
+      ?.setAttribute('aria-current', summaryOpen ? 'step' : 'false')
+    for (const stop of root.querySelectorAll<HTMLButtonElement>('[data-phase]'))
+      stop.setAttribute(
+        'aria-current',
+        !summaryOpen && stop.dataset['phase'] === getState().phase
+          ? 'step'
+          : 'false',
+      )
+  }
+  function dismiss(): void {
+    const wasOpen = !panel.hidden
     panel.hidden = caption.hidden = true
     delete root.dataset['poloLearning']
-    root
-      .querySelector<HTMLButtonElement>('#polo-learning-open')
-      ?.focus({ preventScroll: true })
+    syncTimeline()
+    if (wasOpen && getState().confirmed)
+      root
+        .querySelector<HTMLButtonElement>('.polo-summary-stop')
+        ?.focus({ preventScroll: true })
+  }
+  function close(): void {
+    if (mode === 'summary') dismiss()
+    else {
+      mode = 'summary'
+      render()
+      panel
+        .querySelector<HTMLHeadingElement>('h2')
+        ?.focus({ preventScroll: true })
+    }
   }
   function render(): void {
     const state = getState()
+    const scrollTop =
+      panel.dataset['mode'] === mode
+        ? (panel.querySelector('.polo-learning-content')?.scrollTop ?? 0)
+        : 0
+    panel.dataset['mode'] = mode
     root.dataset['poloLearning'] = mode
+    panel.classList.toggle('is-summary', mode === 'summary')
+    panel.setAttribute(
+      'aria-label',
+      mode === 'summary' ? 'Project summary' : 'Propose changes',
+    )
+    syncTimeline()
     panel.replaceChildren()
     const header = make('div', '', 'polo-learning-heading')
     const closeButton = button('×', close)
-    closeButton.setAttribute('aria-label', 'Close learning comparison')
-    header.append(
-      make('span', 'YOUR NEXT DESIGN', 'polo-learning-eyebrow'),
-      closeButton,
+    closeButton.setAttribute(
+      'aria-label',
+      mode === 'summary' ? 'Close project summary' : 'Back to summary',
     )
+    if (mode === 'summary') {
+      caption.hidden = true
+      appendPoloSummary(
+        panel,
+        state,
+        () => {
+          draft = { ...getState().learnings }
+          customDraft =
+            getState().customLearnings?.map((item) => ({ ...item })) ?? []
+          mode = 'choose'
+          render()
+          panel
+            .querySelector<HTMLHeadingElement>('h2')
+            ?.focus({ preventScroll: true })
+        },
+        closeButton,
+      )
+      key = stateKey()
+      return
+    }
     const title = make(
       'h2',
-      mode === 'choose' ? 'What would you change?' : 'Same site. Better ideas.',
+      mode === 'choose' ? 'What would you change?' : 'Compare your plans',
     )
     title.tabIndex = -1
-    panel.append(header, title)
+    header.append(title, closeButton)
+    const content = make('div', '', 'polo-learning-content')
+    const footer = make('div', '', 'polo-learning-footer')
+    panel.append(header, content, footer)
     if (mode === 'choose') {
       caption.hidden = true
-      panel.append(make('p', 'Choose what you would include from the start.'))
-      const all = POLO_LEARNINGS.every((item) => draft[item.id])
+      const all =
+        POLO_LEARNINGS.every((item) => draft[item.id]) &&
+        customDraft.every((item) => item.selected)
       const selectAll = button(all ? 'Clear selection' : 'Select all', () => {
         draft = all ? {} : { soil: true, water: true, heat: true, roof: true }
+        customDraft = customDraft.map((item) => ({ ...item, selected: !all }))
         render()
         panel
           .querySelector<HTMLButtonElement>('.polo-learning-select-all')
           ?.focus()
       })
       selectAll.className = 'polo-learning-select-all'
-      panel.append(selectAll)
+      const toolbar = make('div', '', 'polo-learning-toolbar')
+      toolbar.append(selectAll)
+      content.append(toolbar)
       const cards = make('div', '', 'polo-learning-cards')
       for (const item of POLO_LEARNINGS) {
         const selected = Boolean(draft[item.id])
@@ -95,7 +174,6 @@ export function setupPoloLearning(
         card.title = item.action
         card.dataset['learning'] = item.id
         card.setAttribute('aria-pressed', String(selected))
-        card.style.setProperty('--learning-color', item.color)
         const top = make('span', '', 'polo-learning-choice-top')
         top.append(
           make('span', item.icon),
@@ -104,23 +182,135 @@ export function setupPoloLearning(
         )
         card.append(
           top,
-          make('span', item.lesson),
-          make(
-            'small',
-            'Trade-off: ' + item.tradeoff,
-            'polo-learning-tradeoff',
-          ),
+          make('span', POLO_LEARNING_IMPACTS[item.id], 'polo-learning-impact'),
+          make('span', item.tradeoff, 'polo-learning-tradeoff'),
         )
         cards.append(card)
+        if (item.id === 'heat') {
+          const example = document.createElement('details')
+          example.className = 'polo-learning-impact-example'
+          const heat = POLO_HEAT_IMPACT_EXAMPLE
+          example.append(
+            make(
+              'summary',
+              `Example: ${String(heat.coveragePercent)}% of two buildings’ heating`,
+            ),
+            make(
+              'p',
+              `${heat.recipients} · ${String(heat.year)} teaching example. These are separate recipients from the pool shown on the map.`,
+            ),
+            make(
+              'p',
+              `${heat.usefulHeatMWhYear} MWh of useful heat per year against ${String(heat.demandMWhYear)} MWh of assumed heating demand. Recovery adds ${heat.addedElectricityMWhYear} MWh of electricity per year.`,
+            ),
+            make(
+              'p',
+              'Assumed demand, connections and heat-pump performance. Backup heating remains. This is heating coverage, not a neighbourhood electricity-saving percentage.',
+            ),
+          )
+          cards.append(example)
+        }
       }
-      const count = POLO_LEARNINGS.filter((item) => draft[item.id]).length
+      for (const item of customDraft) {
+        const row = make('div', '', 'polo-custom-learning')
+        const choice = button('✎ ' + item.text, () => {
+          customDraft = customDraft.map((entry) =>
+            entry.id === item.id
+              ? { ...entry, selected: !entry.selected }
+              : entry,
+          )
+          render()
+          panel
+            .querySelector<HTMLButtonElement>(
+              `[data-custom-learning="${item.id}"]`,
+            )
+            ?.focus()
+        })
+        choice.dataset['customLearning'] = item.id
+        choice.setAttribute('aria-pressed', String(item.selected))
+        const remove = button('×', () => {
+          customDraft = customDraft.filter((entry) => entry.id !== item.id)
+          render()
+          panel
+            .querySelector<HTMLTextAreaElement>('#polo-custom-learning')
+            ?.focus()
+        })
+        remove.setAttribute('aria-label', 'Remove idea: ' + item.text)
+        row.append(choice, remove)
+        cards.append(row)
+      }
+      const customForm = document.createElement('form')
+      customForm.className = 'polo-custom-learning-form'
+      const label = document.createElement('label')
+      label.htmlFor = 'polo-custom-learning'
+      label.textContent = 'Your own idea'
+      const input = document.createElement('textarea')
+      input.id = label.htmlFor
+      input.rows = 2
+      input.maxLength = POLO_CUSTOM_LEARNING_LENGTH
+      input.placeholder = 'What else would you change?'
+      input.value = customText
+      const full = customDraft.length >= POLO_CUSTOM_LEARNING_LIMIT
+      input.disabled = full
+      const add = button('Add my idea +', () => {})
+      add.className = 'polo-add-idea'
+      add.type = 'submit'
+      add.disabled = full || !customText.trim()
+      input.addEventListener('input', () => {
+        customText = input.value
+        add.disabled = full || !customText.trim()
+      })
+      customForm.addEventListener('submit', (event) => {
+        event.preventDefault()
+        const text = customText.trim().slice(0, POLO_CUSTOM_LEARNING_LENGTH)
+        if (!text || customDraft.length >= POLO_CUSTOM_LEARNING_LIMIT) return
+        customDraft = [
+          ...customDraft,
+          { id: crypto.randomUUID(), text, selected: true },
+        ]
+        customText = ''
+        render()
+        panel
+          .querySelector<HTMLTextAreaElement>('#polo-custom-learning')
+          ?.focus()
+      })
+      customForm.append(
+        label,
+        input,
+        add,
+        make(
+          'small',
+          full
+            ? 'Five ideas added. Remove one to add another.'
+            : 'Saved as a proposal; not mapped yet.',
+        ),
+      )
+      const count =
+        POLO_LEARNINGS.filter((item) => draft[item.id]).length +
+        customDraft.filter((item) => item.selected).length
+      const canApply =
+        count > 0 ||
+        selectedPoloLearnings(state).length > 0 ||
+        selectedCustomPoloLearnings(state).length > 0 ||
+        JSON.stringify(customDraft) !==
+          JSON.stringify(state.customLearnings ?? [])
       const compare = button(
         count
           ? `Compare my plans · ${String(count)} selected →`
-          : 'Choose at least one change',
+          : canApply
+            ? 'Use original plan'
+            : 'Choose at least one change',
         () => {
+          if (!count) {
+            change({
+              ...applyPoloLearnings(getState(), draft, customDraft),
+              preview: false,
+            })
+            close()
+            return
+          }
           mode = 'compare'
-          change(applyPoloLearnings(getState(), draft))
+          change(applyPoloLearnings(getState(), draft, customDraft))
           render()
           focus()
           panel
@@ -129,17 +319,17 @@ export function setupPoloLearning(
         },
         true,
       )
-      compare.disabled = count === 0
-      panel.append(cards, compare)
+      compare.disabled = !canApply
+      content.append(cards, customForm)
+      footer.append(compare)
     } else {
       caption.hidden = false
       caption.textContent = state.preview
-        ? 'AFTER · YOUR IMPROVED PLAN'
+        ? selectedPoloLearnings(state).length
+          ? 'AFTER · YOUR IMPROVED PLAN'
+          : 'AFTER · YOUR PROPOSED PLAN'
         : 'BEFORE · ORIGINAL PLAN'
       caption.dataset['view'] = state.preview ? 'improved' : 'original'
-      panel.append(
-        make('p', 'What if these choices were part of the original design?'),
-      )
       const views = make('div', '', 'polo-learning-views')
       views.setAttribute('role', 'group')
       views.setAttribute('aria-label', 'Compare the same campus')
@@ -160,19 +350,31 @@ export function setupPoloLearning(
         view.setAttribute('aria-pressed', String(state.preview === preview))
         views.append(view)
       }
-      panel.append(views)
+      content.append(views)
       const changes = make('div', '', 'polo-learning-changes')
       for (const item of selectedPoloLearnings(state)) {
         const row = make('div', '', 'polo-learning-change')
         row.title = 'Trade-off: ' + item.tradeoff
-        row.style.setProperty('--learning-color', item.color)
         row.append(
           make('strong', item.icon + ' ' + item.title),
           make('span', state.preview ? item.after : item.before),
         )
         changes.append(row)
       }
-      panel.append(
+      for (const item of selectedCustomPoloLearnings(state)) {
+        const row = make('div', '', 'polo-learning-change')
+        row.append(
+          make('strong', '✎ ' + item.text),
+          make(
+            'span',
+            state.preview
+              ? 'Your proposal · not mapped yet'
+              : 'Not included in the original plan',
+          ),
+        )
+        changes.append(row)
+      }
+      content.append(
         changes,
         make('p', 'The playing field is still lost.', 'polo-learning-conflict'),
         make(
@@ -180,39 +382,54 @@ export function setupPoloLearning(
           'Design comparison · water, energy and heat savings need assessment.',
         ),
       )
-      const actions = make('div', '', 'polo-learning-footer')
+      const actions = make('div', '', 'polo-learning-actions')
       actions.append(
         button('Edit my choices', () => {
           draft = { ...getState().learnings }
+          customDraft =
+            getState().customLearnings?.map((item) => ({ ...item })) ?? []
           mode = 'choose'
           render()
+          panel
+            .querySelector<HTMLHeadingElement>('h2')
+            ?.focus({ preventScroll: true })
         }),
-        button('Back to map →', close, true),
+        button('Back to summary →', close, true),
       )
-      panel.append(actions)
+      footer.append(actions)
     }
-    key = JSON.stringify([state.phase, state.preview, state.learnings])
+    content.scrollTop = scrollTop
+    key = stateKey()
+  }
+  function stateKey(): string {
+    const state = getState()
+    return JSON.stringify([
+      state.phase,
+      state.preview,
+      state.learnings,
+      state.customLearnings,
+      state.areaHa,
+      state.proposal,
+      state.improvements,
+    ])
   }
   return {
-    open(): void {
+    openSummary(): void {
       const state = getState()
       if (!state.confirmed || state.phase !== 'M6') return
-      draft = { ...state.learnings }
-      mode = selectedPoloLearnings(state).length ? 'compare' : 'choose'
+      mode = 'summary'
       panel.hidden = false
       render()
       panel
         .querySelector<HTMLHeadingElement>('h2')
         ?.focus({ preventScroll: true })
     },
+    dismiss,
     sync(): void {
       const state = getState()
       if (panel.hidden) return
-      if (!state.confirmed || state.phase !== 'M6') close()
-      else if (
-        key !== JSON.stringify([state.phase, state.preview, state.learnings])
-      )
-        render()
+      if (!state.confirmed || state.phase !== 'M6') dismiss()
+      else if (key !== stateKey()) render()
     },
     destroy(): void {
       delete root.dataset['poloLearning']

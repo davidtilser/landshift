@@ -6,7 +6,7 @@ import type { PoloTodayTab } from './today.ts'
 import { poloUsText } from './us-units.ts'
 import './today.css'
 import { poloPlanningText } from './planning-copy.ts'
-import { poloFoundationsSteps } from './foundations-reader.ts'
+import { poloChapterSteps } from './chapter-reader.ts'
 import { movePoloReader } from './reader-navigation.ts'
 
 /** Inline topic tabs share one reader across the entire walkthrough. */
@@ -68,10 +68,10 @@ export function setupPoloEducation(
   const readerLengths = (
     state: PoloSceneState,
   ): Record<PoloTodayTab, number> => ({
-    general: Math.max(1, poloFoundationsSteps(state, 'general').length),
-    water: Math.max(1, poloFoundationsSteps(state, 'water').length),
-    electricity: Math.max(1, poloFoundationsSteps(state, 'electricity').length),
-    land: Math.max(1, poloFoundationsSteps(state, 'land').length),
+    general: Math.max(1, poloChapterSteps(state, 'general').length),
+    water: Math.max(1, poloChapterSteps(state, 'water').length),
+    electricity: Math.max(1, poloChapterSteps(state, 'electricity').length),
+    land: Math.max(1, poloChapterSteps(state, 'land').length),
   })
   const render = (): void => {
     const state = getState()
@@ -85,7 +85,7 @@ export function setupPoloEducation(
       panel.contains(document.activeElement) &&
       document.activeElement instanceof HTMLButtonElement &&
       document.activeElement.dataset['poloAction'] === 'rain'
-    const steps = state.confirmed ? poloFoundationsSteps(state, activeTab) : []
+    const steps = state.confirmed ? poloChapterSteps(state, activeTab) : []
     readerStep = Math.min(readerStep, Math.max(0, steps.length - 1))
     const step = steps[readerStep]
     const key = `${state.phase}/${String(state.preview)}/${state.proposal ?? ''}/${activeTab}/${String(readerStep)}`
@@ -270,9 +270,7 @@ export function setupPoloEducation(
     }
     if (state.confirmed && last) {
       const ending = paragraph(
-        step
-          ? 'End of Foundations. Choose another phase below.'
-          : 'Choose another phase below.',
+        'End of this chapter. Choose another phase below.',
         'polo-reader-end',
       )
       const content = panel.querySelector('.polo-reader-content')

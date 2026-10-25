@@ -11,7 +11,12 @@ import type { DiscussionTopic } from './discussion.ts'
 import { initialCommunityMoodBreakdown } from './community-mood.ts'
 import { POLO_PROPOSAL_NAMES } from './polo/model.ts'
 import { poloImprovementSummary } from './polo/interventions.ts'
-import { activePoloLearnings, selectedPoloLearnings } from './polo/learnings.ts'
+import {
+  activePoloLearnings,
+  selectedPoloLearnings,
+  activeCustomPoloLearnings,
+  selectedCustomPoloLearnings,
+} from './polo/learnings.ts'
 import { conversationReaction } from './community-reactions.ts'
 import type {
   ConversationReactions,
@@ -66,11 +71,19 @@ function planUpdate(
         : 'Original arrangement'
     const improvements = poloImprovementSummary(next.polo)
     const learned = activePoloLearnings(next.polo)
-    if (selectedPoloLearnings(next.polo).length && next.polo.phase === 'M6') {
+    const custom = activeCustomPoloLearnings(next.polo)
+    if (
+      (selectedPoloLearnings(next.polo).length ||
+        selectedCustomPoloLearnings(next.polo).length) &&
+      next.polo.phase === 'M6'
+    ) {
       changes.push(
-        learned.length
-          ? 'Improved plan, same site, planned from the start: ' +
-              learned.map((item) => item.title).join(', ') +
+        learned.length || custom.length
+          ? 'Revised plan, same site, planned from the start: ' +
+              [
+                ...learned.map((item) => item.title),
+                ...(custom.length ? ['custom ideas proposed'] : []),
+              ].join(', ') +
               '. Savings are not quantified; the public field is still lost.'
           : 'Comparing the original plan at the same site. Selected improvements are hidden in this view.',
       )
@@ -78,6 +91,11 @@ function planUpdate(
     changes.push(
       `Polo Fields ${next.polo.phase} · ${improvements ? 'Plan improvements' : view}.`,
     )
+    if (custom.length)
+      changes.push(
+        'Custom ideas proposed, not yet mapped: ' +
+          custom.map((item) => item.text).join(' · '),
+      )
     if (improvements) changes.push(improvements)
     if (next.polo.confirmed && !previous.polo?.confirmed)
       changes.push(

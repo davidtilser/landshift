@@ -7,7 +7,7 @@ import type { DiscussionTopic } from '../discussion.ts'
 import type { PoloDiscussionFacts } from './context.ts'
 import { poloImprovementSummary } from './interventions.ts'
 import { poloReactions } from './reactions.ts'
-import { activePoloLearnings } from './learnings.ts'
+import { activePoloLearnings, activeCustomPoloLearnings } from './learnings.ts'
 
 export type PoloDialogueTopic =
   | 'priority'
@@ -294,6 +294,16 @@ export function poloDialogueReply(
 ): { text: string; topic: DiscussionTopic } {
   const id = poloDialogueTopic(question, history)
   const learned = activePoloLearnings(facts.scene)
+  const ownIdea = activeCustomPoloLearnings(facts.scene)[0]
+  if (!learned.length && ownIdea && id)
+    return {
+      text:
+        poloReactions(facts.scene).voices[voice].text +
+        '\n\nYour proposal: “' +
+        ownIdea.text +
+        '”\n\nIts benefits, trade-offs and feasibility need checking.',
+      topic: NODES[id].topic,
+    }
   if (learned.length && id) {
     const target =
       id === 'water' || id === 'recycled'

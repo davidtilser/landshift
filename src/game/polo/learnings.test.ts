@@ -3,6 +3,9 @@ import { INITIAL_POLO_STATE, POLO_LEARNING_IDS, POLO_PHASES } from './model.ts'
 import type { PoloSceneState, PoloLearnings } from './model.ts'
 import {
   activePoloLearnings,
+  activeCustomPoloLearnings,
+  selectedCustomPoloLearnings,
+  hasActivePoloLearningPlan,
   applyPoloLearnings,
   poloProposalActive,
   selectedPoloLearnings,
@@ -25,6 +28,70 @@ const operating: PoloSceneState = {
 }
 
 describe('learn, redesign and compare at the same site', () => {
+  it('supports custom-only ideas, selection, original comparison and phase persistence without inventing map features', () => {
+    const ideas = [
+      { id: 'solar', text: '  Add rooftop solar panels.  ', selected: true },
+      { id: 'noise', text: 'Reduce noise for park visitors.', selected: false },
+    ]
+    const customOnly = applyPoloLearnings(operating, {}, ideas)
+    expect(
+      activeCustomPoloLearnings(customOnly).map((item) => item.text),
+    ).toEqual(['Add rooftop solar panels.'])
+    expect(hasActivePoloLearningPlan(customOnly)).toBe(true)
+    expect(activePoloLearnings(customOnly)).toEqual([])
+    expect(activePoloImprovements(customOnly)).toEqual([])
+    expect(poloProposalActive(customOnly, 'green_roof')).toBe(false)
+    expect(customOnly.center).toEqual(operating.center)
+    expect(poloSupport(customOnly)).toBe(poloSupport(operating))
+    const original = { ...customOnly, preview: false }
+    expect(activeCustomPoloLearnings(original)).toEqual([])
+    expect(selectedCustomPoloLearnings(original)).toHaveLength(1)
+    expect(poloDiscussionContext(original).polo?.mechanism).not.toContain(
+      'solar panels',
+    )
+    const earlier = poloPhaseAt(customOnly, 'M4')
+    expect(earlier.customLearnings).toEqual(customOnly.customLearnings)
+    expect(earlier.customLearnings?.[0]).not.toBe(
+      customOnly.customLearnings?.[0],
+    )
+    expect(activeCustomPoloLearnings(earlier)).toEqual([])
+    const context = poloDiscussionContext(customOnly).polo
+    expect(context?.baseline).toBeNull()
+    expect(context?.mechanism).toContain('not implemented or verified')
+    expect(context?.mechanism).toContain('Add rooftop solar panels.')
+    expect(context?.mechanism).not.toContain('Reduce noise')
+    expect(poloImpact(customOnly)[0]?.current).toBe('Proposed · not mapped')
+    if (!context) throw new Error('Missing context')
+    const reply = poloDialogueReply(
+      'operator',
+      'What matters most to you?',
+      context,
+    )
+    expect(reply.text).toContain('Add rooftop solar panels.')
+    expect(reply.text.length).toBeLessThanOrEqual(360)
+    expect(ideas[0]?.text.startsWith('  ')).toBe(true)
+    const removed = applyPoloLearnings(customOnly, {}, [])
+    expect(removed.customLearnings).toEqual([])
+    expect(removed.preview).toBe(false)
+    expect(hasActivePoloLearningPlan(removed)).toBe(false)
+  })
+  it('validates custom text and count at the server boundary', () => {
+    const idea = { id: 'solar', text: 'Add rooftop solar.', selected: true }
+    expect(
+      poloSceneStateSchema.parse({ ...operating, customLearnings: [idea] })
+        .customLearnings,
+    ).toEqual([idea])
+    for (const customLearnings of [
+      [{ ...idea, text: ' ' }],
+      [{ ...idea, text: 'x'.repeat(161) }],
+      [{ ...idea, selected: 'yes' }],
+      Array.from({ length: 6 }, () => idea),
+    ])
+      expect(
+        poloSceneStateSchema.safeParse({ ...operating, customLearnings })
+          .success,
+      ).toBe(false)
+  })
   it('allows every combination and restores the original without changing location or size', () => {
     for (let mask = 0; mask < 16; mask++) {
       const choices: PoloLearnings = {}

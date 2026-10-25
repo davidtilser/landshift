@@ -4,7 +4,7 @@ import type {
 } from '../../shared/community-contract.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
 import { activePoloImprovements } from './interventions.ts'
-import { activePoloLearnings } from './learnings.ts'
+import { activePoloLearnings, activeCustomPoloLearnings } from './learnings.ts'
 import { poloSupport } from './impact.ts'
 
 export interface PoloReaction {
@@ -226,6 +226,32 @@ function basePoloReactions(state: PoloSceneState): PhaseReaction {
 export function poloReactions(state: PoloSceneState): PhaseReaction {
   const base = basePoloReactions(state)
   const learned = activePoloLearnings(state)
+  if (!learned.length && activeCustomPoloLearnings(state).length)
+    return {
+      ...base,
+      voices: {
+        neighbor: {
+          ...base.voices.neighbor,
+          text: 'How would your idea affect the people who use this field?',
+          mood: 'concerned',
+        },
+        nature: {
+          ...base.voices.nature,
+          text: 'Let’s check how your idea affects soil, water and habitat.',
+          mood: 'concerned',
+        },
+        student: {
+          ...base.voices.student,
+          text: 'What would your idea mean for our team and public space?',
+          mood: 'concerned',
+        },
+        operator: {
+          ...base.voices.operator,
+          text: 'Your idea is worth discussing. We need evidence before changing the design.',
+          mood: 'neutral',
+        },
+      },
+    }
   if (learned.length) {
     const green = learned.some((item) => item.id === 'soil')
     const roof = learned.some((item) => item.id === 'roof')

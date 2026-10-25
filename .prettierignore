@@ -1,4 +1,5 @@
 dist
+.vercel
 package-lock.json
 data/raw
 data/processed

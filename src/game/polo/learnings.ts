@@ -3,6 +3,7 @@ import type {
   PoloLearnings,
   PoloSceneState,
   PoloProposal,
+  PoloCustomLearning,
 } from './model.ts'
 
 export const POLO_LEARNINGS = [
@@ -72,9 +73,28 @@ export function activePoloLearnings(state: PoloSceneState): PoloLearning[] {
     ? selectedPoloLearnings(state)
     : []
 }
+export function selectedCustomPoloLearnings(
+  state: PoloSceneState,
+): PoloCustomLearning[] {
+  return state.customLearnings?.filter((item) => item.selected) ?? []
+}
+export function activeCustomPoloLearnings(
+  state: PoloSceneState,
+): PoloCustomLearning[] {
+  return state.confirmed && state.phase === 'M6' && state.preview
+    ? selectedCustomPoloLearnings(state)
+    : []
+}
+export function hasActivePoloLearningPlan(state: PoloSceneState): boolean {
+  return (
+    activePoloLearnings(state).length > 0 ||
+    activeCustomPoloLearnings(state).length > 0
+  )
+}
 export function applyPoloLearnings(
   state: PoloSceneState,
   choices: PoloLearnings,
+  custom: readonly PoloCustomLearning[] = state.customLearnings ?? [],
 ): PoloSceneState {
   if (!state.confirmed || state.phase !== 'M6') return state
   return {
@@ -82,8 +102,13 @@ export function applyPoloLearnings(
     center: [...state.center],
     proposal: null,
     rain: false,
-    preview: true,
+    preview:
+      Object.values(choices).some(Boolean) ||
+      custom.some((item) => item.selected && Boolean(item.text.trim())),
     learnings: { ...choices },
+    customLearnings: custom
+      .map((item) => ({ ...item, text: item.text.trim() }))
+      .filter((item) => item.text),
     improvements: undefined,
   }
 }

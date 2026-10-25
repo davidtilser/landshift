@@ -81,6 +81,9 @@ export function poloPhaseAt(
     preview: phase !== 'M6',
     proposal: null,
     ...(state.learnings ? { learnings: { ...state.learnings } } : {}),
+    ...(state.customLearnings
+      ? { customLearnings: state.customLearnings.map((item) => ({ ...item })) }
+      : {}),
     ...(state.improvements ? { improvements: { ...state.improvements } } : {}),
   }
 }

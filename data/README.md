@@ -47,6 +47,8 @@ npm run data:verify
 
 `npm run build` copies the prepared pack into `dist/data/`. Its local aerial and landscape views can be served entirely offline over localhost. Photorealistic 3D requires an internet connection and a configured account token. Browsers still load files on demand from the local server; the data does not all need to be held in memory. The local views do not require external map requests. The page permits the specific Cesium/Google hosts needed for the optional streamed view.
 
+For deployment, `npm run build:vercel` prepares missing packs for both geographic scenarios, generates Cesium heightmaps, verifies every pack, and then builds the frontend. Verified packs are cached under `node_modules/.cache/landshift-data/`. The first uncached build downloads public source data; the large runtime packs remain outside Git. See [Vercel deployment](../docs/vercel.md).
+
 ## Golden Gate Park: `golden-gate-park`
 
 Rendering bounds: `[-122.516, 37.764, -122.438, 37.776]`. The inset placement bounds are `[-122.514, 37.7648, -122.439, 37.7753]`. The initial campus is centered on the **Heroes’ Grove WWI memorial boulder** at `[-122.46889, 37.77293]`, transcribed from page 1 of [NPS HALS CA-49-B](https://tile.loc.gov/storage-services/master/pnp/habshaer/ca/ca4300/ca4343/data/ca4343data.pdf). This is a hypothetical exercise, not an actual development application or a statement about any real community's position.
