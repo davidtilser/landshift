@@ -32,6 +32,10 @@ Only the heat case can show proposal-result numbers after its model is ready. Th
 
 The original baseline's numerical cards remain available in its separate view. They are not carried into the two concept views. Their qualitative arrows, colour changes, water levels and vegetation are explanatory animation, not scaled data, measured temperature or a simulation output. Source details can remain optional text links.
 
+The [land-and-space baseline layer](../land-space-demo-golden-gate-polo/README.md) adds surface allocation and recreational-use questions to the same M0–M6 walkthrough. It reuses the original water surfaces and is not a fourth proposal. Its numerical overlay also stays hidden in the recycled-water and green-roof concept previews.
+
+The shared [transition pack](../transitions-demo-golden-gate-polo/README.md) defines continuing stories across the topics. Its **P1–P3** patterns give each proposal an original state, intervention phases, active mechanism and limitation/reset replay inside M6. These phases do not add milestone IDs or place proposal equipment in the original construction history. The **Recipient unavailable** heat replay changes the heat pathway; returning to an earlier baseline milestone is a snapshot comparison, not physical reversal.
+
 ## Heat for neighbours
 
 ### Proposal and intended learning

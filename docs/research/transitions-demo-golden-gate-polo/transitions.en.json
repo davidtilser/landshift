@@ -1,0 +1,753 @@
+{
+  "schema_version": 1,
+  "scenario_id": "sf-polo-cross-topic-transitions-v1",
+  "locale": "en",
+  "status": "authored_content_handoff_not_engine_implementation",
+  "sources": {
+    "water_scenario": {
+      "path": "../water-demo-golden-gate-polo/scenario.json",
+      "sha256": "b903e28a0265fa78ceb3ad98cdc2863dc317faf74f6b72b1e35d934bf905ba3d"
+    },
+    "water_results": {
+      "path": "../water-demo-golden-gate-polo/results.json",
+      "sha256": "87cbc29531d5c167aa740445b7bfa16776e16662e4ea8043f252b70a7f111105"
+    },
+    "energy_results": {
+      "path": "../energy-demo-golden-gate-polo/results.json",
+      "sha256": "0a53916bdca0fb32930b16ab4421058ad7c4ffc5168ac7e97a04b9775a177f15"
+    },
+    "land_handoff": {
+      "path": "../land-space-demo-golden-gate-polo/milestones.en.json",
+      "sha256": "05b7d378d28dc281c6a01b8660925437e10a2560c1f3468dd12268f8408335b5"
+    },
+    "preservation": {
+      "path": "../change-catalog-golden-gate-polo/preservation-sha256.json",
+      "sha256": "f827b0c7899316d6ed778ad7e805608a23275e4fdd29c025b5ae0cb58a56476d"
+    }
+  },
+  "interpretation": {
+    "navigation": "Earlier milestones restore snapshots for comparison, not physical reversal; never run fluids backward.",
+    "numerical_motion": "Animate mechanisms; show supported endpoint values with units/time basis. No quantitative interpolation or fabricated intermediate curves.",
+    "reset": "Restore complete target state on jumps and replay; no accumulating resource counters or alternative overlays.",
+    "concept_visibility": "P2 and P3 hide all numerical panels including original water, energy, land and any heat results.",
+    "unknowns": "Null means Not established, never zero; M1 runoff remains Not quantified.",
+    "scope": "SF only. Community is a scenario handoff, not reviewed David implementation. Existing San José/Muhos packets are unchanged."
+  },
+  "patterns": [
+    {
+      "id": "W1",
+      "topic": "water",
+      "scope": "baseline",
+      "pattern": "surface transformation with plateau",
+      "label": "Rain over changing surfaces",
+      "mode": "milestone snapshots; optional independent rain where specified",
+      "states": [
+        {
+          "milestone": "M0",
+          "visual": "Original turf: optional reference rainfall replay.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/stages/0/rain_event/water_to_managed_drainage_m3",
+              "unit": "m³",
+              "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
+            }
+          ]
+        },
+        {
+          "milestone": "M1",
+          "visual": "Turf stripped: no quantified rainfall outflow or interpolation across this gap.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/stages/1/rain_event",
+              "unit": "m³",
+              "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
+            }
+          ]
+        },
+        {
+          "milestone": "M2",
+          "visual": "Prepared ground: replay the same rain and show modelled drainage.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/stages/2/rain_event/water_to_managed_drainage_m3",
+              "unit": "m³",
+              "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
+            }
+          ]
+        },
+        {
+          "milestone": "M3",
+          "visual": "Compacted ground: same coarse model category and exactly the same drainage as M2.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/stages/3/rain_event/water_to_managed_drainage_m3",
+              "unit": "m³",
+              "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
+            }
+          ]
+        },
+        {
+          "milestone": "M4",
+          "visual": "Roof blocks appear; replay the supported construction surface snapshot.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/stages/4/rain_event/water_to_managed_drainage_m3",
+              "unit": "m³",
+              "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
+            }
+          ]
+        },
+        {
+          "milestone": "M5",
+          "visual": "Completed surfaces and tank split roof inflow; optional compare with M0.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/stages/5/rain_event/water_to_managed_drainage_m3",
+              "unit": "m³",
+              "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
+            }
+          ]
+        },
+        {
+          "milestone": "M6",
+          "visual": "Same surfaces and event result as M5; annual cooling view is separate.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/stages/6/rain_event/water_to_managed_drainage_m3",
+              "unit": "m³",
+              "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "W2",
+      "topic": "water",
+      "scope": "baseline",
+      "pattern": "temporary activity to one-time fill to recurring flow",
+      "label": "Work water becomes operating demand",
+      "mode": "milestone snapshots; optional independent rain where specified",
+      "states": [
+        {
+          "milestone": "M0",
+          "visual": "Existing turf irrigation context only; no operating-campus supply.",
+          "bindings": []
+        },
+        {
+          "milestone": "M1",
+          "visual": "Work-water activity starts with stripping.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/stages/1/step_site_supply_m3",
+              "unit": "m³",
+              "time_basis": "whole selected work step"
+            }
+          ]
+        },
+        {
+          "milestone": "M2",
+          "visual": "Soil-wetting activity accompanies grading; new step total, not instantaneous flow.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/stages/2/step_site_supply_m3",
+              "unit": "m³",
+              "time_basis": "whole selected work step"
+            }
+          ]
+        },
+        {
+          "milestone": "M3",
+          "visual": "Selected compaction work-water activity replaces grading activity.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/stages/3/step_site_supply_m3",
+              "unit": "m³",
+              "time_basis": "whole selected work step"
+            }
+          ]
+        },
+        {
+          "milestone": "M4",
+          "visual": "Construction supply and contained wash activity; offsite mixing remains separately labelled.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/stages/4/step_site_supply_m3",
+              "unit": "m³",
+              "time_basis": "whole selected work step"
+            }
+          ]
+        },
+        {
+          "milestone": "M5",
+          "visual": "End work-water illustration; show commissioning fills/flushing once, without an operating loop.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/stages/5/step_site_supply_m3",
+              "unit": "m³",
+              "time_basis": "whole selected work step"
+            }
+          ]
+        },
+        {
+          "milestone": "M6",
+          "visual": "Start separate average-day cooling supply, evaporation and blowdown; never repeat commissioning fill.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/operation/daily_average_cooling_supply_m3",
+              "unit": "m³/day",
+              "time_basis": "annual-average operating day"
+            },
+            {
+              "source": "water_results",
+              "pointer": "/operation/daily_average_cooling_evaporation_m3",
+              "unit": "m³/day",
+              "time_basis": "annual-average operating day"
+            },
+            {
+              "source": "water_results",
+              "pointer": "/operation/daily_average_cooling_blowdown_m3",
+              "unit": "m³/day",
+              "time_basis": "annual-average operating day"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "W3",
+      "topic": "water",
+      "scope": "baseline",
+      "pattern": "finite event storage",
+      "label": "Storage appears and fills during rain",
+      "mode": "milestone snapshots; optional independent rain where specified",
+      "states": [
+        {
+          "milestone": "M0",
+          "visual": "No campus roof tank.",
+          "bindings": []
+        },
+        {
+          "milestone": "M1",
+          "visual": "No campus roof tank.",
+          "bindings": []
+        },
+        {
+          "milestone": "M2",
+          "visual": "No campus roof tank.",
+          "bindings": []
+        },
+        {
+          "milestone": "M3",
+          "visual": "No campus roof tank.",
+          "bindings": []
+        },
+        {
+          "milestone": "M4",
+          "visual": "No active tank in the selected construction snapshot.",
+          "bindings": []
+        },
+        {
+          "milestone": "M5",
+          "visual": "Tank available: empty-start rain replay fills up to 200 m³; remaining roof runoff goes onward.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/stages/5/rain_event/roof_capture_m3",
+              "unit": "m³",
+              "time_basis": "one independent rain event; empty tank start"
+            }
+          ]
+        },
+        {
+          "milestone": "M6",
+          "visual": "Same independent event-storage illustration; no annual use or automatic emptying credit.",
+          "bindings": [
+            {
+              "source": "water_results",
+              "pointer": "/stages/6/rain_event/roof_capture_m3",
+              "unit": "m³",
+              "time_basis": "one independent rain event; empty tank start"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E1",
+      "topic": "energy",
+      "scope": "baseline",
+      "pattern": "activity replacement and recurring demand",
+      "label": "Machines leave; continuous electricity starts",
+      "mode": "milestone snapshots; optional independent rain where specified",
+      "states": [
+        {
+          "milestone": "M0",
+          "visual": "Existing park energy inventory unknown; no campus load.",
+          "bindings": []
+        },
+        {
+          "milestone": "M1",
+          "visual": "Selected tractor/fuel symbol starts; no household supply depletion.",
+          "bindings": [
+            {
+              "source": "energy_results",
+              "pointer": "/stages/1/selected_diesel_l",
+              "unit": "L diesel",
+              "time_basis": "whole selected work step"
+            },
+            {
+              "source": "energy_results",
+              "pointer": "/stages/1/selected_electricity_kwh",
+              "unit": "kWh electricity",
+              "time_basis": "whole selected work step"
+            }
+          ]
+        },
+        {
+          "milestone": "M2",
+          "visual": "Selected excavators replace tractor emphasis; do not accumulate the fleet.",
+          "bindings": [
+            {
+              "source": "energy_results",
+              "pointer": "/stages/2/selected_diesel_l",
+              "unit": "L diesel",
+              "time_basis": "whole selected work step"
+            },
+            {
+              "source": "energy_results",
+              "pointer": "/stages/2/selected_electricity_kwh",
+              "unit": "kWh electricity",
+              "time_basis": "whole selected work step"
+            }
+          ]
+        },
+        {
+          "milestone": "M3",
+          "visual": "Roller replaces grading emphasis; selected fuel remains a step inventory.",
+          "bindings": [
+            {
+              "source": "energy_results",
+              "pointer": "/stages/3/selected_diesel_l",
+              "unit": "L diesel",
+              "time_basis": "whole selected work step"
+            },
+            {
+              "source": "energy_results",
+              "pointer": "/stages/3/selected_electricity_kwh",
+              "unit": "kWh electricity",
+              "time_basis": "whole selected work step"
+            }
+          ]
+        },
+        {
+          "milestone": "M4",
+          "visual": "Loader plus illustrative temporary power; keep diesel and electricity distinct.",
+          "bindings": [
+            {
+              "source": "energy_results",
+              "pointer": "/stages/4/selected_diesel_l",
+              "unit": "L diesel",
+              "time_basis": "whole selected work step"
+            },
+            {
+              "source": "energy_results",
+              "pointer": "/stages/4/selected_electricity_kwh",
+              "unit": "kWh electricity",
+              "time_basis": "whole selected work step"
+            }
+          ]
+        },
+        {
+          "milestone": "M5",
+          "visual": "Construction machines leave; show selected commissioning tests as a separate step.",
+          "bindings": [
+            {
+              "source": "energy_results",
+              "pointer": "/stages/5/selected_diesel_l",
+              "unit": "L diesel",
+              "time_basis": "whole selected work step"
+            },
+            {
+              "source": "energy_results",
+              "pointer": "/stages/5/selected_electricity_kwh",
+              "unit": "kWh electricity",
+              "time_basis": "whole selected work step"
+            }
+          ]
+        },
+        {
+          "milestone": "M6",
+          "visual": "Tests give way to annual-average IT/supporting-system flow; leave nearby-home lights steady.",
+          "bindings": [
+            {
+              "source": "energy_results",
+              "pointer": "/operation/average_facility_mw",
+              "unit": "MW electricity",
+              "time_basis": "annual-average normal operation, not peak"
+            },
+            {
+              "source": "energy_results",
+              "pointer": "/operation/facility_electricity_mwh_year",
+              "unit": "MWh electricity/year",
+              "time_basis": "first full normal-operating year"
+            },
+            {
+              "source": "energy_results",
+              "pointer": "/operation/it_electricity_mwh_year",
+              "unit": "MWh electricity/year",
+              "time_basis": "first full normal-operating year"
+            },
+            {
+              "source": "energy_results",
+              "pointer": "/operation/non_it_electricity_mwh_year",
+              "unit": "MWh electricity/year",
+              "time_basis": "all supporting systems, not cooling alone"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "L1",
+      "topic": "land_space",
+      "scope": "baseline",
+      "pattern": "one disturbance to permanent allocation",
+      "label": "One disturbance, permanent allocation",
+      "mode": "milestone snapshots; optional independent rain where specified",
+      "states": [
+        {
+          "milestone": "M0",
+          "visual": "Show 4 ha authored managed-turf subset with original-use context.",
+          "bindings": [
+            {
+              "source": "land_handoff",
+              "pointer": "/milestones/0/data/cumulative_disturbed_area_m2",
+              "unit": "m²",
+              "time_basis": "unique campus ground worked since M0; excludes external access"
+            },
+            {
+              "source": "land_handoff",
+              "pointer": "/milestones/0/data/sealed_area_m2",
+              "unit": "m²",
+              "time_basis": "surface snapshot"
+            }
+          ]
+        },
+        {
+          "milestone": "M1",
+          "visual": "Strip 3.2 ha once; retain 0.8 ha turf.",
+          "bindings": [
+            {
+              "source": "land_handoff",
+              "pointer": "/milestones/1/data/cumulative_disturbed_area_m2",
+              "unit": "m²",
+              "time_basis": "unique campus ground worked since M0; excludes external access"
+            },
+            {
+              "source": "land_handoff",
+              "pointer": "/milestones/1/data/sealed_area_m2",
+              "unit": "m²",
+              "time_basis": "surface snapshot"
+            }
+          ]
+        },
+        {
+          "milestone": "M2",
+          "visual": "Grade that same ground without increasing campus disturbance.",
+          "bindings": [
+            {
+              "source": "land_handoff",
+              "pointer": "/milestones/2/data/cumulative_disturbed_area_m2",
+              "unit": "m²",
+              "time_basis": "unique campus ground worked since M0; excludes external access"
+            },
+            {
+              "source": "land_handoff",
+              "pointer": "/milestones/2/data/sealed_area_m2",
+              "unit": "m²",
+              "time_basis": "surface snapshot"
+            }
+          ]
+        },
+        {
+          "milestone": "M3",
+          "visual": "Compact that same ground; qualitative soil change without new area.",
+          "bindings": [
+            {
+              "source": "land_handoff",
+              "pointer": "/milestones/3/data/cumulative_disturbed_area_m2",
+              "unit": "m²",
+              "time_basis": "unique campus ground worked since M0; excludes external access"
+            },
+            {
+              "source": "land_handoff",
+              "pointer": "/milestones/3/data/sealed_area_m2",
+              "unit": "m²",
+              "time_basis": "surface snapshot"
+            }
+          ]
+        },
+        {
+          "milestone": "M4",
+          "visual": "Raise 1.2 ha building footprint; 2 ha remain bare and 0.8 ha remain turf.",
+          "bindings": [
+            {
+              "source": "land_handoff",
+              "pointer": "/milestones/4/data/cumulative_disturbed_area_m2",
+              "unit": "m²",
+              "time_basis": "unique campus ground worked since M0; excludes external access"
+            },
+            {
+              "source": "land_handoff",
+              "pointer": "/milestones/4/data/sealed_area_m2",
+              "unit": "m²",
+              "time_basis": "surface snapshot"
+            }
+          ]
+        },
+        {
+          "milestone": "M5",
+          "visual": "Reveal building versus 4 ha campus, final 2.8 ha sealed and separate retained/restored cover; ghost original markings.",
+          "bindings": [
+            {
+              "source": "land_handoff",
+              "pointer": "/milestones/5/data/cumulative_disturbed_area_m2",
+              "unit": "m²",
+              "time_basis": "unique campus ground worked since M0; excludes external access"
+            },
+            {
+              "source": "land_handoff",
+              "pointer": "/milestones/5/data/sealed_area_m2",
+              "unit": "m²",
+              "time_basis": "surface snapshot"
+            }
+          ]
+        },
+        {
+          "milestone": "M6",
+          "visual": "Keep M5 surfaces unchanged while recurring water/energy flows run.",
+          "bindings": [
+            {
+              "source": "land_handoff",
+              "pointer": "/milestones/6/data/cumulative_disturbed_area_m2",
+              "unit": "m²",
+              "time_basis": "unique campus ground worked since M0; excludes external access"
+            },
+            {
+              "source": "land_handoff",
+              "pointer": "/milestones/6/data/sealed_area_m2",
+              "unit": "m²",
+              "time_basis": "surface snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "L2",
+      "topic": "land_space",
+      "scope": "baseline",
+      "pattern": "temporary restriction and illustrative recovery",
+      "label": "Temporary access and repair",
+      "mode": "milestone snapshots; optional independent rain where specified",
+      "states": [
+        {
+          "milestone": "M0",
+          "visual": "Open schematic park paths; no barriers or wear patch.",
+          "bindings": []
+        },
+        {
+          "milestone": "M1",
+          "visual": "Barriers/diversion precede heavy access; illustrative external grass wear begins.",
+          "bindings": []
+        },
+        {
+          "milestone": "M2",
+          "visual": "Keep access restriction and possible verge wear active.",
+          "bindings": []
+        },
+        {
+          "milestone": "M3",
+          "visual": "Retain access/wear overlay without quantified compaction or expanded campus area.",
+          "bindings": []
+        },
+        {
+          "milestone": "M4",
+          "visual": "Heavy access and temporary restriction persist through construction.",
+          "bindings": []
+        },
+        {
+          "milestone": "M5",
+          "visual": "Authored handover: heavy traffic ends, barriers removed, path reopens, verge repair begins.",
+          "bindings": []
+        },
+        {
+          "milestone": "M6",
+          "visual": "Labelled time-compressed revegetation; no recovery date or proof of full soil recovery.",
+          "bindings": []
+        }
+      ]
+    },
+    {
+      "id": "C1",
+      "topic": "community_context",
+      "scope": "baseline",
+      "pattern": "changing concern and persistent trade-off",
+      "label": "Wider relationships become visible",
+      "mode": "milestone snapshots; optional independent rain where specified",
+      "states": [
+        {
+          "milestone": "M0",
+          "visual": "Existing park-use and other service-user icons; actual views and local utility topology unverified.",
+          "bindings": []
+        },
+        {
+          "milestone": "M1",
+          "visual": "Scenario park user asks about temporary access; supply/fuel symbols appear.",
+          "bindings": []
+        },
+        {
+          "milestone": "M2",
+          "visual": "Access concern continues; generic managed-drainage relationship visible only in rain mode.",
+          "bindings": []
+        },
+        {
+          "milestone": "M3",
+          "visual": "Keep other users neutral while compaction continues; no invented new runoff increment.",
+          "bindings": []
+        },
+        {
+          "milestone": "M4",
+          "visual": "Construction activity persists; service design/capacity remain unassessed.",
+          "bindings": []
+        },
+        {
+          "milestone": "M5",
+          "visual": "Illustrative path reopening and planting do not establish restored sports use or service approval.",
+          "bindings": []
+        },
+        {
+          "milestone": "M6",
+          "visual": "New recurring demand beside neutral existing-user branches; land-use and access questions remain.",
+          "bindings": []
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "topic": "proposal",
+      "scope": "proposal_within_M6",
+      "pattern": "install, deliver, interrupt and resume",
+      "label": "Heat for neighbours",
+      "readiness": "model_pending",
+      "show_numbers": false,
+      "bindings": [],
+      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1–M5 retrofit history",
+      "phases": [
+        {
+          "id": "original",
+          "visual": "Original cooling rejects heat; one model pool has its own heating source."
+        },
+        {
+          "id": "proposed_works",
+          "visual": "Reveal exchanger and conditional heat pump; open schematic trench, lay insulated supply/return pair, restore surface."
+        },
+        {
+          "id": "active",
+          "visual": "Show isolated circuits transferring heat to recipient; cooler return, residual cooling and added electricity remain visible."
+        },
+        {
+          "id": "recipient_unavailable",
+          "visual": "Optional replay: useful delivery stops; computing continues and original cooling handles heat rejection."
+        },
+        {
+          "id": "resume",
+          "visual": "Restore the proposed active state only when the model recipient can accept heat; no full-time utilisation assumed."
+        }
+      ],
+      "limits": "No heat results, selected pipe length, temperature, demand coverage, route or energy/water saving. Recipient backup heater remains available."
+    },
+    {
+      "id": "P2",
+      "topic": "proposal",
+      "scope": "proposal_within_M6",
+      "pattern": "source-path substitution",
+      "label": "Recycled water",
+      "readiness": "visual_concept_only",
+      "show_numbers": false,
+      "bindings": [],
+      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1–M5 retrofit history",
+      "phases": [
+        {
+          "id": "original",
+          "visual": "Concept illustration of assumed original supply; all quantitative overlays hidden."
+        },
+        {
+          "id": "follow_source",
+          "visual": "Reveal treatment, storage/pumping and schematic delivery chain, without invented levels or capacity."
+        },
+        {
+          "id": "active",
+          "visual": "Switch highlighted source branch; cooling evaporation and blowdown stay visible without quantitative widths."
+        },
+        {
+          "id": "constraint",
+          "visual": "Highlight treatment quality, energy, service and capacity questions; do not solve a household shortage."
+        },
+        {
+          "id": "reset",
+          "visual": "Return to original source illustration and clear alternative route/equipment."
+        }
+      ],
+      "limits": "No source share, water savings, power figures, timeline, construction route, operating industrial connection or combined proposals."
+    },
+    {
+      "id": "P3",
+      "topic": "proposal",
+      "scope": "proposal_within_M6",
+      "pattern": "constructed layers, rain and drying",
+      "label": "Green roof",
+      "readiness": "visual_concept_only",
+      "show_numbers": false,
+      "bindings": [],
+      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1–M5 retrofit history",
+      "phases": [
+        {
+          "id": "original",
+          "visual": "Existing roof equipment/access remain visible; all quantitative overlays hidden."
+        },
+        {
+          "id": "proposed_layers",
+          "visual": "Reveal planted patch and layered cutaway, preserving equipment and service space."
+        },
+        {
+          "id": "rain",
+          "visual": "Illustrative rainfall enters substrate, some temporary storage and excess-water pathway appear; no measured depth or rate."
+        },
+        {
+          "id": "dry_conditions",
+          "visual": "Moisture visibly fades and maintenance cue appears; no calibrated drying time, temperature or guaranteed vegetation response."
+        },
+        {
+          "id": "reset",
+          "visual": "Restore original roof and clear plants, rain/dry state and qualitative overlays."
+        }
+      ],
+      "limits": "No runoff, temperature, water, energy, habitat or carbon results; no numerical area/percentage; no simulated weather year or combined savings."
+    }
+  ]
+}

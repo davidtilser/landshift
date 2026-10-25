@@ -1,0 +1,9 @@
+# Water: continuing stories across milestones
+
+This English companion extends the visualization direction without changing the frozen water scenario or generated outputs. Follow the shared [transition pack](../transitions-demo-golden-gate-polo/README.md), especially **W1 Rain over changing surfaces**, **W2 Work water becomes operating demand** and **W3 Storage appears and fills during rain**. Their complete states and metric references are in [transitions.en.json](../transitions-demo-golden-gate-polo/transitions.en.json).
+
+Keep the same rain input while comparing supported surface endpoints: grass at M0, prepared ground at M2/M3 and completed roofs/hard surfaces at M5/M6. M1 remains unquantified; M2 and M3 share an unchanged modelled rain result. A grass-repair animation outside the campus does not modify the existing runoff calculation.
+
+Show temporary work-water activities entering and leaving the scene from M1 to M4, one-time commissioning at M5, then the separate recurring cooling supply/evaporation/blowdown loop at M6. Do not animate a continuous demand curve from step totals or confuse a one-time fill with repeated use. The tank appears at M5 and fills only in the independent rain replay; each replay starts empty. No annual reuse or automatic emptying cycle is modelled.
+
+New views should use these transitions alongside the [existing milestone walkthrough](walkthrough.sk.md) and [wider-water story](wider-water-story.md). Earlier generated card copy retains its explicit Slovak locale; this companion and the shared transition pack are English. Original quantitative/evidence limits remain in force, including unassessed utility capacity and receiving routes. Product implementation is separate.
