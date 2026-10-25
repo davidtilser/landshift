@@ -1,5 +1,3 @@
-import './map-shortcuts.css'
-
 interface PoloShortcutContext {
   setup: string | undefined
   editable: boolean
@@ -75,16 +73,6 @@ export function setupPoloMapShortcuts(
   const document = root.ownerDocument
   const view = document.defaultView
   if (!view) throw new Error('Map shortcuts need a browser window')
-  const help = document.createElement('aside')
-  help.className = 'polo-map-shortcuts'
-  help.setAttribute('aria-label', 'Map keyboard shortcuts')
-  help.innerHTML = `
-    <span><span class="polo-map-key-group"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>Move map</span></span>
-    <span><kbd>I</kbd><span>Zoom in</span></span>
-    <span><kbd>O</kbd><span>Zoom out</span></span>
-  `
-  const studio = root.querySelector('.polo-studio') ?? root
-  studio.append(help)
 
   const isEditable = (event: KeyboardEvent): boolean => {
     // composedPath also catches inputs inside shadow-root based controls.
@@ -132,7 +120,9 @@ export function setupPoloMapShortcuts(
       communityOpen:
         root.classList.contains('community-open') ||
         root.querySelector('.community-open') !== null,
-      protestPending: root.dataset['poloProtestPending'] === 'true',
+      protestPending:
+        root.dataset['poloProtestPending'] === 'true' ||
+        root.hasAttribute('data-polo-intervention'),
       confirmAvailable:
         event.key === 'Enter' &&
         confirm !== null &&
@@ -155,7 +145,6 @@ export function setupPoloMapShortcuts(
       if (destroyed) return
       destroyed = true
       view.removeEventListener('keydown', onKeyDown)
-      help.remove()
     },
   }
 }

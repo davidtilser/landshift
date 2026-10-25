@@ -80,5 +80,6 @@ export function poloPhaseAt(
     phase,
     preview: phase !== 'M6',
     proposal: phase === 'M6' ? 'heat_reuse_neighbors' : null,
+    ...(state.improvements ? { improvements: { ...state.improvements } } : {}),
   }
 }

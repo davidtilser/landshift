@@ -6,6 +6,7 @@ import {
 import { POLO_DEFAULT_AREA_HA } from './model.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
 import { usAcres, usGallons, usNumber } from './us-units.ts'
+import { activePoloImprovements } from './interventions.ts'
 
 export type EnvironmentalLayer = 'water' | 'electricity' | 'land' | 'heat'
 export const ENVIRONMENTAL_LAYERS: Record<EnvironmentalLayer, string> = {
@@ -48,6 +49,44 @@ export interface ImpactCard {
 
 /** Compare the same phase and footprint. Unknown proposal savings stay unknown. */
 export function poloImpact(state: PoloSceneState): ImpactCard[] {
+  const improvements = activePoloImprovements(state)
+  if (improvements.length)
+    return [
+      {
+        title: 'Your construction choices',
+        baseline: 'Original plan',
+        current: String(improvements.length) + ' applied changes',
+        detail: improvements
+          .map(
+            (item) =>
+              ({
+                soil: 'Soil strip protected',
+                foundation: 'Marked sections reinforced',
+                grounds: 'Planted walking edge added',
+              })[item.id],
+          )
+          .join(' · '),
+        evidence: 'Design changes · benefits need assessment',
+      },
+      {
+        title: 'Water, power and materials',
+        baseline: 'Original-plan estimates',
+        current: 'Not recalculated',
+        detail:
+          'The original inventory does not include your interventions. Extra concrete uses material; plants and paths need care.',
+        evidence: 'Resource use and structural performance need assessment',
+      },
+      {
+        title: 'Public space',
+        baseline: 'A shared playing field',
+        current: improvements.some((item) => item.id === 'grounds')
+          ? 'A planted walking edge'
+          : 'Field still lost',
+        detail:
+          'These changes do not replace the public playing field. Communities can recognize an improvement and still oppose this location.',
+        evidence: 'Different perspectives · agreement still needed',
+      },
+    ]
   const phase = poloSizedPhase(state, state.confirmed ? state.phase : 'M0')
   const reference = poloSizedReference(state)
   const proposal =
@@ -90,14 +129,14 @@ export function poloImpact(state: PoloSceneState): ImpactCard[] {
             : water,
       detail:
         phase.id === 'M0'
-          ? 'Irrigation teaching allowance; actual supply and use are unknown.'
+          ? 'Irrigation allowance; actual supply and use are unknown.'
           : proposal === 'recycled_water'
             ? 'Cooling still needs water. Supply and quality need checking.'
-            : 'No verified proposal saving. This is a teaching baseline.',
+            : 'Proposal savings have not been verified.',
       evidence:
         state.areaHa === POLO_DEFAULT_AREA_HA
           ? 'Derived model · same phase'
-          : 'Area-proportional teaching model · same phase',
+          : 'Area-proportional estimate · same phase',
     },
     {
       title: 'Electricity',
@@ -110,7 +149,7 @@ export function poloImpact(state: PoloSceneState): ImpactCard[] {
       evidence:
         state.areaHa === POLO_DEFAULT_AREA_HA
           ? 'Derived model · same phase'
-          : 'Area-proportional teaching model · same phase',
+          : 'Area-proportional estimate · same phase',
     },
     {
       title: 'Public turf lost',
@@ -119,24 +158,24 @@ export function poloImpact(state: PoloSceneState): ImpactCard[] {
       detail: 'Compared with Today. Roof plants do not restore the field.',
       evidence:
         state.areaHa === POLO_DEFAULT_AREA_HA
-          ? 'Authored land allocation'
-          : 'Area-proportional teaching land allocation',
+          ? 'Planned land allocation'
+          : 'Area-proportional land allocation',
     },
     {
       title: 'Heat delivery',
       baseline: 'No reuse link',
       current: heatActive ? 'Recipient linked' : 'No delivery',
       detail: heatActive
-        ? 'Fictional pool can receive heat. Backup heating remains.'
+        ? 'A proposed pool connection could use heat. Backup heating remains.'
         : 'A recipient and built infrastructure are needed.',
-      evidence: 'Visual concept · no savings model',
+      evidence: 'Proposed connection · savings not assessed',
     },
     {
       title: 'Community support',
       baseline: `${String(baselineSupport)} / 100`,
       current: `${String(support)} / 100`,
       detail: `${support >= baselineSupport ? '+' : ''}${String(support - baselineSupport)} index points. Loss of public space keeps opposition high.`,
-      evidence: 'Authored game index · not a poll',
+      evidence: 'Plan response indicator · not a poll',
     },
   ]
 }

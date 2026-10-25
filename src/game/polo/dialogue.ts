@@ -5,6 +5,8 @@ import type {
 import type { DialogueChoice } from '../dialogue-choices.ts'
 import type { DiscussionTopic } from '../discussion.ts'
 import type { PoloDiscussionFacts } from './context.ts'
+import { poloImprovementSummary } from './interventions.ts'
+import { poloReactions } from './reactions.ts'
 
 export type PoloDialogueTopic =
   | 'priority'
@@ -290,9 +292,25 @@ export function poloDialogueReply(
   history: readonly ConversationLine[] = [],
 ): { text: string; topic: DiscussionTopic } {
   const id = poloDialogueTopic(question, history)
+  const improvements = poloImprovementSummary(facts.scene)
+  if (improvements) {
+    const resourceQuestion =
+      id &&
+      ['water', 'power', 'heat', 'rain', 'recycled', 'evidence'].includes(id)
+    return {
+      text:
+        poloReactions(facts.scene).voices[voice].text +
+        '\n\n' +
+        (resourceQuestion
+          ? 'Water, power and material quantities have not been recalculated for your construction changes. The original figures describe the original plan.'
+          : improvements) +
+        '\n\nThese changes do not restore the public playing field. Detailed design and safety checks still need review.',
+      topic: id ? NODES[id].topic : 'other',
+    }
+  }
   if (!id)
     return {
-      text: 'I don’t have an authored answer to that question. I can discuss this fictional plan’s water, power, public space and benefits.',
+      text: 'I don’t know enough to answer that. We can discuss this plan’s water, power, public space and benefits.',
       topic: 'other',
     }
   const { scene } = facts
@@ -335,14 +353,14 @@ export function poloDialogueReply(
       recycled:
         'Recycled water still needs treatment and quality checks. Pumping matters too. Whether it displaces another source depends on a confirmed allocation and a workable connection, neither established here.',
       evidence:
-        'An authored assumption helps explain a mechanism. A survey, utility agreement or engineering calculation would provide different evidence. The visual model cannot stand in for those checks.',
+        'An assumption helps us compare options. A survey, utility agreement or engineering calculation would provide different evidence. The plan still needs those checks.',
       alternative:
-        'A smaller footprint changes the game’s teaching assumptions. Another location changes who and what may be affected. Neither visual change alone demonstrates a viable real design.',
+        'A smaller footprint changes the planning assumptions. Another location changes who and what may be affected. Both options still need a site assessment.',
       access:
         'A team needs a usable layout and safe access. A remaining patch of grass may not provide that. We have not established replacement capacity, opening hours or a public-access agreement.',
       care: 'Plants can fail without irrigation, inspections and replacement. A funded plan must name who does that work over time. Those commitments are not supplied by the green rendering.',
       construction:
-        'Replaying a chapter explains the same work. It does not create another construction inventory. Selected water, diesel and electricity allowances cover their named stages, not every activity.',
+        'Count each construction allowance once. Selected water, diesel and electricity figures cover their named stages, not every activity.',
       next: 'Compare one change at the same stage and location. Then check what the model leaves unknown. That helps separate a plausible mechanism from a proven benefit.',
     }
     return { text: further[id], topic: NODES[id].topic }
@@ -365,7 +383,7 @@ export function poloDialogueReply(
         '\n\n' +
         (active === 'heat_reuse_neighbors'
           ? scene.recipientAvailable
-            ? 'The fictional pool could receive useful heat. Actual savings are unknown; it does not restore the field.'
+            ? 'The proposed pool could receive useful heat. Actual savings are unknown; it does not restore the field.'
             : 'The pool is unavailable, so it receives no heat now. Original cooling stays active.'
           : active === 'recycled_water'
             ? 'Recycled supply could change the water source. Its availability and saved volume are unverified.'
@@ -410,7 +428,7 @@ export function poloDialogueReply(
       break
     case 'heat':
       text =
-        'Heat moves through an exchanger to a separate loop. That supply-and-return loop serves a fictional pool. The liquids stay separate.' +
+        'Heat moves through an exchanger to a separate loop. That supply-and-return loop serves a proposed pool. The liquids stay separate.' +
         '\n\n' +
         (active === 'heat_reuse_neighbors'
           ? scene.recipientAvailable
@@ -426,7 +444,7 @@ export function poloDialogueReply(
             : 'The pool is unavailable now, so no heat is delivered. Computing continues with original cooling.'
           : 'Without a suitable recipient, there is no useful heat delivery. The original cooling system must still reject server heat.'
       text +=
-        '\n\nThe pool and connection are fictional. A real recipient’s demand still needs checking.'
+        '\n\nThe pool and connection are proposed. The recipient’s demand still needs checking.'
       break
     case 'roof':
       text =
@@ -438,7 +456,7 @@ export function poloDialogueReply(
       break
     case 'rain':
       text =
-        'We cannot claim that this prevents flooding. The replay compares the same illustrative storm and selected surfaces.' +
+        'We cannot claim that this prevents flooding. The replay compares the same storm assumptions and selected surfaces.' +
         '\n\n' +
         (active === 'green_roof'
           ? 'Roof plants may hold some rain temporarily, but they still drain. No retention saving or flood depth is calculated.'
@@ -449,7 +467,7 @@ export function poloDialogueReply(
         'It could change the source of make-up water. It does not remove the cooling need or automatically save a known volume.' +
         '\n\n' +
         (active === 'recycled_water'
-          ? 'You are viewing that concept now. Its source, treatment, delivery line and backup are schematic.'
+          ? 'You are viewing that concept now. Its source, treatment, delivery line and backup need verification.'
           : 'The recycled-water concept is available in Operating. Actual supply, allocation and quality still need checking.')
       break
     case 'evidence':
@@ -462,14 +480,14 @@ export function poloDialogueReply(
             ? 'A planted roof also needs load, drainage, maintenance and access checks.'
             : active === 'recycled_water'
               ? 'Recycled supply also needs a confirmed allocation, treatment and water-quality checks.'
-              : 'The game uses authored assumptions. Moving the model does not produce a new site assessment.')
+              : 'The plan uses assumptions. Moving the campus does not produce a new site assessment.')
       break
     case 'alternative':
       text =
         (voice === 'operator'
           ? 'Yes, compare a smaller footprint or a different site. Do that before accepting this plan.'
           : 'Yes, keeping the field is a meaningful alternative. We can examine another site or a smaller footprint.') +
-        '\n\nThe model is schematic. A visual move or resize is not a permit, surveyed boundary or proof that another location works.'
+        '\n\nMoving or resizing the campus does not establish a permit, surveyed boundary or a viable alternative site.'
       break
     case 'access':
       text =

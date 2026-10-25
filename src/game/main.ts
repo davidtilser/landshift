@@ -93,7 +93,7 @@ if (isPark) {
   const poloLink = document.createElement('a')
   poloLink.href = './game.html?scenario=golden-gate-polo'
   poloLink.className = 'text-button'
-  poloLink.textContent = 'Polo Fields demo ↗'
+  poloLink.textContent = 'Polo Fields ↗'
   document.querySelector('.top-actions')?.prepend(poloLink)
 }
 

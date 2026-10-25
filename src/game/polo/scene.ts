@@ -54,7 +54,7 @@ import type { ElevationGrid } from '../terrain.ts'
 import { INITIAL_POLO_STATE, POLO_CENTER, POLO_PHASES } from './model.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
 import type { EnvironmentalLayer } from './impact.ts'
-import { poloTransitionFrame } from './transitions.ts'
+import { poloTransitionFrame, POLO_TRANSITION_SECONDS } from './transitions.ts'
 import type { PoloTransitionFrame } from './transitions.ts'
 import { segmentReveal, workPass } from './scene-animation.ts'
 import {
@@ -70,6 +70,9 @@ import { PoloOpinionReveal } from './opinion-reveal.ts'
 import { poloConstructionStarted, poloPlacementValid } from './placement.ts'
 import { PoloAccessScene } from './access-scene.ts'
 import { POLO_ACCESS_FIELD_ENTRY, POLO_ACCESS_ROAD } from './access.ts'
+import { PoloInterventionScene } from './intervention-scene.ts'
+import type { InterventionPreview } from './interventions.ts'
+import { activePoloImprovements } from './interventions.ts'
 import {
   activePoloProposal,
   pointOnPath,
@@ -109,9 +112,12 @@ const PALETTE = {
 /** A separate authored Polo scenario. No old sandbox campus or consequence rules enter this scene. */
 export class PoloScene {
   readonly viewer: CesiumWidget
+  private readonly interventionScene: PoloInterventionScene
+  private constructionPausedAt: number | undefined
+  private paintingCameraInputs: boolean | undefined
   private environmentalLayer: EnvironmentalLayer | null = null
   private protestActive = false
-  private readonly source = new CustomDataSource('polo-guided-demo')
+  private readonly source = new CustomDataSource('polo-guided-plan')
   private readonly aerial: ImageryLayer
   private readonly callbacks: SceneCallbacks
   private readonly handler: ScreenSpaceEventHandler
@@ -227,6 +233,13 @@ export class PoloScene {
       )
     })
     void viewer.dataSources.add(this.source)
+    this.interventionScene = new PoloInterventionScene(
+      viewer,
+      (x, y, z) => this.point(x, y, z),
+      () => this.campusOrientation(),
+      () => poloGeometryScale(this.state),
+      () => this.state,
+    )
     this.access = new PoloAccessScene(
       viewer,
       grid,
@@ -529,7 +542,7 @@ export class PoloScene {
   private elapsed(): number {
     return this.reducedMotion.matches
       ? 6
-      : (performance.now() - this.startAt) / 1000
+      : ((this.constructionPausedAt ?? performance.now()) - this.startAt) / 1000
   }
   private point(x: number, y: number, z = 0): Cartesian3 {
     return Cartesian3.fromDegrees(
@@ -928,6 +941,22 @@ export class PoloScene {
     }
   }
   private fieldActivity(): void {
+    if (
+      activePoloImprovements(this.state).some((item) => item.id === 'grounds')
+    ) {
+      for (let index = 0; index < 4; index++)
+        this.person(
+          0,
+          -46,
+          index % 2 ? '#b8986b' : '#6a8c9d',
+          true,
+          index,
+          false,
+          2.5,
+          false,
+          (activity) => [-140 + ((activity * 5 + index * 65) % 280), -46],
+        )
+    }
     for (let index = 0; index < 6; index++)
       this.person(
         -150 + index * 60,
@@ -1147,6 +1176,11 @@ export class PoloScene {
     if (travel) this.revealGroup(firstEntity, () => travel().shown)
   }
 
+  private preparationPass(progress: number): ReturnType<typeof workPass> {
+    const pass = workPass(progress)
+    if (this.state.improvements?.soil) pass.y = -50 + (pass.y + 50) * 0.86
+    return pass
+  }
   private campus(): void {
     // All horizontal construction geometry follows the selected site area.
     if (this.state.phase === 'M1') {
@@ -1158,7 +1192,7 @@ export class PoloScene {
         1.06,
       )
       this.machinery(0, 0, false, () => ({
-        ...workPass(
+        ...this.preparationPass(
           this.transition.turfRemoved < 1
             ? this.transition.turfRemoved
             : this.transition.grading,
@@ -1166,7 +1200,7 @@ export class PoloScene {
         shown: this.transition.grading < 1,
       }))
       this.machinery(0, 0, true, () => ({
-        ...workPass(this.transition.compaction),
+        ...this.preparationPass(this.transition.compaction),
         shown: this.transition.grading === 1 && this.transition.compaction < 1,
       }))
       this.machinery(0, 0, false, () => ({
@@ -1487,7 +1521,7 @@ export class PoloScene {
       this.path(makeup, PALETTE.water, 4)
       this.flow(makeup, PALETTE.water, 3, 0.14)
       if (!selected)
-        this.label(183, -76, 6, 'Cooling water · schematic supply', '#4a8190')
+        this.label(183, -76, 6, 'Cooling water · proposed supply', '#4a8190')
       this.revealGroup(first, () => this.transition.operation > 0.7)
     }
     if (!selected) {
@@ -1505,7 +1539,7 @@ export class PoloScene {
       240,
       60,
       16,
-      enabled ? 'MODEL POOL' : 'MODEL POOL\nRecipient unavailable',
+      enabled ? 'PROPOSED POOL' : 'PROPOSED POOL\nRecipient unavailable',
       '#7f7254',
       undefined,
       new Cartesian2(50, -28),
@@ -1554,7 +1588,7 @@ export class PoloScene {
       185,
       35,
       7,
-      'Supply →  ← return\nSchematic cutaway',
+      'Supply →  ← return\nProposed route',
       '#745f48',
       undefined,
       new Cartesian2(20, 30),
@@ -1622,13 +1656,7 @@ export class PoloScene {
       [133, -23, 6],
     ]
     this.path(backup, '#8db9c6', 4, true)
-    this.label(
-      78,
-      -104,
-      7,
-      'Backup supply\nSchematic · not verified',
-      '#6b919a',
-    )
+    this.label(78, -104, 7, 'Backup supply\nConnection unconfirmed', '#6b919a')
     const blowdown: LocalPoint[] = [
       [133, -23, 4],
       [133, -64, 4],
@@ -1782,6 +1810,7 @@ export class PoloScene {
     }
   }
   private rebuild(): void {
+    this.interventionScene.render()
     this.source.entities.removeAll()
     this.draggableEntities.clear()
     this.localAnchors.clear()
@@ -1920,7 +1949,7 @@ export class PoloScene {
         -300,
         -150,
         12,
-        'Schematic grid link · capacity unknown',
+        'Proposed grid link · capacity unknown',
         '#80602e',
       )
     } else if (layer === 'land') {
@@ -1938,7 +1967,7 @@ export class PoloScene {
         0,
         85,
         7,
-        `Authored ${usAcres(this.state.areaHa * 10_000)} subset · public land`,
+        `Proposed ${usAcres(this.state.areaHa * 10_000)} site · public land`,
         '#52773a',
       )
     } else {
@@ -1976,7 +2005,7 @@ export class PoloScene {
         70,
         17,
         this.state.recipientAvailable
-          ? 'Model pool · heat received\nSavings unknown'
+          ? 'Proposed pool · heat delivery\nSavings unknown'
           : 'No recipient · heat delivery paused',
         '#92623f',
         undefined,
@@ -2050,7 +2079,10 @@ export class PoloScene {
 
   private publishTransition(): void {
     const progress = Math.round(this.transition.progress * 100) / 100
-    const playing = this.baselinePlaying && !this.transition.complete
+    const playing =
+      this.baselinePlaying &&
+      this.constructionPausedAt === undefined &&
+      !this.transition.complete
     const key = [
       this.state.phase,
       progress,
@@ -2067,7 +2099,7 @@ export class PoloScene {
     })
   }
   private updateTransition(now: number): void {
-    if (this.baselinePlaying) {
+    if (this.baselinePlaying && this.constructionPausedAt === undefined) {
       this.transition = poloTransitionFrame(
         this.state.phase,
         (now - this.phaseStartedAt) / 1000,
@@ -2125,6 +2157,8 @@ export class PoloScene {
       previous.phase !== state.phase || previous.confirmed !== state.confirmed
     const sceneChanged =
       phaseChanged ||
+      JSON.stringify(previous.improvements) !==
+        JSON.stringify(state.improvements) ||
       previous.areaHa !== state.areaHa ||
       previous.proposal !== state.proposal ||
       previous.preview !== state.preview ||
@@ -2138,6 +2172,7 @@ export class PoloScene {
     this.opinionReveal.setState(this.state, now)
     this.opinionBubbles.setVisibleCount(this.opinionReveal.count(now))
     if (phaseChanged) {
+      this.constructionPausedAt = undefined
       const forward =
         this.state.confirmed &&
         POLO_PHASES.indexOf(this.state.phase) ===
@@ -2174,6 +2209,7 @@ export class PoloScene {
     this.publishTransition()
   }
   replay(): void {
+    this.constructionPausedAt = undefined
     const now = performance.now()
     this.startAt = now
     if (!activePoloProposal(this.state) && this.state.confirmed) {
@@ -2191,11 +2227,59 @@ export class PoloScene {
     this.viewer.scene.requestRender()
   }
   skip(): void {
+    this.constructionPausedAt = undefined
     this.startAt = performance.now() - 6000
     this.baselinePlaying = false
     this.transition = poloTransitionFrame(this.state.phase, 0, false)
     this.updateTransition(performance.now())
     this.viewer.scene.requestRender()
+  }
+  pauseConstructionAt(progress: number): void {
+    const now = performance.now()
+    const elapsed =
+      Math.max(0, Math.min(1, progress)) *
+      POLO_TRANSITION_SECONDS[this.state.phase]
+    this.phaseStartedAt = now - elapsed * 1000
+    this.constructionPausedAt = now
+    this.transition = poloTransitionFrame(this.state.phase, elapsed)
+    this.baselinePlaying = !this.transition.complete
+    this.updateTransition(now)
+    this.viewer.scene.requestRender()
+  }
+  resumeConstruction(): void {
+    if (this.constructionPausedAt === undefined) return
+    const now = performance.now(),
+      held = now - this.constructionPausedAt
+    this.phaseStartedAt += held
+    this.startAt += held
+    this.constructionPausedAt = undefined
+    this.updateTransition(now)
+    this.viewer.scene.requestRender()
+  }
+  projectInterventionPoint(
+    x: number,
+    y: number,
+    z: number,
+  ): Cartesian2 | undefined {
+    if (this.destroyed || this.overview) return undefined
+    return SceneTransforms.worldToWindowCoordinates(
+      this.viewer.scene,
+      this.point(x, y, z),
+    )
+  }
+  paintIntervention(preview: InterventionPreview | null): void {
+    this.interventionScene.paint(preview)
+  }
+  setInterventionInput(active: boolean): void {
+    const controls = this.viewer.scene.screenSpaceCameraController
+    if (active && this.paintingCameraInputs === undefined) {
+      this.viewer.camera.cancelFlight()
+      this.paintingCameraInputs = controls.enableInputs
+      controls.enableInputs = false
+    } else if (!active && this.paintingCameraInputs !== undefined) {
+      controls.enableInputs = this.paintingCameraInputs
+      this.paintingCameraInputs = undefined
+    }
   }
   showCity(): void {
     if (this.destroyed) return
@@ -2516,6 +2600,7 @@ export class PoloScene {
     if (this.destroyed) return
     this.finishPlacementDrag(false)
     this.destroyed = true
+    this.interventionScene.destroy()
     this.access.destroy()
     this.connectionRevision++
     cancelAnimationFrame(this.animation)

@@ -4,6 +4,7 @@ import type { PoloSceneState } from './model.ts'
 import { poloTodayCard, POLO_TODAY_TABS } from './today.ts'
 import type { PoloTodayTab } from './today.ts'
 import './today.css'
+import { poloPlanningText } from './planning-copy.ts'
 
 export function setupPoloEducation(
   root: HTMLElement,
@@ -172,7 +173,7 @@ export function setupPoloEducation(
     <p class="polo-education-copy" aria-live="polite"></p>
     <div class="polo-reader-controls"><button type="button" class="polo-education-back">← Back</button><span></span><button type="button" class="polo-education-next">Next →</button></div>
     <button type="button" class="polo-education-sources">Sources & assumptions</button>
-    <p class="polo-education-footnote">Fictional campus. Real place. Explore the assumptions.</p>
+    <p class="polo-education-footnote">Explore the evidence behind your plan.</p>
   `
   studio.append(dialog)
   dialog.addEventListener('close', onClose)
@@ -202,10 +203,15 @@ export function setupPoloEducation(
     if (!current) return
     title.textContent = education.title
     heading.textContent = current.title
-    copy.textContent = current.text
+    copy.textContent = poloPlanningText(current.text)
     value.textContent = current.value ?? ''
     value.hidden = current.value === undefined
-    kind.textContent = current.kind
+    kind.textContent =
+      current.kind === 'Teaching assumption'
+        ? 'Planning assumption'
+        : current.kind === 'Visual concept'
+          ? 'Design option'
+          : current.kind
     kind.dataset['kind'] = current.kind
     count.textContent = `${String(index + 1)} of ${String(education.steps.length)}`
     back.disabled = index === 0

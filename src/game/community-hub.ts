@@ -94,7 +94,7 @@ export class CommunityHub {
     this.moodList.setAttribute('role', 'group')
     this.moodList.setAttribute(
       'aria-label',
-      'Fictional crowd emotions, separate from Support out of 100',
+      'Estimated crowd emotions, separate from Support out of 100',
     )
     this.timeline.setAttribute('role', 'log')
     this.timeline.setAttribute('aria-label', 'Public community thread')
@@ -108,7 +108,7 @@ export class CommunityHub {
       node(
         'p',
         'community-disclosure',
-        'Fictional voices. Public replies stay in this game’s shared thread.',
+        'Public replies stay in this shared thread.',
       ),
     )
     this.root.append(header, context, this.moodList, this.timeline, footer)
@@ -223,20 +223,15 @@ export class CommunityHub {
         : this.profile(line.speaker).name
   }
   private renderMeta(): void {
-    this.engine.textContent = this.client.configured
-      ? 'Gemini live · fictional'
-      : 'Demo replies · fictional'
+    this.engine.textContent = 'Community conversation'
     this.engine.title = this.client.configured
       ? this.client.model
-      : 'AI not connected; authored demo replies.'
+      : 'Prepared replies are available while AI is not connected.'
     this.moodList.replaceChildren()
     const mood = this.session.publicMood
     if (mood) {
       const heading = node('div', 'community-mood-heading')
-      heading.append(
-        node('strong', '', 'Crowd emotions'),
-        node('span', '', 'Fictional mix'),
-      )
+      heading.append(node('strong', '', 'Crowd emotions'))
       const bar = node('div', 'community-mood-bar'),
         values = node('div', 'community-mood-values')
       bar.setAttribute('aria-hidden', 'true')
@@ -267,7 +262,7 @@ export class CommunityHub {
       }
       const description =
         mood.reason +
-        ' Fictional crowd reaction, not a real poll or approval rating. Emotion mix is separate from Support /100.'
+        ' Modeled crowd reaction, not a real poll or approval rating. Emotion mix is separate from Support /100.'
       this.moodList.title = description
       this.moodList.setAttribute('aria-description', description)
       this.moodList.append(heading, bar, values)
@@ -355,14 +350,18 @@ export class CommunityHub {
         'community-source',
         index === 0
           ? 'WHAT IF · PROPOSAL'
-          : line.source === 'live'
-            ? 'AI character'
-            : line.source === 'demo'
-              ? 'Demo reply'
-              : line.source === 'scenario'
-                ? 'Scenario'
-                : 'Your public reply',
+          : line.source === 'scenario'
+            ? 'Conversation starter'
+            : line.source === 'planner'
+              ? 'Your public reply'
+              : 'Reply',
       )
+      source.title =
+        line.source === 'live'
+          ? 'AI-assisted reply'
+          : line.source === 'demo'
+            ? 'Prepared reply'
+            : ''
       body.append(head, source)
       if (line.replyTo !== undefined && line.replyTo !== lines[0]?.id) {
         const parent = lines.find((item) => item.id === line.replyTo)

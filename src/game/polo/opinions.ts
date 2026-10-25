@@ -2,6 +2,7 @@ import type { CommunityId } from '../../shared/community-contract.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
 import { poloReactions } from './reactions.ts'
 import { poloConstructionStarted } from './placement.ts'
+import { activePoloImprovements } from './interventions.ts'
 
 export interface PoloOpinion {
   id: CommunityId
@@ -36,6 +37,8 @@ export function poloOpinions(state: PoloSceneState): PoloOpinion[] {
     tone: 'possibility',
     text: IDEAS[state.confirmed ? state.phase : 'M0'],
   }
+  if (activePoloImprovements(state).length)
+    idea.text = poloReactions(state).voices.operator.text
   if (state.confirmed && state.phase === 'M6' && state.preview) {
     if (state.proposal === 'heat_reuse_neighbors')
       idea.text = state.recipientAvailable

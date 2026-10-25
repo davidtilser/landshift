@@ -114,9 +114,9 @@ describe('Polo private reply routing', () => {
       new AbortController().signal,
     )
     expect(response.source).toBe('demo')
-    expect(response.model).toBe('Authored scenario')
+    expect(response.model).toBe('Prepared conversation')
     expect(response.messages[0]?.text).toContain('no jobs or training places')
-    expect(response.messages[0]?.text).toContain('fictional pool')
+    expect(response.messages[0]?.text).toContain('proposed pool')
     const followup = await client.exchange(
       { ...request, message: 'What if nobody needs the heat?' },
       context,

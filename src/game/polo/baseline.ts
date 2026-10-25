@@ -86,7 +86,7 @@ export const poloBaselineSchema = z
         context.addIssue({
           code: 'custom',
           path: ['phases', index, 'data', 'areasM2'],
-          message: 'Surface areas must preserve the same demo footprint.',
+          message: 'Surface areas must preserve the same site footprint.',
         })
     }
     for (const [index, phase] of baseline.researchPhases.entries()) {

@@ -85,7 +85,7 @@ export class CharacterChat {
     this.dialog.className = 'character-chat is-conversation'
     this.dialog.setAttribute('aria-labelledby', 'chat-person-name')
     this.dialog.innerHTML =
-      '<header class="chat-header"><span class="chat-avatar" aria-hidden="true"></span><div><span class="chat-label">MEET YOUR NEIGHBORS</span><h2 id="chat-person-name"></h2><p class="chat-subtitle"></p></div><button type="button" class="chat-close" aria-label="Close private conversation">×</button></header><div class="chat-messages" role="log" aria-label="Private dialogue" aria-live="polite" aria-relevant="additions text"></div><p class="dialogue-prompt">KEEP TALKING <span>Choose a follow-up · 1 / 2 / 3</span></p><div class="chat-prompts" role="group" aria-label="Choose your dialogue"></div><div class="chat-status" role="status"></div><details class="chat-custom" open><summary>Write your own reply</summary><form class="chat-composer"><label for="chat-question" class="sr-only">Your private message</label><input id="chat-question" maxlength="600" autocomplete="off" placeholder="What would you like to ask?"><button type="submit" aria-label="Send private message">↑</button></form></details><footer class="chat-footer"><span>Fictional character · not shared to Community</span><button type="button" class="chat-back">Back to map ↗</button></footer>'
+      '<header class="chat-header"><span class="chat-avatar" aria-hidden="true"></span><div><span class="chat-label">MEET YOUR NEIGHBORS</span><h2 id="chat-person-name"></h2><p class="chat-subtitle"></p></div><button type="button" class="chat-close" aria-label="Close private conversation">×</button></header><div class="chat-messages" role="log" aria-label="Private dialogue" aria-live="polite" aria-relevant="additions text"></div><p class="dialogue-prompt">KEEP TALKING <span>Choose a follow-up · 1 / 2 / 3</span></p><div class="chat-prompts" role="group" aria-label="Choose your dialogue"></div><div class="chat-status" role="status"></div><details class="chat-custom" open><summary>Write your own reply</summary><form class="chat-composer"><label for="chat-question" class="sr-only">Your private message</label><input id="chat-question" maxlength="600" autocomplete="off" placeholder="What would you like to ask?"><button type="submit" aria-label="Send private message">↑</button></form></details><footer class="chat-footer"><span>Private conversation · not shared to Community</span><button type="button" class="chat-back">Back to map ↗</button></footer>'
     const get = <T extends HTMLElement>(
       selector: string,
       type: { new (): T },
@@ -300,15 +300,9 @@ export class CharacterChat {
       this.renderedLines.set(line.id, { text: line.text, element })
     }
     const source = current.lines[latestAssistant]?.source
-    this.subtitle.textContent =
-      'Private chat · ' +
-      (source === 'live'
-        ? 'Gemini live'
-        : source === 'demo'
-          ? this.options.getContext().polo
-            ? 'Authored scenario'
-            : 'Demo reply'
-          : 'Scenario greeting')
+    this.subtitle.textContent = 'Private conversation'
+    this.subtitle.title =
+      source === 'live' ? 'AI-assisted reply' : 'Prepared conversation'
     this.promptList.replaceChildren()
     choices.forEach((choice, index) => {
       const button = document.createElement('button')

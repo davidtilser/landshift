@@ -135,8 +135,8 @@ export function demoExchange(
           speaker: target === 'operator' ? 'nature' : 'operator',
           text:
             context.polo.scene.proposal && context.polo.scene.preview
-              ? 'This is a visual concept. Let’s compare the mechanism and what it cannot fix.'
-              : 'The baseline shows selected construction and operating assumptions, not a real development plan.',
+              ? 'Let’s compare how this option works and what it cannot fix.'
+              : 'We still need to review the construction requirements and ongoing water and power needs.',
         },
         {
           speaker: target === 'student' ? 'neighbor' : 'student',

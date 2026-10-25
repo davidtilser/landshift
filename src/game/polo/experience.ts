@@ -31,7 +31,7 @@ export function setupPoloExperience(
   layerGroup.append(node('summary', 'Explore map layers'))
   const layerButtons = node('div')
   layerButtons.className = 'polo-layer-buttons'
-  const note = node('p', 'Schematic routes · no surveyed utility connections')
+  const note = node('p', 'Proposed routes · utility connections unconfirmed')
   note.className = 'polo-layer-note'
   let layer: EnvironmentalLayer | null = null
   for (const value of ['water', 'electricity', 'land', 'heat'] as const) {
@@ -139,8 +139,9 @@ export function setupPoloExperience(
     const state = getState()
     panel.hidden = !poloConstructionStarted(state)
     layer = getScene()?.getEnvironmentalLayer() ?? null
-    status.textContent = `Support ${String(poloSupport(state))}/100 · game index`
-    status.title = 'Authored scenario points. Not a poll or public consent.'
+    status.textContent = `Support ${String(poloSupport(state))}/100`
+    status.title =
+      'Response to the current plan. This indicator is not a poll or public consent.'
     if (!poloConstructionStarted(state)) {
       visited = new Set()
       pendingCompletion = false

@@ -8,6 +8,7 @@ import type { CommunityProfile } from './community-profiles.ts'
 import type { DiscussionTopic } from './discussion.ts'
 import { initialCommunityMoodBreakdown } from './community-mood.ts'
 import { POLO_PROPOSAL_NAMES } from './polo/model.ts'
+import { poloImprovementSummary } from './polo/interventions.ts'
 
 export interface CommunityLine extends ConversationLine {
   id: number
@@ -52,9 +53,13 @@ function planUpdate(
     const view = !next.polo.confirmed
       ? 'Position preview · not confirmed'
       : next.polo.proposal && next.polo.preview
-        ? POLO_PROPOSAL_NAMES[next.polo.proposal] + ' · visual concept'
+        ? POLO_PROPOSAL_NAMES[next.polo.proposal] + ' · proposed option'
         : 'Original arrangement'
-    changes.push(`Polo Fields ${next.polo.phase} · ${view}.`)
+    const improvements = poloImprovementSummary(next.polo)
+    changes.push(
+      `Polo Fields ${next.polo.phase} · ${improvements ? 'Plan improvements' : view}.`,
+    )
+    if (improvements) changes.push(improvements)
     if (next.polo.confirmed && !previous.polo?.confirmed)
       changes.push(
         'Location confirmed. The field is still shown before construction.',
@@ -62,8 +67,8 @@ function planUpdate(
     if (next.polo.proposal === 'heat_reuse_neighbors' && next.polo.preview)
       changes.push(
         next.polo.recipientAvailable
-          ? 'Model pool can accept heat.'
-          : 'Model pool unavailable; original cooling stays active.',
+          ? 'Proposed pool can accept heat.'
+          : 'Proposed pool unavailable; original cooling stays active.',
       )
     category = 'polo'
   }

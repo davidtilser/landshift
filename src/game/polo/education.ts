@@ -4,6 +4,7 @@ import { usAcres, usGallons, usInches, usNumber } from './us-units.ts'
 import { POLO_DEFAULT_AREA_HA } from './model.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
 import { splitPoloCopy } from './copy-steps.ts'
+import { activePoloImprovements } from './interventions.ts'
 
 export const POLO_TOPICS = ['water', 'electricity', 'land'] as const
 export type PoloTopic = (typeof POLO_TOPICS)[number]
@@ -58,10 +59,18 @@ export function poloEducation(
   const data = phase.data
   const reference = poloSizedReference(state)
   const steps: PoloEducationStep[] = []
+  if (activePoloImprovements(state).length)
+    steps.push(
+      step(
+        'Original-plan reference',
+        'Figures here describe the original plan. Your construction changes have not been recalculated.',
+        'Evidence gap',
+      ),
+    )
   if (state.areaHa !== POLO_DEFAULT_AREA_HA)
     steps.push(
       step(
-        'A size teaching model',
+        'A size-based estimate',
         'Volumes and energy scale with area. Rain depth and workdays stay fixed.',
         'Teaching assumption',
       ),
@@ -78,7 +87,7 @@ export function poloEducation(
       steps.push(
         step('Grass needs care', 'Water helps the playing field stay usable.'),
         step(
-          'A teaching allowance',
+          'A planning allowance',
           'Selected model irrigation; actual demand is not metered here.',
           'Teaching assumption',
           irrigation?.value,
@@ -329,8 +338,8 @@ export function poloEducation(
         'Playing fields support sport, meetings and shared time.',
       ),
       step(
-        'The same demo boundary',
-        'An authored subset of Polo Fields.',
+        'The same site boundary',
+        'The proposed site within Polo Fields.',
         'Teaching assumption',
         usAcres(reference.siteAreaM2),
       ),
@@ -345,7 +354,7 @@ export function poloEducation(
       steps.push(
         step(
           'Roof and hard surfaces',
-          'Roof and paving within the same demo boundary.',
+          'Roof and paving within the same site boundary.',
           'Teaching assumption',
           usAcres(hardArea),
         ),
@@ -395,8 +404,8 @@ export function poloEducation(
         step(
           'Follow the heat',
           state.recipientAvailable
-            ? 'A fictional model pool can receive heat through a loop.'
-            : 'The model pool needs no heat. Backup cooling still matters.',
+            ? 'A proposed neighborhood pool can receive heat through a loop.'
+            : 'The proposed pool needs no heat. Backup cooling still matters.',
           'Visual concept',
         ),
         step(

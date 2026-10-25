@@ -37,6 +37,9 @@ export interface PoloSceneState {
   preview: boolean
   recipientAvailable: boolean
   rain: boolean
+  improvements?:
+    | Partial<Record<'soil' | 'foundation' | 'grounds', boolean | undefined>>
+    | undefined
 }
 export const INITIAL_POLO_STATE: PoloSceneState = {
   areaHa: POLO_DEFAULT_AREA_HA,

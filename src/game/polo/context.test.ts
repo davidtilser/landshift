@@ -62,7 +62,7 @@ describe('separate Polo Fields research context', () => {
       }
       const preview = poloDiscussionContext(state)
       expect(preview.polo?.baseline).toBeNull()
-      expect(preview.polo?.mechanism).toContain('Visual concept only')
+      expect(preview.polo?.mechanism).toContain('Proposed design option')
       expect(
         poloDiscussionContext({ ...state, preview: false }).polo?.baseline
           ?.length,

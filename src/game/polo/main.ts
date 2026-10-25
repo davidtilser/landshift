@@ -13,12 +13,15 @@ import { setupPoloEducation } from './education-ui.ts'
 import { setupPoloExperience } from './experience.ts'
 import { setupPoloProjectIntro } from './project-setup.ts'
 import { setupPoloMapShortcuts } from './map-shortcuts.ts'
+import { setupPoloInterventions } from './intervention-ui.ts'
+import { activePoloImprovements } from './interventions.ts'
 import {
   lockPoloForProtest,
   poloExploreAfterProtest,
   setupPoloProtest,
 } from './protest.ts'
 import { poloDisplayPhase } from './display.ts'
+import { poloPlanningText } from './planning-copy.ts'
 import { usAcres, usFeet } from './us-units.ts'
 import {
   INITIAL_POLO_STATE,
@@ -78,7 +81,7 @@ const PROPOSAL_COPY: Record<
     icon: '♨',
     hook: 'Give waste heat a second job.',
     explanation:
-      'Follow server heat through two pipes to a fictional model pool.',
+      'Follow server heat through two pipes to a proposed neighborhood pool.',
     tradeoff: 'Heat needs a recipient and equipment. Backup cooling stays.',
     tip: 'Try turning the pool’s heating demand off.',
   },
@@ -124,7 +127,7 @@ function button(
 function get<T extends HTMLElement>(selector: string, type: { new (): T }): T {
   const found = document.querySelector(selector)
   if (!(found instanceof type))
-    throw new Error('Missing Polo demo control: ' + selector)
+    throw new Error('Missing Polo control: ' + selector)
   return found
 }
 
@@ -149,7 +152,7 @@ export async function startPoloDemo(): Promise<void> {
         <span id="polo-rotation-divider"></span>
         <div class="polo-rotation" role="group" aria-label="Rotate the campus"><button type="button" data-polo-action="rotate-left" aria-label="Rotate campus left 5 degrees" title="Rotate campus left">↶</button><output id="polo-bearing" aria-label="Campus bearing">0°</output><button type="button" data-polo-action="rotate-right" aria-label="Rotate campus right 5 degrees" title="Rotate campus right">↷</button></div>
       </nav>
-        <nav class="top-actions" aria-label="Demo actions">
+        <nav class="top-actions" aria-label="Project actions">
           <button type="button" data-polo-action="menu" class="polo-more-toggle" aria-expanded="false" aria-controls="polo-more">More</button>
           <div class="polo-more" id="polo-more">
           <button type="button" data-polo-action="evidence" class="polo-small-button" aria-label="Open sources and assumptions">ⓘ<span class="polo-menu-label"> Sources</span></button>
@@ -164,7 +167,7 @@ export async function startPoloDemo(): Promise<void> {
         <div class="polo-deck-head"><span id="polo-kicker"></span><button type="button" data-polo-action="replay" class="polo-replay">↻ Replay</button></div>
         <h1 id="polo-title" tabindex="-1"></h1>
         <p class="polo-summary" id="polo-summary"></p>
-        <div class="polo-motion" id="polo-motion" hidden><div class="polo-motion-heading"><span id="polo-motion-caption" role="status"></span><button type="button" data-polo-action="skip">Skip ↗</button></div><div class="polo-motion-track" id="polo-motion-track" role="progressbar" aria-label="Phase animation" aria-valuemin="0" aria-valuemax="100"><span id="polo-motion-fill"></span></div><small>Time-compressed illustration</small></div>
+        <div class="polo-motion" id="polo-motion" hidden><div class="polo-motion-heading"><span id="polo-motion-caption" role="status"></span><button type="button" data-polo-action="skip">Skip ↗</button></div><div class="polo-motion-track" id="polo-motion-track" role="progressbar" aria-label="Construction progress" aria-valuemin="0" aria-valuemax="100"><span id="polo-motion-fill"></span></div><small>Construction sequence</small></div>
         <div class="polo-placement" id="polo-placement" role="group" aria-label="Adjust the campus location">
           <p>Put it on the field, then confirm to lock the location.</p>
           <div class="polo-nudges"><button type="button" data-polo-action="nudge-west" aria-label="Move campus west ${usFeet(5)}">←</button><button type="button" data-polo-action="nudge-north" aria-label="Move campus north ${usFeet(5)}">↑</button><span>Nudge</span><button type="button" data-polo-action="nudge-south" aria-label="Move campus south ${usFeet(5)}">↓</button><button type="button" data-polo-action="nudge-east" aria-label="Move campus east ${usFeet(5)}">→</button></div>
@@ -192,6 +195,16 @@ export async function startPoloDemo(): Promise<void> {
     center: [...INITIAL_POLO_STATE.center],
   }
   let scene: PoloScene | undefined
+  const interventions = setupPoloInterventions(
+    root,
+    () => scene,
+    (id) => {
+      setState({
+        ...state,
+        improvements: { ...state.improvements, [id]: true },
+      })
+    },
+  )
   const intro = setupPoloProjectIntro(
     root,
     (areaHa, arrived) => {
@@ -382,6 +395,7 @@ export async function startPoloDemo(): Promise<void> {
     const phase = poloDisplayPhase(state)
     const inOperation = state.confirmed && state.phase === 'M6'
     const proposed = inOperation && state.proposal !== null && state.preview
+    const improved = activePoloImprovements(state).length > 0
     const proposal = state.proposal ? PROPOSAL_COPY[state.proposal] : undefined
     root.dataset['poloPhase'] = state.phase
     root.dataset['poloConfirmed'] = String(state.confirmed)
@@ -417,7 +431,7 @@ export async function startPoloDemo(): Promise<void> {
           ? 'Your proposed impact.'
           : 'Your place. Your perspective.'
     get('.polo-guide span', HTMLSpanElement).textContent =
-      `Explore your ${usAcres(state.areaHa * 10_000)} teaching model.`
+      `Your site plan · ${usAcres(state.areaHa * 10_000)}`
     get('#polo-placement', HTMLDivElement).hidden = state.confirmed
     get('.polo-rotation', HTMLDivElement).hidden = state.confirmed
     get('#polo-rotation-divider', HTMLSpanElement).hidden = state.confirmed
@@ -447,16 +461,20 @@ export async function startPoloDemo(): Promise<void> {
         const copy = element('span', '')
         copy.append(
           element('strong', '', POLO_PROPOSAL_NAMES[id]),
-          element('small', '', 'Visual concept'),
+          element('small', '', 'Explore option'),
         )
         choice.append(art, copy, element('span', 'polo-proposal-arrow', '↗'))
         cases.append(choice)
       }
     const compare = get('#polo-compare', HTMLDivElement)
     compare.hidden = !inOperation
-    compare
-      .querySelector('[data-polo-action="baseline"]')
-      ?.setAttribute('aria-pressed', String(!state.preview))
+    const baseline = compare.querySelector<HTMLButtonElement>(
+      '[data-polo-action="baseline"]',
+    )
+    if (baseline) {
+      baseline.textContent = improved ? 'Your build' : 'Original plan'
+      baseline.setAttribute('aria-pressed', String(!state.preview))
+    }
     compare
       .querySelector('[data-polo-action="proposed"]')
       ?.setAttribute('aria-pressed', String(state.preview))
@@ -468,15 +486,15 @@ export async function startPoloDemo(): Promise<void> {
         element(
           'span',
           'polo-concept-tag',
-          'VISUAL CONCEPT · NO CALCULATED SAVINGS',
+          'DESIGN OPTION · PERFORMANCE TO ASSESS',
         ),
         element('p', '', proposal.tradeoff),
       )
     }
     const metrics = get('#polo-metrics', HTMLDivElement)
     metrics.replaceChildren()
-    metrics.hidden = proposed || !state.confirmed
-    if (!proposed && state.confirmed)
+    metrics.hidden = proposed || !state.confirmed || improved
+    if (!proposed && state.confirmed && !improved)
       for (const metric of phase.metrics.slice(0, 3)) {
         const item = element('button', 'polo-metric')
         item.type = 'button'
@@ -497,6 +515,14 @@ export async function startPoloDemo(): Promise<void> {
       }
     const experiment = get('#polo-experiment', HTMLDivElement)
     experiment.replaceChildren()
+    if (improved)
+      experiment.append(
+        element(
+          'p',
+          'polo-tip',
+          'Resource estimates need updating for your changes.',
+        ),
+      )
     if (!state.confirmed) {
       experiment.append(
         element(
@@ -545,11 +571,11 @@ export async function startPoloDemo(): Promise<void> {
     const detailEntries: PoloCopyEntry[] = []
     if (!state.confirmed) {
       detailEntries.push({
-        text: 'This schematic campus is not a surveyed development parcel. It does not approve a real project. The story follows an authored field scenario wherever you move the model.',
+        text: 'The site boundary and building layout need surveying. Confirming a location selects your plan; it does not grant planning approval.',
       })
     } else if (proposed) {
       detailEntries.push({
-        text: 'An illustrative proposal, not an engineered design. The model pool, connection and equipment are fictional. Flow animations explain mechanisms; they do not show measured volumes or temperatures.',
+        text: 'The proposed pool, connections and equipment need detailed design. Flow paths explain how the systems could work; their volumes and temperatures need assessment.',
       })
       if (state.proposal === 'heat_reuse_neighbors')
         detailEntries.push({
@@ -627,6 +653,7 @@ export async function startPoloDemo(): Promise<void> {
     get('[data-polo-action="access"]', HTMLButtonElement).hidden =
       !state.confirmed
     renderMotion()
+    interventions.refresh()
     experience.sync()
     education.sync()
   }
@@ -668,19 +695,23 @@ export async function startPoloDemo(): Promise<void> {
   function openEvidence(): void {
     const entries: PoloCopyEntry[] = [
       {
-        text: 'This fictional project occupies a schematic portion of Polo Fields. It is not an announced development. The footprint and connections are illustrative, not surveyed routes. Existing tracks and surrounding trees are outside the authored intervention.',
+        text: 'Evaluate your proposal using the sources below. Boundaries and utility routes need verification. This planning exercise does not represent an actual development application or a community survey.',
       },
     ]
     if (!state.confirmed) {
       entries.push({
-        text: 'Place and rotate the schematic campus before confirmation. Confirmation locks its location and starts the five-part walkthrough; reset to place it again. This does not approve a real project or recalculate a new site assessment.',
+        text: 'Place and rotate the campus before confirming. Confirmation locks its location; reset to choose another site. Location changes do not recalculate the site assessment.',
       })
     } else if (state.phase === 'M6' && state.preview) {
       entries.push({
-        text: 'Heat reuse, recycled water and a green roof show possible mechanisms and trade-offs. None displays calculated savings. A connected model pool is fictional; no real building or water connection is asserted.',
+        text: 'Compare heat reuse, recycled water and a green roof. Their benefits need assessment. The proposed pool connection needs a confirmed recipient, route and compatible demand.',
       })
     } else {
-      entries.push(...POLO_BASELINE.assumptions.map((text) => ({ text })))
+      entries.push(
+        ...POLO_BASELINE.assumptions.map((text) => ({
+          text: poloPlanningText(text),
+        })),
+      )
     }
     const content = get('#polo-evidence-copy', HTMLDivElement)
     const explanation = element('div', 'polo-evidence-reader')
@@ -788,6 +819,7 @@ export async function startPoloDemo(): Promise<void> {
         quickViewToday()
         break
       case 'reset':
+        interventions.reset()
         protest.reset()
         scene?.setProtestActive(false)
         get('.polo-deck', HTMLElement).classList.remove('is-revealing')
@@ -854,6 +886,7 @@ export async function startPoloDemo(): Promise<void> {
         break
       case 'replay':
         if (!state.confirmed || protest.pending()) return
+        interventions.replay(state.phase)
         scene?.replay()
         break
       case 'skip':
@@ -903,6 +936,7 @@ export async function startPoloDemo(): Promise<void> {
       shortcuts.destroy()
       intro.destroy()
       protest.destroy()
+      interventions.destroy()
       community?.destroy()
       scene?.destroy()
     },
@@ -918,6 +952,7 @@ export async function startPoloDemo(): Promise<void> {
         if (disposed) return
         motion = status
         renderMotion()
+        interventions.observe(state, status)
       },
       onlineChanged: (status) => {
         if (disposed) return

@@ -3,6 +3,7 @@ import type {
   CommunityMood,
 } from '../../shared/community-contract.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
+import { activePoloImprovements } from './interventions.ts'
 import { poloSupport } from './impact.ts'
 
 export interface PoloReaction {
@@ -144,7 +145,7 @@ const PHASE_REACTIONS: Record<PoloPhase, PhaseReaction> = {
   },
 }
 
-export function poloReactions(state: PoloSceneState): PhaseReaction {
+function basePoloReactions(state: PoloSceneState): PhaseReaction {
   const phase = state.confirmed ? state.phase : 'M0'
   const baseline = PHASE_REACTIONS[phase]
   if (phase !== 'M6' || !state.preview || !state.proposal) return baseline
@@ -219,6 +220,46 @@ export function poloReactions(state: PoloSceneState): PhaseReaction {
     turnout: baseline.turnout - Math.floor(gain / 2),
     voices,
   }
+}
+
+export function poloReactions(state: PoloSceneState): PhaseReaction {
+  const base = basePoloReactions(state)
+  const applied = activePoloImprovements(state)
+  if (!applied.length) return base
+  const voices = { ...base.voices }
+  for (const item of applied) {
+    if (item.id === 'soil') {
+      voices.nature = {
+        ...voices.nature,
+        text: 'Keeping that soil strip helps. It still needs care.',
+        mood: 'concerned',
+      }
+      voices.operator = {
+        ...voices.operator,
+        text: 'Keeping living soil leaves less room for the works.',
+        mood: 'neutral',
+      }
+    }
+    if (item.id === 'foundation')
+      voices.operator = {
+        ...voices.operator,
+        text: 'The marked sections are reinforced. Extra concrete has a cost.',
+        mood: 'neutral',
+      }
+    if (item.id === 'grounds') {
+      voices.neighbor = {
+        ...voices.neighbor,
+        text: 'The path helps us walk here. Our field is still gone.',
+        mood: 'concerned',
+      }
+      voices.student = {
+        ...voices.student,
+        text: 'A walking path helps. Our team still needs a pitch.',
+        mood: 'concerned',
+      }
+    }
+  }
+  return { ...base, voices }
 }
 
 /** Authored crowd of 100, present only for the pre-construction conversation. */

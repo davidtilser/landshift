@@ -37,7 +37,7 @@ describe('authored Polo private conversation', () => {
         facts(),
       )
       expect(active.text).toMatch(/computing users/iu)
-      expect(active.text).toContain('fictional pool')
+      expect(active.text).toContain('proposed pool')
       expect(active.text).toContain('Actual savings are unknown')
       const inactive = poloDialogueReply(
         voice,
@@ -57,7 +57,7 @@ describe('authored Polo private conversation', () => {
       'Who benefits from this idea?',
       base,
     ).text
-    expect(original).not.toContain('fictional pool could receive')
+    expect(original).not.toContain('proposed pool could receive')
     expect(original).toContain('No local benefit is guaranteed')
     for (const proposal of POLO_PROPOSALS) {
       const result = poloDialogueReply(
@@ -253,6 +253,6 @@ describe('authored Polo private conversation', () => {
       facts(),
     )
     expect(result.topic).toBe('other')
-    expect(result.text).toContain('don’t have an authored answer')
+    expect(result.text).toContain('don’t know enough to answer')
   })
 })
