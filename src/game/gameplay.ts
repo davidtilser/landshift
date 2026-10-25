@@ -1,6 +1,6 @@
 import './gameplay.css'
 import { choiceArt } from './choice-art.ts'
-import { CharacterChat } from './character-chat.ts'
+import { CommunityHub } from './community-hub.ts'
 import type { DialogueTarget } from './dialogue-choices.ts'
 import {
   communityVoices,
@@ -90,7 +90,7 @@ export class Gameplay {
   private readonly metrics: HTMLElement
   private readonly dialog: HTMLDialogElement
   private readonly modelDialog: HTMLDialogElement
-  private readonly chat: CharacterChat
+  private readonly chat: CommunityHub
   private choices: PlanChoices = { ...DEFAULT_CHOICES }
   private activeTab = 'cooling'
   private year: GameYear = 0
@@ -115,6 +115,7 @@ export class Gameplay {
     this.callbacks = callbacks
     this.center = [...pack.manifest.center]
     this.referenceSite = assessSite(pack, pack.manifest.center, 28)
+    this.site = { ...this.referenceSite }
     const studio = document.querySelector('.studio')
     if (!(studio instanceof HTMLElement))
       throw new Error('Missing game workspace')
@@ -299,13 +300,24 @@ export class Gameplay {
     chatButton.title = 'Chat with this character'
     chatButton.textContent = '💬'
     speakers?.append(chatButton)
-    this.chat = new CharacterChat({
+    this.chat = new CommunityHub({
       getContext: () => ({
         choices: { ...this.choices },
         site: { ...this.site },
         year: this.year,
         weather: this.weather,
       }),
+      getPlan: () => ({
+        scenarioId: this.pack.manifest.id,
+        center: [...this.center],
+        bearing: this.bearing,
+        choices: { ...this.choices },
+        year: this.year,
+        weather: this.weather,
+      }),
+      beforeOpen: () => {
+        this.callbacks.beforeExperiment()
+      },
       tryIdea: (target) => {
         this.exploreIdea(target)
       },
@@ -350,13 +362,13 @@ export class Gameplay {
     this.miniChallenge = undefined
     this.challengeWin = ''
     this.activeTab = 'cooling'
-    this.selectTab('cooling')
     this.year = 0
     this.weather = 'drought'
     this.saved = []
     this.experimentNumber = 0
     this.reflection = { preference: '', reason: '', question: '' }
     this.dialog.close()
+    this.selectTab('cooling')
     this.render()
     this.callbacks.landscapeChanged(this.choices, this.year, this.weather)
   }
@@ -364,6 +376,7 @@ export class Gameplay {
     return evaluatePlan(this.site, this.choices, this.year, this.weather)
   }
   private render(): void {
+    this.chat.sync()
     const result = this.result()
     const next = nextChallenge(this.choices, this.site)
     if (this.miniChallenge && this.miniChallenge.id !== next.id) {

@@ -497,6 +497,7 @@ async function start(): Promise<void> {
     if (
       document.querySelector('dialog[open]') ||
       event.target instanceof HTMLInputElement ||
+      event.target instanceof HTMLTextAreaElement ||
       event.target instanceof HTMLButtonElement ||
       event.metaKey ||
       event.ctrlKey ||

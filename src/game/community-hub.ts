@@ -1,0 +1,506 @@
+import './community-hub.css'
+import { CharacterChat } from './character-chat.ts'
+import { CommunityClient } from './community-client.ts'
+import { CommunitySession } from './community-session.ts'
+import type { CommunityLine } from './community-session.ts'
+import { communityProfiles } from './community-profiles.ts'
+import type { CommunityProfile } from './community-profiles.ts'
+import { communityIdSchema } from '../shared/community-contract.ts'
+import type { CommunityId, PlannerState } from '../shared/community-contract.ts'
+import type { CommunityVoice } from './community.ts'
+import type { DiscussionContext } from './discussion.ts'
+import type { DialogueTarget } from './dialogue-choices.ts'
+
+interface HubOptions {
+  getContext: () => DiscussionContext
+  getPlan: () => PlannerState
+  tryIdea: (target: DialogueTarget) => void
+  beforeOpen: () => void
+}
+interface Pending {
+  controller: AbortController
+  lineId: number | undefined
+  message: string
+  replyTo: number | undefined
+}
+function node<K extends keyof HTMLElementTagNameMap>(
+  tag: K,
+  className: string,
+  text?: string,
+): HTMLElementTagNameMap[K] {
+  const element = document.createElement(tag)
+  element.className = className
+  if (text !== undefined) element.textContent = text
+  return element
+}
+function action(
+  label: string,
+  name: string,
+  value?: string,
+): HTMLButtonElement {
+  const button = node('button', 'community-action', label)
+  button.type = 'button'
+  button.dataset['communityAction'] = name
+  if (value !== undefined) button.dataset['value'] = value
+  return button
+}
+
+/** Bubble clicks open the original private popup; Community owns just one public timeline. */
+export class CommunityHub {
+  private readonly options: HubOptions
+  private readonly client = new CommunityClient()
+  private readonly session = new CommunitySession()
+  private readonly privateChat: CharacterChat
+  private readonly root = node('aside', 'community-hub')
+  private readonly launcher = action('◎ Community', 'open')
+  private readonly timeline = node('div', 'community-timeline')
+  private readonly status = node('p', 'community-status')
+  private readonly engine = node('span', 'community-engine', 'Connecting…')
+  private readonly controls = node('div', 'community-controls')
+  private readonly composer = node('div', 'community-compose-area')
+  private profiles: CommunityProfile[] = []
+  private selectedReply: number | undefined
+  private pending: Pending | undefined
+  private planKey = ''
+  private error = ''
+  private destroyed = false
+
+  constructor(options: HubOptions) {
+    this.options = options
+    this.root.hidden = true
+    this.root.id = 'community-hub'
+    this.root.setAttribute('aria-label', 'Shared community discussion')
+    const header = node('header', 'community-header')
+    const heading = node('div', '')
+    heading.append(
+      node('span', 'community-eyebrow', 'ONE PLACE · DIFFERENT PERSPECTIVES'),
+      node('h2', '', 'Community'),
+    )
+    const close = action('×', 'close')
+    close.setAttribute('aria-label', 'Close community')
+    header.append(heading, close)
+    const context = node('div', 'community-context')
+    const faces = node('span', 'community-faces', '🕯️ 🌱 🚶 ⚡')
+    faces.setAttribute('aria-hidden', 'true')
+    context.append(
+      faces,
+      node('span', '', 'One shared discussion'),
+      this.engine,
+    )
+    this.timeline.setAttribute('role', 'log')
+    this.timeline.setAttribute('aria-label', 'Public community thread')
+    this.timeline.setAttribute('aria-live', 'polite')
+    this.timeline.setAttribute('aria-relevant', 'additions')
+    this.status.setAttribute('role', 'status')
+    const footer = node('footer', 'community-footer')
+    footer.append(
+      this.status,
+      this.controls,
+      this.composer,
+      node(
+        'p',
+        'community-disclosure',
+        'Fictional voices. Public replies stay in this game’s shared thread.',
+      ),
+    )
+    this.root.append(header, context, this.timeline, footer)
+    const studio = document.querySelector('.studio')
+    if (!(studio instanceof HTMLElement))
+      throw new Error('Missing game workspace')
+    studio.append(this.root)
+    this.launcher.className = 'text-button community-launch'
+    this.launcher.setAttribute('aria-controls', this.root.id)
+    this.launcher.setAttribute('aria-expanded', 'false')
+    document.querySelector('.top-actions')?.prepend(this.launcher)
+    this.launcher.addEventListener('click', () => {
+      if (this.root.hidden) this.openPublic()
+      else this.closePublic()
+    })
+    this.root.addEventListener('click', this.onClick)
+    this.root.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        event.stopPropagation()
+        this.closePublic()
+      }
+    })
+    this.privateChat = new CharacterChat({
+      ...options,
+      client: this.client,
+      session: this.session,
+      beforeOpen: () => {
+        this.closePublic(false)
+        options.beforeOpen()
+      },
+    })
+    void this.client.status().then(() => {
+      if (!this.destroyed) this.renderMeta()
+    })
+  }
+  sync(): void {
+    if (this.destroyed) return
+    const plan = this.options.getPlan(),
+      key = JSON.stringify(plan)
+    if (key === this.planKey) return
+    this.cancel() // Cancel before appending plan updates; never roll an update back with an old reply.
+    this.planKey = key
+    this.profiles = communityProfiles(this.options.getContext())
+    this.session.sync(plan, this.profiles)
+    this.privateChat.sync(this.profiles)
+    this.error = ''
+    if (!this.root.hidden) this.render(true)
+  }
+  open(voice: CommunityVoice): void {
+    this.sync()
+    this.openPrivate(voice.id)
+  }
+  private openPrivate(id: CommunityId): void {
+    this.privateChat.open(this.profile(id))
+  }
+  private profile(id: CommunityId): CommunityProfile {
+    const result = this.profiles.find((profile) => profile.id === id)
+    if (!result) throw new Error('Missing community profile')
+    return result
+  }
+  private openPublic(): void {
+    this.privateChat.close()
+    this.options.beforeOpen()
+    this.sync()
+    this.root.hidden = false
+    document.querySelector('.studio')?.classList.add('community-open')
+    this.launcher.setAttribute('aria-expanded', 'true')
+    this.error = ''
+    this.render(this.session.publicThread.lines.length > 5)
+    this.root
+      .querySelector<HTMLButtonElement>('.community-header button')
+      ?.focus()
+  }
+  private closePublic(focus = true): void {
+    this.cancel()
+    this.root.hidden = true
+    document.querySelector('.studio')?.classList.remove('community-open')
+    this.launcher.setAttribute('aria-expanded', 'false')
+    if (focus) this.launcher.focus()
+  }
+  private label(line: CommunityLine): string {
+    return line.kind === 'update'
+      ? 'Plan update'
+      : line.speaker === 'planner'
+        ? 'You · youth planner'
+        : this.profile(line.speaker).name
+  }
+  private renderMeta(): void {
+    this.engine.textContent = this.client.configured
+      ? 'Gemini live · fictional'
+      : 'Demo replies · fictional'
+    this.engine.title = this.client.configured
+      ? this.client.model
+      : 'AI not connected; authored demo replies.'
+  }
+  private render(scrollToEnd = false): void {
+    this.renderMeta()
+    const scroll = this.timeline.scrollTop
+    this.timeline.replaceChildren()
+    const lines = this.session.publicThread.lines
+    for (const [index, line] of lines.entries()) {
+      if (line.kind === 'update') {
+        const update = node('article', 'community-plan-update')
+        update.id = 'community-post-' + String(line.id)
+        update.tabIndex = -1
+        update.append(
+          node('span', '', '↻ Plan update'),
+          node('p', '', line.text),
+        )
+        this.timeline.append(update)
+        continue
+      }
+      const post = node(
+        'article',
+        'community-post' + (index === 0 ? ' proposal-post' : ''),
+      )
+      post.id = 'community-post-' + String(line.id)
+      post.tabIndex = -1
+      const avatar =
+        line.speaker === 'planner'
+          ? node('span', 'community-avatar planner', '🧭')
+          : action(this.profile(line.speaker).icon, 'private', line.speaker)
+      avatar.classList.add('community-avatar')
+      if (line.speaker !== 'planner') {
+        avatar.classList.add(this.profile(line.speaker).color)
+        avatar.setAttribute(
+          'aria-label',
+          'Private chat with ' + this.profile(line.speaker).name,
+        )
+      }
+      const body = node('div', 'community-post-body'),
+        head = node('div', 'community-post-head')
+      head.append(node('strong', '', this.label(line)))
+      const time = node(
+        'time',
+        '',
+        new Intl.DateTimeFormat(undefined, {
+          hour: 'numeric',
+          minute: '2-digit',
+        }).format(line.createdAt),
+      )
+      time.dateTime = new Date(line.createdAt).toISOString()
+      head.append(time)
+      const source = node(
+        'span',
+        'community-source',
+        index === 0
+          ? 'WHAT IF · PROPOSAL'
+          : line.source === 'live'
+            ? 'AI character'
+            : line.source === 'demo'
+              ? 'Demo reply'
+              : line.source === 'scenario'
+                ? 'Scenario'
+                : 'Your public reply',
+      )
+      body.append(head, source)
+      if (line.replyTo !== undefined && line.replyTo !== lines[0]?.id) {
+        const parent = lines.find((item) => item.id === line.replyTo)
+        const quote = action(
+          parent ? '↳ Replying to ' + this.label(parent) : '↳ Earlier post',
+          'parent',
+          String(line.replyTo),
+        )
+        quote.classList.add('community-reply-context')
+        if (parent) quote.title = parent.text
+        body.append(quote)
+      }
+      body.append(node('p', 'community-post-text', line.text))
+      const actions = node('div', 'community-post-actions')
+      const reply = action('↩ Reply', 'reply', String(line.id))
+      reply.setAttribute('aria-label', 'Reply to ' + this.label(line))
+      actions.append(reply)
+      if (line.speaker !== 'planner')
+        actions.append(action('Message privately', 'private', line.speaker))
+      body.append(actions)
+      post.append(avatar, body)
+      this.timeline.append(post)
+    }
+    this.status.textContent =
+      this.error ||
+      (this.pending
+        ? 'The community is replying…'
+        : 'Read along, or add your perspective.')
+    this.controls.replaceChildren(
+      action(
+        this.pending ? 'Ⅱ Pause' : '▶ Observe',
+        this.pending ? 'pause' : 'observe',
+      ),
+      action('✋ Join in', 'join'),
+    )
+    this.renderComposer()
+    requestAnimationFrame(() => {
+      if (!this.root.hidden)
+        this.timeline.scrollTop = scrollToEnd
+          ? this.timeline.scrollHeight
+          : scroll
+    })
+  }
+  private renderComposer(): void {
+    const current = this.session.publicThread
+    this.composer.replaceChildren()
+    const target = current.lines.find((line) => line.id === this.selectedReply)
+    if (target) {
+      const chip = node('div', 'community-reply-target')
+      chip.append(node('span', '', 'Replying to ' + this.label(target)))
+      const clear = action('×', 'clear-reply')
+      clear.setAttribute('aria-label', 'Cancel reply target')
+      chip.append(clear)
+      this.composer.append(chip)
+    }
+    const form = node('form', 'community-composer'),
+      label = node('label', 'sr-only', 'Your public reply')
+    const input = node('textarea', '')
+    input.id = 'community-reply'
+    label.htmlFor = input.id
+    input.rows = 2
+    input.maxLength = 600
+    input.value = current.draft
+    input.placeholder = target ? 'Reply to this post…' : 'Add your voice…'
+    input.disabled = Boolean(this.pending?.message)
+    const send = node('button', 'community-send', 'Post ↗')
+    send.type = 'submit'
+    send.disabled = Boolean(this.pending) || !current.draft.trim()
+    input.addEventListener('input', () => {
+      current.draft = input.value
+      send.disabled = Boolean(this.pending) || !current.draft.trim()
+    })
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault()
+        if (!send.disabled) form.requestSubmit()
+      }
+    })
+    form.addEventListener('submit', (event) => {
+      event.preventDefault()
+      void this.submit(input.value)
+    })
+    form.append(label, input, send)
+    this.composer.append(form)
+  }
+  private async submit(value: string): Promise<void> {
+    if (this.pending || this.destroyed) return
+    const message = value.trim().slice(0, 600),
+      current = this.session.publicThread
+    const parent =
+      current.lines.find((line) => line.id === this.selectedReply) ??
+      current.lines.findLast((line) => line.kind !== 'update')
+    const history = this.session.history(current)
+    const pending: Pending = {
+      controller: new AbortController(),
+      lineId: undefined,
+      message,
+      replyTo: this.selectedReply,
+    }
+    this.pending = pending
+    this.error = ''
+    let replyTo = parent?.id
+    if (message) {
+      pending.lineId = this.session.append(current, [
+        {
+          speaker: 'planner',
+          text: message,
+          source: 'planner',
+          ...(replyTo !== undefined ? { replyTo } : {}),
+        },
+      ])[0]?.id
+      replyTo = pending.lineId
+      current.draft = ''
+    }
+    this.render(Boolean(message))
+    try {
+      const response = await this.client.exchange(
+        {
+          mode: 'discussion',
+          target:
+            parent?.speaker === 'planner'
+              ? 'operator'
+              : (parent?.speaker ?? 'neighbor'),
+          plan: this.options.getPlan(),
+          history,
+          message,
+          ...(parent
+            ? { replyTo: { speaker: parent.speaker, text: parent.text } }
+            : {}),
+        },
+        this.options.getContext(),
+        pending.controller.signal,
+      )
+      if (!this.isCurrent(pending)) return
+      this.session.replyPublic(
+        response.messages.map((line) => ({ ...line, source: response.source })),
+        replyTo,
+      )
+      if (message) this.selectedReply = undefined
+    } catch (error) {
+      if (!this.isCurrent(pending)) return
+      if (pending.lineId !== undefined)
+        this.session.remove(current, pending.lineId)
+      if (message) current.draft = message
+      this.error =
+        error instanceof Error
+          ? error.message
+          : 'That reply did not arrive. Try again.'
+    } finally {
+      if (this.pending === pending) {
+        this.pending = undefined
+        this.render(true)
+      }
+    }
+  }
+  private isCurrent(pending: Pending): boolean {
+    return (
+      this.pending === pending &&
+      !pending.controller.signal.aborted &&
+      !this.destroyed
+    )
+  }
+  private cancel(): void {
+    const pending = this.pending
+    if (!pending) return
+    this.pending = undefined
+    pending.controller.abort()
+    if (pending.lineId !== undefined)
+      this.session.remove(this.session.publicThread, pending.lineId)
+    if (pending.message) {
+      this.session.publicThread.draft = pending.message
+      this.selectedReply = pending.replyTo
+    }
+  }
+  private readonly onClick = (event: MouseEvent): void => {
+    if (!(event.target instanceof Element)) return
+    const button = event.target.closest<HTMLButtonElement>(
+      '[data-community-action]',
+    )
+    if (!button) return
+    const value = button.dataset['value']
+    switch (button.dataset['communityAction']) {
+      case 'close':
+        this.closePublic()
+        break
+      case 'private': {
+        const id = communityIdSchema.safeParse(value)
+        if (id.success) this.openPrivate(id.data)
+        break
+      }
+      case 'reply':
+        this.cancel()
+        this.selectedReply = Number(value)
+        this.render()
+        this.root.querySelector('textarea')?.focus()
+        break
+      case 'clear-reply':
+        this.selectedReply = undefined
+        this.renderComposer()
+        this.root.querySelector('textarea')?.focus()
+        break
+      case 'parent': {
+        const parent = this.root.querySelector<HTMLElement>(
+          '#community-post-' + String(Number(value)),
+        )
+        parent?.scrollIntoView({ block: 'center' })
+        parent?.focus({ preventScroll: true })
+        break
+      }
+      case 'observe':
+        void this.submit('')
+        break
+      case 'pause':
+        this.cancel()
+        this.render()
+        break
+      case 'join':
+        this.cancel()
+        this.render()
+        this.root.querySelector('textarea')?.focus()
+        break
+      case 'open':
+        this.openPublic()
+        break
+      case undefined:
+      default:
+        break
+    }
+  }
+  reset(): void {
+    this.cancel()
+    this.privateChat.reset()
+    this.session.reset()
+    this.planKey = ''
+    this.selectedReply = undefined
+    this.error = ''
+    this.closePublic()
+  }
+  destroy(): void {
+    this.destroyed = true
+    this.cancel()
+    this.privateChat.destroy()
+    this.root.remove()
+    this.launcher.remove()
+    document.querySelector('.studio')?.classList.remove('community-open')
+  }
+}

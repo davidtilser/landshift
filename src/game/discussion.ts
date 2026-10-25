@@ -27,15 +27,8 @@ export interface DiscussionRequest {
 }
 export interface DiscussionReply {
   text: string
-  source: 'scripted' | 'gemma'
+  source: 'scripted'
   topic: DiscussionTopic
-}
-/** Replace this adapter with Gemma later; the UI does not depend on an SDK. */
-export interface DiscussionProvider {
-  reply: (
-    request: DiscussionRequest,
-    signal: AbortSignal,
-  ) => Promise<DiscussionReply>
 }
 
 export type DiscussionTopic =
@@ -231,23 +224,4 @@ export function scriptedDiscussion(
     text = lead + text
   }
   return { text, source: 'scripted', topic }
-}
-
-export const mockDiscussionProvider: DiscussionProvider = {
-  reply: (request, signal) =>
-    new Promise((resolve, reject) => {
-      if (signal.aborted) {
-        reject(new DOMException('Discussion canceled', 'AbortError'))
-        return
-      }
-      const cancel = (): void => {
-        window.clearTimeout(timer)
-        reject(new DOMException('Discussion canceled', 'AbortError'))
-      }
-      const timer = window.setTimeout(() => {
-        signal.removeEventListener('abort', cancel)
-        resolve(scriptedDiscussion(request))
-      }, 180)
-      signal.addEventListener('abort', cancel, { once: true })
-    }),
 }

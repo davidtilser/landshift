@@ -22,7 +22,7 @@ Demonstrate one clear learning loop:
 4. Compare alternatives and understand the tradeoffs.
 5. Connect the lesson to practical behavior or participation in local planning.
 
-The hackathon target is a focused, working interactive prototype. Scenarios, gameplay, and technology are still to be selected.
+The hackathon target is a focused, working interactive prototype: a youth city planner explores a real map, tries a plan, and learns through different community perspectives.
 
 ## Design principles
 
@@ -53,7 +53,7 @@ Linking educational credits to real planning or restoration funding is an option
 
 ## Project status
 
-The app uses Vite + TypeScript. The first scenario is a North San José data-center planning game, with a prepared local geographic pack and an interactive Cesium 3D map. Choose cooling, trees, restoration and community commitments, test a decade, and compare resource trade-offs with a fixed reference sketch. [Rules, sources and limitations](docs/game-model.md) distinguish real map observations from authored game estimates.
+The app uses Vite + TypeScript and an interactive Cesium 3D map. The default scenario is a hypothetical data-center placement at Heroes’ Grove in Golden Gate Park; the original San José scenario remains available. Choose cooling, trees, restoration and community commitments, then explore the consequences. Bubble-based private chats and one shared community thread connect the map to four fictional perspectives. [Rules, sources and limitations](docs/game-model.md) distinguish real map observations from authored game estimates and AI dialogue.
 
 Onboarding and the game have independent entry points in the same app. See [development and ownership](docs/development.md) for the repository split and onboarding-to-game handoff, and [geographic data preparation](data/README.md) for the local data pack plan.
 
@@ -66,11 +66,21 @@ npm install
 npm run dev
 ```
 
-Open `/` for onboarding or `/game.html?scenario=san-jose-dc04` for the game. `npm run dev:game` opens the game directly. Prepare or extract the local geographic pack first: see [data preparation and sharing](data/README.md). CesiumJS renders the game with a movable concept campus, local aerial/terrain fallback, and optional Google Photorealistic 3D Tiles streamed through Cesium ion. Consequence modeling is the next step.
+Open `/` for onboarding or `/game.html?scenario=golden-gate-park` for the game. `npm run dev:game` opens the game directly. Prepare or extract the local geographic pack first: see [data preparation and sharing](data/README.md). CesiumJS renders the game with a movable concept campus, local aerial/terrain fallback, and optional Google Photorealistic 3D Tiles streamed through Cesium ion. Use `?scenario=san-jose-dc04` for the original scenario.
 
 For the photorealistic view, copy `.env.example` to `.env.local`, add a browser-safe, read-only `VITE_CESIUM_ION_TOKEN`, and restart the dev server. Enable Google Photorealistic 3D Tiles in your ion account. A token can also be entered in the game's connection dialog for the current tab session. Tokens are not committed. Existing local packs need `npm run data:cesium` once to prepare the local terrain adapter.
 
 The MapLibre version is preserved in checkpoint commit `537167b` before the Cesium migration.
+
+### Community conversations
+
+Add `OPENROUTER_API_KEY=...` to the existing ignored `.env.local` (never use a `VITE_` prefix for this key). The default model is `google/gemini-2.5-flash-lite`, the cheapest live Gemini text-chat model in the checked OpenRouter catalog on October 24, 2026, at $0.10/M input and $0.40/M output tokens. An optional `OPENROUTER_MODEL` can select another Gemini model. See [OpenRouter's model catalog](https://openrouter.ai/api/v1/models) for current prices.
+
+Click a **map speech bubble** for the original private chat popup, with large dialogue choices and free typing. **Community** opens one shared public thread about the proposal. All four voices reply in that timeline; Observe continues their exchange, and Reply targets a particular post. Map changes appear as updates in the same conversation. Each character has a motivation, goal and limits. The aim is to understand different perspectives; agreement is not a score.
+
+The official `@openrouter/sdk` runs only in the Node server. Both `npm run dev` and `npm run preview` include `/api/community`; for preview, run `npm run build` first. A generic static host alone cannot provide live chat. Keep `public/data/` beside the app because the server recomputes geographic checks from the prepared pack. No deployment is configured.
+
+Town-square reactions are authored from map choices and labeled **Scenario**. Live replies are labeled **AI character**. Without a key/server, clearly labeled demo replies remain available. Public and private histories are separate in tab memory; Reset design clears them. Live conversation content and a compact plan summary are sent through OpenRouter to the model provider. “Private” describes visibility inside the game, not offline processing.
 
 Other scripts: `npm run build`, `npm test`, `npm run lint`, `npm run typecheck`, `npm run format`.
 

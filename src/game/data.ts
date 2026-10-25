@@ -19,7 +19,7 @@ const geometry = z.discriminatedUnion('type', [
     coordinates: z.array(z.array(z.array(coordinate))),
   }),
 ])
-const collectionSchema = z.object({
+export const collectionSchema = z.object({
   type: z.literal('FeatureCollection'),
   features: z.array(
     z.object({
