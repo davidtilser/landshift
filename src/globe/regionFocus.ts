@@ -18,18 +18,85 @@ import { createTerrainPatch } from './regionPatch.ts'
 import type { PatchBounds, TerrainPatch } from './regionPatch.ts'
 
 const SF_BAY_AREA = 'sf-bay-area'
+const LOS_ANGELES_BASIN = 'los-angeles-basin'
+const NEW_YORK_CITY = 'new-york-city'
 /** 1,487 km: 50% closer than 2,230 km, rounded to a whole kilometer. */
 const FOCUS_ALTITUDE = 1487 / 6371
-/** Fully visible once the camera has come in to a state-sized view. */
-const REGIONAL_ALTITUDE = 1
-const FADE_SPAN = 0.25
+/** Fully visible once the camera has left the whole-Earth view for a state. */
+const REGIONAL_ALTITUDE = 1.6
+const FADE_SPAN = 0.35
 const MIN_FOCUS_ALTITUDE = 100_000 / EARTH_RADIUS_M
 // Matches the cloud shell's outward displacement so the near plane stays in front of the puffs.
 const CLOUD_OUTER_RADII = CLOUD_RADIUS_RATIO + 0.005
-const PACK_URL = `${import.meta.env.BASE_URL}regions/sf-bay-area.geojson`
-const DAY_URL = `${import.meta.env.BASE_URL}textures/sf-bay-area-day.webp`
-const HEIGHT_URL = `${import.meta.env.BASE_URL}textures/sf-bay-area-height.png`
-const NORMAL_URL = `${import.meta.env.BASE_URL}textures/sf-bay-area-normal.webp`
+const LOCALE_PATCH_RENDER_ORDER = 1
+
+interface PackSource {
+  label: string
+  packUrl: string
+  dayUrl: string
+  heightUrl: string
+  normalUrl: string
+  /** SF Bay and Los Angeles stay over the wide California image. New York City hides it. */
+  keepWide: boolean
+}
+
+function assetUrl(path: string): string {
+  return `${import.meta.env.BASE_URL}${path}`
+}
+
+function packSource(
+  label: string,
+  regionFile: string,
+  dayFile: string,
+  heightFile: string,
+  normalFile: string,
+  keepWide: boolean,
+): PackSource {
+  return {
+    label,
+    packUrl: assetUrl(`regions/${regionFile}`),
+    dayUrl: assetUrl(`textures/${dayFile}`),
+    heightUrl: assetUrl(`textures/${heightFile}`),
+    normalUrl: assetUrl(`textures/${normalFile}`),
+    keepWide,
+  }
+}
+
+const WIDE_SOURCE = packSource(
+  'California',
+  'sf-bay-area.geojson',
+  'sf-bay-area-day.webp',
+  'sf-bay-area-height.png',
+  'sf-bay-area-normal.webp',
+  true,
+)
+
+const LOCALE_SOURCES: Readonly<Record<string, PackSource>> = {
+  [SF_BAY_AREA]: packSource(
+    'SF Bay Area',
+    'sf-bay-area-locale.geojson',
+    'sf-bay-area-locale-day.webp',
+    'sf-bay-area-locale-height.png',
+    'sf-bay-area-locale-normal.webp',
+    true,
+  ),
+  [LOS_ANGELES_BASIN]: packSource(
+    'Los Angeles Basin',
+    'los-angeles-basin.geojson',
+    'los-angeles-basin-day.webp',
+    'los-angeles-basin-height.png',
+    'los-angeles-basin-normal.webp',
+    true,
+  ),
+  [NEW_YORK_CITY]: packSource(
+    'New York City',
+    'new-york-city.geojson',
+    'new-york-city-day.webp',
+    'new-york-city-height.png',
+    'new-york-city-normal.webp',
+    false,
+  ),
+}
 
 export interface RegionFocusOptions {
   scene: Scene
@@ -42,14 +109,14 @@ export interface RegionFocusOptions {
 
 export interface RegionFocus {
   focusRegion(regionId: string | null): void
-  /** Starts the Bay pack during a cluster fly and shows it once the view is regional. Zoom stays off. */
+  /** Fetches the wide California pack. Imagery on, outline off, zoom off. */
   preload(): void
   dispose(): void
 }
 
 interface LoadedPack {
   patch: TerrainPatch
-  border: TerrainBorder
+  border: TerrainBorder | null
   textures: Texture[]
 }
 
@@ -66,49 +133,53 @@ function isUnknownArray(value: unknown): value is readonly unknown[] {
   return Array.isArray(value)
 }
 
-function readNumber(source: Record<string, unknown>, key: string): number {
+function readNumber(
+  source: Record<string, unknown>,
+  key: string,
+  label: string,
+): number {
   const value = source[key]
   if (typeof value !== 'number' || !Number.isFinite(value)) {
-    throw new Error(`SF Bay pack ${key} is not a number`)
+    throw new Error(`${label} pack ${key} is not a number`)
   }
   return value
 }
 
-function readPack(value: unknown): PackFile {
+function readPack(value: unknown, label: string): PackFile {
   if (
     !isRecord(value) ||
     !isRecord(value['properties']) ||
     !isRecord(value['geometry'])
   ) {
-    throw new Error('SF Bay pack is missing its bounds or outline')
+    throw new Error(`${label} pack is missing its bounds or outline`)
   }
   const properties = value['properties']
-  const west = readNumber(properties, 'west')
-  const south = readNumber(properties, 'south')
-  const east = readNumber(properties, 'east')
-  const north = readNumber(properties, 'north')
+  const west = readNumber(properties, 'west', label)
+  const south = readNumber(properties, 'south', label)
+  const east = readNumber(properties, 'east', label)
+  const north = readNumber(properties, 'north', label)
   if (!(west < east) || !(south < north)) {
-    throw new Error('SF Bay pack bounds are empty')
+    throw new Error(`${label} pack bounds are empty`)
   }
   const geometry = value['geometry']
   const coordinates = geometry['coordinates']
   if (geometry['type'] !== 'MultiLineString' || !isUnknownArray(coordinates)) {
-    throw new Error('SF Bay outline is not a MultiLineString')
+    throw new Error(`${label} outline is not a MultiLineString`)
   }
   const lines: [number, number][][] = []
   for (const line of coordinates) {
     if (!isUnknownArray(line)) {
-      throw new Error('SF Bay outline line is not an array')
+      throw new Error(`${label} outline line is not an array`)
     }
     const points: [number, number][] = []
     for (const point of line) {
       if (!isUnknownArray(point) || point.length < 2) {
-        throw new Error('SF Bay outline point is not a coordinate')
+        throw new Error(`${label} outline point is not a coordinate`)
       }
       const lng = point[0]
       const lat = point[1]
       if (typeof lng !== 'number' || typeof lat !== 'number') {
-        throw new Error('SF Bay outline point is not numeric')
+        throw new Error(`${label} outline point is not numeric`)
       }
       points.push([lng, lat])
     }
@@ -152,6 +223,32 @@ function yieldToPaint(): Promise<void> {
   })
 }
 
+async function loadPackTextures(
+  source: PackSource,
+): Promise<[Texture, Texture, Texture]> {
+  const [day, height, normal] = await Promise.all([
+    loadImageTexture(source.dayUrl, SRGBColorSpace),
+    loadImageTexture(source.heightUrl, NoColorSpace),
+    loadImageTexture(source.normalUrl, NoColorSpace),
+  ])
+  day.anisotropy = 8
+  day.needsUpdate = true
+  for (const texture of [height, normal]) {
+    texture.generateMipmaps = false
+    texture.minFilter = LinearFilter
+    texture.magFilter = LinearFilter
+  }
+  return [day, height, normal]
+}
+
+function releasePack(loaded: LoadedPack): void {
+  loaded.patch.dispose()
+  loaded.border?.dispose()
+  for (const texture of loaded.textures) {
+    texture.dispose()
+  }
+}
+
 export function createRegionFocus({
   scene,
   camera,
@@ -164,25 +261,18 @@ export function createRegionFocus({
   const restingNear = camera instanceof PerspectiveCamera ? camera.near : 5
   let frame = 0
   let generation = 0
-  let active = false
-  let pack: LoadedPack | undefined
-  let loading: Promise<void> | undefined
+  let wideOn = false
+  let activeLocale: string | null = null
+  let widePack: LoadedPack | undefined
+  let wideLoading: Promise<void> | undefined
+  const localePacks = new Map<string, LoadedPack>()
+  const localeLoading = new Map<string, Promise<void>>()
 
-  const hidePack = (): void => {
-    pack?.patch.setOpacity(0, false)
-    pack?.border.setOpacity(0)
-  }
-
-  const disposePack = (): void => {
-    if (pack === undefined) {
-      return
+  const hideLocales = (): void => {
+    for (const loaded of localePacks.values()) {
+      loaded.patch.setOpacity(0, false)
+      loaded.border?.setOpacity(0)
     }
-    pack.patch.dispose()
-    pack.border.dispose()
-    for (const texture of pack.textures) {
-      texture.dispose()
-    }
-    pack = undefined
   }
 
   const disableZoom = (): void => {
@@ -192,6 +282,11 @@ export function createRegionFocus({
       camera.near = restingNear
       camera.updateProjectionMatrix()
     }
+  }
+
+  const enableZoom = (): void => {
+    controls.enableZoom = true
+    controls.minDistance = globeRadius * (1 + MIN_FOCUS_ALTITUDE)
   }
 
   const fitNearPlane = (distance: number): void => {
@@ -209,16 +304,21 @@ export function createRegionFocus({
   }
 
   const syncFrame = (renderCamera: Camera): void => {
-    if (!active) {
-      hidePack()
-      return
-    }
     const distance = renderCamera.position.length()
-    fitNearPlane(distance)
-    const opacity = focusOpacity(distance / globeRadius - 1)
-    const coversView = distance / globeRadius - 1 <= FOCUS_ALTITUDE + 0.005
-    pack?.patch.setOpacity(opacity, coversView)
-    pack?.border.setOpacity(opacity)
+    const altitude = distance / globeRadius - 1
+    const opacity = focusOpacity(altitude)
+    const coversView = altitude <= FOCUS_ALTITUDE + 0.005
+    if (wideOn || activeLocale !== null) {
+      fitNearPlane(distance)
+    }
+    if (widePack !== undefined) {
+      widePack.patch.setOpacity(wideOn ? opacity : 0, wideOn && coversView)
+    }
+    for (const [id, loaded] of localePacks) {
+      const on = id === activeLocale
+      loaded.patch.setOpacity(on ? opacity : 0, on && coversView)
+      loaded.border?.setOpacity(on ? opacity : 0)
+    }
   }
 
   const stopFrame = (): void => {
@@ -237,25 +337,16 @@ export function createRegionFocus({
     }
   }
 
-  const loadPack = async (token: number): Promise<void> => {
-    const response = await fetch(PACK_URL)
+  const loadWide = async (token: number): Promise<void> => {
+    const response = await fetch(WIDE_SOURCE.packUrl)
     if (!response.ok) {
-      throw new Error(`SF Bay pack responded ${String(response.status)}`)
+      throw new Error(
+        `California wide pack responded ${String(response.status)}`,
+      )
     }
     const file: unknown = await response.json()
-    const parsed = readPack(file)
-    const [day, height, normal] = await Promise.all([
-      loadImageTexture(DAY_URL, SRGBColorSpace),
-      loadImageTexture(HEIGHT_URL, NoColorSpace),
-      loadImageTexture(NORMAL_URL, NoColorSpace),
-    ])
-    height.generateMipmaps = false
-    height.minFilter = LinearFilter
-    height.magFilter = LinearFilter
-    normal.generateMipmaps = false
-    normal.minFilter = LinearFilter
-    normal.magFilter = LinearFilter
-    // Let the camera flight paint before the relief grid is built.
+    const parsed = readPack(file, WIDE_SOURCE.label)
+    const [day, height, normal] = await loadPackTextures(WIDE_SOURCE)
     await yieldToPaint()
     const loaded: LoadedPack = {
       patch: createTerrainPatch(
@@ -267,82 +358,168 @@ export function createRegionFocus({
         displacementScale,
         displacementBias,
       ),
-      border: createTerrainBorder(
-        parsed.lines,
-        height,
-        parsed.bounds,
-        globeRadius,
-        displacementScale,
-        displacementBias,
-      ),
+      border: null,
       textures: [day, height, normal],
     }
     if (token !== generation) {
-      loaded.patch.dispose()
-      loaded.border.dispose()
-      for (const texture of loaded.textures) {
-        texture.dispose()
-      }
+      releasePack(loaded)
       return
     }
     loaded.patch.setOpacity(0, false)
-    loaded.border.setOpacity(0)
     scene.add(loaded.patch.mesh)
-    scene.add(loaded.border.mesh)
-    pack = loaded
+    widePack = loaded
+    syncFrame(camera)
   }
 
-  const ensureLoaded = (): Promise<void> => {
-    if (pack !== undefined) return Promise.resolve()
-    if (loading !== undefined) return loading
+  const loadLocale = async (
+    regionId: string,
+    source: PackSource,
+    token: number,
+  ): Promise<void> => {
+    const response = await fetch(source.packUrl)
+    if (!response.ok) {
+      throw new Error(
+        `${source.label} pack responded ${String(response.status)}`,
+      )
+    }
+    const file: unknown = await response.json()
+    const parsed = readPack(file, source.label)
+    const [day, height, normal] = await loadPackTextures(source)
+    await yieldToPaint()
+    const border = createTerrainBorder(
+      parsed.lines,
+      height,
+      parsed.bounds,
+      globeRadius,
+      displacementScale,
+      displacementBias,
+    )
+    const patch = createTerrainPatch(
+      day,
+      height,
+      normal,
+      parsed.bounds,
+      globeRadius,
+      displacementScale,
+      displacementBias,
+    )
+    // Draws after the wide mesh so the tight crop stays on top where they overlap.
+    patch.mesh.renderOrder = LOCALE_PATCH_RENDER_ORDER
+    const loaded: LoadedPack = {
+      patch,
+      border,
+      textures: [day, height, normal],
+    }
+    if (token !== generation) {
+      releasePack(loaded)
+      return
+    }
+    patch.setOpacity(0, false)
+    border.setOpacity(0)
+    scene.add(patch.mesh)
+    scene.add(border.mesh)
+    localePacks.set(regionId, loaded)
+    syncFrame(camera)
+  }
+
+  const ensureWide = (): Promise<void> => {
+    if (widePack !== undefined) return Promise.resolve()
+    if (wideLoading !== undefined) return wideLoading
     const token = generation
-    const pending = loadPack(token).finally(() => {
-      if (loading === pending) loading = undefined
+    const pending = loadWide(token).finally(() => {
+      if (wideLoading === pending) wideLoading = undefined
     })
-    loading = pending
+    wideLoading = pending
     return pending
   }
 
-  const reportLoadFailure = (token: number, error: unknown): void => {
-    if (token === generation) {
-      active = false
-      stopFrame()
-      disableZoom()
-    }
-    console.error('SF Bay Area terrain pack failed to load', error)
+  const ensureLocale = (regionId: string): Promise<void> => {
+    const source = LOCALE_SOURCES[regionId]
+    if (source === undefined) return Promise.resolve()
+    if (localePacks.has(regionId)) return Promise.resolve()
+    const pendingLoad = localeLoading.get(regionId)
+    if (pendingLoad !== undefined) return pendingLoad
+    const token = generation
+    const pending = loadLocale(regionId, source, token).finally(() => {
+      if (localeLoading.get(regionId) === pending) {
+        localeLoading.delete(regionId)
+      }
+    })
+    localeLoading.set(regionId, pending)
+    return pending
+  }
+
+  const reportFailure = (label: string, error: unknown): void => {
+    console.error(`${label} terrain pack failed to load`, error)
   }
 
   return {
     preload() {
-      active = true
+      wideOn = true
+      activeLocale = null
+      disableZoom()
+      hideLocales()
       startFrame()
+      syncFrame(camera)
       const token = generation
-      void ensureLoaded().catch((error: unknown) => {
-        reportLoadFailure(token, error)
+      void ensureWide().catch((error: unknown) => {
+        reportFailure('California wide', error)
+        if (token !== generation) return
+        wideOn = false
+        widePack?.patch.setOpacity(0, false)
+        if (activeLocale === null) stopFrame()
       })
     },
     focusRegion(regionId) {
-      if (regionId === SF_BAY_AREA) {
-        active = true
-        controls.enableZoom = true
-        controls.minDistance = globeRadius * (1 + MIN_FOCUS_ALTITUDE)
+      const source = regionId === null ? undefined : LOCALE_SOURCES[regionId]
+      if (source !== undefined && regionId !== null) {
+        wideOn = source.keepWide
+        activeLocale = regionId
+        enableZoom()
+        if (!source.keepWide) {
+          widePack?.patch.setOpacity(0, false)
+        }
         startFrame()
+        syncFrame(camera)
         const token = generation
-        void ensureLoaded().catch((error: unknown) => {
-          reportLoadFailure(token, error)
+        if (source.keepWide) {
+          void ensureWide().catch((error: unknown) => {
+            reportFailure('California wide', error)
+            if (token !== generation) return
+            wideOn = false
+            widePack?.patch.setOpacity(0, false)
+          })
+        }
+        void ensureLocale(regionId).catch((error: unknown) => {
+          reportFailure(source.label, error)
+          if (token !== generation || activeLocale !== regionId) return
+          activeLocale = null
+          disableZoom()
+          if (!wideOn) stopFrame()
+          syncFrame(camera)
         })
         return
       }
-      active = false
-      stopFrame()
-      hidePack()
+      activeLocale = null
+      wideOn = false
       disableZoom()
+      stopFrame()
+      hideLocales()
+      widePack?.patch.setOpacity(0, false)
     },
     dispose() {
       generation += 1
-      active = false
+      wideOn = false
+      activeLocale = null
       stopFrame()
-      disposePack()
+      if (widePack !== undefined) {
+        releasePack(widePack)
+        widePack = undefined
+      }
+      for (const loaded of localePacks.values()) {
+        releasePack(loaded)
+      }
+      localePacks.clear()
       disableZoom()
     },
   }

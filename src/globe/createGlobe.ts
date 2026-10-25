@@ -184,7 +184,12 @@ export function createGlobe(container: HTMLElement): GlobeHandle {
     globeRadius,
     flyTo: (target) => cameraController.flyTo(target),
     onClusterZoom(memberIds) {
-      if (memberIds.includes('sf-bay-area')) regionFocus.preload()
+      if (
+        memberIds.includes('sf-bay-area') ||
+        memberIds.includes('los-angeles-basin')
+      ) {
+        regionFocus.preload()
+      }
     },
   })
 

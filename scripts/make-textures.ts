@@ -388,6 +388,7 @@ const TILE_EDGE = 21600
 const TILE_PIXELS_PER_DEGREE = TILE_EDGE / 90
 const GEBCO_CELLS_PER_DEGREE = 15
 const DAY_EDGE = 8192
+const LOCALE_DAY_EDGE = 4096
 const TILE_TIMEOUT_MS = 300_000
 const BAY_COUNTY_GEOIDS = new Set([
   '06001',
@@ -442,6 +443,16 @@ function viewCornerDegrees(altitude: number, aspect: number): number {
   return (Math.atan2(t * sine, radial) * 180) / Math.PI
 }
 
+const GEBCO_CELL = 1 / GEBCO_CELLS_PER_DEGREE
+
+function snapDown(value: number): number {
+  return Math.floor(value / GEBCO_CELL + 1e-8) * GEBCO_CELL
+}
+
+function snapUp(value: number): number {
+  return Math.ceil(value / GEBCO_CELL - 1e-8) * GEBCO_CELL
+}
+
 function packBounds(): Bounds {
   const radius =
     viewCornerDegrees(SF_BAY_ALTITUDE, SF_BAY_VIEW_ASPECT) * SF_BAY_VIEW_MARGIN
@@ -452,11 +463,6 @@ function packBounds(): Bounds {
     throw new Error('SF Bay pack longitude span is not on the globe')
   }
   const lngRadius = (Math.acos(cosLng) * 180) / Math.PI
-  const cell = 1 / GEBCO_CELLS_PER_DEGREE
-  const snapDown = (value: number): number =>
-    Math.floor(value / cell + 1e-8) * cell
-  const snapUp = (value: number): number =>
-    Math.ceil(value / cell - 1e-8) * cell
   return {
     west: snapDown(SF_BAY_FOCUS.lng - lngRadius),
     south: snapDown(SF_BAY_FOCUS.lat - radius),
@@ -465,7 +471,7 @@ function packBounds(): Bounds {
   }
 }
 
-function cropGrid(grid: Grid, bounds: Bounds): Grid {
+function cropGrid(grid: Grid, bounds: Bounds, label: string): Grid {
   const x0 = Math.round((bounds.west + 180) * GEBCO_CELLS_PER_DEGREE)
   const x1 = Math.round((bounds.east + 180) * GEBCO_CELLS_PER_DEGREE)
   const y0 = Math.round((90 - bounds.north) * GEBCO_CELLS_PER_DEGREE)
@@ -481,7 +487,7 @@ function cropGrid(grid: Grid, bounds: Bounds): Grid {
     y1 > grid.height
   ) {
     throw new Error(
-      `SF Bay height crop ${String(x0)},${String(y0)} ${String(width)}x${String(height)} is outside GEBCO`,
+      `${label} height crop ${String(x0)},${String(y0)} ${String(width)}x${String(height)} is outside GEBCO`,
     )
   }
   const data = new Float32Array(width * height)
@@ -545,10 +551,29 @@ async function downloadTile(url: string): Promise<string> {
   }
 }
 
-async function makeRegionDay(bounds: Bounds): Promise<void> {
+interface RegionFiles {
+  label: string
+  dayFile: string
+  maxDayEdge: number
+  heightFile: string
+  normalFile: string
+}
+
+const WIDE_BAY_FILES: RegionFiles = {
+  label: 'SF Bay',
+  dayFile: 'sf-bay-area-day.webp',
+  maxDayEdge: DAY_EDGE,
+  heightFile: 'sf-bay-area-height.png',
+  normalFile: 'sf-bay-area-normal.webp',
+}
+
+async function makeRegionDay(
+  bounds: Bounds,
+  files: RegionFiles,
+): Promise<void> {
   if (bounds.south < 0 || bounds.north > 90) {
     throw new Error(
-      `SF Bay pack latitude ${String(bounds.south)} to ${String(bounds.north)} is outside the northern 500 m tiles`,
+      `${files.label} pack latitude ${String(bounds.south)} to ${String(bounds.north)} is outside the northern 500 m tiles`,
     )
   }
   const strips: { left: number; width: number; source: string }[] = []
@@ -583,25 +608,30 @@ async function makeRegionDay(bounds: Bounds): Promise<void> {
     sourceHeight = height
   }
   if (strips.length === 0 || sourceHeight <= 0) {
-    throw new Error('500 m tiles do not cover the SF Bay pack')
+    throw new Error(`500 m tiles do not cover the ${files.label} pack`)
   }
-  const scale = Math.min(1, DAY_EDGE / Math.max(sourceWidth, sourceHeight))
+  const scale = Math.min(
+    1,
+    files.maxDayEdge / Math.max(sourceWidth, sourceHeight),
+  )
   const outHeight = Math.max(1, Math.round(sourceHeight * scale))
   const parts: { data: Buffer; width: number; left: number }[] = []
   let cursor = 0
   for (const strip of strips) {
     const outWidth = Math.max(1, Math.round(strip.width * scale))
     const top = Math.round((90 - bounds.north) * TILE_PIXELS_PER_DEGREE)
-    const { data, info } = await sharp(strip.source, {
+    let image = sharp(strip.source, {
       limitInputPixels: false,
+    }).extract({
+      left: strip.left,
+      top,
+      width: strip.width,
+      height: sourceHeight,
     })
-      .extract({
-        left: strip.left,
-        top,
-        width: strip.width,
-        height: sourceHeight,
-      })
-      .resize(outWidth, outHeight, { fit: 'fill' })
+    if (scale < 1) {
+      image = image.resize(outWidth, outHeight, { fit: 'fill' })
+    }
+    const { data, info } = await image
       .removeAlpha()
       .raw()
       .toBuffer({ resolveWithObject: true })
@@ -610,10 +640,10 @@ async function makeRegionDay(bounds: Bounds): Promise<void> {
   }
   const first = parts[0]
   if (first === undefined) {
-    throw new Error('500 m tiles produced no SF Bay imagery')
+    throw new Error(`500 m tiles produced no ${files.label} imagery`)
   }
   await writeOutput(
-    'sf-bay-area-day.webp',
+    files.dayFile,
     await sharp({
       create: {
         width: cursor,
@@ -635,8 +665,12 @@ async function makeRegionDay(bounds: Bounds): Promise<void> {
   )
 }
 
-async function makeRegionRelief(heightsM: Grid, bounds: Bounds): Promise<void> {
-  const grid = cropGrid(heightsM, bounds)
+async function makeRegionRelief(
+  heightsM: Grid,
+  bounds: Bounds,
+  files: RegionFiles,
+): Promise<void> {
+  const grid = cropGrid(heightsM, bounds, files.label)
   const codes = Buffer.from(Uint8Array.from(grid.data, heightCode))
   const encoded = await sharp(codes, {
     raw: { width: grid.width, height: grid.height, channels: 1 },
@@ -647,10 +681,10 @@ async function makeRegionRelief(heightsM: Grid, bounds: Bounds): Promise<void> {
   const decoded = await sharp(encoded.data).extractChannel(0).raw().toBuffer()
   if (encoded.info.channels !== 1 || !decoded.equals(codes)) {
     throw new Error(
-      'sf-bay-area-height.png does not round-trip as 8-bit grayscale',
+      `${files.heightFile} does not round-trip as 8-bit grayscale`,
     )
   }
-  await writeOutput('sf-bay-area-height.png', encoded)
+  await writeOutput(files.heightFile, encoded)
 
   const normals = patchNormals(grid, bounds)
   const normalEncoded = await sharp(
@@ -678,10 +712,10 @@ async function makeRegionRelief(heightsM: Grid, bounds: Bounds): Promise<void> {
   }
   if (inward > 0) {
     throw new Error(
-      `sf-bay-area-normal.webp has ${String(inward)} inward-pointing texels`,
+      `${files.normalFile} has ${String(inward)} inward-pointing texels`,
     )
   }
-  await writeOutput('sf-bay-area-normal.webp', normalEncoded)
+  await writeOutput(files.normalFile, normalEncoded)
 }
 
 function unzip(data: Buffer): Map<string, Buffer> {
@@ -970,7 +1004,84 @@ function simplifyRing(points: readonly LngLat[], tolerance: number): LngLat[] {
   return [...simplified, first]
 }
 
-async function makeBayOutline(bounds: Bounds): Promise<void> {
+interface CountyTable {
+  geoids: string[]
+  polygons: LngLat[][][]
+}
+
+const BAY_OUTLINE_LIMIT: Bounds = {
+  west: -125,
+  south: 36,
+  east: -120,
+  north: 40,
+}
+const LA_COUNTY_GEOIDS = new Set(['06037', '06059'])
+const NYC_BOROUGH_GEOIDS = new Set([
+  '36061',
+  '36047',
+  '36081',
+  '36005',
+  '36085',
+])
+const LOCALE_PAD_DEGREES = 0.75
+const LOCALE_PAD_FRACTION = 0.4
+const LOCALE_MAX_SPAN_DEGREES = 12
+const WIDE_BAY_OUTPUTS = new Set([
+  WIDE_BAY_FILES.dayFile,
+  WIDE_BAY_FILES.heightFile,
+  WIDE_BAY_FILES.normalFile,
+  'sf-bay-area.geojson',
+])
+
+interface LocaleSpec {
+  id: string
+  label: string
+  dayFile: string
+  heightFile: string
+  normalFile: string
+  geojsonFile: string
+  geoids: ReadonlySet<string>
+  limit: Bounds
+  missingLabel: string
+}
+
+const LOCALE_SPECS: readonly LocaleSpec[] = [
+  {
+    id: 'sf-bay-area',
+    label: 'SF Bay Area',
+    dayFile: 'sf-bay-area-locale-day.webp',
+    heightFile: 'sf-bay-area-locale-height.png',
+    normalFile: 'sf-bay-area-locale-normal.webp',
+    geojsonFile: 'sf-bay-area-locale.geojson',
+    geoids: BAY_COUNTY_GEOIDS,
+    limit: BAY_OUTLINE_LIMIT,
+    missingLabel: 'bay counties',
+  },
+  {
+    id: 'los-angeles-basin',
+    label: 'Los Angeles Basin',
+    dayFile: 'los-angeles-basin-day.webp',
+    heightFile: 'los-angeles-basin-height.png',
+    normalFile: 'los-angeles-basin-normal.webp',
+    geojsonFile: 'los-angeles-basin.geojson',
+    geoids: LA_COUNTY_GEOIDS,
+    limit: { west: -119.5, south: 33, east: -117, north: 35 },
+    missingLabel: 'los angeles basin counties',
+  },
+  {
+    id: 'new-york-city',
+    label: 'New York City',
+    dayFile: 'new-york-city-day.webp',
+    heightFile: 'new-york-city-height.png',
+    normalFile: 'new-york-city-normal.webp',
+    geojsonFile: 'new-york-city.geojson',
+    geoids: NYC_BOROUGH_GEOIDS,
+    limit: { west: -74.3, south: 40.4, east: -73.6, north: 41 },
+    missingLabel: 'new york city boroughs',
+  },
+]
+
+async function loadCounties(): Promise<CountyTable> {
   const archive = unzip(
     await readFile(await download(CENSUS_COUNTY_URL, { requireImage: false })),
   )
@@ -981,28 +1092,43 @@ async function makeBayOutline(bounds: Bounds): Promise<void> {
       `census county table has ${String(geoids.length)} rows and ${String(polygons.length)} shapes`,
     )
   }
+  return { geoids, polygons }
+}
+
+function countyRings(
+  table: CountyTable,
+  wanted: ReadonlySet<string>,
+  missingLabel: string,
+): LngLat[][] {
   const rings: LngLat[][] = []
   const found = new Set<string>()
-  for (const [index, geoid] of geoids.entries()) {
-    if (!BAY_COUNTY_GEOIDS.has(geoid)) {
+  for (const [index, geoid] of table.geoids.entries()) {
+    if (!wanted.has(geoid)) {
       continue
     }
     found.add(geoid)
-    rings.push(...(polygons[index] ?? []))
+    rings.push(...(table.polygons[index] ?? []))
   }
-  if (found.size !== BAY_COUNTY_GEOIDS.size) {
+  if (found.size !== wanted.size) {
     throw new Error(
-      `census boundary file is missing bay counties: ${[...BAY_COUNTY_GEOIDS].filter((geoid) => !found.has(geoid)).join(', ')}`,
+      `census boundary file is missing ${missingLabel}: ${[...wanted].filter((geoid) => !found.has(geoid)).join(', ')}`,
     )
   }
-  const merged = mergeOutlines(rings).map((ring) =>
+  return rings
+}
+
+function simplifiedOutlines(rings: readonly (readonly LngLat[])[]): LngLat[][] {
+  return mergeOutlines(rings).map((ring) =>
     simplifyRing(ring, OUTLINE_TOLERANCE_DEGREES),
   )
+}
+
+function outlineExtent(rings: readonly (readonly LngLat[])[]): Bounds {
   let west = 180
   let south = 90
   let east = -180
   let north = -90
-  for (const ring of merged) {
+  for (const ring of rings) {
     for (const point of ring) {
       west = Math.min(west, point.lng)
       east = Math.max(east, point.lng)
@@ -1010,21 +1136,75 @@ async function makeBayOutline(bounds: Bounds): Promise<void> {
       north = Math.max(north, point.lat)
     }
   }
+  return { west, south, east, north }
+}
+
+function assertOutlineInside(
+  rings: readonly (readonly LngLat[])[],
+  limit: Bounds,
+  label: string,
+): Bounds {
+  const extent = outlineExtent(rings)
   if (
-    merged.length === 0 ||
-    south < 36 ||
-    north > 40 ||
-    west < -125 ||
-    east > -120
+    rings.length === 0 ||
+    extent.south < limit.south ||
+    extent.north > limit.north ||
+    extent.west < limit.west ||
+    extent.east > limit.east
   ) {
     throw new Error(
-      `merged bay outline is empty or out of range (${String(west)},${String(south)})-(${String(east)},${String(north)})`,
+      `merged ${label} outline is empty or out of range (${String(extent.west)},${String(extent.south)})-(${String(extent.east)},${String(extent.north)})`,
     )
   }
+  return extent
+}
+
+function ringInside(ring: readonly LngLat[], limit: Bounds): boolean {
+  return ring.every(
+    (point) =>
+      point.lat >= limit.south &&
+      point.lat <= limit.north &&
+      point.lng >= limit.west &&
+      point.lng <= limit.east,
+  )
+}
+
+function localeTextureBounds(outline: Bounds): Bounds {
+  const lngSpan = outline.east - outline.west
+  const latSpan = outline.north - outline.south
+  let padLng = Math.max(LOCALE_PAD_DEGREES, lngSpan * LOCALE_PAD_FRACTION)
+  let padLat = Math.max(LOCALE_PAD_DEGREES, latSpan * LOCALE_PAD_FRACTION)
+  const shrink = (span: number, pad: number): number => {
+    if (span + 2 * pad <= LOCALE_MAX_SPAN_DEGREES) {
+      return pad
+    }
+    return Math.max(0, (LOCALE_MAX_SPAN_DEGREES - span) / 2)
+  }
+  if (lngSpan + 2 * padLng >= latSpan + 2 * padLat) {
+    padLng = shrink(lngSpan, padLng)
+    padLat = shrink(latSpan, padLat)
+  } else {
+    padLat = shrink(latSpan, padLat)
+    padLng = shrink(lngSpan, padLng)
+  }
+  return {
+    west: snapDown(outline.west - padLng),
+    south: snapDown(outline.south - padLat),
+    east: snapUp(outline.east + padLng),
+    north: snapUp(outline.north + padLat),
+  }
+}
+
+async function writeOutlineFile(
+  fileName: string,
+  id: string,
+  bounds: Bounds,
+  rings: readonly (readonly LngLat[])[],
+): Promise<void> {
   const feature = {
     type: 'Feature',
     properties: {
-      id: 'sf-bay-area',
+      id,
       west: bounds.west,
       south: bounds.south,
       east: bounds.east,
@@ -1032,7 +1212,7 @@ async function makeBayOutline(bounds: Bounds): Promise<void> {
     },
     geometry: {
       type: 'MultiLineString',
-      coordinates: merged.map((ring) =>
+      coordinates: rings.map((ring) =>
         ring.map((point) => [
           Number(point.lng.toFixed(5)),
           Number(point.lat.toFixed(5)),
@@ -1042,16 +1222,24 @@ async function makeBayOutline(bounds: Bounds): Promise<void> {
   }
   const data = Buffer.from(`${JSON.stringify(feature)}\n`)
   await mkdir(REGION_DIR, { recursive: true })
-  const path = join(REGION_DIR, 'sf-bay-area.geojson')
+  const path = join(REGION_DIR, fileName)
   const unchanged = await hasContents(path, data)
   if (!unchanged) {
-    const temporaryPath = join(cacheDir, 'sf-bay-area.geojson.tmp')
+    const temporaryPath = join(cacheDir, `${fileName}.tmp`)
     await writeFile(temporaryPath, data)
     await rename(temporaryPath, path)
   }
   console.log(
-    `sf-bay-area.geojson: ${String(merged.length)} lines, ${String(data.length)} bytes, ${unchanged ? 'unchanged' : 'written'}`,
+    `${fileName}: ${String(rings.length)} lines, ${String(data.length)} bytes, ${unchanged ? 'unchanged' : 'written'}`,
   )
+}
+
+async function makeBayOutline(bounds: Bounds): Promise<void> {
+  const rings = simplifiedOutlines(
+    countyRings(await loadCounties(), BAY_COUNTY_GEOIDS, 'bay counties'),
+  )
+  assertOutlineInside(rings, BAY_OUTLINE_LIMIT, 'bay')
+  await writeOutlineFile('sf-bay-area.geojson', 'sf-bay-area', bounds, rings)
 }
 
 async function makeSfBayPack(heightsM: Grid): Promise<void> {
@@ -1059,17 +1247,80 @@ async function makeSfBayPack(heightsM: Grid): Promise<void> {
   console.log(
     `sf-bay-area pack bounds ${bounds.west.toFixed(4)},${bounds.south.toFixed(4)} ${bounds.east.toFixed(4)},${bounds.north.toFixed(4)}`,
   )
-  await makeRegionDay(bounds)
-  await makeRegionRelief(heightsM, bounds)
+  await makeRegionDay(bounds, WIDE_BAY_FILES)
+  await makeRegionRelief(heightsM, bounds, WIDE_BAY_FILES)
   await makeBayOutline(bounds)
 }
 
-console.log('npm run textures')
+function assertLocaleOutput(fileName: string): void {
+  if (WIDE_BAY_OUTPUTS.has(fileName)) {
+    throw new Error(`${fileName} is a wide Bay file`)
+  }
+}
+
+interface LocalePlan {
+  spec: LocaleSpec
+  rings: LngLat[][]
+  extent: Bounds
+  texture: Bounds
+}
+
+function planLocale(table: CountyTable, spec: LocaleSpec): LocalePlan {
+  const raw = countyRings(table, spec.geoids, spec.missingLabel)
+  // San Clemente Island is in Los Angeles County and sits south of the basin box.
+  const rings = simplifiedOutlines(
+    raw.filter((ring) => ringInside(ring, spec.limit)),
+  )
+  const extent = assertOutlineInside(rings, spec.limit, spec.id)
+  return { spec, rings, extent, texture: localeTextureBounds(extent) }
+}
+
+async function makeLocalePacks(): Promise<void> {
+  const table = await loadCounties()
+  const plans = LOCALE_SPECS.map((spec) => planLocale(table, spec))
+  for (const plan of plans) {
+    assertLocaleOutput(plan.spec.geojsonFile)
+    assertLocaleOutput(plan.spec.dayFile)
+    assertLocaleOutput(plan.spec.heightFile)
+    assertLocaleOutput(plan.spec.normalFile)
+    console.log(
+      `${plan.spec.id} outline bbox ${plan.extent.west.toFixed(6)},${plan.extent.south.toFixed(6)} ${plan.extent.east.toFixed(6)},${plan.extent.north.toFixed(6)}`,
+    )
+    console.log(
+      `${plan.spec.id} texture bounds ${plan.texture.west.toFixed(4)},${plan.texture.south.toFixed(4)} ${plan.texture.east.toFixed(4)},${plan.texture.north.toFixed(4)}`,
+    )
+    await writeOutlineFile(
+      plan.spec.geojsonFile,
+      plan.spec.id,
+      plan.texture,
+      plan.rings,
+    )
+  }
+  const heightsM = await readHeightsM()
+  for (const plan of plans) {
+    const files: RegionFiles = {
+      label: plan.spec.label,
+      dayFile: plan.spec.dayFile,
+      maxDayEdge: LOCALE_DAY_EDGE,
+      heightFile: plan.spec.heightFile,
+      normalFile: plan.spec.normalFile,
+    }
+    await makeRegionDay(plan.texture, files)
+    await makeRegionRelief(heightsM, plan.texture, files)
+  }
+}
+
 await mkdir(cacheDir, { recursive: true })
 await mkdir(outputDir, { recursive: true })
-await makeDayTextures()
-const heightsM = await readHeightsM()
-await makeHeightTexture(heightsM)
-await makeNormalTexture(heightsM)
-await makeCloudsTexture()
-await makeSfBayPack(heightsM)
+if (process.argv.includes('--locales')) {
+  console.log('node scripts/make-textures.ts --locales')
+  await makeLocalePacks()
+} else {
+  console.log('npm run textures')
+  await makeDayTextures()
+  const heightsM = await readHeightsM()
+  await makeHeightTexture(heightsM)
+  await makeNormalTexture(heightsM)
+  await makeCloudsTexture()
+  await makeSfBayPack(heightsM)
+}
