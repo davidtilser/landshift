@@ -1,5 +1,7 @@
 # Landshift
 
+<img src="design/landshift-wordmark.svg" alt="Landshift logo" width="300" />
+
 A hackathon project helping young people explore how land-use choices shape their communities and environment.
 
 Built for the **Engaging Youth in Sustainable Land-Use Decisions** track, based on the supplied UNCCD challenge brief.
