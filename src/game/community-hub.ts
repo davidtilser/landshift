@@ -1,5 +1,5 @@
 import './community-hub.css'
-import { pagedUiText } from './ui-text.ts'
+import { messageUiText } from './ui-text.ts'
 import { CharacterChat, setCommunityAvatar } from './character-chat.ts'
 import { CommunityClient } from './community-client.ts'
 import { CommunityAutoplay } from './community-autoplay.ts'
@@ -74,7 +74,6 @@ export class CommunityHub {
   private planKey = ''
   private error = ''
   private destroyed = false
-  private readonly textPages = new Map<string, number>()
 
   constructor(options: HubOptions) {
     this.options = options
@@ -266,24 +265,12 @@ export class CommunityHub {
         bar.append(segment)
         values.append(badge)
       }
-      const reason = this.pagedText(
-        mood.reason,
-        'community-mood-reason',
-        'mood:' + mood.reason,
-      )
-      reason.title =
-        'Fictional crowd reaction, not a real poll or approval rating.'
-      this.moodList.append(
-        heading,
-        bar,
-        values,
-        node(
-          'p',
-          'community-mood-note',
-          'Emotion mix, separate from Support /100.',
-        ),
-        reason,
-      )
+      const description =
+        mood.reason +
+        ' Fictional crowd reaction, not a real poll or approval rating. Emotion mix is separate from Support /100.'
+      this.moodList.title = description
+      this.moodList.setAttribute('aria-description', description)
+      this.moodList.append(heading, bar, values)
     }
   }
   private updateStatus(): void {
@@ -297,7 +284,7 @@ export class CommunityHub {
           : this.autoplay.active
             ? 'The conversation continues…'
             : 'The community is listening. Add your voice.')
-    this.status.replaceChildren(this.pagedText(text, '', 'status:' + text))
+    this.status.replaceChildren(messageUiText(text))
   }
   private restartDiscussion(immediate: boolean): void {
     if (this.destroyed || this.root.hidden) return
@@ -322,7 +309,7 @@ export class CommunityHub {
         update.tabIndex = -1
         update.append(
           node('span', '', '↻ Plan update'),
-          this.pagedText(line.text, '', String(line.id)),
+          messageUiText(line.text),
         )
         this.timeline.append(update)
         continue
@@ -388,9 +375,7 @@ export class CommunityHub {
         if (parent) quote.title = 'View original post'
         body.append(quote)
       }
-      body.append(
-        this.pagedText(line.text, 'community-post-text', String(line.id)),
-      )
+      body.append(messageUiText(line.text, 'community-post-text'))
       const actions = node('div', 'community-post-actions')
       const reply = action('↩ Reply', 'reply', String(line.id))
       reply.setAttribute('aria-label', 'Reply to ' + this.label(line))
@@ -408,17 +393,6 @@ export class CommunityHub {
         this.timeline.scrollTop = scrollToEnd
           ? this.timeline.scrollHeight
           : scroll
-    })
-  }
-  private pagedText(text: string, className: string, key: string): HTMLElement {
-    return pagedUiText(text, className, {
-      page: this.textPages.get(key) ?? 0,
-      onPageChange: (page) => {
-        this.textPages.set(key, page)
-        this.autoplay.stop()
-        if (this.pending?.message === '') this.cancel()
-        if (!key.startsWith('status:')) this.updateStatus()
-      },
     })
   }
   private renderComposer(): void {
@@ -633,7 +607,6 @@ export class CommunityHub {
     this.cancel()
     this.privateChat.reset()
     this.session.reset()
-    this.textPages.clear()
     this.planKey = ''
     this.selectedReply = undefined
     this.error = ''

@@ -1,6 +1,6 @@
 import './character-chat.css'
 import { authoredPrivateCommunityReply } from './community-replies.ts'
-import { pagedUiText } from './ui-text.ts'
+import { messageUiText } from './ui-text.ts'
 import { dialogueChoices } from './dialogue-choices.ts'
 import type { DialogueChoice, DialogueTarget } from './dialogue-choices.ts'
 import type { DiscussionContext, DiscussionTopic } from './discussion.ts'
@@ -74,7 +74,6 @@ export class CharacterChat {
   private pending: Pending | undefined
   private error = ''
   private destroyed = false
-  private readonly textPages = new Map<number, number>()
   private renderedProfile: CommunityId | undefined
   private readonly renderedLines = new Map<
     number,
@@ -294,13 +293,7 @@ export class CharacterChat {
           : role === 'user'
             ? 'You'
             : profile.name
-      const element = pagedUiText(line.text, 'chat-message ' + role, {
-        page: this.textPages.get(line.id) ?? 0,
-        label: speaker + ' message pages',
-        onPageChange: (page) => {
-          this.textPages.set(line.id, page)
-        },
-      })
+      const element = messageUiText(line.text, 'chat-message ' + role)
       element.setAttribute('aria-label', speaker)
       cached?.element.replaceWith(element)
       if (element.parentElement !== this.list) this.list.append(element)
@@ -341,7 +334,7 @@ export class CharacterChat {
       this.promptList.append(button)
     })
     this.status.replaceChildren(
-      pagedUiText(
+      messageUiText(
         this.error || (this.pending ? profile.name + ' is replying…' : ''),
       ),
     )
@@ -468,7 +461,6 @@ export class CharacterChat {
   reset(): void {
     this.close()
     this.profile = undefined
-    this.textPages.clear()
     this.renderedLines.clear()
     this.renderedProfile = undefined
     this.followBottom = true
