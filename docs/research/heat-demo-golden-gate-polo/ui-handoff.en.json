@@ -1,0 +1,64 @@
+{
+  "scenario_id": "sf-polo-two-building-heat-v1",
+  "readiness": "calculated_teaching_data_ui_not_implemented",
+  "evidence_label": "Calculated teaching scenario \u00b7 assumed demand and connections",
+  "reference_period": "2026 model year; occupied-weekday space heating only",
+  "primary_metrics": [
+    {
+      "label": "Useful heat delivered",
+      "value": 51.46840714083919,
+      "unit": "MWh thermal/year",
+      "decimals": 1
+    },
+    {
+      "label": "Combined modelled heat demand covered",
+      "value": 77.98243506187757,
+      "unit": "%",
+      "decimals": 1
+    },
+    {
+      "label": "Additional recovery electricity",
+      "value": 15.920776470588233,
+      "unit": "MWh electric/year",
+      "decimals": 1
+    }
+  ],
+  "original": {
+    "heat_exported_mwh_th": 0,
+    "coverage_percent": 0,
+    "recovery_electricity_mwh_el": 0,
+    "recipient_backup_heat_mwh_th": 66
+  },
+  "recipients": [
+    {
+      "demand_mwh_th": 12.0,
+      "hot_input_mwh_th": 10.648142816783931,
+      "delivered_mwh_th": 9.583328535105537,
+      "loss_mwh_th": 1.0648142816783923,
+      "backup_heat_mwh_th": 2.4166714648944616,
+      "id": "anglers_lodge",
+      "name": "Anglers Lodge",
+      "coverage_percent": 79.86107112587946
+    },
+    {
+      "demand_mwh_th": 54.0,
+      "hot_input_mwh_th": 49.27656306556901,
+      "delivered_mwh_th": 41.88507860573365,
+      "loss_mwh_th": 7.39148445983535,
+      "backup_heat_mwh_th": 12.114921394266343,
+      "id": "senior_center",
+      "name": "Golden Gate Park Senior Center",
+      "coverage_percent": 77.56496038098824
+    }
+  ],
+  "replay": {
+    "control": "Buildings need heat / Buildings need no heat",
+    "annual_card": "Fixed reference-year result; this explanatory toggle does not recompute the year.",
+    "off": "Delivery stops to both buildings; IT and original cooling continue. No exported-heat counter accumulates."
+  },
+  "visibility": {
+    "heat": "Recommend these three figures only after a separate UI integration.",
+    "recycled_water_and_green_roof": "Hide all numerical overlays; concepts have no calculated results."
+  },
+  "limits": "No net electricity, cooling-water, cost or carbon saving is calculated. Annual heating demand, COP, temperatures and connections are assumptions."
+}

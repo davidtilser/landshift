@@ -36,3 +36,9 @@ docs/research/change-catalog-golden-gate-polo/handoff.en.json
 
 # Land/space handoff generated from the canonical SF water surfaces.
 docs/research/land-space-demo-golden-gate-polo/milestones.en.json
+
+# Heat-case frozen baseline and deterministic calculation outputs.
+docs/research/heat-demo-golden-gate-polo/raw/
+docs/research/heat-demo-golden-gate-polo/results.json
+docs/research/heat-demo-golden-gate-polo/results.md
+docs/research/heat-demo-golden-gate-polo/ui-handoff.en.json

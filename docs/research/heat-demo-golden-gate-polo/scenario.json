@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "scenario_id": "sf-polo-two-building-heat-v1",
+  "as_of": "2026-10-24",
+  "status": "closed_authored_educational_case_not_engineering_prediction",
+  "reference_year": 2026,
+  "baseline": {
+    "snapshot": "raw/baseline-energy-results.json",
+    "sha256": "0a53916bdca0fb32930b16ab4421058ad7c4ffc5168ac7e97a04b9775a177f15"
+  },
+  "evidence": {
+    "inherited": "10 MW average IT and 8760-hour reference year from the frozen teaching baseline.",
+    "observed": "Building identities and indicative map locations only; no measured heating demand or surveyed connection.",
+    "authored": "All demand, schedule, temperature, recovery capacity, COP, equipment, route length and efficiency values below are selected teaching assumptions.",
+    "unknown": "Actual heating systems, plant rooms, useful demand, routes, permissions, cooling credits, costs and net electricity/carbon effects remain unassessed."
+  },
+  "units": {
+    "heat": "MWh thermal",
+    "electricity": "MWh electric",
+    "capacity": "kW",
+    "temperature": "degrees C",
+    "route": "m of assumed one-way route; supply and return required"
+  },
+  "model": {
+    "weekday_heating_hours": 8,
+    "monthly_demand_percent": [16, 14, 12, 9, 6, 3, 2, 2, 4, 7, 11, 14],
+    "source_available_kw": 30,
+    "it_electricity_to_heat_fraction": 1,
+    "heat_pump_hot_capacity_kw": 40,
+    "heating_cop": 4,
+    "source_return_c": 32,
+    "source_after_recovery_c": 27,
+    "heat_pump_source_in_c": 30,
+    "heat_pump_source_out_c": 25,
+    "delivery_supply_c": 55,
+    "delivery_return_c": 45,
+    "building_supply_c": 45,
+    "building_return_c": 35,
+    "minimum_exchanger_approach_k": 2,
+    "common_pump_kw": 0.15,
+    "controls_kw": 0.05,
+    "source_heat_capacity_kj_kg_k": 4.186,
+    "scope": "Occupied-weekday space heating only; no domestic hot water, storage, overnight/weekend demand or demand shifting. Both buildings use the same authored window; actual schedules are not inferred.",
+    "loss_method": "Fixed end-to-end heat-delivery efficiencies per branch. They are explicit loss allowances, not a pipe-design calculation from the assumed lengths.",
+    "capacity_allocation": "Cap each branch request by its hot-side capacity, then allocate the common hot-side budget proportionally to remaining requests. No priority optimisation."
+  },
+  "recipients": [
+    {
+      "id": "anglers_lodge",
+      "name": "Anglers Lodge",
+      "coordinates": [-122.49658226966858, 37.768005072124865],
+      "annual_useful_heat_demand_mwh": 12,
+      "delivery_efficiency": 0.9,
+      "assumed_route_length_m": 400,
+      "branch_hot_capacity_kw": 15,
+      "branch_pump_kw": 0.1
+    },
+    {
+      "id": "senior_center",
+      "name": "Golden Gate Park Senior Center",
+      "coordinates": [-122.49701142311096, 37.77151192972981],
+      "annual_useful_heat_demand_mwh": 54,
+      "delivery_efficiency": 0.85,
+      "assumed_route_length_m": 650,
+      "branch_hot_capacity_kw": 50,
+      "branch_pump_kw": 0.15
+    }
+  ]
+}

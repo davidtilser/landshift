@@ -1,5 +1,7 @@
 # Transition and land demo verification
 
+**Historical review with a later data-only update:** the sections below record the original transition/land audit when heat was pending. The [heat-data verification](../heat-demo-golden-gate-polo/review.md) now records a completed two-building educational calculation and three recommended data references. UI integration and engine verification remain Not run; the older audit is not evidence of that later work.
+
 ## Scope
 
 This review covers the SF cross-topic transition specification, the new land/space packet and their documentation links. It checks consistency of the visual story and handoff with existing water/energy budgets, not a running game-engine implementation or real development design. No new external-site measurement or heat calculation is claimed.
