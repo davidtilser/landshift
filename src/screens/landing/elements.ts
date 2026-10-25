@@ -57,7 +57,7 @@ export interface Option {
   button: HTMLButtonElement
 }
 
-/** A list option that stays focusable when disabled, so it can still announce "Coming soon". */
+/** A list option that stays focusable when disabled, so it can still announce that it is not unlocked. */
 export function createOption(spec: OptionSpec): Option {
   const label = createSpan(
     spec.label,
@@ -73,7 +73,7 @@ export function createOption(spec: OptionSpec): Option {
   const describedBy: string[] = []
   if (!spec.enabled) {
     const badge = createSpan(
-      'Coming soon',
+      'Not unlocked',
       'landing-badge',
       `${spec.idBase}-status`,
     )
