@@ -51,7 +51,7 @@ import { createLocalTerrain, sampleElevation } from '../terrain.ts'
 import type { ElevationGrid } from '../terrain.ts'
 import { INITIAL_POLO_STATE, POLO_CENTER } from './model.ts'
 import type { PoloSceneState } from './model.ts'
-import { poloPlacementValid, POLO_FIELD_ENVELOPE } from './placement.ts'
+import { poloPlacementValid } from './placement.ts'
 import {
   activePoloProposal,
   pointOnPath,
@@ -670,17 +670,6 @@ export class PoloScene {
         true,
       )
   }
-  private fieldGuide(): void {
-    const oval = Array.from({ length: 65 }, (_, index): LocalPoint => {
-      const angle = (index * Math.PI * 2) / 64
-      return [
-        Math.cos(angle) * POLO_FIELD_ENVELOPE.eastRadius,
-        Math.sin(angle) * POLO_FIELD_ENVELOPE.northRadius,
-        1.4,
-      ]
-    })
-    this.path(oval, '#d5eab1', 3, true, true)
-  }
   private placementScene(): void {
     this.box(
       0,
@@ -1287,7 +1276,6 @@ export class PoloScene {
     this.draggableEntities.clear()
     this.localAnchors.clear()
     this.placementHandle.hidden = false
-    this.fieldGuide()
     if (!this.state.confirmed) {
       this.placementScene()
       this.fieldActivity()
@@ -1316,18 +1304,6 @@ export class PoloScene {
         0.15,
         phase === 'M2' ? PALETTE.soil : PALETTE.compacted,
       )
-    this.path(
-      [
-        [-160, -62.5, 1],
-        [160, -62.5, 1],
-        [160, 62.5, 1],
-        [-160, 62.5, 1],
-        [-160, -62.5, 1],
-      ],
-      '#f3efcf',
-      2,
-      true,
-    )
     if (phase === 'M0') {
       this.path(
         [

@@ -2,12 +2,6 @@ import type { LngLat } from '../geometry.ts'
 import { INITIAL_POLO_STATE, POLO_CENTER } from './model.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
 
-// Visual field guide only: the player may move freely and chooses the field for the demo.
-export const POLO_FIELD_ENVELOPE = {
-  eastRadius: 260,
-  northRadius: 105,
-} as const
-
 export function poloPlacementValid(center: LngLat): boolean {
   return (
     center.every(Number.isFinite) &&
