@@ -48,9 +48,13 @@ export function setupPoloEducation(
   sourceDialog.setAttribute('aria-label', 'Chapter sources and assumptions')
   const sourceClose = document.createElement('button')
   sourceClose.type = 'button'
-  sourceClose.textContent = 'Close sources ×'
+  sourceClose.textContent = '×'
+  sourceClose.setAttribute('aria-label', 'Close sources')
   sourceClose.addEventListener('click', () => {
     sourceDialog.close()
+  })
+  sourceDialog.addEventListener('click', (event) => {
+    if (event.target === sourceDialog) sourceDialog.close()
   })
   const sourceHeading = document.createElement('h2')
   sourceHeading.textContent = 'Sources and assumptions'

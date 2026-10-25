@@ -8,28 +8,34 @@
   padding: 0;
   border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 14px;
-  background: var(--ls-role-surface);
-  box-shadow: 0 6px 24px #34146418;
-  backdrop-filter: blur(12px);
+  background: var(--ls-role-panel);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.28);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
 }
 .polo-studio > .polo-motion .polo-motion-heading {
   gap: 0;
 }
-.polo-studio > .polo-motion button {
+html.ls-system-dark .polo-studio > .polo-motion button {
   min-height: 44px;
   padding: 10px 15px;
   border-radius: 13px;
+  background: transparent;
   color: var(--ls-role-ink);
+  border-color: transparent;
   font-size: 15px;
   font-weight: 650;
   cursor: pointer;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
-.polo-studio > .polo-motion button:hover {
-  background: color-mix(
-    in srgb,
-    var(--ls-role-ink) 12%,
-    var(--ls-role-surface)
-  );
+html.ls-system-dark .polo-studio > .polo-motion button:hover {
+  background: color-mix(in srgb, var(--ls-role-ink) 12%, transparent);
+  color: var(--ls-role-ink);
+}
+html.ls-system-dark .polo-studio > .polo-motion button:active {
+  background: color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
+  color: var(--ls-role-ink);
 }
 .polo-studio > .polo-motion button:focus-visible {
   outline: 3px solid var(--ls-role-focus);
