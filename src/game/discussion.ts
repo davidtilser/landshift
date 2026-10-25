@@ -86,7 +86,7 @@ const perspectives: Record<VoiceId, string> = {
   student: 'I want young people to have a way to benefit too.',
 }
 
-/** Authored demo responses. No inference, network requests, or plan mutations. */
+/** Prepared responses. No inference, network requests, or plan mutations. */
 export function scriptedDiscussion(
   request: DiscussionRequest,
 ): DiscussionReply {
@@ -152,15 +152,15 @@ export function scriptedDiscussion(
         site.heritage || site.parks
           ? 'Training could share skills, but it would not restore a memorial or replace public park space. Job opportunities and protecting a place are different questions.'
           : choices.training
-            ? 'Your training card offers 12 fictional places per year. It is not a forecast of real jobs. Who should get to apply?'
-            : 'Paid training could share new skills: 12 fictional places a year for 12 game credits. That is not a forecast of real jobs.'
+            ? 'Your training plan sets aside 12 places per year. These are planned places, not guaranteed jobs. Who should get to apply?'
+            : 'Paid training could share new skills: 12 planned places a year for 12 upgrade credits. These are not guaranteed jobs.'
       break
     case 'access':
       text = site.parks
         ? 'People already share this park. A new path does not make up for taking existing space away. How could we protect access first?'
         : choices.access
           ? 'Your green path shares space beyond the gates. It still needs suitable land and real access permission. Who would use it?'
-          : 'A green path costs 10 game credits and offers space to walk. Real access still needs permission. Would you choose space or skills?'
+          : 'A green path uses 10 upgrade credits and offers space to walk. Public access still needs permission. Would you choose space or skills?'
       break
     case 'benefit':
       text = site.parks
@@ -174,8 +174,8 @@ export function scriptedDiscussion(
     case 'budget':
       text =
         result.remaining < 0
-          ? `We are ${String(-result.remaining)} game credits over. Something has to give—cooling, planting, or shared benefits. These are fictional credits, not real costs.`
-          : `${String(result.remaining)} game credits left. What would you fund first? Game credits are not real construction costs.`
+          ? `We are ${String(-result.remaining)} upgrade credits over. Something has to give—cooling, planting, or shared benefits. This allowance does not represent construction costs.`
+          : `${String(result.remaining)} upgrade credits left. What would you fund first? This allowance does not represent construction costs.`
       break
     case 'site': {
       const conflicts = [
@@ -211,7 +211,7 @@ export function scriptedDiscussion(
       break
     case 'other':
       text =
-        'In this demo, pick water, power, nature, flood maps, benefits or budget. Which trade-off shall we explore?'
+        'We can discuss water, power, nature, flood exposure, benefits or budget. Which trade-off shall we explore?'
       break
   }
   if (topic !== 'next' && topic !== 'hello' && topic !== 'other') {

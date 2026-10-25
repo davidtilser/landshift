@@ -616,7 +616,7 @@
       "id": "M4",
       "title": "Structure",
       "kicker": "3 / 5 · Raise the frame and fit the roofs",
-      "summary": "Steel rises from the completed foundations, then roof panels follow. The open structure remains visible before the walls and services are fitted in Ready.",
+      "summary": "Steel rises from the completed foundations, then roof panels follow. The open structure remains visible before the walls and services are fitted in Commissioning.",
       "tradeoff": "Water used on site and water mixed into concrete elsewhere are separate. These are selected allowances, not a complete construction footprint.",
       "metrics": [
         {
@@ -636,7 +636,7 @@
         }
       ],
       "details": [
-        "The foundations remain in place throughout. Frame and roof grow in sequence; walls, hardstanding and planting follow in Ready.",
+        "The foundations remain in place throughout. Frame and roof grow in sequence; walls, hardstanding and planting follow in Commissioning.",
         "160 selected workdays. 2 ha remains bare and 0.8 ha remains original turf at this stage.",
         "Selected water supplied on site: 1,988 m³ for this whole step.",
         "Selected offsite concrete-mixing water: 1,080 m³, kept separate from site supply.",
@@ -669,7 +669,7 @@
     },
     {
       "id": "M5",
-      "title": "Ready",
+      "title": "Commissioning",
       "kicker": "4 / 5 · Finish and test",
       "summary": "Close the walls, fit equipment, finish the grounds and test the systems. The roof tank is available, but computing and everyday cooling have not started.",
       "tradeoff": "Storage helps with one rainfall event. It does not create an annual water supply or prove the utilities have spare capacity.",

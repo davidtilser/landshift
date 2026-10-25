@@ -1,6 +1,6 @@
 import './character-chat.css'
 import { authoredPrivateCommunityReply } from './community-replies.ts'
-import { pagedUiText } from './ui-text.ts'
+import { messageUiText } from './ui-text.ts'
 import { dialogueChoices } from './dialogue-choices.ts'
 import type { DialogueChoice, DialogueTarget } from './dialogue-choices.ts'
 import type { DiscussionContext, DiscussionTopic } from './discussion.ts'
@@ -74,7 +74,6 @@ export class CharacterChat {
   private pending: Pending | undefined
   private error = ''
   private destroyed = false
-  private readonly textPages = new Map<number, number>()
   private renderedProfile: CommunityId | undefined
   private readonly renderedLines = new Map<
     number,
@@ -86,7 +85,7 @@ export class CharacterChat {
     this.dialog.className = 'character-chat is-conversation'
     this.dialog.setAttribute('aria-labelledby', 'chat-person-name')
     this.dialog.innerHTML =
-      '<header class="chat-header"><span class="chat-avatar" aria-hidden="true"></span><div><span class="chat-label">MEET YOUR NEIGHBORS</span><h2 id="chat-person-name"></h2><p class="chat-subtitle"></p></div><button type="button" class="chat-close" aria-label="Close private conversation">×</button></header><div class="chat-messages" role="log" aria-label="Private dialogue" aria-live="polite" aria-relevant="additions text"></div><p class="dialogue-prompt">KEEP TALKING <span>Choose a follow-up · 1 / 2 / 3</span></p><div class="chat-prompts" role="group" aria-label="Choose your dialogue"></div><div class="chat-status" role="status"></div><details class="chat-custom" open><summary>Write your own reply</summary><form class="chat-composer"><label for="chat-question" class="sr-only">Your private message</label><input id="chat-question" maxlength="600" autocomplete="off" placeholder="What would you like to ask?"><button type="submit" aria-label="Send private message">↑</button></form></details><footer class="chat-footer"><span>Fictional character · not shared to Community</span><button type="button" class="chat-back">Back to map ↗</button></footer>'
+      '<header class="chat-header"><span class="chat-avatar" aria-hidden="true"></span><div><span class="chat-label">MEET YOUR NEIGHBORS</span><h2 id="chat-person-name"></h2><p class="chat-subtitle"></p></div><button type="button" class="chat-close" aria-label="Close private conversation">×</button></header><div class="chat-messages" role="log" aria-label="Private dialogue" aria-live="polite" aria-relevant="additions text"></div><p class="dialogue-prompt">KEEP TALKING <span>Choose a follow-up · 1 / 2 / 3</span></p><div class="chat-prompts" role="group" aria-label="Choose your dialogue"></div><div class="chat-status" role="status"></div><details class="chat-custom" open><summary>Write your own reply</summary><form class="chat-composer"><label for="chat-question" class="sr-only">Your private message</label><input id="chat-question" maxlength="600" autocomplete="off" placeholder="What would you like to ask?"><button type="submit" aria-label="Send private message">↑</button></form></details><footer class="chat-footer"><span>Private conversation · not shared to Community</span><button type="button" class="chat-back">Back to map ↗</button></footer>'
     const get = <T extends HTMLElement>(
       selector: string,
       type: { new (): T },
@@ -294,28 +293,16 @@ export class CharacterChat {
           : role === 'user'
             ? 'You'
             : profile.name
-      const element = pagedUiText(line.text, 'chat-message ' + role, {
-        page: this.textPages.get(line.id) ?? 0,
-        label: speaker + ' message pages',
-        onPageChange: (page) => {
-          this.textPages.set(line.id, page)
-        },
-      })
+      const element = messageUiText(line.text, 'chat-message ' + role)
       element.setAttribute('aria-label', speaker)
       cached?.element.replaceWith(element)
       if (element.parentElement !== this.list) this.list.append(element)
       this.renderedLines.set(line.id, { text: line.text, element })
     }
     const source = current.lines[latestAssistant]?.source
-    this.subtitle.textContent =
-      'Private chat · ' +
-      (source === 'live'
-        ? 'Gemini live'
-        : source === 'demo'
-          ? this.options.getContext().polo
-            ? 'Authored scenario'
-            : 'Demo reply'
-          : 'Scenario greeting')
+    this.subtitle.textContent = 'Private conversation'
+    this.subtitle.title =
+      source === 'live' ? 'AI-assisted reply' : 'Prepared conversation'
     this.promptList.replaceChildren()
     choices.forEach((choice, index) => {
       const button = document.createElement('button')
@@ -341,7 +328,7 @@ export class CharacterChat {
       this.promptList.append(button)
     })
     this.status.replaceChildren(
-      pagedUiText(
+      messageUiText(
         this.error || (this.pending ? profile.name + ' is replying…' : ''),
       ),
     )
@@ -468,7 +455,6 @@ export class CharacterChat {
   reset(): void {
     this.close()
     this.profile = undefined
-    this.textPages.clear()
     this.renderedLines.clear()
     this.renderedProfile = undefined
     this.followBottom = true

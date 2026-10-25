@@ -3,6 +3,7 @@ import { ENVIRONMENTAL_LAYERS, poloImpact, poloSupport } from './impact.ts'
 import type { EnvironmentalLayer } from './impact.ts'
 import type { PoloSceneState } from './model.ts'
 import type { PoloScene } from './scene.ts'
+import { poloConstructionStarted } from './placement.ts'
 
 function node<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -21,6 +22,7 @@ export function setupPoloExperience(
   const studio = root.querySelector('.polo-studio') ?? root
   const panel = node('aside')
   panel.className = 'polo-impact-tools'
+  panel.hidden = true
   panel.setAttribute('aria-label', 'Environmental layers and impact')
   const status = node('p')
   status.className = 'polo-support'
@@ -29,7 +31,7 @@ export function setupPoloExperience(
   layerGroup.append(node('summary', 'Explore map layers'))
   const layerButtons = node('div')
   layerButtons.className = 'polo-layer-buttons'
-  const note = node('p', 'Schematic routes · no surveyed utility connections')
+  const note = node('p', 'Proposed routes · utility connections unconfirmed')
   note.className = 'polo-layer-note'
   let layer: EnvironmentalLayer | null = null
   for (const value of ['water', 'electricity', 'land', 'heat'] as const) {
@@ -38,6 +40,7 @@ export function setupPoloExperience(
     button.dataset['environmentLayer'] = value
     button.setAttribute('aria-pressed', 'false')
     button.addEventListener('click', () => {
+      if (!poloConstructionStarted(getState())) return
       layer = layer === value ? null : value
       getScene()?.setEnvironmentalLayer(layer)
       sync()
@@ -116,29 +119,25 @@ export function setupPoloExperience(
     }
   })
   results.addEventListener('click', () => {
+    if (!poloConstructionStarted(getState())) return
     page = 0
     renderResult()
     dialog.showModal()
   })
   studio.append(panel, dialog)
-  let previous = getState()
-  let visited = new Set<string>()
-  let pendingCompletion = false
-  const observer = new MutationObserver(() => {
-    if (pendingCompletion && root.dataset['poloAnimating'] !== 'true') sync()
-  })
-  observer.observe(root, {
-    attributes: true,
-    attributeFilter: ['data-polo-animating'],
-  })
   function sync(): void {
     const state = getState()
+    panel.hidden = !poloConstructionStarted(state)
     layer = getScene()?.getEnvironmentalLayer() ?? null
-    status.textContent = `Support ${String(poloSupport(state))}/100 · game index`
-    status.title = 'Authored scenario points. Not a poll or public consent.'
-    if (!state.confirmed) {
-      visited = new Set()
-      pendingCompletion = false
+    status.textContent = `Support ${String(poloSupport(state))}/100`
+    status.title =
+      'Response to the current plan. This indicator is not a poll or public consent.'
+    if (!poloConstructionStarted(state)) {
+      layerGroup.open = false
+      if (layer !== null) {
+        getScene()?.setEnvironmentalLayer(null)
+        layer = null
+      }
       if (dialog.open) dialog.close()
     }
     for (const button of layerButtons.querySelectorAll('button'))
@@ -147,34 +146,10 @@ export function setupPoloExperience(
         String(button.dataset['environmentLayer'] === layer),
       )
     if (dialog.open) renderResult()
-    const decision =
-      state.confirmed &&
-      state.phase === 'M6' &&
-      state.preview &&
-      state.proposal &&
-      (previous.proposal !== state.proposal ||
-        previous.phase !== state.phase ||
-        !previous.preview)
-    if (state.confirmed && state.phase === 'M6' && previous.phase !== 'M6')
-      pendingCompletion = true
-    if (state.phase !== 'M6') pendingCompletion = false
-    const completion =
-      pendingCompletion && root.dataset['poloAnimating'] !== 'true'
-    const key = decision ? state.proposal : completion ? 'operation' : null
-    const otherDialog = root.querySelector('dialog[open]')
-    if (key && !visited.has(key) && (!otherDialog || otherDialog === dialog)) {
-      visited.add(key)
-      pendingCompletion = false
-      page = 0
-      renderResult()
-      if (!dialog.open) dialog.showModal()
-    }
-    previous = { ...state, center: [...state.center] }
   }
   return {
     sync,
     destroy: () => {
-      observer.disconnect()
       dialog.close()
       dialog.remove()
       panel.remove()

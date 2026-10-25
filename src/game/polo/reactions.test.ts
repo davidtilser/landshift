@@ -37,38 +37,25 @@ describe('fictional Polo phase reactions', () => {
       }
     }
   })
-  it('grows the rally during each stage without adding duplicate people on replay', () => {
-    let previous = 8
-    for (const phase of POLO_PHASES.slice(1)) {
-      const scene = { ...confirmed, phase }
-      expect(poloProtestTurnout(scene, 0)).toBe(previous)
-      const end = poloProtestTurnout(scene, 1)
-      expect(poloProtestTurnout(scene, 0.5)).toBeGreaterThanOrEqual(previous)
-      expect(poloProtestTurnout(scene, 0.5)).toBeLessThanOrEqual(end)
-      expect(poloProtestTurnout(scene, 4)).toBe(end)
-      expect(poloProtestTurnout(scene, 1)).toBe(end)
-      previous = end
-    }
-    expect(previous).toBe(20)
-    expect(
-      poloProtestTurnout({ ...confirmed, confirmed: false, phase: 'M4' }, 1),
-    ).toBe(8)
-    expect(
-      poloReactions({ ...confirmed, confirmed: false, phase: 'M4' }).turnout,
-    ).toBe(8)
+  it('shows 100 people only after location confirmation and before construction', () => {
+    expect(poloProtestTurnout(INITIAL_POLO_STATE)).toBe(0)
+    expect(poloProtestTurnout(confirmed)).toBe(100)
+    for (const phase of POLO_PHASES.slice(1))
+      for (const proposal of [null, ...POLO_PROPOSALS])
+        expect(poloProtestTurnout({ ...confirmed, phase, proposal })).toBe(0)
   })
-  it('keeps gathering routes outside the work band and people anchored to the field', () => {
-    for (let index = 0; index < 20; index++) {
-      for (const turnout of [index, index + 0.5, 20]) {
-        for (const elapsed of [0, 10, 100]) {
-          const [x, y] = poloProtesterPosition(index, elapsed, turnout)
-          expect(Number.isFinite(x) && Number.isFinite(y)).toBe(true)
-          expect(Math.abs(x)).toBeLessThanOrEqual(182)
-          expect(y).toBeLessThan(-80)
-          expect(y).toBeGreaterThan(-110)
-        }
+  it('spreads 100 distinct protesters across the original field', () => {
+    const positions = new Set<string>()
+    for (let index = 0; index < 100; index++) {
+      positions.add(poloProtesterPosition(index, 0).join(','))
+      for (const elapsed of [0, 10, 100]) {
+        const [x, y] = poloProtesterPosition(index, elapsed)
+        expect(Number.isFinite(x) && Number.isFinite(y)).toBe(true)
+        expect(Math.abs(x)).toBeLessThanOrEqual(110)
+        expect(Math.abs(y)).toBeLessThanOrEqual(56)
       }
     }
+    expect(positions.size).toBe(100)
   })
   it('recognizes concept trade-offs without removing the field-loss protest', () => {
     const baseline = poloReactions({

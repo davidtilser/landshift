@@ -1,7 +1,7 @@
 import './style.css'
 import { createLandingStore } from './app/state.ts'
 import { mountLanding } from './screens/landing/landing.ts'
-import { findScenario } from './scenarios/scenarios.ts'
+import { gameLaunchForScenario } from './scenarios/scenarios.ts'
 import { createGameUrl } from './shared/game-launch.ts'
 import type { LandingGlobe } from './screens/landing/landingGlobe.ts'
 
@@ -54,12 +54,9 @@ unmountLanding = mountLanding(app, store, {
   globeHost,
   globe: globeReady,
   onHandoff(regionId, scenarioId) {
-    const gameScenarioId = findScenario(scenarioId)?.gameScenarioId
-    if (gameScenarioId !== undefined) {
-      window.location.assign(
-        createGameUrl({ scenarioId: gameScenarioId }, window.location.href)
-          .href,
-      )
+    const launch = gameLaunchForScenario(regionId, scenarioId)
+    if (launch) {
+      window.location.assign(createGameUrl(launch, window.location.href).href)
       return
     }
     void import('./screens/game/index.ts').then(

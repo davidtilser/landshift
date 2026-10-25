@@ -1,0 +1,76 @@
+/* Shared private-conversation presentation across every Polo chapter. */
+#game[data-polo-confirmed='true'] .character-chat {
+  padding-bottom: 16px;
+  font-family: inherit;
+}
+#game[data-polo-confirmed='true'] .character-chat .chat-label,
+#game[data-polo-confirmed='true'] .character-chat .chat-subtitle,
+#game[data-polo-confirmed='true'] .character-chat .chat-footer,
+#game[data-polo-confirmed='true'] .character-chat .dialogue-prompt > span {
+  display: none;
+}
+#game[data-polo-confirmed='true'] .character-chat .chat-header {
+  gap: 14px;
+  padding-top: 18px;
+  padding-bottom: 16px;
+}
+#game[data-polo-confirmed='true'] .character-chat .chat-header > div {
+  min-width: 0;
+}
+#game[data-polo-confirmed='true'] .character-chat .chat-avatar {
+  width: 80px;
+  height: 80px;
+  font-size: 48px;
+}
+#game[data-polo-confirmed='true'] .character-chat #chat-person-name {
+  margin: 0;
+  font-family: inherit;
+  color: #191522;
+  font-size: 30px;
+  font-weight: 750;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+#game[data-polo-confirmed='true'] .character-chat .chat-message {
+  font-size: 18px;
+  line-height: 1.5;
+}
+#game[data-polo-confirmed='true']
+  .character-chat
+  .chat-message
+  .ui-message-copy {
+  font-size: inherit;
+}
+#game[data-polo-confirmed='true']
+  .character-chat
+  .chat-prompts
+  .dialogue-choice {
+  min-height: 52px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+#game[data-polo-confirmed='true'] .character-chat .dialogue-choice > span {
+  min-width: 0;
+}
+#game[data-polo-confirmed='true'] .character-chat .dialogue-choice strong {
+  font-size: 16.8px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+#game[data-polo-confirmed='true'] .character-chat .dialogue-choice small {
+  font-size: 15.6px;
+}
+#game[data-polo-confirmed='true'] .character-chat .dialogue-choice-icon {
+  font-size: 20.4px;
+}
+#game[data-polo-confirmed='true'] .character-chat .dialogue-choice kbd {
+  font-size: 12px;
+}
+#game[data-polo-confirmed='true'] .character-chat.is-conversation[open] {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+#game[data-polo-confirmed='true'] .character-chat .chat-messages {
+  flex: 1 0 120px;
+  min-width: 0;
+}

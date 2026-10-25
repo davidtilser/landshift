@@ -1,6 +1,17 @@
 /** Keep UI copy short without dropping any of the original conversation. */
 export const UI_TEXT_LIMIT = 70
 
+/** Chat replies stay intact in one bubble; model text is always inert. */
+export function messageUiText(text: string, className = ''): HTMLElement {
+  const root = document.createElement('div')
+  root.className = 'ui-message-text ' + className
+  const copy = document.createElement('p')
+  copy.className = 'ui-message-copy'
+  copy.textContent = text
+  root.append(copy)
+  return root
+}
+
 export function splitUiText(text: string, limit = UI_TEXT_LIMIT): string[] {
   if (!Number.isInteger(limit) || limit < 1)
     throw new RangeError('Text page size must be a positive integer.')

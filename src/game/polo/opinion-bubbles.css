@@ -79,6 +79,10 @@
 #game[data-polo-confirming='true'] .polo-opinions {
   display: none;
 }
+/* Every confirmed chapter uses Talk instead of floating invitations. */
+#game[data-polo-confirmed='true'] .polo-opinions {
+  display: none;
+}
 @media (max-width: 700px) {
   .polo-opinions {
     display: flex;
@@ -115,9 +119,6 @@
   }
   .polo-opinion-action {
     font-size: 13px;
-  }
-  .polo-people {
-    display: none;
   }
   .polo-studio .polo-deck {
     max-height: min(410px, calc(100dvh - 450px));

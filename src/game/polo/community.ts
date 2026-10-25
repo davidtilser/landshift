@@ -7,11 +7,13 @@ import { DEFAULT_CHOICES } from '../consequences.ts'
 import { poloDiscussionContext } from './context.ts'
 import { POLO_SCENARIO_ID } from './model.ts'
 import type { PoloSceneState } from './model.ts'
+import type { ConversationReactions } from '../community-reactions.ts'
 
 interface Options {
   getState: () => PoloSceneState
   focus: () => void
   beforeOpen: () => void
+  reactionsChanged: (reactions: ConversationReactions) => void
 }
 
 export class PoloCommunity {
@@ -32,6 +34,7 @@ export class PoloCommunity {
         options.focus()
       },
       beforeOpen: options.beforeOpen,
+      reactionsChanged: options.reactionsChanged,
     })
     this.sync()
   }

@@ -23,7 +23,7 @@ export const scenarios: readonly ScenarioSummary[] = [
   {
     id: POLO_SCENARIO_ID,
     title: 'Golden Gate Park · Polo Fields',
-    location: 'Polo Fields guided demo, San Francisco',
+    location: 'Polo Fields, San Francisco',
     sourceUrl: 'https://sfrecpark.org/877/Golden-Gate-Park---Polo-Field',
     dataStatus: 'prepared',
   },

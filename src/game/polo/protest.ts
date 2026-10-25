@@ -4,34 +4,34 @@ import { confirmPoloPlacement, poloPhaseAt } from './placement.ts'
 
 export const POLO_PROTEST_STEPS = [
   {
-    question: 'Why are people protesting?',
-    answer: 'This is shared public space. We oppose building here.',
-    detail: 'People already meet, walk and play on this field.',
+    question: 'People are protesting. Why?',
+    answer:
+      'This is shared public space. We oppose building here. People already meet, walk and play on this field.',
     next: 'Ask about nature →',
   },
   {
     question: 'What would happen to nature?',
-    answer: 'Construction would remove living turf and disturb the soil.',
-    detail: 'Roof plants cannot replace this ground or its existing uses.',
+    answer:
+      'Construction would remove living turf and disturb the soil. Roof plants cannot replace this ground or its existing uses.',
     next: 'Ask about resources →',
   },
   {
     question: 'What about water and electricity?',
-    answer: 'Cooling and computing still need water and electricity.',
-    detail: 'Real supply and utility capacity would need checking.',
+    answer:
+      'Cooling and computing still need water and electricity. Real supply and utility capacity would need checking.',
     next: 'Ask about people →',
   },
   {
     question: 'Who would be affected?',
-    answer: 'Players, neighbors and park users would lose a shared place.',
-    detail: 'Those losses stay even if the equipment becomes more efficient.',
+    answer:
+      'Players, neighbors and park users would lose a shared place. Those losses stay even if the equipment becomes more efficient.',
     next: 'Ask about efficiency →',
   },
   {
     question: 'Would efficient technology change your mind?',
-    answer: 'For us, this public playing field is the wrong site.',
-    detail: 'Compare other locations. Efficiency does not replace our field.',
-    next: 'Continue the story →',
+    answer:
+      'For us, this public playing field is the wrong site. Compare other locations. Efficiency does not replace our field.',
+    next: 'Explore →',
   },
 ] as const
 
@@ -117,7 +117,7 @@ export function lockPoloForProtest(state: PoloSceneState): PoloSceneState {
   return { ...confirmPoloPlacement(state), phase: 'M0', proposal: null }
 }
 
-export function poloConstructionAfterProtest(
+export function poloExploreAfterProtest(
   state: PoloSceneState,
   progress: PoloProtestProgress,
 ): PoloSceneState {
@@ -127,8 +127,8 @@ export function poloConstructionAfterProtest(
     progress.stage !== 'finished' ||
     !progress.outcome
   )
-    throw new Error('Hear or skip the protest before construction starts.')
-  return poloPhaseAt(state, 'M1')
+    throw new Error('Hear or skip the protest before exploring Today.')
+  return poloPhaseAt(state, 'M0')
 }
 
 function node<K extends keyof HTMLElementTagNameMap>(
@@ -168,58 +168,40 @@ export function setupPoloProtest(
     portrait.alt = ''
     portrait.width = portrait.height = 60
     const name = node('div', '')
-    name.append(
-      node('strong', '', 'Maya · protest leader'),
-      node('span', '', 'Fictional park user'),
-    )
+    name.append(node('strong', '', 'Maya · protest leader'))
     header.append(portrait, name)
     return header
   }
-  const title = node('h2', '', 'Before we build, listen.')
-  title.id = 'polo-protest-invitation-title'
-  const notice = node(
-    'p',
-    'polo-protest-notice',
-    'Location locked. People want to be heard.',
+  const title = node(
+    'h2',
+    '',
+    'People don’t like this idea. They are protesting, hear their concerns.',
   )
-  notice.setAttribute('role', 'status')
+  title.id = 'polo-protest-invitation-title'
   const talk = action('Talk to Maya →', 'polo-protest-primary')
   const skip = action('Skip conversation', 'polo-protest-skip')
   const choices = node('div', 'polo-protest-choices')
   choices.append(talk, skip)
-  invitation.append(identity(), title, notice, choices)
+  invitation.append(identity(), title, choices)
 
   const dialog = node('dialog', 'polo-protest-dialog')
   dialog.setAttribute('aria-labelledby', 'polo-protest-question')
-  dialog.setAttribute('aria-describedby', 'polo-protest-disclosure')
   const exit = action('Skip conversation', 'polo-protest-skip')
-  const header = node('header', 'polo-protest-dialog-header')
-  header.append(identity(), exit)
   const question = node('h2', '')
   question.id = 'polo-protest-question'
+  const speaker = node('div', 'polo-protest-speaker')
+  speaker.append(identity())
   const reply = node('div', 'polo-protest-reply')
   reply.setAttribute('aria-live', 'polite')
   const answer = node('p', 'polo-protest-answer')
-  const detail = node('p', 'polo-protest-detail')
-  reply.append(answer, detail)
+  reply.append(answer)
   const footer = node('nav', 'polo-protest-navigation')
   footer.setAttribute('aria-label', 'Protest conversation steps')
   const back = action('← Back')
   const next = action('', 'polo-protest-primary')
   const count = node('span', 'polo-protest-progress')
   footer.append(back, count, next)
-  const disclosure = node(
-    'p',
-    'polo-protest-disclosure',
-    'Continuing explores a fictional build. It is not community consent.',
-  )
-  disclosure.id = 'polo-protest-disclosure'
-  const escape = node(
-    'p',
-    'polo-protest-escape',
-    'Esc skips this conversation and starts the construction story.',
-  )
-  dialog.append(header, question, reply, footer, disclosure, escape)
+  dialog.append(question, speaker, reply, footer, exit)
   host.append(invitation, dialog)
 
   let progress = { ...INITIAL_POLO_PROTEST }
@@ -234,18 +216,15 @@ export function setupPoloProtest(
       progress.stage !== 'gathering' && progress.stage !== 'invitation'
     const gathering = progress.stage === 'gathering'
     talk.disabled = skip.disabled = gathering
-    notice.textContent = gathering
-      ? 'Location locked. People want to be heard.'
-      : 'People are protesting the proposed site. Hear their concerns.'
     if (progress.stage === 'conversation') {
       const step = POLO_PROTEST_STEPS[progress.step]
       if (!step) return
       question.textContent = step.question
       answer.textContent = step.answer
-      detail.textContent = step.detail
       count.textContent = `${String(progress.step + 1)} of ${String(POLO_PROTEST_STEPS.length)}`
       back.disabled = progress.step === 0
       next.textContent = step.next
+      exit.hidden = progress.step === POLO_PROTEST_STEPS.length - 1
       if (!dialog.open) dialog.showModal()
     } else if (dialog.open) dialog.close()
   }
@@ -287,12 +266,6 @@ export function setupPoloProtest(
       dispatch('confirm')
       gatheringTimer = setTimeout(() => {
         dispatch('crowd-ready')
-        if (
-          !destroyed &&
-          progress.stage === 'invitation' &&
-          !root.querySelector('dialog[open]')
-        )
-          dispatch('talk')
       }, 1100)
     },
     talk: () => {

@@ -20,6 +20,7 @@ import type { LngLat } from '../geometry.ts'
 import { sampleElevation } from '../terrain.ts'
 import type { ElevationGrid } from '../terrain.ts'
 import type { PoloSceneState } from './model.ts'
+import { poloConstructionStarted } from './placement.ts'
 import {
   accessRoutePosition,
   accessVehicleJourney,
@@ -115,12 +116,15 @@ export class PoloAccessScene {
 
   setState(state: PoloSceneState): void {
     if (this.destroyed) return
-    if (state.confirmed && !this.state?.confirmed) {
+    if (
+      poloConstructionStarted(state) &&
+      (!this.state || !poloConstructionStarted(this.state))
+    ) {
       this.trafficSeconds = 0
       this.frameAt = performance.now()
     }
     this.state = state
-    this.source.show = state.confirmed
+    this.source.show = poloConstructionStarted(state)
     const pose = [...state.center, state.bearing, state.areaHa].join('|')
     if (pose !== this.pose) {
       this.pose = pose
@@ -236,8 +240,8 @@ export class PoloAccessScene {
     if (this.destroyed || !this.state) return
     const elapsed = Math.min(0.2, Math.max(0, (now - this.frameAt) / 1000))
     this.frameAt = now
-    if (this.state.confirmed && !this.reducedMotion.matches)
-      this.trafficSeconds += elapsed
+    const active = poloConstructionStarted(this.state)
+    if (active && !this.reducedMotion.matches) this.trafficSeconds += elapsed
     const last = this.samples.at(-1)
     if (!last) return
     for (const [index, vehicle] of this.vehicles.entries()) {
@@ -247,8 +251,7 @@ export class PoloAccessScene {
         last.distance,
       )
       const parked = this.reducedMotion.matches
-      const visible =
-        this.state.confirmed && (parked ? index === 0 : journey.visible)
+      const visible = active && (parked ? index === 0 : journey.visible)
       vehicle.entity.show = visible
       if (!visible) continue
       const pose = accessRoutePosition(
@@ -270,9 +273,7 @@ export class PoloAccessScene {
       vehicle.orientation.setValue(orientation)
     }
     this.pulse.show =
-      this.state.confirmed &&
-      !this.reducedMotion.matches &&
-      this.trafficSeconds < 2.8
+      active && !this.reducedMotion.matches && this.trafficSeconds < 2.8
     if (this.pulse.show) {
       const pose = accessRoutePosition(
         this.samples,

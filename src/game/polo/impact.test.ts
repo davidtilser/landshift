@@ -85,7 +85,7 @@ describe('size-aware same-stage impact comparison', () => {
       })
       expect(
         operating.find((card) => card.title === 'Water supply')?.baseline,
-      ).toBe(areaHa === 2 ? '40k US gal/day' : '120k US gal/day')
+      ).toBe(areaHa === 2 ? '15.1M US gal/year' : '45.3M US gal/year')
       expect(
         operating.find((card) => card.title === 'Public turf lost')?.baseline,
       ).toBe(areaHa === 2 ? '4 acres' : '12 acres')

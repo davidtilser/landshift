@@ -80,8 +80,8 @@ describe('game dialogue branches', () => {
       history: [],
       topic: 'access',
     })
-    expect(training.text).toContain('12 fictional places')
-    expect(access.text).toContain('10 game credits')
+    expect(training.text).toContain('12 planned places')
+    expect(access.text).toContain('10 upgrade credits')
     expect(training.text).not.toBe(access.text)
   })
   it('keeps replies brief across characters and decision states', () => {

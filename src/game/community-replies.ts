@@ -49,6 +49,6 @@ export function authoredPrivateCommunityReply(
   return {
     messages: [{ speaker: request.target, text: reply.text }],
     source: 'demo',
-    model: 'Authored scenario',
+    model: 'Prepared conversation',
   }
 }

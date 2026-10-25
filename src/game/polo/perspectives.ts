@@ -32,11 +32,11 @@ export function poloProfiles(facts: PoloDiscussionFacts): CommunityProfile[] {
       color: 'green',
       motivation:
         'Living soil, rainfall pathways and careful construction deserve attention.',
-      goal: 'Understand soil disturbance, maintenance and what each visual concept cannot fix.',
+      goal: 'Understand soil disturbance, maintenance and what each design option cannot fix.',
       boundary:
         'A green roof is not a restored sports field; the prepared scenario does not clear surrounding trees.',
       flexible:
-        'Explore roof plants, recycled supply and restoration of an illustrative trench.',
+        'Explore roof plants, recycled supply and restoration of an proposed trench.',
       question: 'What still needs care after the equipment is installed?',
       post: reactions.nature.text,
       initialMood: {
@@ -52,7 +52,7 @@ export function poloProfiles(facts: PoloDiscussionFacts): CommunityProfile[] {
       motivation: 'Young people need welcoming places to meet, train and play.',
       goal: 'Keep recreation accessible and ask how benefits would be shared.',
       boundary:
-        'A fictional model pool does not replace this public field or prove that real residents benefit.',
+        'A proposed neighborhood pool does not replace this public field or prove that real residents benefit.',
       flexible:
         'Ask about access and compare possible benefits with lost uses.',
       question: 'Who can use the spaces in this idea?',

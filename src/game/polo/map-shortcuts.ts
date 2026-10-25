@@ -1,11 +1,11 @@
-import './map-shortcuts.css'
-
 interface PoloShortcutContext {
   setup: string | undefined
   editable: boolean
   dialogOpen: boolean
   communityOpen: boolean
   protestPending: boolean
+  confirmAvailable?: boolean
+  activationTarget?: boolean
 }
 type PoloShortcutKey = Pick<
   KeyboardEvent,
@@ -16,9 +16,11 @@ type PoloShortcutKey = Pick<
   | 'shiftKey'
   | 'isComposing'
   | 'defaultPrevented'
+  | 'repeat'
 >
 
 export type PoloMapShortcut =
+  | { kind: 'confirm' }
   | { kind: 'zoom'; inward: boolean }
   | { kind: 'pan'; horizontal: number; vertical: number }
 
@@ -43,6 +45,12 @@ export function poloMapShortcut(
     return null
   const key = event.key.toLowerCase()
   switch (key) {
+    case 'enter':
+      return context.confirmAvailable &&
+        !context.activationTarget &&
+        !event.repeat
+        ? { kind: 'confirm' }
+        : null
     case 'i':
     case 'o':
       return { kind: 'zoom', inward: key === 'i' }
@@ -65,16 +73,6 @@ export function setupPoloMapShortcuts(
   const document = root.ownerDocument
   const view = document.defaultView
   if (!view) throw new Error('Map shortcuts need a browser window')
-  const help = document.createElement('aside')
-  help.className = 'polo-map-shortcuts'
-  help.setAttribute('aria-label', 'Map keyboard shortcuts')
-  help.innerHTML = `
-    <span><span class="polo-map-key-group"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>Move map</span></span>
-    <span><kbd>I</kbd><span>Zoom in</span></span>
-    <span><kbd>O</kbd><span>Zoom out</span></span>
-  `
-  const studio = root.querySelector('.polo-studio') ?? root
-  studio.append(help)
 
   const isEditable = (event: KeyboardEvent): boolean => {
     // composedPath also catches inputs inside shadow-root based controls.
@@ -104,6 +102,17 @@ export function setupPoloMapShortcuts(
     )
   }
   const onKeyDown = (event: KeyboardEvent): void => {
+    const confirm = root.querySelector<HTMLButtonElement>(
+      '.polo-placement-confirm',
+    )
+    const activationTarget = event
+      .composedPath()
+      .some(
+        (target) =>
+          target instanceof view.Element &&
+          target.closest('button, a, summary, [role="button"]') !== null &&
+          target.closest('.polo-placement-handle') === null,
+      )
     const action = poloMapShortcut(event, {
       setup: root.dataset['poloSetup'],
       editable: isEditable(event),
@@ -111,12 +120,22 @@ export function setupPoloMapShortcuts(
       communityOpen:
         root.classList.contains('community-open') ||
         root.querySelector('.community-open') !== null,
-      protestPending: root.dataset['poloProtestPending'] === 'true',
+      protestPending:
+        root.dataset['poloProtestPending'] === 'true' ||
+        root.hasAttribute('data-polo-intervention'),
+      confirmAvailable:
+        event.key === 'Enter' &&
+        confirm !== null &&
+        !confirm.disabled &&
+        confirm.getClientRects().length > 0 &&
+        view.getComputedStyle(confirm).visibility === 'visible',
+      activationTarget,
     })
     if (action === null) return
     event.preventDefault()
     // Held navigation keys follow native key repetition.
-    if (action.kind === 'zoom') zoom(action.inward)
+    if (action.kind === 'confirm') confirm?.click()
+    else if (action.kind === 'zoom') zoom(action.inward)
     else pan(action.horizontal, action.vertical)
   }
   view.addEventListener('keydown', onKeyDown)
@@ -126,7 +145,6 @@ export function setupPoloMapShortcuts(
       if (destroyed) return
       destroyed = true
       view.removeEventListener('keydown', onKeyDown)
-      help.remove()
     },
   }
 }

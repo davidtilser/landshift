@@ -52,7 +52,7 @@ export class CommunityClient {
             request.mode === 'discussion',
           ),
           source: 'demo',
-          model: 'Scripted demo',
+          model: 'Prepared conversation',
         }
       if (request.mode === 'private' && request.target !== 'operator') {
         const voice = communityVoices(context.choices, context.site).find(
@@ -71,14 +71,14 @@ export class CommunityClient {
           return {
             messages: [{ speaker: request.target, text: reply.text }],
             source: 'demo',
-            model: 'Scripted demo',
+            model: 'Prepared conversation',
           }
         }
       }
       return {
         ...demoExchange(context, request.target, request.mode === 'discussion'),
         source: 'demo',
-        model: 'Scripted demo',
+        model: 'Prepared conversation',
       }
     }
     const response = await fetch(`${import.meta.env.BASE_URL}api/community`, {

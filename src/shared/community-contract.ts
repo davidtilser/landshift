@@ -24,6 +24,11 @@ export const communityMoodSchema = z.enum([
   'hopeful',
 ])
 export type CommunityMood = z.infer<typeof communityMoodSchema>
+export const communityReactionSchema = z.object({
+  text: z.string().trim().min(1).max(90),
+  mood: communityMoodSchema,
+})
+export type CommunityReaction = z.infer<typeof communityReactionSchema>
 export interface CommunityMoodState {
   mood: CommunityMood
   reason: string
@@ -58,6 +63,21 @@ export const poloSceneStateSchema = z.object({
   preview: z.boolean(),
   recipientAvailable: z.boolean(),
   rain: z.boolean(),
+  learnings: z
+    .object({
+      soil: z.boolean().optional(),
+      water: z.boolean().optional(),
+      heat: z.boolean().optional(),
+      roof: z.boolean().optional(),
+    })
+    .optional(),
+  improvements: z
+    .object({
+      soil: z.boolean().optional(),
+      foundation: z.boolean().optional(),
+      grounds: z.boolean().optional(),
+    })
+    .optional(),
 })
 export const plannerStateSchema = z
   .object({
@@ -145,6 +165,7 @@ export const communityReplySchema = z.object({
       z.object({
         speaker: communityIdSchema,
         text: z.string().trim().min(1).max(360),
+        reaction: communityReactionSchema.optional(),
         communityMood: communityMoodBreakdownSchema.optional(),
       }),
     )

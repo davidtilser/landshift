@@ -1,6 +1,15 @@
-import type { CommunityId } from '../../shared/community-contract.ts'
+import type {
+  CommunityId,
+  CommunityMood,
+} from '../../shared/community-contract.ts'
+import type {
+  ConversationReactions,
+  ConversationReaction,
+} from '../community-reactions.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
 import { poloReactions } from './reactions.ts'
+import { poloConstructionStarted } from './placement.ts'
+import { activePoloImprovements } from './interventions.ts'
 
 export interface PoloOpinion {
   id: CommunityId
@@ -8,6 +17,24 @@ export interface PoloOpinion {
   avatar: string
   tone: 'concern' | 'possibility'
   text: string
+  mood?: CommunityMood
+  scope?: ConversationReaction['scope']
+}
+
+function withConversation(
+  opinion: PoloOpinion,
+  reactions?: ConversationReactions,
+): PoloOpinion {
+  const reaction = reactions?.get(opinion.id)
+  return reaction
+    ? {
+        ...opinion,
+        text: reaction.text,
+        mood: reaction.mood,
+        tone: reaction.mood === 'hopeful' ? 'possibility' : 'concern',
+        scope: reaction.scope,
+      }
+    : opinion
 }
 
 const IDEAS: Record<PoloPhase, string> = {
@@ -18,8 +45,38 @@ const IDEAS: Record<PoloPhase, string> = {
   M6: 'Could we put waste heat to use nearby?',
 }
 
+/** Portrait reactions are available as soon as the player confirms a site. */
+export function poloPortraitOpinions(
+  state: PoloSceneState,
+  reactions?: ConversationReactions,
+): PoloOpinion[] {
+  if (!state.confirmed) return []
+  const voices = poloReactions(state).voices
+  return (
+    [
+      { id: 'neighbor', name: 'Maya', avatar: 'maya' },
+      { id: 'nature', name: 'Aisha', avatar: 'aisha' },
+      { id: 'student', name: 'Leo', avatar: 'leo' },
+      { id: 'operator', name: 'Owen', avatar: 'owen' },
+    ] as const
+  ).map((person) => {
+    const id = person.id
+    return withConversation(
+      {
+        ...person,
+        id,
+        tone: voices[id].mood === 'hopeful' ? 'possibility' : 'concern',
+        text: voices[id].text,
+        mood: voices[id].mood,
+      },
+      reactions,
+    )
+  })
+}
+
 /** Fictional conversation invitations, not votes or measured public opinion. */
-export function poloOpinions(state: PoloSceneState): PoloOpinion[] {
+function basePoloOpinions(state: PoloSceneState): PoloOpinion[] {
+  if (!poloConstructionStarted(state)) return []
   const concern: PoloOpinion = {
     id: 'neighbor',
     name: 'Maya',
@@ -34,6 +91,8 @@ export function poloOpinions(state: PoloSceneState): PoloOpinion[] {
     tone: 'possibility',
     text: IDEAS[state.confirmed ? state.phase : 'M0'],
   }
+  if (activePoloImprovements(state).length)
+    idea.text = poloReactions(state).voices.operator.text
   if (state.confirmed && state.phase === 'M6' && state.preview) {
     if (state.proposal === 'heat_reuse_neighbors')
       idea.text = state.recipientAvailable
@@ -54,4 +113,13 @@ export function poloOpinions(state: PoloSceneState): PoloOpinion[] {
       ]
   }
   return [concern, idea]
+}
+
+export function poloOpinions(
+  state: PoloSceneState,
+  reactions?: ConversationReactions,
+): PoloOpinion[] {
+  return basePoloOpinions(state).map((opinion) =>
+    withConversation(opinion, reactions),
+  )
 }

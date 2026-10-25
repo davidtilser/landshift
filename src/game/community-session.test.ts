@@ -28,6 +28,122 @@ const plan: PlannerState = {
   weather: 'drought',
 }
 describe('one public thread with independent private conversations', () => {
+  it('updates only the speaker’s bubble after a delivered private answer without publishing it', () => {
+    let notifications = 0
+    const session = new CommunitySession(() => {
+      notifications++
+    })
+    const profiles = communityProfiles(context)
+    session.sync(plan, profiles)
+    const profile = profiles[0]
+    if (!profile) throw new Error('Missing fixture')
+    const current = session.privateThread(profile)
+    const initialNotifications = notifications
+    session.append(current, [
+      {
+        speaker: 'planner',
+        text: 'Can we compare a different site?',
+        source: 'planner',
+      },
+    ])
+    expect(session.bubbleReactions().size).toBe(0)
+    expect(notifications).toBe(initialNotifications)
+    const reaction = {
+      text: 'I appreciate being heard. Our shared space still matters.',
+      mood: 'concerned' as const,
+    }
+    session.append(current, [
+      {
+        speaker: profile.id,
+        text: 'Comparing sites could help. We still need to protect public space.',
+        source: 'live',
+        reaction,
+      },
+    ])
+    expect(session.bubbleReactions().get(profile.id)).toEqual({
+      ...reaction,
+      scope: 'private',
+    })
+    expect(session.bubbleReactions().size).toBe(1)
+    expect(notifications).toBe(initialNotifications + 1)
+    expect(JSON.stringify(session.history(session.publicThread))).not.toContain(
+      'Comparing sites could help',
+    )
+    expect(JSON.stringify(session.history(session.publicThread))).not.toContain(
+      'appreciate being heard',
+    )
+    expect(session.history(current).at(-1)).toEqual({
+      speaker: profile.id,
+      text: 'Comparing sites could help. We still need to protect public space.',
+    })
+  })
+
+  it('keeps each person’s latest private or public reaction and resets them when the plan changes', () => {
+    const session = new CommunitySession(),
+      profiles = communityProfiles(context)
+    session.sync(plan, profiles)
+    const profile = profiles.find((item) => item.id === 'neighbor')
+    if (!profile) throw new Error('Missing fixture')
+    session.append(session.privateThread(profile), [
+      {
+        speaker: 'neighbor',
+        text: 'A private response.',
+        source: 'live',
+        reaction: {
+          text: 'I am glad you asked, but I still disagree.',
+          mood: 'concerned',
+        },
+      },
+    ])
+    session.replyPublic([
+      {
+        speaker: 'operator',
+        text: 'We can investigate another location.',
+        source: 'live',
+        reaction: {
+          text: 'I think comparing sites is worth exploring.',
+          mood: 'hopeful',
+        },
+      },
+    ])
+    expect(session.bubbleReactions().get('neighbor')?.scope).toBe('private')
+    session.replyPublic([
+      {
+        speaker: 'neighbor',
+        text: 'Let’s compare what we lose at each site.',
+        source: 'live',
+        reaction: { text: 'I want to see a fair comparison.', mood: 'neutral' },
+      },
+    ])
+    expect(session.bubbleReactions().get('neighbor')).toEqual({
+      text: 'I want to see a fair comparison.',
+      mood: 'neutral',
+      scope: 'community',
+    })
+    expect(session.bubbleReactions().get('operator')?.mood).toBe('hopeful')
+    session.sync(structuredClone(plan), profiles)
+    expect(session.bubbleReactions().size).toBe(2)
+    session.sync({ ...plan, year: 10 }, profiles)
+    expect(session.bubbleReactions().size).toBe(0)
+    expect(
+      session
+        .history(session.publicThread)
+        .some((line) => line.text.includes('compare what we lose')),
+    ).toBe(true)
+    session.replyPublic([
+      {
+        speaker: 'student',
+        text: 'We still need somewhere to play.',
+        source: 'demo',
+      },
+    ])
+    expect(session.bubbleReactions().get('student')?.text).toBe(
+      'We still need somewhere to play.',
+    )
+    session.reset()
+    expect(session.bubbleReactions().size).toBe(0)
+  })
+
   it('remembers free typing for that person across reopening and plan changes, until reset', () => {
     const session = new CommunitySession(),
       profiles = communityProfiles(context)

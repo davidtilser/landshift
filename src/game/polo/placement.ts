@@ -3,6 +3,11 @@ import { INITIAL_POLO_STATE, POLO_CENTER } from './model.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
 import { poloAreaValid } from './size.ts'
 
+/** Locking a location starts the protest; physical works start after it. */
+export function poloConstructionStarted(state: PoloSceneState): boolean {
+  return state.confirmed && state.phase !== 'M0'
+}
+
 export function poloPlacementValid(center: LngLat): boolean {
   return (
     center.every(Number.isFinite) &&
@@ -74,6 +79,8 @@ export function poloPhaseAt(
     confirmed: true,
     phase,
     preview: phase !== 'M6',
-    proposal: phase === 'M6' ? 'heat_reuse_neighbors' : null,
+    proposal: null,
+    ...(state.learnings ? { learnings: { ...state.learnings } } : {}),
+    ...(state.improvements ? { improvements: { ...state.improvements } } : {}),
   }
 }

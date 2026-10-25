@@ -53,7 +53,7 @@ describe('research-backed Polo Fields baseline', () => {
       'Today',
       'Foundations',
       'Structure',
-      'Ready',
+      'Commissioning',
       'Operating',
     ])
     expect(POLO_BASELINE.researchPhases).toHaveLength(7)

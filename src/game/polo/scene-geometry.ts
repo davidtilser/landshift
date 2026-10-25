@@ -1,6 +1,7 @@
 import type { LngLat } from '../geometry.ts'
 import { POLO_CENTER, POLO_DEFAULT_AREA_HA } from './model.ts'
 import type { PoloPhase, PoloProposal, PoloSceneState } from './model.ts'
+import { poloProposalActive } from './learnings.ts'
 
 export const POLO_LAYOUT = {
   pad: { width: 320, depth: 125 },
@@ -82,9 +83,11 @@ export function poloCoordinate(
 }
 
 export function activePoloProposal(state: PoloSceneState): PoloProposal | null {
-  return state.confirmed && state.phase === 'M6' && state.preview
-    ? state.proposal
-    : null
+  return (
+    (['heat_reuse_neighbors', 'recycled_water', 'green_roof'] as const).find(
+      (proposal) => poloProposalActive(state, proposal),
+    ) ?? null
+  )
 }
 
 export function pointOnPath(

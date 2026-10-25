@@ -9,6 +9,7 @@ const key = {
   shiftKey: false,
   isComposing: false,
   defaultPrevented: false,
+  repeat: false,
 }
 const available = {
   setup: 'placement',
@@ -16,9 +17,10 @@ const available = {
   dialogOpen: false,
   communityOpen: false,
   protestPending: false,
+  confirmAvailable: true,
 }
 
-const navigation = ['w', 'a', 's', 'd', 'i', 'o']
+const navigation = ['w', 'a', 's', 'd', 'i', 'o', 'Enter']
 
 describe('Polo map keyboard policy', () => {
   it('uses I/O for zoom in either case and leaves other keys alone', () => {
@@ -32,7 +34,7 @@ describe('Polo map keyboard policy', () => {
         kind: 'zoom',
         inward: false,
       })
-    for (const value of ['ArrowLeft', 'ArrowRight', 'Tab', ' ', 'Enter'])
+    for (const value of ['ArrowLeft', 'ArrowRight', 'Tab', ' '])
       expect(poloMapShortcut({ ...key, key: value }, available)).toBeNull()
   })
 
@@ -53,13 +55,25 @@ describe('Polo map keyboard policy', () => {
   })
 
   it('accepts repeated native key events while a key is held', () => {
-    for (const value of navigation) {
+    for (const value of navigation.filter((value) => value !== 'Enter')) {
       const event = { ...key, key: value }
       const repeated = { ...event, repeat: true }
       expect(poloMapShortcut(repeated, available)).toEqual(
         poloMapShortcut(event, available),
       )
     }
+  })
+
+  it('confirms with Enter only when offered, preserving focused controls and held keys', () => {
+    const enter = { ...key, key: 'Enter' }
+    expect(poloMapShortcut(enter, available)).toEqual({ kind: 'confirm' })
+    expect(
+      poloMapShortcut(enter, { ...available, confirmAvailable: false }),
+    ).toBeNull()
+    expect(
+      poloMapShortcut(enter, { ...available, activationTarget: true }),
+    ).toBeNull()
+    expect(poloMapShortcut({ ...enter, repeat: true }, available)).toBeNull()
   })
 
   it('preserves modifier shortcuts, composition and already-handled keys', () => {

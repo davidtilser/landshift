@@ -6,6 +6,7 @@ import {
   poloSizedReference,
 } from './size.ts'
 import { poloUsText, usAcres, usGallons } from './us-units.ts'
+import { poloPlanningText } from './planning-copy.ts'
 
 /** US presentation of the same phase; SI data and frozen research stay intact. */
 export function poloDisplayPhase(state: PoloSceneState): PoloBaselinePhase {
@@ -28,13 +29,14 @@ export function poloDisplayPhase(state: PoloSceneState): PoloBaselinePhase {
     values['Onward drainage'] = usGallons(data.rainManagedDrainageM3)
   return {
     ...phase,
-    summary: poloUsText(phase.summary),
-    tradeoff: poloUsText(phase.tradeoff),
-    details: phase.details.map(poloUsText),
+    summary: poloPlanningText(poloUsText(phase.summary)),
+    tradeoff: poloPlanningText(poloUsText(phase.tradeoff)),
+    details: phase.details.map((text) => poloPlanningText(poloUsText(text))),
     metrics: phase.metrics.map((metric) => ({
       ...metric,
+      label: metric.label === 'Demo area' ? 'Site area' : metric.label,
       value: values[metric.label] ?? poloUsText(metric.value),
-      detail: poloUsText(metric.detail),
+      detail: poloPlanningText(poloUsText(metric.detail)),
     })),
   }
 }

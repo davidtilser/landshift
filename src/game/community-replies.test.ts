@@ -12,6 +12,10 @@ const messages: CommunityReply['messages'] = [
   {
     speaker: 'neighbor',
     text: 'The memorial is still at risk.',
+    reaction: {
+      text: 'I still want this memorial protected.',
+      mood: 'concerned',
+    },
     communityMood: {
       angry: 10,
       concerned: 80,
@@ -23,6 +27,10 @@ const messages: CommunityReply['messages'] = [
   {
     speaker: 'operator',
     text: 'We could compare sites outside the park.',
+    reaction: {
+      text: 'I think another site deserves a look.',
+      mood: 'hopeful',
+    },
     communityMood: {
       angry: 8,
       concerned: 76,
@@ -51,10 +59,15 @@ describe('public messages and their mood snapshots', () => {
     )
     expect(session.publicThread.lines).toHaveLength(1)
     expect(session.publicMood?.concerned).toBe(80)
+    expect(session.bubbleReactions().get('neighbor')?.text).toBe(
+      'I still want this memorial protected.',
+    )
+    expect(session.bubbleReactions().has('operator')).toBe(false)
     await vi.advanceTimersByTimeAsync(1600)
     expect(await reveal).toBe(true)
     expect(session.publicThread.lines).toHaveLength(2)
     expect(session.publicMood?.concerned).toBe(76)
+    expect(session.bubbleReactions().get('operator')?.mood).toBe('hopeful')
     expect(session.publicThread.lines[1]?.replyTo).toBe(
       session.publicThread.lines[0]?.id,
     )
@@ -75,6 +88,7 @@ describe('public messages and their mood snapshots', () => {
     expect(await reveal).toBe(false)
     expect(session.publicThread.lines).toHaveLength(1)
     expect(session.publicMood?.concerned).toBe(80)
+    expect(session.bubbleReactions().has('operator')).toBe(false)
     expect(vi.getTimerCount()).toBe(0)
   })
 })
@@ -114,9 +128,9 @@ describe('Polo private reply routing', () => {
       new AbortController().signal,
     )
     expect(response.source).toBe('demo')
-    expect(response.model).toBe('Authored scenario')
+    expect(response.model).toBe('Prepared conversation')
     expect(response.messages[0]?.text).toContain('no jobs or training places')
-    expect(response.messages[0]?.text).toContain('fictional pool')
+    expect(response.messages[0]?.text).toContain('proposed pool')
     const followup = await client.exchange(
       { ...request, message: 'What if nobody needs the heat?' },
       context,

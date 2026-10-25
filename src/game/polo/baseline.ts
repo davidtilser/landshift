@@ -76,7 +76,7 @@ export const poloBaselineSchema = z
           code: 'custom',
           path: ['phases', index, 'id'],
           message:
-            'Polo chapters must be Today, Foundations, Structure, Ready, Operating.',
+            'Polo chapters must be Today, Foundations, Structure, Commissioning, Operating.',
         })
       const area = Object.values(phase.data.areasM2).reduce(
         (sum, value) => sum + value,
@@ -86,7 +86,7 @@ export const poloBaselineSchema = z
         context.addIssue({
           code: 'custom',
           path: ['phases', index, 'data', 'areasM2'],
-          message: 'Surface areas must preserve the same demo footprint.',
+          message: 'Surface areas must preserve the same site footprint.',
         })
     }
     for (const [index, phase] of baseline.researchPhases.entries()) {

@@ -169,6 +169,19 @@
 .polo-project-setup button:hover {
   background: #c2f929;
 }
+.polo-project-setup .polo-setup-quick-view {
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 10px 15px;
+  border: 1px solid #d7c2f5;
+  background: transparent;
+  color: #6323bf;
+  font-size: 15px;
+  font-weight: 650;
+}
+.polo-project-setup .polo-setup-quick-view:hover {
+  background: #eee3ff;
+}
 .polo-project-setup :is(button, select, input):focus-visible {
   outline: 3px solid #7629ec;
   outline-offset: 4px;

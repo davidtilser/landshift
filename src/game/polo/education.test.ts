@@ -154,7 +154,7 @@ describe('education follows the selected campus size', () => {
     ).toBe(true)
     for (const topic of POLO_TOPICS)
       expect(poloEducation(state, topic).steps[0]?.title).toBe(
-        'A size teaching model',
+        'A size-based estimate',
       )
   })
 })

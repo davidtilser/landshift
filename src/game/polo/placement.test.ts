@@ -83,7 +83,7 @@ describe('place, confirm, then follow the Polo story', () => {
       expect(next.center).not.toBe(center)
       expect(next.phase).toBe(phase)
       expect(next.bearing).toBe(35)
-      expect(next.proposal).toBe(phase === 'M6' ? 'heat_reuse_neighbors' : null)
+      expect(next.proposal).toBeNull()
     }
   })
   it('rejects unconfirmed phases and inconsistent or invalid coordinates at the server boundary', () => {

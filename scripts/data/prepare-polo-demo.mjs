@@ -483,7 +483,7 @@ try {
     title: 'Structure',
     kicker: '3 / 5 · Raise the frame and fit the roofs',
     summary:
-      'Steel rises from the completed foundations, then roof panels follow. The open structure remains visible before the walls and services are fitted in Ready.',
+      'Steel rises from the completed foundations, then roof panels follow. The open structure remains visible before the walls and services are fitted in Commissioning.',
     metrics: construction.metrics.map((item) => ({
       ...item,
       detail:
@@ -491,7 +491,7 @@ try {
         ' Construction inventories cover foundations and structure together, not an additional budget for this chapter.',
     })),
     details: [
-      'The foundations remain in place throughout. Frame and roof grow in sequence; walls, hardstanding and planting follow in Ready.',
+      'The foundations remain in place throughout. Frame and roof grow in sequence; walls, hardstanding and planting follow in Commissioning.',
       ...construction.details,
       'All construction inventory figures cover the original whole 160-workday stage, including foundations. They are not allocated between the Foundations and Structure chapters or added on replay.',
     ],
@@ -502,7 +502,7 @@ try {
     structure,
     {
       ...ready,
-      title: 'Ready',
+      title: 'Commissioning',
       kicker: '4 / 5 · Finish and test',
       summary:
         'Close the walls, fit equipment, finish the grounds and test the systems. The roof tank is available, but computing and everyday cooling have not started.',

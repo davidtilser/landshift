@@ -1,0 +1,231 @@
+.polo-talk-launcher[hidden] {
+  display: none;
+}
+#game[data-polo-confirmed='true'] .polo-people {
+  width: 288px;
+  padding: 0;
+  background: transparent;
+}
+#game[data-polo-confirmed='true']
+  .polo-studio:not(.community-open)
+  .polo-people:not([hidden]) {
+  display: flex;
+}
+#game[data-polo-confirmed='true'] .polo-people > .polo-person,
+#game[data-polo-confirmed='true'] .polo-people > .polo-people-label {
+  display: none;
+}
+.polo-talk-launcher {
+  width: 100%;
+  min-height: 99px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 17px;
+  border: 1px solid #e4d5fb;
+  border-radius: 24px;
+  background: #faf8ff;
+  color: #29183a;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 0 8px 24px #34146412;
+}
+.polo-talk-launcher:hover {
+  background: #f0e6ff;
+  border-color: #ba94ec;
+}
+.polo-talk-launcher-copy {
+  display: grid;
+  gap: 5px;
+}
+.polo-talk-launcher-copy strong {
+  font-size: 26.4px;
+  line-height: 1.1;
+}
+.polo-talk-launcher-copy > span {
+  max-width: 114px;
+  color: #6a557d;
+  font-size: 14.4px;
+  line-height: 1.3;
+}
+.polo-talk-faces {
+  display: flex;
+  padding-left: 10px;
+}
+.polo-talk-faces img {
+  width: 38px;
+  height: 38px;
+  margin-left: -11px;
+  border: 2px solid #faf8ff;
+  border-radius: 50%;
+  background: #eadeff;
+}
+#game[data-polo-confirmed='true'] .polo-impact-tools {
+  top: 216px;
+}
+.polo-talk-picker {
+  box-sizing: border-box;
+  width: min(510px, calc(100vw - 24px));
+  max-height: calc(100dvh - 32px);
+  margin: auto 20px auto auto;
+  padding: 24px;
+  border: 1px solid #ddcdf2;
+  border-radius: 24px;
+  background: #faf8ff;
+  color: #261633;
+  box-shadow: 0 24px 80px #24104644;
+  overflow: auto;
+}
+.polo-talk-picker::backdrop {
+  background: #231c3c44;
+  backdrop-filter: blur(3px);
+}
+.polo-talk-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.polo-talk-heading h2 {
+  margin: 0;
+  color: #181220;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 28px;
+  font-weight: 750;
+  line-height: 1.15;
+  letter-spacing: -0.8px;
+}
+.polo-talk-close {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: #ede2fa;
+  color: #6424b5;
+  font-size: 27px;
+  cursor: pointer;
+}
+.polo-talk-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.polo-talk-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  padding: 20px 12px 16px;
+  border: 1px solid #e0cff6;
+  border-radius: 18px;
+  background: #f1e9ff;
+  color: #2e1941;
+  text-align: center;
+  font: inherit;
+  cursor: pointer;
+}
+.polo-talk-choice:hover {
+  background: #e8d8ff;
+  border-color: #b788eb;
+}
+.polo-talk-choice img {
+  margin-bottom: 12px;
+  border-radius: 50%;
+  background: #e0c9ff;
+}
+.polo-talk-choice strong {
+  font-size: 27.3px;
+  line-height: 1.2;
+}
+.polo-talk-choice > span {
+  margin: 6px 0 0;
+  color: #6e547e;
+  font-size: 21px;
+  line-height: 1.3;
+}
+.polo-talk-launcher:focus-visible,
+.polo-talk-picker button:focus-visible {
+  outline: 3px solid #7226ec;
+  outline-offset: 3px;
+}
+@media (max-width: 900px) and (min-width: 701px) {
+  #game[data-polo-confirmed='true'] .polo-people {
+    right: 12px;
+    width: 228px;
+  }
+  .polo-talk-launcher {
+    gap: 7px;
+    padding: 14px;
+  }
+  .polo-talk-faces img {
+    width: 31px;
+    height: 31px;
+    margin-left: -14px;
+  }
+}
+@media (max-width: 700px) {
+  #game[data-polo-confirmed='true'] .polo-people {
+    top: 126px;
+    right: 10px;
+    width: 264px;
+  }
+  #game[data-polo-confirmed='true'] .polo-impact-tools {
+    top: 246px;
+  }
+  .polo-talk-picker {
+    margin: auto;
+    padding: 20px;
+  }
+}
+@media (min-width: 641px) and (max-width: 700px) {
+  #game[data-polo-confirmed='true'] .polo-impact-tools {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  #game[data-polo-confirmed='true'] .polo-support {
+    margin: 0;
+    flex: 1;
+    font-size: 12px;
+  }
+  #game[data-polo-confirmed='true'] .polo-impact-tools details {
+    position: relative;
+  }
+  #game[data-polo-confirmed='true'] .polo-impact-tools details[open] {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 240px;
+    padding: 16px;
+    border-radius: 18px;
+    background: #faf8ff;
+  }
+  #game[data-polo-confirmed='true'] .polo-impact-tools .polo-impact-open {
+    width: auto;
+    margin: 0;
+    padding: 10px;
+    font-size: 13px;
+  }
+  #game[data-polo-confirmed='true'] .polo-impact-tools summary {
+    font-size: 13px;
+    min-height: 0;
+  }
+}
+
+#game[data-polo-confirmed='true'] .polo-impact-tools[hidden] {
+  display: none;
+}

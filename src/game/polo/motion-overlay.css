@@ -1,0 +1,62 @@
+/* Playback stays on the map; its changing captions never resize the story. */
+.polo-studio > .polo-motion {
+  position: absolute;
+  z-index: 4;
+  left: calc(50% + 205px);
+  bottom: 160px;
+  transform: translateX(-50%);
+  padding: 0;
+  border: 1px solid #dfd3f0;
+  border-radius: 14px;
+  background: #faf8fff2;
+  box-shadow: 0 6px 24px #34146418;
+  backdrop-filter: blur(12px);
+}
+.polo-studio > .polo-motion .polo-motion-heading {
+  gap: 0;
+}
+.polo-studio > .polo-motion button {
+  min-height: 44px;
+  padding: 10px 15px;
+  border-radius: 13px;
+  color: #6022b6;
+  font-size: 15px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.polo-studio > .polo-motion button:hover {
+  background: #eee3fc;
+}
+.polo-studio > .polo-motion button:focus-visible {
+  outline: 3px solid #7629ec;
+  outline-offset: 3px;
+}
+.polo-studio > .polo-motion #polo-motion-caption,
+.polo-studio > .polo-motion .polo-motion-track,
+.polo-studio > .polo-motion > small {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.polo-studio.community-open > .polo-motion {
+  display: none;
+}
+@media (max-width: 700px) {
+  .polo-studio > .polo-motion {
+    top: 126px;
+    bottom: auto;
+    left: 10px;
+    transform: none;
+  }
+}
+
+/* Optional construction choices pause playback and own the map controls. */
+#game[data-polo-intervention] .polo-studio > .polo-motion {
+  visibility: hidden;
+}

@@ -50,7 +50,7 @@ export function createCommunityMiddleware(
       (origin && new URL(origin).host !== req.headers.host) ||
       req.headers['sec-fetch-site'] === 'cross-site'
     ) {
-      json(res, 403, { error: 'Use the community chat in this game.' })
+      json(res, 403, { error: 'Use the community chat to continue.' })
       return
     }
     if (!req.headers['content-type']?.startsWith('application/json')) {
@@ -71,7 +71,7 @@ export function createCommunityMiddleware(
       json(res, 429, {
         error:
           requests >= 500
-            ? 'Demo request limit reached. Restart the local server to begin a new session.'
+            ? 'Session request limit reached. Restart the local server to begin a new session.'
             : 'Take a moment, then try again.',
       })
       return

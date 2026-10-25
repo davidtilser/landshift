@@ -2,8 +2,9 @@ import type {
   CommunityId,
   CommunityMood,
 } from '../../shared/community-contract.ts'
-import { POLO_PHASES } from './model.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
+import { activePoloImprovements } from './interventions.ts'
+import { activePoloLearnings } from './learnings.ts'
 import { poloSupport } from './impact.ts'
 
 export interface PoloReaction {
@@ -145,7 +146,7 @@ const PHASE_REACTIONS: Record<PoloPhase, PhaseReaction> = {
   },
 }
 
-export function poloReactions(state: PoloSceneState): PhaseReaction {
+function basePoloReactions(state: PoloSceneState): PhaseReaction {
   const phase = state.confirmed ? state.phase : 'M0'
   const baseline = PHASE_REACTIONS[phase]
   if (phase !== 'M6' || !state.preview || !state.proposal) return baseline
@@ -222,38 +223,99 @@ export function poloReactions(state: PoloSceneState): PhaseReaction {
   }
 }
 
-/** Join progressively during physical work; replay and comparison jumps never add people. */
-export function poloProtestTurnout(
-  state: PoloSceneState,
-  progress: number,
-): number {
-  if (!state.confirmed || state.phase === 'M0')
-    return PHASE_REACTIONS.M0.turnout
-  const phaseIndex = POLO_PHASES.indexOf(state.phase)
-  const before = PHASE_REACTIONS[POLO_PHASES[phaseIndex - 1] ?? 'M0'].turnout
-  const after = poloReactions(state).turnout
-  if (state.phase === 'M6' && state.preview && state.proposal) return after
-  const fraction = Number.isFinite(progress)
-    ? Math.max(0, Math.min(1, progress))
-    : 0
-  return before + (after - before) * fraction
+export function poloReactions(state: PoloSceneState): PhaseReaction {
+  const base = basePoloReactions(state)
+  const learned = activePoloLearnings(state)
+  if (learned.length) {
+    const green = learned.some((item) => item.id === 'soil')
+    const roof = learned.some((item) => item.id === 'roof')
+    return {
+      ...base,
+      voices: {
+        neighbor: {
+          ...base.voices.neighbor,
+          text: green
+            ? 'The planted path helps. Our playing field is still gone.'
+            : 'I see the changes. We still lost a place we shared.',
+          mood: 'concerned',
+        },
+        nature: {
+          ...base.voices.nature,
+          text: green
+            ? 'Protecting soil and planting helps. Who will care for it?'
+            : roof
+              ? 'Plants on the roof help. Living ground still matters.'
+              : 'Water and heat choices help us think. Soil still matters.',
+          mood: green || roof ? 'hopeful' : 'concerned',
+        },
+        student: {
+          ...base.voices.student,
+          text: 'A better campus still leaves our team without this field.',
+          mood: 'concerned',
+        },
+        operator: {
+          ...base.voices.operator,
+          text: 'Planning these ideas together helps. We still need to test each connection.',
+          mood: 'hopeful',
+        },
+      },
+    }
+  }
+  const applied = activePoloImprovements(state)
+  if (!applied.length) return base
+  const voices = { ...base.voices }
+  for (const item of applied) {
+    if (item.id === 'soil') {
+      voices.nature = {
+        ...voices.nature,
+        text: 'Keeping that soil strip helps. It still needs care.',
+        mood: 'concerned',
+      }
+      voices.operator = {
+        ...voices.operator,
+        text: 'Keeping living soil leaves less room for the works.',
+        mood: 'neutral',
+      }
+    }
+    if (item.id === 'foundation')
+      voices.operator = {
+        ...voices.operator,
+        text: 'The marked sections are reinforced. Extra concrete has a cost.',
+        mood: 'neutral',
+      }
+    if (item.id === 'grounds') {
+      voices.neighbor = {
+        ...voices.neighbor,
+        text: 'The path helps us walk here. Our field is still gone.',
+        mood: 'concerned',
+      }
+      voices.student = {
+        ...voices.student,
+        text: 'A walking path helps. Our team still needs a pitch.',
+        mood: 'concerned',
+      }
+    }
+  }
+  return { ...base, voices }
 }
 
-/** Field-anchored, peaceful rally along the track; nobody marches through the machinery. */
+/** Authored crowd of 100, present only for the pre-construction conversation. */
+export function poloProtestTurnout(
+  state: PoloSceneState,
+  active = true,
+): number {
+  return active && state.confirmed && state.phase === 'M0' ? 100 : 0
+}
+
+/** Peaceful rally spread across the original field, independent of campus size. */
 export function poloProtesterPosition(
   index: number,
   elapsed: number,
-  turnout: number,
 ): [number, number] {
-  const joined = Math.max(0, Math.min(1, turnout - index))
   const row = Math.floor(index / 10)
-  const destination = -80 + (index % 10) * 26
-  const entrance = index % 2 ? 180 : -180
   return [
-    entrance +
-      (destination - entrance) * joined +
-      Math.sin(elapsed * 0.8 + index) * 2,
-    -92 - row * 12 + Math.cos(elapsed * 0.7 + index) * 1.5,
+    -108 + (index % 10) * 24 + Math.sin(elapsed * 0.8 + index) * 2,
+    -54 + row * 12 + Math.cos(elapsed * 0.7 + index) * 1.5,
   ]
 }
 

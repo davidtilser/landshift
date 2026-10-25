@@ -80,8 +80,8 @@ describe('scripted character discussion', () => {
     const reply = scriptedDiscussion(
       request('Will this give me a job?', 'student', current),
     )
-    expect(reply.text).toContain('fictional')
-    expect(reply.text).toContain('not a forecast of real jobs')
+    expect(reply.text).toContain('planned places')
+    expect(reply.text).toContain('not guaranteed jobs')
   })
   it('does not erase occupied-footprint concerns after upgrades', () => {
     const current: DiscussionContext = {
@@ -108,6 +108,6 @@ describe('scripted character discussion', () => {
   it('handles unsupported input with honest demo topics rather than invented answers', () => {
     const reply = scriptedDiscussion(request('Write a rocket engine simulator'))
     expect(reply.source).toBe('scripted')
-    expect(reply.text).toContain('In this demo')
+    expect(reply.text).toContain('We can discuss')
   })
 })

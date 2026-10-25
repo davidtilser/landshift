@@ -374,7 +374,7 @@ export function evaluatePlan(
       tone: 'good',
       title: 'Share the benefits',
       detail: choices.training
-        ? 'Your fictional agreement funds 12 paid training places each year. The game counts access to skills separately from permanent jobs.'
+        ? 'Your agreement sets aside 12 planned paid training places each year. Access to skills does not guarantee permanent jobs.'
         : 'A public walking space shares part of the landscape with neighbors. It is a proposed amenity, not an existing public right of way.',
     })
   return {

@@ -1,5 +1,5 @@
 import './community-hub.css'
-import { pagedUiText } from './ui-text.ts'
+import { messageUiText } from './ui-text.ts'
 import { CharacterChat, setCommunityAvatar } from './character-chat.ts'
 import { CommunityClient } from './community-client.ts'
 import { CommunityAutoplay } from './community-autoplay.ts'
@@ -18,12 +18,14 @@ import type {
 import type { CommunityVoice } from './community.ts'
 import type { DiscussionContext } from './discussion.ts'
 import type { DialogueTarget } from './dialogue-choices.ts'
+import type { ConversationReactions } from './community-reactions.ts'
 
 interface HubOptions {
   getContext: () => DiscussionContext
   getPlan: () => PlannerState
   tryIdea: (target: DialogueTarget) => void
   beforeOpen: () => void
+  reactionsChanged?: (reactions: ConversationReactions) => void
 }
 interface Pending {
   controller: AbortController
@@ -58,7 +60,7 @@ function action(
 export class CommunityHub {
   private readonly options: HubOptions
   private readonly client = new CommunityClient()
-  private readonly session = new CommunitySession()
+  private readonly session: CommunitySession
   private readonly privateChat: CharacterChat
   private readonly autoplay: CommunityAutoplay
   private readonly root = node('aside', 'community-hub')
@@ -74,10 +76,12 @@ export class CommunityHub {
   private planKey = ''
   private error = ''
   private destroyed = false
-  private readonly textPages = new Map<string, number>()
 
   constructor(options: HubOptions) {
     this.options = options
+    this.session = new CommunitySession(() => {
+      options.reactionsChanged?.(this.session.bubbleReactions())
+    })
     this.root.hidden = true
     this.root.id = 'community-hub'
     this.root.setAttribute('aria-label', 'Shared community discussion')
@@ -95,7 +99,7 @@ export class CommunityHub {
     this.moodList.setAttribute('role', 'group')
     this.moodList.setAttribute(
       'aria-label',
-      'Fictional crowd emotions, separate from Support out of 100',
+      'Estimated crowd emotions, separate from Support out of 100',
     )
     this.timeline.setAttribute('role', 'log')
     this.timeline.setAttribute('aria-label', 'Public community thread')
@@ -109,7 +113,7 @@ export class CommunityHub {
       node(
         'p',
         'community-disclosure',
-        'Fictional voices. Public replies stay in this game’s shared thread.',
+        'Public replies stay in this shared thread.',
       ),
     )
     this.root.append(header, context, this.moodList, this.timeline, footer)
@@ -224,20 +228,15 @@ export class CommunityHub {
         : this.profile(line.speaker).name
   }
   private renderMeta(): void {
-    this.engine.textContent = this.client.configured
-      ? 'Gemini live · fictional'
-      : 'Demo replies · fictional'
+    this.engine.textContent = 'Community conversation'
     this.engine.title = this.client.configured
       ? this.client.model
-      : 'AI not connected; authored demo replies.'
+      : 'Prepared replies are available while AI is not connected.'
     this.moodList.replaceChildren()
     const mood = this.session.publicMood
     if (mood) {
       const heading = node('div', 'community-mood-heading')
-      heading.append(
-        node('strong', '', 'Crowd emotions'),
-        node('span', '', 'Fictional mix'),
-      )
+      heading.append(node('strong', '', 'Crowd emotions'))
       const bar = node('div', 'community-mood-bar'),
         values = node('div', 'community-mood-values')
       bar.setAttribute('aria-hidden', 'true')
@@ -266,24 +265,12 @@ export class CommunityHub {
         bar.append(segment)
         values.append(badge)
       }
-      const reason = this.pagedText(
-        mood.reason,
-        'community-mood-reason',
-        'mood:' + mood.reason,
-      )
-      reason.title =
-        'Fictional crowd reaction, not a real poll or approval rating.'
-      this.moodList.append(
-        heading,
-        bar,
-        values,
-        node(
-          'p',
-          'community-mood-note',
-          'Emotion mix, separate from Support /100.',
-        ),
-        reason,
-      )
+      const description =
+        mood.reason +
+        ' Modeled crowd reaction, not a real poll or approval rating. Emotion mix is separate from Support /100.'
+      this.moodList.title = description
+      this.moodList.setAttribute('aria-description', description)
+      this.moodList.append(heading, bar, values)
     }
   }
   private updateStatus(): void {
@@ -297,7 +284,7 @@ export class CommunityHub {
           : this.autoplay.active
             ? 'The conversation continues…'
             : 'The community is listening. Add your voice.')
-    this.status.replaceChildren(this.pagedText(text, '', 'status:' + text))
+    this.status.replaceChildren(messageUiText(text))
   }
   private restartDiscussion(immediate: boolean): void {
     if (this.destroyed || this.root.hidden) return
@@ -322,7 +309,7 @@ export class CommunityHub {
         update.tabIndex = -1
         update.append(
           node('span', '', '↻ Plan update'),
-          this.pagedText(line.text, '', String(line.id)),
+          messageUiText(line.text),
         )
         this.timeline.append(update)
         continue
@@ -368,14 +355,18 @@ export class CommunityHub {
         'community-source',
         index === 0
           ? 'WHAT IF · PROPOSAL'
-          : line.source === 'live'
-            ? 'AI character'
-            : line.source === 'demo'
-              ? 'Demo reply'
-              : line.source === 'scenario'
-                ? 'Scenario'
-                : 'Your public reply',
+          : line.source === 'scenario'
+            ? 'Conversation starter'
+            : line.source === 'planner'
+              ? 'Your public reply'
+              : 'Reply',
       )
+      source.title =
+        line.source === 'live'
+          ? 'AI-assisted reply'
+          : line.source === 'demo'
+            ? 'Prepared reply'
+            : ''
       body.append(head, source)
       if (line.replyTo !== undefined && line.replyTo !== lines[0]?.id) {
         const parent = lines.find((item) => item.id === line.replyTo)
@@ -388,9 +379,7 @@ export class CommunityHub {
         if (parent) quote.title = 'View original post'
         body.append(quote)
       }
-      body.append(
-        this.pagedText(line.text, 'community-post-text', String(line.id)),
-      )
+      body.append(messageUiText(line.text, 'community-post-text'))
       const actions = node('div', 'community-post-actions')
       const reply = action('↩ Reply', 'reply', String(line.id))
       reply.setAttribute('aria-label', 'Reply to ' + this.label(line))
@@ -408,17 +397,6 @@ export class CommunityHub {
         this.timeline.scrollTop = scrollToEnd
           ? this.timeline.scrollHeight
           : scroll
-    })
-  }
-  private pagedText(text: string, className: string, key: string): HTMLElement {
-    return pagedUiText(text, className, {
-      page: this.textPages.get(key) ?? 0,
-      onPageChange: (page) => {
-        this.textPages.set(key, page)
-        this.autoplay.stop()
-        if (this.pending?.message === '') this.cancel()
-        if (!key.startsWith('status:')) this.updateStatus()
-      },
     })
   }
   private renderComposer(): void {
@@ -633,7 +611,6 @@ export class CommunityHub {
     this.cancel()
     this.privateChat.reset()
     this.session.reset()
-    this.textPages.clear()
     this.planKey = ''
     this.selectedReply = undefined
     this.error = ''
