@@ -1,15 +1,15 @@
 .landing {
-  --landing-border: rgba(255, 255, 255, 0.14);
-  --landing-muted: rgba(255, 255, 255, 0.7);
-  --landing-surface: rgba(10, 12, 20, 0.86);
+  --landing-border: color-mix(in srgb, var(--ls-fg) 14%, transparent);
+  --landing-muted: color-mix(in srgb, var(--ls-fg) 70%, transparent);
+  --landing-surface: color-mix(in srgb, var(--ls-bg) 86%, transparent);
 
   position: fixed;
   inset: 0;
   overflow: hidden;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--ls-font-ui);
   line-height: 1.4;
-  color: #fff;
-  background: #04050a;
+  color: var(--ls-fg);
+  background: var(--ls-bg);
   color-scheme: dark;
 }
 
@@ -93,16 +93,21 @@
   box-sizing: border-box;
   justify-content: flex-end;
   pointer-events: auto;
-  border-color: #3d82e6;
-  color: #9ec4ff;
+  border-color: var(--ls-source-wordmark-mid);
+  color: var(--ls-source-wordmark-bottom);
   background: transparent;
-  box-shadow: 0 0 16px rgba(36, 58, 158, 0.7);
+  box-shadow: 0 0 16px
+    color-mix(in srgb, var(--ls-source-wordmark-top) 70%, transparent);
 }
 
 .landing-explore:hover {
-  border-color: #6ad4ff;
-  color: #e7f4ff;
-  background: rgba(36, 58, 158, 0.35);
+  border-color: var(--ls-source-wordmark-bottom);
+  color: var(--ls-fg);
+  background: color-mix(
+    in srgb,
+    var(--ls-source-wordmark-top) 35%,
+    transparent
+  );
 }
 
 .landing-panel-hint {
@@ -223,10 +228,10 @@
 .landing-error {
   margin: 0;
   padding: 10px 14px;
-  border: 1px solid rgba(255, 140, 140, 0.45);
+  border: 1px solid color-mix(in srgb, var(--ls-alert) 45%, transparent);
   border-radius: 8px;
-  color: #ffd2d2;
-  background: rgba(120, 20, 20, 0.35);
+  color: var(--ls-alert);
+  background: color-mix(in srgb, var(--ls-danger) 35%, transparent);
 }
 
 .landing-actions {
@@ -290,17 +295,21 @@
   font: inherit;
   text-align: start;
   color: inherit;
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--ls-fg) 4%, transparent);
   cursor: pointer;
 }
 
 .landing-option:not([aria-disabled='true']):hover {
-  border-color: rgba(159, 211, 255, 0.6);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: color-mix(
+    in srgb,
+    var(--ls-source-wordmark-bottom) 60%,
+    transparent
+  );
+  background: color-mix(in srgb, var(--ls-fg) 8%, transparent);
 }
 
 .landing-option:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--ls-focus);
   outline-offset: 2px;
 }
 

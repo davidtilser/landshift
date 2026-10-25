@@ -1,3 +1,6 @@
+@import '../../design/palette.css';
+@import '../../design/type.css';
+
 .ui-visually-hidden {
   position: absolute;
   width: 1px;
@@ -17,44 +20,44 @@
   gap: 8px;
   min-height: 44px;
   padding: 10px 22px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 1px solid color-mix(in srgb, var(--ls-fg) 35%, transparent);
   border-radius: 999px;
   font: inherit;
-  color: #fff;
+  color: var(--ls-fg);
   background: transparent;
   cursor: pointer;
 }
 
 .ui-button:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--ls-fg) 8%, transparent);
 }
 
 .ui-button:focus-visible,
 .ui-icon-button:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--ls-focus);
   outline-offset: 3px;
 }
 
 .ui-button-primary {
   border-color: transparent;
   font-weight: 600;
-  color: #04050a;
-  background: #e6f3ff;
+  color: var(--ls-bg);
+  background: var(--ls-source-wordmark-bottom);
 }
 
 .ui-button-primary:hover {
-  background: #fff;
+  background: var(--ls-fg);
 }
 
 .ui-button-quiet {
   min-height: 36px;
   padding: 6px 10px;
   border-color: transparent;
-  color: rgba(255, 255, 255, 0.72);
+  color: color-mix(in srgb, var(--ls-fg) 72%, transparent);
 }
 
 .ui-button-quiet:hover {
-  color: #fff;
+  color: var(--ls-fg);
 }
 
 .ui-icon-button {
@@ -63,19 +66,19 @@
   width: 36px;
   height: 36px;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  border: 1px solid color-mix(in srgb, var(--ls-fg) 45%, transparent);
   border-radius: 50%;
   font:
     italic 600 17px/1 Georgia,
     'Times New Roman',
     serif;
-  color: #fff;
-  background: rgba(4, 5, 10, 0.6);
+  color: var(--ls-fg);
+  background: color-mix(in srgb, var(--ls-bg) 60%, transparent);
   cursor: pointer;
 }
 
 .ui-icon-button:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: color-mix(in srgb, var(--ls-fg) 14%, transparent);
 }
 
 .ui-centered-view {
@@ -87,10 +90,10 @@
   justify-content: center;
   gap: 24px;
   padding: 24px;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--ls-font-ui);
   text-align: center;
-  color: #fff;
-  background: #04050a;
+  color: var(--ls-fg);
+  background: var(--ls-bg);
 }
 
 .ui-centered-view h1 {
@@ -109,10 +112,10 @@
   padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 16px;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--ls-font-ui);
   line-height: 1.4;
-  color: #fff;
-  background: #0e111c;
+  color: var(--ls-fg);
+  background: var(--ls-bg);
   color-scheme: dark;
 }
 
@@ -150,17 +153,17 @@
 }
 
 .credits-panel a {
-  color: #9fd3ff;
+  color: var(--ls-link);
 }
 
 .credits-panel a:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--ls-focus);
   outline-offset: 2px;
 }
 
 .credits-panel-meta {
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.66);
+  color: color-mix(in srgb, var(--ls-fg) 66%, transparent);
 }
 
 @media (prefers-reduced-motion: no-preference) {
