@@ -147,9 +147,11 @@
   content: '';
   position: absolute;
   top: 0;
-  left: -8px;
-  border-top: 9px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
-  border-left: 8px solid transparent;
+  left: -7px;
+  width: 9px;
+  height: 10px;
+  background: var(--ls-role-surface);
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
 }
 
 /* All five chapters use the same step reader across all four topics. */
@@ -161,10 +163,7 @@
   z-index: 2;
   top: 0;
   padding-block: 3px;
-  background: var(--ls-role-surface);
-  box-shadow:
-    0 -20px 0 #ffffff,
-    0 8px 12px #ffffff;
+  background: transparent;
 }
 .polo-reader-progress {
   margin: 0 0 16px;

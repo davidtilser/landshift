@@ -290,6 +290,17 @@
   padding: 3px 0 3px 5px;
   white-space: nowrap;
 }
+html.ls-system-dark .polo-replay {
+  background: transparent;
+  color: var(--ls-role-ink);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+html.ls-system-dark .polo-replay:hover {
+  background: var(--ls-role-secondary-hover);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
 .polo-deck h1 {
   font-size: 34px;
   line-height: 1.1;
@@ -502,12 +513,13 @@
   position: sticky;
   bottom: -17px;
   padding-bottom: 6px;
-  background: var(--ls-role-surface);
+  background: transparent;
 }
 .polo-back {
   min-height: 48px;
   padding: 0 12px 0 0;
   border: 0;
+  border-radius: 12px;
   background: transparent;
   color: var(--ls-role-ink);
   font-size: 15px;
@@ -568,13 +580,15 @@
   font-size: 12px;
   color: var(--ls-role-ink);
 }
-.polo-stop[aria-current='step'] {
+html.ls-system-dark .polo-stop[aria-current='step'] {
   color: var(--ls-role-ink);
-  background: var(--ls-role-surface);
+  background: var(--ls-source-wordmark-mid);
+  box-shadow: 0 0 14px
+    color-mix(in srgb, var(--ls-source-wordmark-mid) 55%, transparent);
   font-weight: 750;
 }
-.polo-stop[aria-current='step'] .polo-stop-dot {
-  background: var(--ls-role-surface);
+html.ls-system-dark .polo-stop[aria-current='step'] .polo-stop-dot {
+  background: color-mix(in srgb, white 24%, var(--ls-source-wordmark-mid));
   color: var(--ls-role-ink);
 }
 .polo-stop.is-complete .polo-stop-dot {
