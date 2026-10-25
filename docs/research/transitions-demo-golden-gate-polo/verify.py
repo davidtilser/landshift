@@ -53,11 +53,16 @@ def main():
             bindings = [b for s in pattern['states'] for b in s['bindings']]
         else:
             require(pattern['scope'] == 'proposal_within_M6', 'Proposal must remain inside M6')
-            require(pattern['show_numbers'] is False, 'Heat pending / concepts cannot display results')
-            require(pattern['bindings'] == [], 'Proposal results not yet modelled')
+            require(pattern['show_numbers'] is False, 'Heat UI pending / concepts cannot display results')
+            require(pattern['bindings'] == [], 'Proposal scene bindings remain unimplemented')
             require(pattern['phases'][0]['id'] == 'original', 'Proposal needs original starting state')
             require(len({s['id'] for s in pattern['phases']}) == len(pattern['phases']), 'Duplicate phase')
-            bindings = pattern['bindings']
+            bindings = pattern.get('data_bindings', [])
+            if pattern['id'] == 'P1':
+                require(pattern['readiness'] == 'calculated_data_ui_pending', 'Wrong heat-data readiness')
+                require(len(bindings) == 3, 'Three recommended heat metrics required')
+            else:
+                require(not bindings, 'P2/P3 remain unquantified')
         for binding in bindings:
             require(bool(binding['unit']) and bool(binding['time_basis']), 'Binding lacks unit or time basis')
             value = pointer(docs[binding['source']], binding['pointer'])
@@ -79,6 +84,15 @@ def main():
     close(op['daily_average_cooling_supply_m3'], op['daily_average_cooling_evaporation_m3'] + op['daily_average_cooling_blowdown_m3'], 'Cooling balance')
     close(energy['operation']['facility_electricity_mwh_year'], energy['operation']['it_electricity_mwh_year'] + energy['operation']['non_it_electricity_mwh_year'], 'Operating electrical balance')
     require(energy['operation']['peak_facility_mw'] is None, 'Do not replace unknown peak with average')
+    heat = docs['heat_results']
+    require(heat['readiness'] == 'calculated_teaching_data_ui_not_implemented', 'Heat packet is not UI evidence')
+    require([r['id'] for r in heat['recipients']] == ['anglers_lodge', 'senior_center'], 'Heat needs fixed pair')
+    h = heat['annual']
+    close(h['hot_output_mwh_th'], h['recovered_source_mwh_th'] + h['compressor_mwh_el'], 'Heat-pump balance')
+    close(h['hot_output_mwh_th'], h['delivered_mwh_th'] + h['loss_mwh_th'], 'Heat delivery balance')
+    close(h['demand_mwh_th'], h['delivered_mwh_th'] + h['backup_heat_mwh_th'], 'Recipient heat balance')
+    close(h['additional_electricity_mwh_el'], h['compressor_mwh_el'] + h['auxiliary_mwh_el'], 'Recovery electricity balance')
+    close(h['baseline_facility_electricity_mwh_el'], energy['operation']['facility_electricity_mwh_year'], 'Heat baseline mismatch')
     for card in land['milestones']:
         require(sum(card['data']['surface_areas_m2'].values()) == 40000, 'Land budget changed')
         require(all(v is None for v in card['unknowns'].values()), 'Access quantities must remain unknown')

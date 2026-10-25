@@ -1,0 +1,58 @@
+{
+  "as_of": "2026-10-24",
+  "sources": [
+    {
+      "id": "H01",
+      "title": "Anglers Lodge, SF Recreation and Parks",
+      "url": "https://sfrecpark.org/facilities/facility/details/Anglers-Lodge-222",
+      "supports": "Existing park facility and indicative location; not useful heating demand or a connection."
+    },
+    {
+      "id": "H02",
+      "title": "Golden Gate Park Senior Center, SF Recreation and Parks",
+      "url": "https://sfrecpark.org/facilities/facility/details/Golden-Gate-Park-Senior-Center-90",
+      "supports": "Existing community facility at 6101 Fulton Street; not useful heating demand or a connection."
+    },
+    {
+      "id": "H03",
+      "title": "DOE/NREL Best Practices Guide for Energy-Efficient Data Center Design, July 2024",
+      "url": "https://www.energy.gov/sites/default/files/2024-07/best-practice-guide-data-center-design_0.pdf",
+      "locator": "Section 7.1, printed p.28 / PDF p.37",
+      "supports": "Nearby recipient, compatible temperatures and retained cooling when the recipient is unavailable; no SF recovery coefficient."
+    },
+    {
+      "id": "H04",
+      "title": "IEA How a heat pump works",
+      "url": "https://www.iea.org/reports/the-future-of-heat-pumps/how-a-heat-pump-works",
+      "supports": "Heat-transfer and electrical-input accounting. The chosen COP 4 is an authored case input, not a rating verified for this design."
+    },
+    {
+      "id": "H05",
+      "title": "Rheem 9540200S water-to-water heat pump",
+      "url": "https://rheem.co.nz/products/commercial/commercial-heat-pump-water-heating/water-to-water-w2w-heat-pump/9540200s",
+      "locator": "Overview: stackable 20 kW model, water heating up to 65 C, source loop minimum entering 12 C / leaving 7 C.",
+      "supports": "Technology plausibility for a low-temperature water source and hotter water delivery only. No product selection, US compliance, COP or 40 kW site-performance validation is inferred."
+    },
+    {
+      "id": "H06",
+      "title": "Frozen SF energy teaching baseline",
+      "file": "raw/baseline-energy-results.json",
+      "sha256": "0a53916bdca0fb32930b16ab4421058ad7c4ffc5168ac7e97a04b9775a177f15",
+      "supports": "Inherited 10 MW average IT demand and 87600 MWh/year IT electricity."
+    },
+    {
+      "id": "H07",
+      "title": "Existing local OSM/OpenFreeMap place points",
+      "file_context": "data/manifests/golden-gate-park.json",
+      "supports": "Indicative geographic separation. Assumed 400 m and 650 m routes are not derived surveyed pipe lengths."
+    }
+  ],
+  "selection_rationale": {
+    "demand": "12 and 54 MWh/year are explicit illustrative occupied-space heating budgets, selected to give a small club and a larger community building different loads. They are not inferred from an unverified floor area or meter.",
+    "capacity": "A 40 kW hot-side package deliberately limits winter coverage. Source availability of 30 kW is at most 0.3% of the inherited 10 MW IT-heat reference; the interface and flow are teaching assumptions.",
+    "temperature": "32/27 C primary recovery, 30/25 C heat-pump source, 55/45 C delivery and assumed 45/35 C building circuits make a declared heat-pump case without replacing the baseline cooling technology.",
+    "losses": "90% and 85% delivery efficiency are separate explicit branch allowances; the longer hypothetical Senior Center branch is assigned the larger allowance. This is not an engineering estimate of actual pipe loss.",
+    "seasonality": "Monthly percentages sum to 100 and are an authored seasonal shape, not a weather-derived SF heating forecast.",
+    "pumps": "0.15 kW common circulation, 0.05 kW controls, 0.10/0.15 kW branch pumps are selected inventories outside compressor-only COP, charged only during active windows; off-window energy is assumed zero."
+  }
+}

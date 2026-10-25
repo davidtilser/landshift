@@ -1,25 +1,25 @@
 # Golden Gate Park demo changes
 
-The selected demo presents **three alternative proposals** for the fictional Polo Fields datacentre. **Heat for neighbours is the single detailed showcase to receive a numerical model. Recycled water and a green roof are visual concepts with no underlying calculations or result data.** This brief defines the selection, experience and visual direction. Building the heat model is the next step.
+The selected demo presents **three alternative proposals** for the fictional Polo Fields datacentre. **Heat for neighbours has a completed numerical teaching-data packet for the two fixed buildings. Recycled water and a green roof are visual concepts with no underlying calculations or result data.** This brief defines the selection, experience and visual direction. The [heat packet](../heat-demo-golden-gate-polo/README.md) supplies calculations and future UI recommendations; this delivery does not implement their display.
 
 The user approved this presentation scope on 24 October 2026. The original water and energy baseline packets remain the project reference. The earlier four calculated changes are retained as historical research, separate from this selection.
 
 ## Selected cases and readiness
 
-| Case ID                | Proposal                             | Demo role                          | Numerical scope                                                                                  | Current readiness                                                                  |
-| ---------------------- | ------------------------------------ | ---------------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| `heat_reuse_neighbors` | Use server heat in a nearby building | Main showcase, selected by default | One bounded, evidence-informed heat case, with explicit assumptions and matched recipient demand | Visual story and modelling questions defined here; heat results not yet calculated |
-| `recycled_water`       | Supply cooling with recycled water   | Concept preview                    | No volumes, savings, capacity calculations or quantitative comparison                            | Visual direction and explanatory copy defined here                                 |
-| `green_roof`           | Add a planted roof                   | Concept preview                    | No runoff, temperature, energy, irrigation or biodiversity calculations                          | Visual direction and explanatory copy defined here                                 |
+| Case ID                | Proposal                                     | Demo role                          | Numerical scope                                                                                  | Current readiness                                              |
+| ---------------------- | -------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| `heat_reuse_neighbors` | Use server heat in two nearby park buildings | Main showcase, selected by default | One bounded, evidence-informed heat case, with explicit assumptions and matched recipient demand | Calculated teaching data ready; UI integration not implemented |
+| `recycled_water`       | Supply cooling with recycled water           | Concept preview                    | No volumes, savings, capacity calculations or quantitative comparison                            | Visual direction and explanatory copy defined here             |
+| `green_roof`           | Add a planted roof                           | Concept preview                    | No runoff, temperature, energy, irrigation or biodiversity calculations                          | Visual direction and explanatory copy defined here             |
 
-Keep these roles visible: **Detailed showcase** for heat, **Concept preview — no numerical assessment** for the other two. Until the heat model is completed and checked, its result state is **Model pending**. Existing electrical figures must never masquerade as calculated heat-delivery results.
+Keep these roles visible: **Detailed showcase** for heat, **Concept preview — no numerical assessment** for the other two. The heat data state is **Calculated teaching data — UI pending**. Recommended primary figures are **51.5 MWh thermal/year**, **78.0% of combined modelled demand**, and **15.9 MWh additional electricity/year**. The current application is not updated by this data task. Existing electrical figures must never masquerade as calculated heat-delivery results.
 
 ## What the user experiences
 
 The existing M0–M6 timeline explains the original project. At **M6 Operation**, the user enters a proposal view and can select one of the three case cards. This is one choice area inside the existing flow, not another construction milestone or a requirement to complete three tasks.
 
-1. Open the proposal view on **Heat for neighbours**. Show the datacentre and one clearly labelled model recipient.
-2. Let the user preview the change and compare it with the original arrangement. Once the heat model is ready, show its short data card beside the physical connection.
+1. Open the proposal view on **Heat for neighbours**. Show the datacentre and both fixed recipients: Anglers Lodge and Golden Gate Park Senior Center.
+2. Let the user preview the change and compare it with the original arrangement. For a later UI integration, use the checked heat handoff for its short data card beside the physical connection.
 3. Selecting **Recycled water** replaces the heat scene with its source-and-delivery illustration. Selecting **Green roof** replaces it with the roof illustration.
 4. Switching cases clears the previous proposal's overlays and result state. Preserve camera context where practical; use a short camera movement only when the new mechanism needs another view.
 5. The user can replay, skip, return to the original plan or choose another case. Previews are independent and do not combine interventions or add savings.
@@ -28,7 +28,7 @@ Natural-language prompts may introduce a prepared case, such as “Could we use 
 
 ### Data visibility when switching
 
-Only the heat case can show proposal-result numbers after its model is ready. The recycled-water and green-roof views show the animation, a short explanation, a conceptual trade-off and the concept label. Hide quantitative panels, charts, counters, numeric badges, project-stat overlays and comparison percentages in those views. Do not retain heat numbers, display zero savings, or reuse an old water result as a new concept result.
+Only the heat case has checked proposal-result numbers available for a later UI integration. The recycled-water and green-roof views show the animation, a short explanation, a conceptual trade-off and the concept label. Hide quantitative panels, charts, counters, numeric badges, project-stat overlays and comparison percentages in those views. Do not retain heat numbers, display zero savings, or reuse an old water result as a new concept result.
 
 The original baseline's numerical cards remain available in its separate view. They are not carried into the two concept views. Their qualitative arrows, colour changes, water levels and vegetation are explanatory animation, not scaled data, measured temperature or a simulation output. Source details can remain optional text links.
 
@@ -42,26 +42,30 @@ Use the [verifiable proposal transition tables](transition-checklist.en.md): **S
 
 ### Proposal and intended learning
 
-“Could we use some of the servers' heat in a nearby building?”
+“Could we use some of the servers' heat in Anglers Lodge and the Golden Gate Park Senior Center?”
 
 The learner discovers a connection between computing, heat, a recipient's heating demand and new infrastructure. Reusing heat can benefit another building while also requiring equipment, electricity and a viable thermal connection. It does not make the servers stop using electricity.
 
-Use **one model community pool building** as the proposed recipient for the next modelling step. This is a schematic neighbour with a heating need, not an assertion that a named pool exists beside the Polo Fields or has agreed to connect. A real recipient can replace it if suitable public evidence is found. Do not populate the map with apparently connected real homes.
+**User-selected scope, 24 October 2026:** use heat for **Anglers Lodge and Golden Gate Park Senior Center together**, the two nearest buildings in the reviewed shortlist. This supersedes the fictional pool, open candidate search and one-building-first recommendation. Keep one fixed two-building proposal; do not add museums, other recipients, building selectors or routing controls.
 
-The existing campus uses an authored indirect-evaporative cooling concept. The next study must identify a plausible recovery point and temperatures in that system. Do not silently replace it with a high-temperature direct-liquid-cooled server design to obtain a better result.
+The [completed heat packet](../heat-demo-golden-gate-polo/README.md) records the pair, declared route assumptions and shared-source calculation. Building identity is selected for the demo; useful heating demand, equipment compatibility, routes and consent remain unverified. Label real buildings separately from assumed demand and hypothetical connections.
+
+**Implementation migration:** the running scene/discussion source still describes the former model pool. Its geometry, copy and heating-system illustration need a later update. This brief and the proposed transition contracts describe the new building-heating direction; they do not claim that UI migration is complete. The educational numerical model is complete under the packet's declared assumptions.
+
+The existing campus uses an authored indirect-evaporative cooling concept. The completed teaching packet selects a 32/27°C primary recovery point and a separate 30/25°C heat-pump source circuit; these are declared assumptions about the fictional campus. Do not silently replace it with a high-temperature direct-liquid-cooled server design to obtain a better result.
 
 ### Physical connection and new construction
 
-For the demo, propose **one new buried supply-and-return pipe pair between the datacentre and the model pool building**, together with heat-transfer equipment at both ends. This is an authored infrastructure proposal, not a surveyed route, an approved connection or evidence of an existing district-heating network at the Polo Fields.
+For the demo, propose **two schematic delivery branches, each with buried supply and return, from a common recovery package to Anglers Lodge and Golden Gate Park Senior Center**, together with heat-transfer equipment at both ends. This is an authored infrastructure proposal, not a surveyed route, an approved connection or evidence of an existing district-heating network at the Polo Fields.
 
 The proposed heat path is:
 
 1. Server heat enters the existing cooling system. Assess recovery from the warmed internal cooling-water return before heat is rejected outdoors; this recovery point requires engineering validation.
-2. A heat exchanger transfers recoverable heat into a separate delivery circuit. If source temperature is insufficient for the recipient's heating requirement, a heat pump raises the temperature using additional electricity. Its need and placement remain to be selected from compatible source and recipient temperatures.
+2. A heat exchanger transfers recoverable heat into a separate delivery circuit. If source temperature is insufficient for the recipient's heating requirement, a heat pump raises the temperature using additional electricity. The selected teaching case uses COP 4 and 55/45°C delivery to assumed 45/35°C building circuits; actual system compatibility remains unverified.
 3. Circulation pumps move warmed delivery water through an insulated supply pipe to the recipient. A second insulated pipe returns cooler water to complete the circuit. The system transports heat in circulating water, not warm exhaust air.
-4. A recipient-side heat exchanger transfers heat to the pool building's heating system. Keep the datacentre cooling circuit, delivery circuit and pool-water system physically separate; datacentre coolant does not enter the swimming pool.
+4. A recipient-side heat exchanger at each building transfers heat into its own heating system. Keep the datacentre cooling circuit, delivery circuit and recipient building-heating circuit physically separate; heat crosses exchangers without mixing their water.
 
-New equipment includes heat exchangers, circulation pumps, valves, controls and, if needed, a heat pump. Existing technical rooms may accommodate it if suitable space exists; a separate large building is not assumed. Equipment sizes, source and delivery temperatures, pipe length, routing and heat losses are not yet defined.
+New equipment includes heat exchangers, circulation pumps, valves, controls and, if needed, a heat pump. Existing technical rooms may accommodate it if suitable space exists; a separate large building is not assumed. The heat packet selects teaching capacities, temperatures, assumed route lengths and loss allowances. These close the educational calculation; actual equipment sizing, routing and engineering performance remain unverified.
 
 The original cooling system must remain able to reject heat when the recipient cannot accept it. The recipient retains its own heating provision for demand that recovery cannot cover. Heat delivery is limited by both the available source and a useful recipient demand; it cannot be assumed to run at full output continuously.
 
@@ -71,19 +75,19 @@ Installing the proposed buried connection involves excavation, pipe installation
 
 The following are short animation beats within M6, not additional timeline steps:
 
-| Beat                    | What the user sees                                                                                                                                                                 | What it explains                                                                                                                 |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Original arrangement    | Servers receive electricity; their heat passes toward the existing cooling equipment. The pool has a separate schematic heating source.                                            | Both the datacentre cooling duty and recipient heating need exist before the proposal.                                           |
-| Proposed connection     | Reveal a heat exchanger, a supply-and-return pipe pair and, if the selected design needs it, a heat pump. Use a split view or cutaway rather than a falsely surveyed street route. | Reuse requires a physical interface and possibly temperature upgrading.                                                          |
-| Connection installation | Briefly open a schematic trench, lay the two insulated pipes, then restore the surface. Keep route geometry visibly illustrative.                                                  | The benefit requires new construction and temporary disturbance beyond installing equipment inside the datacentre.               |
-| Heat delivery           | Warm-coloured pulses pass through the exchanger and recipient loop; a cooler return comes back. The recipient's original heater still covers any remaining need.                   | Heat delivered must match a useful demand. Separate loops exchange heat; datacentre coolant does not become swimming-pool water. |
-| Remaining duty          | Keep the unrecovered heat pathway and original cooling equipment visible. Add a separate electrical path to recovery equipment.                                                    | Some heat can remain unused, and heat delivery can need extra electricity.                                                       |
+| Beat                    | What the user sees                                                                                                                                                                                                                           | What it explains                                                                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Original arrangement    | Servers receive electricity; their heat passes toward the existing cooling equipment. Both fixed park buildings have their own heating provision, with actual systems unverified and the modelled useful demand declared in the heat packet. | Both the datacentre cooling duty and recipient heating need exist before the proposal.                                                    |
+| Proposed connection     | Reveal a common recovery interface, supply/return branches to the two fixed buildings and, if the selected design needs it, a heat pump. Use a split view or cutaway rather than a falsely surveyed street route.                            | Reuse requires a physical interface and possibly temperature upgrading.                                                                   |
+| Connection installation | Briefly open a schematic trench, lay the two insulated pipes, then restore the surface. Keep route geometry visibly illustrative.                                                                                                            | The benefit requires new construction and temporary disturbance beyond installing equipment inside the datacentre.                        |
+| Heat delivery           | Warm-coloured pulses pass through the exchanger and recipient loop; a cooler return comes back. The recipient's original heater still covers any remaining need.                                                                             | Heat delivered must match a useful demand. Separate loops exchange heat; datacentre coolant does not enter the recipient heating circuit. |
+| Remaining duty          | Keep the unrecovered heat pathway and original cooling equipment visible. Add a separate electrical path to recovery equipment.                                                                                                              | Some heat can remain unused, and heat delivery can need extra electricity.                                                                |
 
-Use colours with labels and directional symbols, not colour alone. Heat and electricity must be visually distinct. For the eventual quantified view, any scaled flow widths must come from the verified model; before that, use qualitative pulses.
+Use colours with labels and directional symbols, not colour alone. Heat and electricity must be visually distinct. For a later quantified UI view, any scaled flow widths must come from the verified model; before that, use qualitative pulses.
 
 After surface restoration, use an underground cutaway to keep both pipes visible: warmer supply toward the recipient and cooler return toward the datacentre. Show heat passing across each exchanger without water particles crossing between the separate circuits. The installation beat is a proposal preview inside M6, not a new baseline milestone or a claim that the original project already included this connection.
 
-The base scene comparison is the required interaction. An optional **Recipient unavailable** replay would route heat back toward the original cooling system and explain resilience. A winter/summer comparison is an optional later addition only if recipient-demand assumptions and model time steps support it; do not invent a seasonal heat curve for visual effect.
+The base scene comparison is the required interaction. An optional **Buildings need no heat** replay treats both recipients as unavailable and routes heat back toward the original cooling system. Keep one control for the pair, without separate per-building switches. A winter/summer comparison is an optional later addition only if recipient-demand assumptions and model time steps support it; do not invent a seasonal heat curve for visual effect.
 
 ### The wow moment
 
@@ -95,15 +99,15 @@ The surprising lesson is **a benefit at the recipient can coexist with added ele
 
 The existing energy packet provides reference inputs, not recovery results: **10 MW average IT electricity**, **87.6 GWh/year IT electricity** and **105.12 GWh/year facility electricity**. They describe the authored campus. Neither all facility electricity nor the complete IT electrical budget is automatically usable exported heat.
 
-After modelling, the main result card should contain at most three primary figures:
+The completed heat packet defines these three primary figures for a later main result card:
 
-| Planned metric                           | Unit                                      | Why it matters                                                                | Evidence or assumption needed                                                                      |
-| ---------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Useful heat actually delivered           | MWh thermal/year                          | Makes the recipient benefit concrete                                          | Capturable heat, temperatures, equipment and transfer limits, losses, operation and matched demand |
-| Recipient heat-demand coverage           | % of the same recipient demand and period | Shows whether the proposal provides a small share or most of the defined need | A dated measured demand or an explicitly authored recipient profile                                |
-| Additional electricity for heat delivery | MWh electric/year                         | Makes the cost of pumps and any heat pump visible                             | Selected equipment performance and operating schedule, without double-counting auxiliaries         |
+| Planned metric                             | Unit                                                     | Why it matters                                                                | Evidence or assumption needed                                                                      |
+| ------------------------------------------ | -------------------------------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Useful heat actually delivered             | MWh thermal/year                                         | Makes the two-building benefit concrete                                       | Capturable heat, temperatures, equipment and transfer limits, losses, operation and matched demand |
+| Combined two-building heat-demand coverage | % of the summed demand of both buildings and same period | Shows whether the proposal provides a small share or most of the defined need | A dated measured demand or an explicitly authored recipient profile                                |
+| Additional electricity for heat delivery   | MWh electric/year                                        | Makes the cost of pumps and any heat pump visible                             | Selected equipment performance and operating schedule, without double-counting auxiliaries         |
 
-Optional detail can distinguish recoverable heat at the source, heat delivered after losses, heat not used and the recipient's remaining heating requirement. Source/recipient temperatures, pipe length and heat-pump performance may be useful explanatory inputs once supported; none has a selected numeric value in this brief.
+Optional detail can distinguish recoverable heat at the source, heat delivered after losses, heat not used and the recipient's remaining heating requirement. Source/recipient temperatures, pipe length and heat-pump performance may be useful explanatory inputs once supported; the selected teaching values and their evidence boundaries are in the completed heat packet.
 
 A monthly or similarly bounded demand match is preferable to assuming that maximum heat delivery continues for every hour of the year. Thermal MWh and electrical MWh must retain explicit labels. If a heat pump is used, its electrical input contributes to its hot-side heat output; do not attribute that whole output to recovered server heat.
 
@@ -111,7 +115,7 @@ Potential changes in datacentre cooling electricity and water need a compatible 
 
 ### Wider implications and constraints
 
-The model connects the two buildings through the proposed equipment and buried pipe pair. Its visible trade-off is useful heat for the recipient alongside new equipment, excavation and additional electricity. A real route requires assessment and coordination with the recipient and relevant land or infrastructure operators. Keep route geometry schematic, maintain a way to reject remaining heat, and distinguish additional recovery electricity from any separately established cooling-electricity credit. These construction implications remain qualitative in this brief.
+The model connects the datacentre to both fixed recipient buildings through a common recovery package and two schematic supply/return branches. Shared source capacity is allocated once; per-building demand and losses stay separate. Its visible trade-off is useful heat for the recipient alongside new equipment, excavation and additional electricity. A real route requires assessment and coordination with the recipient and relevant land or infrastructure operators. Keep route geometry schematic, maintain a way to reject remaining heat, and distinguish additional recovery electricity from any separately established cooling-electricity credit. These construction implications remain qualitative in this brief.
 
 Avoid money, carbon, household-equivalent counts and claims of public consent in the first calculation. Those need their own receiver baseline, energy source, tariffs, emission factors or evidence. Providing heat does not cancel the project's use of park space.
 
@@ -193,14 +197,16 @@ The roof does not replace the lost public sports field, and a possible thermal b
 - Keep arrows explanatory unless a verified heat output explicitly drives them. Do not invent exact flows, temperatures, routes or neighbourhood effects through animation.
 - Keep existing water/energy baseline data separate from proposal results. No conceptual preview updates or recalculates the original packets.
 
-## Next modelling step for the heat showcase
+## Completed heat data and next integration boundary
 
-The next focused task is one receiver, one thermal connection and one coherent calculation. Select or explicitly author the receiver demand, identify compatible source/receiver temperatures and recovery equipment, select an explicitly assumed pipe length and connection arrangement, define the operating period and losses, and account for extra electrical input and remaining cooling duty. Test demand limits and the recipient-unavailable case before presenting benefits. An assumed connection length must not be presented as a surveyed Polo Fields route.
+The [heat packet](../heat-demo-golden-gate-polo/README.md) closes the selected source, two recipient demand profiles, coincident windows, 40 kW shared package, COP 4, branch capacities, losses and auxiliaries. Its offline generator reproduces **51.468 MWh useful heat**, **77.982% combined modelled coverage** and **15.921 MWh additional electricity** for the 2026 model year. The selected temperatures, demand and delivery system remain authored teaching assumptions about a hypothetical connection to real buildings.
 
-Only after that work should numerical heat-result fields become ready. The recycled-water and green-roof cases remain visualization-only; they do not wait for datasets, calculations or model calibration. This document does not create their numerical packs or start implementation of the heat model.
+The [English UI handoff](../heat-demo-golden-gate-polo/ui-handoff.en.json) is a future display recommendation. UI code and rendered scenes are outside this task. Later integration must preserve the two-building scope, baseline comparison, evidence labels, pair-wide replay and independent concept states; technical visual acceptance remains Not run.
+
+The recycled-water and green-roof cases remain visualization-only. No additional calculations are required for them by this heat-data task.
 
 ## Current brief and historical research
 
 This README is the current three-case demo specification. The previous [four-change reference](legacy-four-change-reference.md), `catalog.en.json`, `scenario.json`, `compute.py`, `results.json`, `results.md`, `handoff.en.json`, examples and their review describe the earlier four calculated alternatives. They are preserved as historical research and must not be loaded as the current three-case selector or heat-result source.
 
-Running the old generator still reproduces that historical packet. Its successful checks do not establish that a heat-reuse model exists. The original [water baseline](../water-demo-golden-gate-polo/README.md) and [energy baseline](../energy-demo-golden-gate-polo/README.md) remain unchanged.
+Running the old generator still reproduces that historical packet. Its successful checks do not verify the separate heat-reuse model; use the heat packet's own checks. The original [water baseline](../water-demo-golden-gate-polo/README.md) and [energy baseline](../energy-demo-golden-gate-polo/README.md) remain unchanged.

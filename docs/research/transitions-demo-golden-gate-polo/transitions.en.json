@@ -23,6 +23,10 @@
     "preservation": {
       "path": "../change-catalog-golden-gate-polo/preservation-sha256.json",
       "sha256": "f827b0c7899316d6ed778ad7e805608a23275e4fdd29c025b5ae0cb58a56476d"
+    },
+    "heat_results": {
+      "path": "../heat-demo-golden-gate-polo/results.json",
+      "sha256": "f418f0245ec2ea8dcbd1a855d80ed11b60eeb9475eac5f8bebb81dcae084221e"
     }
   },
   "interpretation": {
@@ -31,7 +35,7 @@
     "reset": "Restore complete target state on jumps and replay; no accumulating resource counters or alternative overlays.",
     "concept_visibility": "P2 and P3 hide all numerical panels including original water, energy, land and any heat results.",
     "unknowns": "Null means Not established, never zero; M1 runoff remains Not quantified.",
-    "scope": "SF only. Community is a scenario handoff, not reviewed David implementation. Existing San José/Muhos packets are unchanged."
+    "scope": "SF only. Community is a scenario handoff, not reviewed David implementation. Existing San Jos\u00e9/Muhos packets are unchanged."
   },
   "patterns": [
     {
@@ -49,7 +53,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/0/rain_event/water_to_managed_drainage_m3",
-              "unit": "m³",
+              "unit": "m\u00b3",
               "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
             }
           ]
@@ -61,7 +65,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/1/rain_event",
-              "unit": "m³",
+              "unit": "m\u00b3",
               "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
             }
           ]
@@ -73,7 +77,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/2/rain_event/water_to_managed_drainage_m3",
-              "unit": "m³",
+              "unit": "m\u00b3",
               "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
             }
           ]
@@ -85,7 +89,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/3/rain_event/water_to_managed_drainage_m3",
-              "unit": "m³",
+              "unit": "m\u00b3",
               "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
             }
           ]
@@ -97,7 +101,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/4/rain_event/water_to_managed_drainage_m3",
-              "unit": "m³",
+              "unit": "m\u00b3",
               "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
             }
           ]
@@ -109,7 +113,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/5/rain_event/water_to_managed_drainage_m3",
-              "unit": "m³",
+              "unit": "m\u00b3",
               "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
             }
           ]
@@ -121,7 +125,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/6/rain_event/water_to_managed_drainage_m3",
-              "unit": "m³",
+              "unit": "m\u00b3",
               "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
             }
           ]
@@ -148,7 +152,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/1/step_site_supply_m3",
-              "unit": "m³",
+              "unit": "m\u00b3",
               "time_basis": "whole selected work step"
             }
           ]
@@ -160,7 +164,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/2/step_site_supply_m3",
-              "unit": "m³",
+              "unit": "m\u00b3",
               "time_basis": "whole selected work step"
             }
           ]
@@ -172,7 +176,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/3/step_site_supply_m3",
-              "unit": "m³",
+              "unit": "m\u00b3",
               "time_basis": "whole selected work step"
             }
           ]
@@ -184,7 +188,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/4/step_site_supply_m3",
-              "unit": "m³",
+              "unit": "m\u00b3",
               "time_basis": "whole selected work step"
             }
           ]
@@ -196,7 +200,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/5/step_site_supply_m3",
-              "unit": "m³",
+              "unit": "m\u00b3",
               "time_basis": "whole selected work step"
             }
           ]
@@ -208,19 +212,19 @@
             {
               "source": "water_results",
               "pointer": "/operation/daily_average_cooling_supply_m3",
-              "unit": "m³/day",
+              "unit": "m\u00b3/day",
               "time_basis": "annual-average operating day"
             },
             {
               "source": "water_results",
               "pointer": "/operation/daily_average_cooling_evaporation_m3",
-              "unit": "m³/day",
+              "unit": "m\u00b3/day",
               "time_basis": "annual-average operating day"
             },
             {
               "source": "water_results",
               "pointer": "/operation/daily_average_cooling_blowdown_m3",
-              "unit": "m³/day",
+              "unit": "m\u00b3/day",
               "time_basis": "annual-average operating day"
             }
           ]
@@ -262,12 +266,12 @@
         },
         {
           "milestone": "M5",
-          "visual": "Tank available: empty-start rain replay fills up to 200 m³; remaining roof runoff goes onward.",
+          "visual": "Tank available: empty-start rain replay fills up to 200 m\u00b3; remaining roof runoff goes onward.",
           "bindings": [
             {
               "source": "water_results",
               "pointer": "/stages/5/rain_event/roof_capture_m3",
-              "unit": "m³",
+              "unit": "m\u00b3",
               "time_basis": "one independent rain event; empty tank start"
             }
           ]
@@ -279,7 +283,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/6/rain_event/roof_capture_m3",
-              "unit": "m³",
+              "unit": "m\u00b3",
               "time_basis": "one independent rain event; empty tank start"
             }
           ]
@@ -436,13 +440,13 @@
             {
               "source": "land_handoff",
               "pointer": "/milestones/0/data/cumulative_disturbed_area_m2",
-              "unit": "m²",
+              "unit": "m\u00b2",
               "time_basis": "unique campus ground worked since M0; excludes external access"
             },
             {
               "source": "land_handoff",
               "pointer": "/milestones/0/data/sealed_area_m2",
-              "unit": "m²",
+              "unit": "m\u00b2",
               "time_basis": "surface snapshot"
             }
           ]
@@ -454,13 +458,13 @@
             {
               "source": "land_handoff",
               "pointer": "/milestones/1/data/cumulative_disturbed_area_m2",
-              "unit": "m²",
+              "unit": "m\u00b2",
               "time_basis": "unique campus ground worked since M0; excludes external access"
             },
             {
               "source": "land_handoff",
               "pointer": "/milestones/1/data/sealed_area_m2",
-              "unit": "m²",
+              "unit": "m\u00b2",
               "time_basis": "surface snapshot"
             }
           ]
@@ -472,13 +476,13 @@
             {
               "source": "land_handoff",
               "pointer": "/milestones/2/data/cumulative_disturbed_area_m2",
-              "unit": "m²",
+              "unit": "m\u00b2",
               "time_basis": "unique campus ground worked since M0; excludes external access"
             },
             {
               "source": "land_handoff",
               "pointer": "/milestones/2/data/sealed_area_m2",
-              "unit": "m²",
+              "unit": "m\u00b2",
               "time_basis": "surface snapshot"
             }
           ]
@@ -490,13 +494,13 @@
             {
               "source": "land_handoff",
               "pointer": "/milestones/3/data/cumulative_disturbed_area_m2",
-              "unit": "m²",
+              "unit": "m\u00b2",
               "time_basis": "unique campus ground worked since M0; excludes external access"
             },
             {
               "source": "land_handoff",
               "pointer": "/milestones/3/data/sealed_area_m2",
-              "unit": "m²",
+              "unit": "m\u00b2",
               "time_basis": "surface snapshot"
             }
           ]
@@ -508,13 +512,13 @@
             {
               "source": "land_handoff",
               "pointer": "/milestones/4/data/cumulative_disturbed_area_m2",
-              "unit": "m²",
+              "unit": "m\u00b2",
               "time_basis": "unique campus ground worked since M0; excludes external access"
             },
             {
               "source": "land_handoff",
               "pointer": "/milestones/4/data/sealed_area_m2",
-              "unit": "m²",
+              "unit": "m\u00b2",
               "time_basis": "surface snapshot"
             }
           ]
@@ -526,13 +530,13 @@
             {
               "source": "land_handoff",
               "pointer": "/milestones/5/data/cumulative_disturbed_area_m2",
-              "unit": "m²",
+              "unit": "m\u00b2",
               "time_basis": "unique campus ground worked since M0; excludes external access"
             },
             {
               "source": "land_handoff",
               "pointer": "/milestones/5/data/sealed_area_m2",
-              "unit": "m²",
+              "unit": "m\u00b2",
               "time_basis": "surface snapshot"
             }
           ]
@@ -544,13 +548,13 @@
             {
               "source": "land_handoff",
               "pointer": "/milestones/6/data/cumulative_disturbed_area_m2",
-              "unit": "m²",
+              "unit": "m\u00b2",
               "time_basis": "unique campus ground worked since M0; excludes external access"
             },
             {
               "source": "land_handoff",
               "pointer": "/milestones/6/data/sealed_area_m2",
-              "unit": "m²",
+              "unit": "m\u00b2",
               "time_basis": "surface snapshot"
             }
           ]
@@ -653,33 +657,54 @@
       "scope": "proposal_within_M6",
       "pattern": "install, deliver, interrupt and resume",
       "label": "Heat for neighbours",
-      "readiness": "model_pending",
+      "readiness": "calculated_data_ui_pending",
       "show_numbers": false,
       "bindings": [],
-      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1–M5 retrofit history",
+      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1\u2013M5 retrofit history",
       "phases": [
         {
           "id": "original",
-          "visual": "Original cooling rejects heat; one model pool has its own heating source."
+          "visual": "Original cooling rejects heat; Anglers Lodge and Golden Gate Park Senior Center each have their own heating provision. Their demand and proposed connections remain unverified."
         },
         {
           "id": "proposed_works",
-          "visual": "Reveal exchanger and conditional heat pump; open schematic trench, lay insulated supply/return pair, restore surface."
+          "visual": "Reveal common recovery interface and conditional heat pump; show two schematic supply/return branches to Anglers Lodge and Golden Gate Park Senior Center, then restore disturbed surfaces."
         },
         {
           "id": "active",
-          "visual": "Show isolated circuits transferring heat to recipient; cooler return, residual cooling and added electricity remain visible."
+          "visual": "Show isolated circuits transferring heat to both fixed recipient buildings; cooler return, residual cooling and added electricity remain visible."
         },
         {
           "id": "recipient_unavailable",
-          "visual": "Optional replay: useful delivery stops; computing continues and original cooling handles heat rejection."
+          "visual": "One pair-wide replay control: both buildings need no heat, so useful delivery to both stops; computing continues and original cooling handles heat rejection."
         },
         {
           "id": "resume",
-          "visual": "Restore the proposed active state only when the model recipient can accept heat; no full-time utilisation assumed."
+          "visual": "Restore the proposed two-building active state when the pair-wide demand control is on; no full-time utilisation assumed."
         }
       ],
-      "limits": "No heat results, selected pipe length, temperature, demand coverage, route or energy/water saving. Recipient backup heater remains available."
+      "limits": "Checked teaching heat data and selected assumption values are available in the heat packet; UI integration is not implemented. Actual routes, temperatures, heating demand, consent and performance remain unverified. Both backup heaters remain. No cooling-water, net electricity, cost or carbon savings are calculated.",
+      "data_handoff": "../heat-demo-golden-gate-polo/ui-handoff.en.json",
+      "data_bindings": [
+        {
+          "source": "heat_results",
+          "pointer": "/annual/delivered_mwh_th",
+          "unit": "MWh thermal/year",
+          "time_basis": "2026 authored occupied-weekday space-heating year; fixed reference case"
+        },
+        {
+          "source": "heat_results",
+          "pointer": "/annual/coverage_percent",
+          "unit": "% of combined modelled demand",
+          "time_basis": "2026 authored occupied-weekday space-heating year; fixed reference case"
+        },
+        {
+          "source": "heat_results",
+          "pointer": "/annual/additional_electricity_mwh_el",
+          "unit": "MWh electric/year",
+          "time_basis": "2026 authored occupied-weekday space-heating year; fixed reference case"
+        }
+      ]
     },
     {
       "id": "P2",
@@ -690,7 +715,7 @@
       "readiness": "visual_concept_only",
       "show_numbers": false,
       "bindings": [],
-      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1–M5 retrofit history",
+      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1\u2013M5 retrofit history",
       "phases": [
         {
           "id": "original",
@@ -724,7 +749,7 @@
       "readiness": "visual_concept_only",
       "show_numbers": false,
       "bindings": [],
-      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1–M5 retrofit history",
+      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1\u2013M5 retrofit history",
       "phases": [
         {
           "id": "original",

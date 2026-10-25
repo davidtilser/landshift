@@ -65,7 +65,7 @@
       "trigger": "Advance through grading and compaction; replay the same rain independently at each supported state.",
       "visible_change": "Grading changes ground appearance; rolling changes activity but not the runoff result.",
       "pass_criteria": [
-        "M2 and M3 both show 1742.4 m³ managed drainage when rounded to one decimal.",
+        "M2 and M3 both show 1742.4 m\u00b3 managed drainage when rounded to one decimal.",
         "The roller adds no runoff increment and the rain conditions stay identical."
       ],
       "state_refs": {
@@ -84,7 +84,7 @@
       "trigger": "Advance to construction and opening; replay the same reference rain.",
       "visible_change": "Roof/hard-surface pathways replace prepared-ground pathways; tank routing appears only at M5.",
       "pass_criteria": [
-        "Managed drainage resolves to M4 2095.1 m³ and M5 2214.6 m³, each an independent event.",
+        "Managed drainage resolves to M4 2095.1 m\u00b3 and M5 2214.6 m\u00b3, each an independent event.",
         "No interpolated flow curve, flood depth or automatic external repair runoff credit appears."
       ],
       "state_refs": {
@@ -122,7 +122,7 @@
       "trigger": "Advance through preparation to construction with water details open.",
       "visible_change": "Work-water activities replace each other; construction adds a contained-wash cue.",
       "pass_criteria": [
-        "Step site-supply totals read 50 / 1050 / 525 / 1988 m³ for M1 / M2 / M3 / M4, labelled whole step.",
+        "Step site-supply totals read 50 / 1050 / 525 / 1988 m\u00b3 for M1 / M2 / M3 / M4, labelled whole step.",
         "Offsite mixing is separate and raw washwater is not sent directly into the rain-drainage arrow.",
         "No smooth demand-rate curve is inferred from unequal step totals."
       ],
@@ -142,7 +142,7 @@
       "trigger": "Advance from construction to opening.",
       "visible_change": "Work-water activity ends; one-time commissioning fills/flushing are introduced.",
       "pass_criteria": [
-        "M5 selected site supply is 215 m³ for the commissioning step, not a recurring daily demand.",
+        "M5 selected site supply is 215 m\u00b3 for the commissioning step, not a recurring daily demand.",
         "Construction wash/spray loops are removed; one-time fills do not run continuously."
       ],
       "state_refs": {
@@ -161,7 +161,7 @@
       "trigger": "Advance to M6 and replay its operating view twice.",
       "visible_change": "One-time filling gives way to supply, evaporation and blowdown pathways.",
       "pass_criteria": [
-        "Average-day cooling labels show 300 / 225 / 75 m³ per day for supply / evaporation / blowdown.",
+        "Average-day cooling labels show 300 / 225 / 75 m\u00b3 per day for supply / evaporation / blowdown.",
         "Commissioning fills never repeat and replay does not add consumption again.",
         "Other-user icons stay neutral; no shortage or utility-headroom result appears."
       ],
@@ -178,10 +178,10 @@
       "pattern_ids": ["W3"],
       "from_state": "M0 through M4",
       "to_state": "M5 ready for rain",
-      "trigger": "Inspect M0–M4, then advance to M5 without starting rain.",
+      "trigger": "Inspect M0\u2013M4, then advance to M5 without starting rain.",
       "visible_change": "The tank becomes available without an automatic event fill.",
       "pass_criteria": [
-        "No active campus tank appears in M0–M4; the tank becomes available at M5.",
+        "No active campus tank appears in M0\u2013M4; the tank becomes available at M5.",
         "M5 availability does not imply permanently full storage or annual reuse savings."
       ],
       "state_refs": {
@@ -200,7 +200,7 @@
       "trigger": "Start an independent rain replay, inspect its endpoint, then replay again.",
       "visible_change": "Roof water fills an initially empty tank to the supported endpoint; remaining water goes onward.",
       "pass_criteria": [
-        "Each event starts empty and ends at 200 m³ captured, with 2214.6 m³ requiring managed drainage.",
+        "Each event starts empty and ends at 200 m\u00b3 captured, with 2214.6 m\u00b3 requiring managed drainage.",
         "Reset is labelled a new independent comparison, not an actual simulated emptying/reuse cycle.",
         "Intermediate fill frames are illustrative; no routed storm timing or annual supply credit is claimed."
       ],
@@ -493,16 +493,16 @@
       "from_state": "M6 original heat arrangement",
       "to_state": "proposed_works",
       "trigger": "Select Heat for neighbours and preview the proposed connection.",
-      "visible_change": "Reveal exchanger, conditional heat pump and schematic trench; lay the supply/return pair and restore the surface.",
+      "visible_change": "Reveal common recovery equipment and conditional heat pump; install schematic supply/return branches to the two fixed buildings and restore surfaces.",
       "pass_criteria": [
-        "The replay remains inside M6 with no new milestone IDs or implied baseline M1–M5 installation.",
-        "One model recipient and an illustrative route are labelled; no selected length, temperature or delivered-heat result appears.",
-        "Heat-pump presence is conditional, not a silently selected cooling redesign."
+        "The replay remains inside M6 with no new milestone IDs or implied baseline M1\u2013M5 installation.",
+        "Exactly Anglers Lodge and Golden Gate Park Senior Center are fixed recipients; hypothetical connections and selected teaching values are labelled separately from real measurements or surveyed routes.",
+        "The teaching case uses a heat pump at declared temperatures without changing the original cooling concept; this is not a verified building retrofit."
       ],
       "state_refs": {
         "P1": ["original", "proposed_works"]
       },
-      "evidence_kind": "authored proposal; heat model pending",
+      "evidence_kind": "calculated educational heat packet; UI integration not assessed",
       "implementation_status": "not_assessed",
       "verification_status": "not_run"
     },
@@ -513,16 +513,16 @@
       "from_state": "proposed_works",
       "to_state": "active",
       "trigger": "Continue the heat proposal replay.",
-      "visible_change": "Warm supply reaches the recipient; cooler water returns through a separate pipe.",
+      "visible_change": "Warm supply reaches both fixed buildings through isolated exchangers; cooler water returns through their return branches.",
       "pass_criteria": [
-        "Heat crosses exchangers while water particles remain within their isolated circuits; no datacentre coolant enters pool water.",
+        "Heat crosses exchangers while water particles remain within their isolated circuits; no datacentre coolant enters the recipient building-heating circuit.",
         "Residual cooling, recipient backup heating and recovery-equipment electricity remain visible.",
-        "Model pending is visible; no heat, water or electricity saving is fabricated."
+        "If checked heat figures are later integrated, label assumed demand and connections, thermal/electrical units and the fixed year. Recycled-water and green-roof concepts stay unquantified; UI integration is not certified by the data checks."
       ],
       "state_refs": {
         "P1": ["proposed_works", "active"]
       },
-      "evidence_kind": "authored proposal; temperatures and performance unselected",
+      "evidence_kind": "calculated educational heat packet; assumption-based performance, UI integration not assessed",
       "implementation_status": "not_assessed",
       "verification_status": "not_run"
     },
@@ -532,11 +532,11 @@
       "pattern_ids": ["P1"],
       "from_state": "active",
       "to_state": "recipient_unavailable then resume",
-      "trigger": "Run the optional recipient-unavailable replay, then restore recipient availability.",
-      "visible_change": "Useful delivery stops while original cooling continues; delivery may resume when the recipient accepts heat.",
+      "trigger": "Use the single pair-wide Buildings need no heat replay, then restore demand for the pair.",
+      "visible_change": "Useful delivery to both buildings stops while original cooling continues; restoring the pair-wide control resumes the proposed two-building state.",
       "pass_criteria": [
-        "Computing continues and heat is rejected through original cooling when the recipient is unavailable.",
-        "Resuming is not assumed full-time annual utilisation; no saved-heat counter grows during unavailability."
+        "Computing continues and original cooling rejects the heat when both buildings are unavailable; the demo uses one pair-wide control without per-building selectors.",
+        "The pair-wide replay never recomputes or accumulates annual figures; any later annual card remains a labelled fixed reference-year calculation."
       ],
       "state_refs": {
         "P1": ["active", "recipient_unavailable", "resume"]
@@ -796,7 +796,7 @@
       "visible_change": "Original irrigation context gives way to a selected stripping work-water activity.",
       "pass_criteria": [
         "M0 has no operating-campus cooling flow; its irrigation source remains unverified.",
-        "M1 introduces the 50 m³ whole-step work-water budget, not a daily cooling demand."
+        "M1 introduces the 50 m\u00b3 whole-step work-water budget, not a daily cooling demand."
       ],
       "state_refs": {
         "W2": ["M0", "M1"]
@@ -851,7 +851,7 @@
       "verification_status": "not_run",
       "id": "SF-X-08",
       "from_state": "Any M6 proposal, including an in-progress phase",
-      "to_state": "Direct jump to an earlier baseline milestone M0–M5",
+      "to_state": "Direct jump to an earlier baseline milestone M0\u2013M5",
       "trigger": "From each proposal and during an animation, select M0, M1, M2, M3, M4 and M5 directly in separate runs.",
       "visible_change": "Exit the proposal and restore the entire requested baseline state without playing physical reversal.",
       "pass_criteria": [

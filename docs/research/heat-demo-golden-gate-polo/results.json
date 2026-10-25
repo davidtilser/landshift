@@ -1,0 +1,445 @@
+{
+  "scenario_id": "sf-polo-two-building-heat-v1",
+  "readiness": "calculated_teaching_data_ui_not_implemented",
+  "reference_year": 2026,
+  "input_sha256": {
+    "scenario.json": "3cabe019df5d3d9634ac71399cfd4de5f460b9cc0d7ee3cef874b4309df9ca08",
+    "sources.json": "48a6f8d34261faac5801410a621e9c887faa8ea79cb1d76288faa4126591999a"
+  },
+  "annual": {
+    "hours": 2088,
+    "source_available_mwh_th": 62.64,
+    "hot_output_mwh_th": 59.924705882352946,
+    "recovered_source_mwh_th": 44.9435294117647,
+    "compressor_mwh_el": 14.981176470588236,
+    "auxiliary_mwh_el": 0.9396000000000001,
+    "additional_electricity_mwh_el": 15.920776470588233,
+    "delivered_mwh_th": 51.46840714083919,
+    "loss_mwh_th": 8.456298741513745,
+    "demand_mwh_th": 66,
+    "coverage_percent": 77.98243506187757,
+    "backup_heat_mwh_th": 14.53159285916081,
+    "it_heat_reference_mwh_th": 87600,
+    "baseline_facility_electricity_mwh_el": 105120.0,
+    "recovered_share_of_it_heat_reference_percent": 0.05130539887187752,
+    "it_heat_reference_not_recovered_mwh_th": 87555.05647058824
+  },
+  "recipients": [
+    {
+      "demand_mwh_th": 12.0,
+      "hot_input_mwh_th": 10.648142816783931,
+      "delivered_mwh_th": 9.583328535105537,
+      "loss_mwh_th": 1.0648142816783923,
+      "backup_heat_mwh_th": 2.4166714648944616,
+      "id": "anglers_lodge",
+      "name": "Anglers Lodge",
+      "coverage_percent": 79.86107112587946
+    },
+    {
+      "demand_mwh_th": 54.0,
+      "hot_input_mwh_th": 49.27656306556901,
+      "delivered_mwh_th": 41.88507860573365,
+      "loss_mwh_th": 7.39148445983535,
+      "backup_heat_mwh_th": 12.114921394266343,
+      "id": "senior_center",
+      "name": "Golden Gate Park Senior Center",
+      "coverage_percent": 77.56496038098824
+    }
+  ],
+  "months": [
+    {
+      "hours": 176,
+      "source_available_mwh_th": 5.28,
+      "hot_output_mwh_th": 7.040000000000001,
+      "recovered_source_mwh_th": 5.280000000000001,
+      "compressor_mwh_el": 1.7600000000000002,
+      "auxiliary_mwh_el": 0.0792,
+      "additional_electricity_mwh_el": 1.8392000000000002,
+      "delivered_mwh_th": 6.052682926829269,
+      "loss_mwh_th": 0.9873170731707317,
+      "branches": [
+        {
+          "id": "anglers_lodge",
+          "demand_mwh_th": 1.92,
+          "hot_input_mwh_th": 1.373658536585366,
+          "delivered_mwh_th": 1.2362926829268295,
+          "loss_mwh_th": 0.13736585365853649,
+          "backup_heat_mwh_th": 0.6837073170731705
+        },
+        {
+          "id": "senior_center",
+          "demand_mwh_th": 8.64,
+          "hot_input_mwh_th": 5.666341463414635,
+          "delivered_mwh_th": 4.81639024390244,
+          "loss_mwh_th": 0.849951219512195,
+          "backup_heat_mwh_th": 3.823609756097561
+        }
+      ],
+      "month": 1,
+      "weekdays": 22,
+      "demand_weight_percent": 16
+    },
+    {
+      "hours": 160,
+      "source_available_mwh_th": 4.8,
+      "hot_output_mwh_th": 6.3999999999999995,
+      "recovered_source_mwh_th": 4.8,
+      "compressor_mwh_el": 1.5999999999999999,
+      "auxiliary_mwh_el": 0.072,
+      "additional_electricity_mwh_el": 1.672,
+      "delivered_mwh_th": 5.500540540540539,
+      "loss_mwh_th": 0.89945945945946,
+      "branches": [
+        {
+          "id": "anglers_lodge",
+          "demand_mwh_th": 1.68,
+          "hot_input_mwh_th": 1.2108108108108107,
+          "delivered_mwh_th": 1.0897297297297297,
+          "loss_mwh_th": 0.12108108108108095,
+          "backup_heat_mwh_th": 0.5902702702702702
+        },
+        {
+          "id": "senior_center",
+          "demand_mwh_th": 7.56,
+          "hot_input_mwh_th": 5.189189189189189,
+          "delivered_mwh_th": 4.41081081081081,
+          "loss_mwh_th": 0.7783783783783784,
+          "backup_heat_mwh_th": 3.1491891891891894
+        }
+      ],
+      "month": 2,
+      "weekdays": 20,
+      "demand_weight_percent": 14
+    },
+    {
+      "hours": 176,
+      "source_available_mwh_th": 5.28,
+      "hot_output_mwh_th": 7.039999999999999,
+      "recovered_source_mwh_th": 5.279999999999999,
+      "compressor_mwh_el": 1.7599999999999998,
+      "auxiliary_mwh_el": 0.0792,
+      "additional_electricity_mwh_el": 1.8391999999999997,
+      "delivered_mwh_th": 6.045061224489795,
+      "loss_mwh_th": 0.9949387755102039,
+      "branches": [
+        {
+          "id": "anglers_lodge",
+          "demand_mwh_th": 1.44,
+          "hot_input_mwh_th": 1.2212244897959181,
+          "delivered_mwh_th": 1.0991020408163263,
+          "loss_mwh_th": 0.12212244897959179,
+          "backup_heat_mwh_th": 0.3408979591836736
+        },
+        {
+          "id": "senior_center",
+          "demand_mwh_th": 6.48,
+          "hot_input_mwh_th": 5.818775510204081,
+          "delivered_mwh_th": 4.945959183673469,
+          "loss_mwh_th": 0.8728163265306126,
+          "backup_heat_mwh_th": 1.5340408163265318
+        }
+      ],
+      "month": 3,
+      "weekdays": 22,
+      "demand_weight_percent": 12
+    },
+    {
+      "hours": 176,
+      "source_available_mwh_th": 5.28,
+      "hot_output_mwh_th": 6.91764705882353,
+      "recovered_source_mwh_th": 5.188235294117647,
+      "compressor_mwh_el": 1.7294117647058824,
+      "auxiliary_mwh_el": 0.0792,
+      "additional_electricity_mwh_el": 1.8086117647058824,
+      "delivered_mwh_th": 5.94,
+      "loss_mwh_th": 0.9776470588235293,
+      "branches": [
+        {
+          "id": "anglers_lodge",
+          "demand_mwh_th": 1.08,
+          "hot_input_mwh_th": 1.2,
+          "delivered_mwh_th": 1.08,
+          "loss_mwh_th": 0.11999999999999988,
+          "backup_heat_mwh_th": 0
+        },
+        {
+          "id": "senior_center",
+          "demand_mwh_th": 4.86,
+          "hot_input_mwh_th": 5.7176470588235295,
+          "delivered_mwh_th": 4.86,
+          "loss_mwh_th": 0.8576470588235292,
+          "backup_heat_mwh_th": 0
+        }
+      ],
+      "month": 4,
+      "weekdays": 22,
+      "demand_weight_percent": 9
+    },
+    {
+      "hours": 168,
+      "source_available_mwh_th": 5.04,
+      "hot_output_mwh_th": 4.611764705882353,
+      "recovered_source_mwh_th": 3.458823529411765,
+      "compressor_mwh_el": 1.1529411764705884,
+      "auxiliary_mwh_el": 0.07560000000000001,
+      "additional_electricity_mwh_el": 1.2285411764705885,
+      "delivered_mwh_th": 3.96,
+      "loss_mwh_th": 0.6517647058823535,
+      "branches": [
+        {
+          "id": "anglers_lodge",
+          "demand_mwh_th": 0.72,
+          "hot_input_mwh_th": 0.7999999999999999,
+          "delivered_mwh_th": 0.72,
+          "loss_mwh_th": 0.07999999999999996,
+          "backup_heat_mwh_th": 0
+        },
+        {
+          "id": "senior_center",
+          "demand_mwh_th": 3.24,
+          "hot_input_mwh_th": 3.811764705882353,
+          "delivered_mwh_th": 3.24,
+          "loss_mwh_th": 0.571764705882353,
+          "backup_heat_mwh_th": 0
+        }
+      ],
+      "month": 5,
+      "weekdays": 21,
+      "demand_weight_percent": 6
+    },
+    {
+      "hours": 176,
+      "source_available_mwh_th": 5.28,
+      "hot_output_mwh_th": 2.3058823529411767,
+      "recovered_source_mwh_th": 1.7294117647058824,
+      "compressor_mwh_el": 0.5764705882352942,
+      "auxiliary_mwh_el": 0.0792,
+      "additional_electricity_mwh_el": 0.6556705882352942,
+      "delivered_mwh_th": 1.98,
+      "loss_mwh_th": 0.32588235294117673,
+      "branches": [
+        {
+          "id": "anglers_lodge",
+          "demand_mwh_th": 0.36,
+          "hot_input_mwh_th": 0.39999999999999997,
+          "delivered_mwh_th": 0.36,
+          "loss_mwh_th": 0.03999999999999998,
+          "backup_heat_mwh_th": 0
+        },
+        {
+          "id": "senior_center",
+          "demand_mwh_th": 1.62,
+          "hot_input_mwh_th": 1.9058823529411766,
+          "delivered_mwh_th": 1.62,
+          "loss_mwh_th": 0.2858823529411765,
+          "backup_heat_mwh_th": 0
+        }
+      ],
+      "month": 6,
+      "weekdays": 22,
+      "demand_weight_percent": 3
+    },
+    {
+      "hours": 184,
+      "source_available_mwh_th": 5.52,
+      "hot_output_mwh_th": 1.5372549019607844,
+      "recovered_source_mwh_th": 1.1529411764705884,
+      "compressor_mwh_el": 0.3843137254901961,
+      "auxiliary_mwh_el": 0.0828,
+      "additional_electricity_mwh_el": 0.4671137254901961,
+      "delivered_mwh_th": 1.32,
+      "loss_mwh_th": 0.21725490196078434,
+      "branches": [
+        {
+          "id": "anglers_lodge",
+          "demand_mwh_th": 0.24,
+          "hot_input_mwh_th": 0.26666666666666666,
+          "delivered_mwh_th": 0.24,
+          "loss_mwh_th": 0.026666666666666672,
+          "backup_heat_mwh_th": 0
+        },
+        {
+          "id": "senior_center",
+          "demand_mwh_th": 1.08,
+          "hot_input_mwh_th": 1.2705882352941178,
+          "delivered_mwh_th": 1.08,
+          "loss_mwh_th": 0.19058823529411772,
+          "backup_heat_mwh_th": 0
+        }
+      ],
+      "month": 7,
+      "weekdays": 23,
+      "demand_weight_percent": 2
+    },
+    {
+      "hours": 168,
+      "source_available_mwh_th": 5.04,
+      "hot_output_mwh_th": 1.5372549019607844,
+      "recovered_source_mwh_th": 1.1529411764705884,
+      "compressor_mwh_el": 0.3843137254901961,
+      "auxiliary_mwh_el": 0.07560000000000001,
+      "additional_electricity_mwh_el": 0.4599137254901961,
+      "delivered_mwh_th": 1.32,
+      "loss_mwh_th": 0.21725490196078434,
+      "branches": [
+        {
+          "id": "anglers_lodge",
+          "demand_mwh_th": 0.24,
+          "hot_input_mwh_th": 0.26666666666666666,
+          "delivered_mwh_th": 0.24,
+          "loss_mwh_th": 0.026666666666666672,
+          "backup_heat_mwh_th": 0
+        },
+        {
+          "id": "senior_center",
+          "demand_mwh_th": 1.08,
+          "hot_input_mwh_th": 1.2705882352941178,
+          "delivered_mwh_th": 1.08,
+          "loss_mwh_th": 0.19058823529411772,
+          "backup_heat_mwh_th": 0
+        }
+      ],
+      "month": 8,
+      "weekdays": 21,
+      "demand_weight_percent": 2
+    },
+    {
+      "hours": 176,
+      "source_available_mwh_th": 5.28,
+      "hot_output_mwh_th": 3.074509803921569,
+      "recovered_source_mwh_th": 2.3058823529411767,
+      "compressor_mwh_el": 0.7686274509803922,
+      "auxiliary_mwh_el": 0.0792,
+      "additional_electricity_mwh_el": 0.8478274509803922,
+      "delivered_mwh_th": 2.64,
+      "loss_mwh_th": 0.4345098039215687,
+      "branches": [
+        {
+          "id": "anglers_lodge",
+          "demand_mwh_th": 0.48,
+          "hot_input_mwh_th": 0.5333333333333333,
+          "delivered_mwh_th": 0.48,
+          "loss_mwh_th": 0.053333333333333344,
+          "backup_heat_mwh_th": 0
+        },
+        {
+          "id": "senior_center",
+          "demand_mwh_th": 2.16,
+          "hot_input_mwh_th": 2.5411764705882356,
+          "delivered_mwh_th": 2.16,
+          "loss_mwh_th": 0.38117647058823545,
+          "backup_heat_mwh_th": 0
+        }
+      ],
+      "month": 9,
+      "weekdays": 22,
+      "demand_weight_percent": 4
+    },
+    {
+      "hours": 176,
+      "source_available_mwh_th": 5.28,
+      "hot_output_mwh_th": 5.3803921568627455,
+      "recovered_source_mwh_th": 4.035294117647059,
+      "compressor_mwh_el": 1.3450980392156864,
+      "auxiliary_mwh_el": 0.0792,
+      "additional_electricity_mwh_el": 1.4242980392156863,
+      "delivered_mwh_th": 4.62,
+      "loss_mwh_th": 0.7603921568627454,
+      "branches": [
+        {
+          "id": "anglers_lodge",
+          "demand_mwh_th": 0.84,
+          "hot_input_mwh_th": 0.9333333333333332,
+          "delivered_mwh_th": 0.84,
+          "loss_mwh_th": 0.09333333333333327,
+          "backup_heat_mwh_th": 0
+        },
+        {
+          "id": "senior_center",
+          "demand_mwh_th": 3.78,
+          "hot_input_mwh_th": 4.447058823529412,
+          "delivered_mwh_th": 3.7800000000000002,
+          "loss_mwh_th": 0.6670588235294117,
+          "backup_heat_mwh_th": 0
+        }
+      ],
+      "month": 10,
+      "weekdays": 22,
+      "demand_weight_percent": 7
+    },
+    {
+      "hours": 168,
+      "source_available_mwh_th": 5.04,
+      "hot_output_mwh_th": 6.719999999999999,
+      "recovered_source_mwh_th": 5.039999999999999,
+      "compressor_mwh_el": 1.6799999999999997,
+      "auxiliary_mwh_el": 0.07560000000000001,
+      "additional_electricity_mwh_el": 1.7555999999999998,
+      "delivered_mwh_th": 5.770285714285714,
+      "loss_mwh_th": 0.9497142857142853,
+      "branches": [
+        {
+          "id": "anglers_lodge",
+          "demand_mwh_th": 1.32,
+          "hot_input_mwh_th": 1.1657142857142855,
+          "delivered_mwh_th": 1.049142857142857,
+          "loss_mwh_th": 0.11657142857142855,
+          "backup_heat_mwh_th": 0.27085714285714313
+        },
+        {
+          "id": "senior_center",
+          "demand_mwh_th": 5.94,
+          "hot_input_mwh_th": 5.554285714285713,
+          "delivered_mwh_th": 4.721142857142857,
+          "loss_mwh_th": 0.8331428571428567,
+          "backup_heat_mwh_th": 1.2188571428571437
+        }
+      ],
+      "month": 11,
+      "weekdays": 21,
+      "demand_weight_percent": 11
+    },
+    {
+      "hours": 184,
+      "source_available_mwh_th": 5.52,
+      "hot_output_mwh_th": 7.3599999999999985,
+      "recovered_source_mwh_th": 5.519999999999999,
+      "compressor_mwh_el": 1.8399999999999996,
+      "auxiliary_mwh_el": 0.0828,
+      "additional_electricity_mwh_el": 1.9227999999999996,
+      "delivered_mwh_th": 6.319836734693876,
+      "loss_mwh_th": 1.0401632653061226,
+      "branches": [
+        {
+          "id": "anglers_lodge",
+          "demand_mwh_th": 1.68,
+          "hot_input_mwh_th": 1.2767346938775506,
+          "delivered_mwh_th": 1.1490612244897955,
+          "loss_mwh_th": 0.12767346938775503,
+          "backup_heat_mwh_th": 0.5309387755102044
+        },
+        {
+          "id": "senior_center",
+          "demand_mwh_th": 7.56,
+          "hot_input_mwh_th": 6.083265306122448,
+          "delivered_mwh_th": 5.170775510204081,
+          "loss_mwh_th": 0.9124897959183675,
+          "backup_heat_mwh_th": 2.389224489795919
+        }
+      ],
+      "month": 12,
+      "weekdays": 23,
+      "demand_weight_percent": 14
+    }
+  ],
+  "source_interface_flow_kg_s": 1.433349259436216,
+  "unknowns": {
+    "actual_recipient_demand": null,
+    "actual_heating_compatibility": null,
+    "net_combined_electricity_change_mwh": null,
+    "cooling_electricity_credit_mwh": null,
+    "cooling_water_change_m3": null,
+    "cost_saving": null,
+    "carbon_saving": null
+  }
+}

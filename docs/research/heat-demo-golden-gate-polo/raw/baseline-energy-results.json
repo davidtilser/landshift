@@ -1,0 +1,111 @@
+{
+  "scenario_id": "sf-polo-turf-energy-v1",
+  "as_of": "2026-10-24",
+  "generated_by": "compute.py",
+  "operation": {
+    "hours_per_year": 8760,
+    "average_it_mw": 10,
+    "average_facility_mw": 12.0,
+    "annual_site_electricity_pue": 1.2,
+    "it_electricity_mwh_year": 87600,
+    "non_it_electricity_mwh_year": 17520.0,
+    "facility_electricity_mwh_year": 105120.0,
+    "non_it_share_of_facility_percent": 16.666666666666664,
+    "non_it_percent_of_it": 20.0,
+    "cooling_makeup_m3_year": 109500.0,
+    "cooling_makeup_m3_average_day": 300.0,
+    "cooling_evaporation_m3_year": 82125.0,
+    "cooling_blowdown_m3_year": 27375.0,
+    "cooling_only_electricity_mwh_year": null,
+    "peak_facility_mw": null,
+    "net_electricity_change_mwh_year": null,
+    "operating_standby_fuel_l_year": null,
+    "evidence": "Derived teaching budget; transferred SJ04 design PUE; inherited authored average IT and make-up intensity.",
+    "source_ids": [
+      "W01",
+      "E01"
+    ],
+    "boundary": "Normal operating site electricity, assumed grid supplied; standby fuel and complete lifecycle energy excluded."
+  },
+  "stages": [
+    {
+      "id": "M0",
+      "workdays": null,
+      "selected_diesel_l": null,
+      "selected_electricity_kwh": null,
+      "inventory_status": "Existing park inventory unknown; campus not present."
+    },
+    {
+      "id": "M1",
+      "workdays": 10,
+      "selected_diesel_l": 300,
+      "selected_electricity_kwh": null,
+      "inventory_status": "Selected tractor fuel only; other site energy unknown."
+    },
+    {
+      "id": "M2",
+      "workdays": 30,
+      "selected_diesel_l": 4320,
+      "selected_electricity_kwh": null,
+      "inventory_status": "Selected excavator fuel only; hauling, water trucks and other plant excluded."
+    },
+    {
+      "id": "M3",
+      "workdays": 15,
+      "selected_diesel_l": 900,
+      "selected_electricity_kwh": null,
+      "inventory_status": "Selected roller fuel only; other energy unknown."
+    },
+    {
+      "id": "M4",
+      "workdays": 160,
+      "selected_diesel_l": 6400,
+      "selected_electricity_kwh": 38400,
+      "inventory_status": "Selected loader and temporary-electricity allowances; not all construction activities."
+    },
+    {
+      "id": "M5",
+      "workdays": 10,
+      "selected_diesel_l": null,
+      "selected_electricity_kwh": 20000,
+      "inventory_status": "Selected grid tests only. Generator-test fuel, further load-bank testing and unlisted commissioning energy unknown."
+    },
+    {
+      "id": "M6",
+      "workdays": null,
+      "selected_diesel_l": null,
+      "selected_electricity_kwh": null,
+      "inventory_status": "Separate full-year normal-operation electrical budget; standby-test and outage fuel unknown."
+    }
+  ],
+  "selected_preopening_inventory_sums": {
+    "diesel_l": 11920.0,
+    "grid_electricity_kwh": 58400.0,
+    "is_complete_construction_or_commissioning_energy": false,
+    "scope": "Sum of listed M1–M5 inventory items only. Missing categories are not zero; no lifecycle total or fuel-to-electricity addition."
+  },
+  "unknowns": {
+    "existing_park_electricity_kwh_year": null,
+    "existing_park_fuel_l_year": null,
+    "net_electricity_change_kwh_year": null,
+    "peak_it_mw": null,
+    "peak_facility_mw": null,
+    "service_voltage_kv": null,
+    "available_network_headroom_mw": null,
+    "required_grid_upgrade_mw": null,
+    "connection_lead_time_months": null,
+    "named_feeder_or_substation": null,
+    "construction_full_energy_total_kwh": null,
+    "commissioning_generator_fuel_l": null,
+    "operating_standby_fuel_l_year": null,
+    "cooling_only_electricity_mwh_year": null,
+    "household_outage_effect": null,
+    "heatwave_power_increment_mw": null
+  },
+  "cooling_comparison": {
+    "status": "not_quantified",
+    "alternative_pue": null,
+    "alternative_makeup_l_per_kwh_it": null,
+    "reason": "No matched SF design/weather pair established. Explain alternatives qualitatively; do not promise a fixed water-saving electricity penalty."
+  }
+}
