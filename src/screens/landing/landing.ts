@@ -21,12 +21,21 @@ import {
 } from './landingGlobe.ts'
 import { createRegionCard, LOAD_FAILED_MESSAGE } from './regionCard.ts'
 import { createRegionList } from './regionList.ts'
+import wordmarkUrl from '../../../design/landshift-wordmark.svg'
 import '../../ui/ui.css'
 import './landing.css'
 
-const HEADLINE = 'LandShift'
-const TAGLINE = 'Learn how our Earth is developing'
+/** Full glow holds this long after the wordmark appears, or after the pointer last moved. */
+const GLOW_HOLD_MS = 3000
+const GLOW_RISE_MS = 280
+const GLOW_FALL_MS = 820
+
+const TAGLINE = 'How does our Earth develop?'
 const EXPLORE_HINT = 'Drag the globe and choose a region'
+/** three-render-objects leaves the camera at Three's default vertical field of view. */
+const CAMERA_FOV_DEGREES = 50
+/** Clear space kept between Explore and the earth's limb. */
+const EARTH_BUTTON_GAP = 24
 
 let mountCount = 0
 
@@ -54,6 +63,227 @@ function layoutFor(state: LandingState): PanelLayout {
     case 'handoff':
       return 'card'
   }
+}
+
+function createWordmark(): HTMLHeadingElement {
+  const title = document.createElement('h1')
+  title.className = 'landing-headline'
+  const image = document.createElement('img')
+  image.className = 'landing-wordmark'
+  image.src = wordmarkUrl
+  image.alt = 'LandShift'
+  title.append(image)
+  return title
+}
+
+/** Screen disc of the earth. Altitude is radii above the surface, so camera distance is one more. */
+function earthDisc(cell: HTMLElement): {
+  x: number
+  y: number
+  radius: number
+} {
+  const rect = cell.getBoundingClientRect()
+  const sinLimb = 1 / (1 + OVERVIEW.altitude)
+  const projected =
+    sinLimb /
+    Math.sqrt(1 - sinLimb * sinLimb) /
+    Math.tan((CAMERA_FOV_DEGREES * Math.PI) / 360)
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2,
+    radius: (rect.height / 2) * projected,
+  }
+}
+
+/** Keeps the whole wordmark, glow included, inside the screen. */
+function placeWordmark(headline: HTMLElement, cell: HTMLElement): void {
+  const earth = earthDisc(cell)
+  const frame =
+    headline.offsetParent instanceof HTMLElement
+      ? headline.offsetParent.getBoundingClientRect()
+      : cell.getBoundingClientRect()
+  const image = headline.querySelector('img')
+  if (!(image instanceof HTMLImageElement)) return
+  const aspect = 1060.198 / 587.641
+  const margin = 20
+  const maxWidth = frame.width - margin * 2
+  const maxHeight = frame.height - margin * 2
+  let width = Math.min(earth.radius * 1.85, maxWidth)
+  if (width / aspect > maxHeight) width = maxHeight * aspect
+  const height = width / aspect
+  image.style.left = `${margin}px`
+  image.style.top = `${margin}px`
+  image.style.width = `${width}px`
+  const explore = headline.parentElement?.querySelector('.landing-explore')
+  if (explore instanceof HTMLElement) {
+    explore.style.width = 'auto'
+    const top = margin + height + 18
+    const ideal = frame.left + margin + width / 2
+    const cleared = exploreCenterClearOfEarth(
+      explore,
+      ideal,
+      frame.top + top,
+      earth,
+    )
+    const labelWidth = explore.offsetWidth
+    const minCenter = frame.left + labelWidth / 2
+    const right = Math.max(minCenter, cleared) + labelWidth / 2
+    // The left cap sits past the screen so the visible edge is straight.
+    const left = frame.left - explore.offsetHeight / 2 - 4
+    explore.style.left = `${left - frame.left}px`
+    explore.style.width = `${right - left}px`
+    explore.style.top = `${top}px`
+  }
+  headline.style.setProperty('--cut-x', `${earth.x - frame.left}px`)
+  headline.style.setProperty('--cut-y', `${earth.y - frame.top}px`)
+  headline.style.setProperty('--earth-r', `${earth.radius}px`)
+  const paint = (): void => {
+    requestAnimationFrame(() => pixelateWordmark(image))
+  }
+  if (image.complete && image.naturalWidth > 0) paint()
+  else image.addEventListener('load', paint, { once: true })
+}
+
+/** Wordmark center, shifted left when that would crowd the earth. */
+function exploreCenterClearOfEarth(
+  explore: HTMLElement,
+  ideal: number,
+  top: number,
+  earth: { x: number; y: number; radius: number },
+): number {
+  const halfW = explore.offsetWidth / 2
+  const halfH = explore.offsetHeight / 2
+  if (halfW < 1 || halfH < 1) return ideal
+  const cy = top + halfH
+  const clearance = (cx: number): number => {
+    const nearX = Math.min(Math.max(earth.x, cx - halfW), cx + halfW)
+    const nearY = Math.min(Math.max(earth.y, cy - halfH), cy + halfH)
+    return Math.hypot(earth.x - nearX, earth.y - nearY) - earth.radius
+  }
+  if (clearance(ideal) >= EARTH_BUTTON_GAP) return ideal
+  let lo = ideal - earth.radius - explore.offsetWidth - EARTH_BUTTON_GAP
+  let hi = ideal
+  if (clearance(lo) < EARTH_BUTTON_GAP) return lo
+  for (let i = 0; i < 16; i++) {
+    const mid = (lo + hi) / 2
+    if (clearance(mid) < EARTH_BUTTON_GAP) hi = mid
+    else lo = mid
+  }
+  return lo
+}
+
+/** Samples the painted wordmark down and back up. Block size shrinks as the glow brightens. */
+function pixelateWordmark(image: HTMLImageElement): void {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  glowImage = image
+  if (reduced) {
+    paintWordmark(image, 1)
+    return
+  }
+  if (!glowArmed) {
+    glowShown = 1
+    lastPointerAt = performance.now()
+  }
+  if (!paintWordmark(image, glowShown)) return
+  if (!glowArmed) {
+    glowShown = 1
+    lastPointerAt = performance.now()
+    glowArmed = true
+  }
+  watchPointer()
+  if (glowFrame === 0) startWordmarkGlow()
+}
+
+let glowShown = 0
+let lastGlowNow = 0
+let lastPointerAt = Number.NEGATIVE_INFINITY
+let glowFrame = 0
+let glowImage: HTMLImageElement | null = null
+let glowArmed = false
+let stopPointerWatch: (() => void) | null = null
+let sampleCanvas: HTMLCanvasElement | null = null
+
+function watchPointer(): void {
+  if (stopPointerWatch) return
+  const onMove = (): void => {
+    lastPointerAt = performance.now()
+    if (glowFrame === 0 && glowImage) startWordmarkGlow()
+  }
+  window.addEventListener('pointermove', onMove, { passive: true })
+  stopPointerWatch = () => window.removeEventListener('pointermove', onMove)
+}
+
+function startWordmarkGlow(): void {
+  if (glowFrame !== 0) return
+  const tick = (now: number): void => {
+    const image = glowImage
+    if (!image?.isConnected) {
+      stopWordmarkGlow()
+      return
+    }
+    const dt = lastGlowNow === 0 ? 16 : Math.min(48, now - lastGlowNow)
+    lastGlowNow = now
+    const holding = now - lastPointerAt < GLOW_HOLD_MS
+    const target = holding ? 1 : 0
+    const tau = target > glowShown ? GLOW_RISE_MS : GLOW_FALL_MS
+    glowShown += (target - glowShown) * (1 - Math.exp(-dt / tau))
+    if (Math.abs(glowShown - target) < 0.004) glowShown = target
+    paintWordmark(image, glowShown)
+    if (glowShown === 0 && !holding) {
+      glowFrame = 0
+      lastGlowNow = 0
+      return
+    }
+    glowFrame = requestAnimationFrame(tick)
+  }
+  glowFrame = requestAnimationFrame(tick)
+}
+
+function paintWordmark(image: HTMLImageElement, level: number): boolean {
+  const host = image.parentElement
+  if (!host) return false
+  const liveWidth = image.clientWidth
+  const liveHeight = image.clientHeight
+  if (liveWidth < 8 || liveHeight < 8) return false
+  let canvas = host.querySelector('canvas')
+  if (!(canvas instanceof HTMLCanvasElement)) {
+    canvas = document.createElement('canvas')
+    canvas.className = 'landing-wordmark-pixels'
+    canvas.setAttribute('aria-hidden', 'true')
+    host.append(canvas)
+  }
+  canvas.style.left = image.style.left
+  canvas.style.top = image.style.top
+  canvas.style.width = `${liveWidth}px`
+  canvas.style.height = `${liveHeight}px`
+  const block = 1 + (1 - level) * 2.4
+  const sample = sampleCanvas ?? document.createElement('canvas')
+  sampleCanvas = sample
+  sample.width = Math.max(1, Math.round(liveWidth / block))
+  sample.height = Math.max(1, Math.round(liveHeight / block))
+  const sampleContext = sample.getContext('2d')
+  const context = canvas.getContext('2d')
+  if (!sampleContext || !context) return false
+  sampleContext.drawImage(image, 0, 0, sample.width, sample.height)
+  canvas.width = Math.round(liveWidth)
+  canvas.height = Math.round(liveHeight)
+  context.imageSmoothingEnabled = false
+  context.filter = `brightness(${0.84 + level * 0.51})`
+  context.drawImage(sample, 0, 0, canvas.width, canvas.height)
+  image.style.opacity = '0'
+  return true
+}
+
+function stopWordmarkGlow(): void {
+  cancelAnimationFrame(glowFrame)
+  glowFrame = 0
+  glowImage = null
+  glowArmed = false
+  glowShown = 0
+  lastGlowNow = 0
+  lastPointerAt = Number.NEGATIVE_INFINITY
+  stopPointerWatch?.()
+  stopPointerWatch = null
 }
 
 function requireRegion(id: string): Region {
@@ -228,7 +458,7 @@ function relayGlobe(
 /**
  * Renders the landing overlay into `root`, moves `options.globeHost` into its globe cell,
  * and keeps both in sync with `store`. Returns a cleanup function that resets the pills,
- * highlight, interactivity, and any pause landing applied; during handoff it leaves the
+ * highlight, scenario pins, interactivity, and any pause landing applied; during handoff it leaves the
  * globe untouched because the caller owns it from then on.
  */
 export function mountLanding(
@@ -278,7 +508,12 @@ export function mountLanding(
   let markersShown = false
   let interactive: boolean | null = null
 
+  let stopWordmarkFit: () => void = () => {}
+
   function showView(...children: HTMLElement[]): void {
+    stopWordmarkFit()
+    stopWordmarkGlow()
+    stopWordmarkFit = () => {}
     const view = document.createElement('div')
     view.className = 'landing-view'
     view.append(...children)
@@ -319,20 +554,22 @@ export function mountLanding(
     state: Extract<LandingState, { screen: 'idle' }>,
     previous: LandingState | null,
   ): void {
-    const explore = createButton(
-      'Explore',
-      'ui-button ui-button-primary',
-      () => {
-        store.dispatch({ type: 'explore' })
-      },
-    )
+    const explore = createButton('Explore', 'ui-button landing-explore', () => {
+      store.dispatch({ type: 'explore' })
+    })
+    const wordmark = createWordmark()
     const tagline = document.createElement('p')
     tagline.className = 'landing-tagline'
     tagline.textContent = TAGLINE
     const intro = document.createElement('div')
     intro.className = 'landing-intro'
-    intro.append(tagline, explore)
-    showView(createTitle(HEADLINE, 'landing-headline'), intro)
+    intro.append(tagline)
+    showView(wordmark, intro, explore)
+    const fit = (): void => placeWordmark(wordmark, globeCell)
+    const observer = new ResizeObserver(fit)
+    observer.observe(globeCell)
+    fit()
+    stopWordmarkFit = () => observer.disconnect()
     globe.highlightMarker(null)
     if (!previous) return
     explore.focus()
@@ -519,6 +756,7 @@ export function mountLanding(
   return () => {
     if (disposed) return
     disposed = true
+    stopWordmarkFit()
     unsubscribe()
     removeMarkerListener()
     removeCredits()

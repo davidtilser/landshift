@@ -87,6 +87,24 @@
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
 }
 
+.landing-explore {
+  position: absolute;
+  z-index: 3;
+  box-sizing: border-box;
+  justify-content: flex-end;
+  pointer-events: auto;
+  border-color: #3d82e6;
+  color: #9ec4ff;
+  background: transparent;
+  box-shadow: 0 0 16px rgba(36, 58, 158, 0.7);
+}
+
+.landing-explore:hover {
+  border-color: #6ad4ff;
+  color: #e7f4ff;
+  background: rgba(36, 58, 158, 0.35);
+}
+
 .landing-panel-hint {
   top: 16px;
   left: 16px;
@@ -125,13 +143,31 @@
 
 .landing-headline {
   position: absolute;
-  top: 24px;
-  left: 24px;
+  inset: 0;
   margin: 0;
-  font-size: clamp(2rem, 5vw, 3.25rem);
-  line-height: 1.1;
-  letter-spacing: -0.01em;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  --cut-x: 50%;
+  --cut-y: 50%;
+  --earth-r: 0px;
+  /* The globe canvas sits underneath; this hole lets the earth cover the letters. */
+  -webkit-mask-image: radial-gradient(
+    circle at var(--cut-x) var(--cut-y),
+    transparent calc(var(--earth-r) - 2px),
+    #000 calc(var(--earth-r) + 12px)
+  );
+  mask-image: radial-gradient(
+    circle at var(--cut-x) var(--cut-y),
+    transparent calc(var(--earth-r) - 2px),
+    #000 calc(var(--earth-r) + 12px)
+  );
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.landing-wordmark,
+.landing-wordmark-pixels {
+  position: absolute;
+  height: auto;
   pointer-events: none;
 }
 
