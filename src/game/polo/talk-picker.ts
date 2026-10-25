@@ -56,6 +56,7 @@ export function setupPoloTalkPicker(
     // Keep a reaction readable while someone inspects the card or a conversation.
     if (
       document.hidden ||
+      root.hasAttribute('data-polo-learning') ||
       hovered ||
       focused ||
       root.querySelector('dialog[open]') ||
@@ -140,7 +141,7 @@ export function setupPoloTalkPicker(
   let privateChat: HTMLDialogElement | undefined
   const active = (): boolean => getState().confirmed
   function open(): void {
-    if (!active()) return
+    if (!active() || root.hasAttribute('data-polo-learning')) return
     if (!picker.open) picker.showModal()
     launcher.setAttribute('aria-expanded', 'true')
     picker.querySelector<HTMLButtonElement>('.polo-talk-choice')?.focus()
@@ -214,6 +215,11 @@ export function setupPoloTalkPicker(
   }
 
   function restoreFocus(): void {
-    if (active() && !root.querySelector('dialog[open]')) launcher.focus()
+    if (
+      active() &&
+      !root.hasAttribute('data-polo-learning') &&
+      !root.querySelector('dialog[open]')
+    )
+      launcher.focus()
   }
 }

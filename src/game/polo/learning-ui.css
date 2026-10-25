@@ -2,12 +2,13 @@
   position: absolute;
   z-index: 8;
   top: 96px;
+  bottom: 111px;
   left: 20px;
-  width: min(365px, calc(100% - 40px));
-  max-height: calc(100dvh - 126px);
-  padding: 18px;
-  overflow-y: auto;
-  scrollbar-width: thin;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(460px, calc(100% - 40px));
+  padding: 20px;
+  overflow: hidden;
   background: #fcf9fff5;
   color: #2b183c;
   border: 1px solid #e3d6ef;
@@ -23,30 +24,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-#game[data-polo-learning='compare'] .polo-learning {
-  width: min(320px, calc(100% - 40px));
-}
-.polo-learning-eyebrow {
-  font-size: 10px;
-  font-weight: 750;
-  letter-spacing: 0.08em;
-  color: #795c91;
+  gap: 16px;
+  padding-bottom: 20px;
 }
 .polo-learning h2 {
-  font-size: 27px;
+  margin: 0;
+  font-size: 32px;
   line-height: 1.1;
-  margin: 8px 0;
   letter-spacing: -0.7px;
 }
 .polo-learning p {
-  font-size: 13px;
+  font-size: 18px;
   line-height: 1.4;
-  margin: 8px 0 12px;
+  margin: 8px 0 16px;
 }
 .polo-learning small {
-  font-size: 11px;
-  line-height: 1.35;
+  font-size: 16px;
+  line-height: 1.4;
   color: #6d5b7b;
 }
 .polo-learning button {
@@ -54,171 +48,242 @@
   cursor: pointer;
   border: 1px solid #d9c8eb;
   border-radius: 12px;
-  padding: 10px;
-  background: white;
+  padding: 12px;
+  background: #fff;
   color: #5c3290;
-  min-height: 42px;
-  font-size: 13px;
+  min-height: 44px;
+  font-size: 18px;
   font-weight: 650;
 }
 .polo-learning button:disabled {
   cursor: default;
   opacity: 0.5;
 }
-.polo-learning button:focus-visible {
+.polo-learning button:focus-visible,
+.polo-learning summary:focus-visible {
   outline: 3px solid #7d39d4;
   outline-offset: 2px;
 }
 .polo-learning button.is-primary {
   width: 100%;
+  min-height: 52px;
   background: #b1ed0c;
   border-color: #a6d731;
   color: #293900;
 }
-.polo-learning > button.is-primary {
-  position: sticky;
-  bottom: 0;
-  box-shadow: 0 -6px 14px #fcf9ff;
-}
-.polo-learning > button.is-primary:disabled {
+.polo-learning button.is-primary:disabled {
   opacity: 1;
-  background: #edf3d7;
-  color: #829468;
+  background: #f0e8f8;
+  border-color: #e2d5ee;
+  color: #8c759e;
 }
-.polo-learning-heading button {
-  min-height: 30px;
-  padding: 3px 10px;
+.polo-learning-heading > button {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+  font-size: 20px;
 }
-.polo-learning button.polo-learning-select-all {
-  min-height: 30px;
-  padding: 5px 10px;
-  margin-bottom: 8px;
-  font-size: 12px;
+.polo-learning-content {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: 0 4px 4px 0;
+}
+.polo-learning-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: -4px 0 8px;
+}
+.polo-learning button.polo-learning-select-all,
+.polo-learning button.polo-add-idea {
+  width: fit-content;
+  min-height: 44px;
+  padding: 8px 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #6b2bb9;
+  font-size: 18px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.polo-learning button.polo-learning-select-all:hover,
+.polo-learning button.polo-add-idea:not(:disabled):hover {
+  color: #421181;
 }
 .polo-learning-cards {
   display: grid;
-  gap: 7px;
-  margin-bottom: 12px;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 .polo-learning button.polo-learning-choice {
   display: grid;
-  gap: 4px;
-  padding: 10px;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #e5d8ef;
+  border-radius: 16px;
   text-align: left;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 450;
 }
-.polo-learning-choice[aria-pressed='true'] {
-  border-color: #8bbb35;
-  box-shadow: inset 3px 0 var(--learning-color);
-  background: #f1f7e8;
+.polo-learning .polo-learning-choice[aria-pressed='true'] {
+  border-color: #a97ade;
+  background: #eee3fb;
+  box-shadow: inset 0 0 0 1px #a97ade;
 }
 .polo-learning-choice-top {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 10px;
   color: #351c4c;
-  font-size: 13px;
+  font-size: 20px;
+  line-height: 1.25;
+}
+.polo-learning-choice-top > strong {
+  flex: 1;
 }
 .polo-learning-check {
-  margin-left: auto;
-  font-size: 18px;
-  color: #6b9140;
+  display: grid;
+  place-items: center;
+  flex: 0 0 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #f3eafa;
+  color: #7835c6;
+  font-size: 22px;
+}
+[aria-pressed='true'] .polo-learning-check {
+  background: #792bd6;
+  color: #fff;
 }
 .polo-learning-tradeoff {
-  color: #775a48;
+  color: #75617f;
+  font-size: 18px;
+  line-height: 1.4;
+}
+.polo-learning-impact {
+  color: #563675;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.polo-learning-impact-example {
+  padding: 0 14px 8px;
+  color: #65437f;
+}
+.polo-learning-impact-example summary {
+  padding: 8px 0;
+  font-size: 17px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.polo-learning .polo-learning-impact-example p {
+  font-size: 16px;
 }
 .polo-learning-views {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 5px;
-  margin: 12px 0;
+  gap: 8px;
+  margin: 0 0 16px;
 }
 .polo-learning-views button[aria-pressed='true'] {
   background: #6d27dd;
-  color: white;
+  color: #fff;
   border-color: #6d27dd;
 }
 .polo-learning-changes {
   display: grid;
-  gap: 7px;
+  gap: 10px;
 }
 .polo-learning-change {
   display: grid;
-  gap: 4px;
-  padding: 10px;
-  border-radius: 12px;
-  background: #f2edf7;
-  border-left: 4px solid var(--learning-color);
-  font-size: 12px;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #e5d8ef;
+  border-radius: 16px;
+  background: #fff;
+  color: #75617f;
+  font-size: 18px;
+  line-height: 1.4;
 }
 .polo-learning-change strong {
-  font-size: 13px;
+  color: #351c4c;
+  font-size: 20px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
-.polo-learning-conflict {
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: #f8e5e0;
+.polo-learning .polo-learning-conflict {
+  padding: 14px 16px;
+  margin-top: 16px;
+  border-radius: 14px;
+  background: #eee3fb;
+  color: #563675;
   font-weight: 650;
 }
 .polo-learning-footer {
-  display: flex;
+  padding-top: 12px;
+  margin-top: 8px;
+  border-top: 1px solid #e4d7ee;
+}
+.polo-learning-footer > div {
+  display: grid;
   gap: 8px;
-  margin-top: 14px;
 }
 .polo-custom-learning-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 7px;
-  padding: 12px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  padding: 0;
   margin-bottom: 12px;
-  border: 1px dashed #bba0d7;
-  border-radius: 14px;
-  background: #f4eefb;
 }
 .polo-custom-learning-form label {
-  grid-column: 1 / -1;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 650;
+  color: #351c4c;
 }
 .polo-custom-learning-form textarea {
   width: 100%;
   box-sizing: border-box;
-  min-height: 44px;
+  min-height: 110px;
   resize: vertical;
   border: 1px solid #d9c8eb;
-  border-radius: 10px;
-  padding: 9px;
-  background: white;
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
   color: #351c4c;
   font: inherit;
-  font-size: 13px;
-}
-.polo-custom-learning-form small {
-  grid-column: 1 / -1;
+  font-size: 18px;
+  line-height: 1.4;
 }
 .polo-custom-learning-form textarea:focus-visible {
-  outline: 2px solid #7d39d4;
+  outline: 3px solid #7d39d4;
   outline-offset: 2px;
 }
 .polo-custom-learning {
   display: flex;
-  gap: 5px;
+  gap: 8px;
 }
 .polo-custom-learning > button:first-child {
   flex: 1;
+  min-width: 0;
+  padding: 16px;
+  border-radius: 16px;
   text-align: left;
+  font-size: 20px;
+  line-height: 1.3;
   overflow-wrap: anywhere;
 }
-.polo-custom-learning > button[aria-pressed='true'] {
-  border-color: #9a70cf;
-  background: #eee2fc;
+.polo-learning .polo-custom-learning > button[aria-pressed='true'] {
+  border-color: #a97ade;
+  background: #eee3fb;
 }
-.polo-learning-change strong {
-  overflow-wrap: anywhere;
-}
-.polo-learning-footer > button {
-  flex: 1;
+.polo-custom-learning > button:last-child {
+  flex: 0 0 44px;
+  align-self: flex-start;
+  padding: 0;
+  font-size: 24px;
 }
 .polo-learning-map-label {
   position: absolute;
@@ -227,16 +292,17 @@
   left: 62%;
   transform: translateX(-50%);
   padding: 12px 20px;
+  border: 1px solid #d9c8eb;
   border-radius: 16px;
-  background: #fff9;
+  background: #faf5fff2;
   backdrop-filter: blur(10px);
-  color: #341f4d;
-  font-size: 13px;
-  font-weight: 800;
+  color: #563675;
+  font-size: 16px;
+  font-weight: 750;
   pointer-events: none;
 }
 .polo-learning-map-label[data-view='improved'] {
-  background: #d8f59be8;
+  background: #eee3fbf2;
 }
 #game[data-polo-learning] :is(.polo-deck, .polo-timeline) {
   visibility: hidden;
@@ -248,34 +314,27 @@
   :is(.polo-topic-buttons, .polo-today-panel, .polo-deck-bottom) {
   display: none;
 }
-.polo-learning-launcher {
-  width: 100%;
-  margin-top: 16px;
-}
-.polo-learning-launcher[hidden] {
-  display: none;
-}
-.polo-learning-launcher:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
 @media (max-width: 700px) {
   .polo-learning {
-    top: auto;
-    bottom: 16px;
-    left: 12px;
-    width: calc(100% - 24px);
-    max-height: 55dvh;
+    top: 126px;
+    bottom: 113px;
+    left: 10px;
+    width: calc(100% - 20px);
     padding: 14px;
   }
+  .polo-learning h2 {
+    font-size: 28px;
+  }
+  .polo-learning-heading {
+    padding-bottom: 16px;
+  }
+  #game[data-polo-learning] .polo-people {
+    visibility: hidden;
+  }
   .polo-learning-map-label {
-    top: 140px;
-    bottom: auto;
+    bottom: 28px;
     left: 50%;
     width: max-content;
     max-width: calc(100% - 24px);
-  }
-  .polo-learning h2 {
-    font-size: 23px;
   }
 }

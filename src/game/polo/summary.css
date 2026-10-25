@@ -1,0 +1,179 @@
+#game[data-polo-confirmed='true'] .polo-timeline {
+  width: min(900px, calc(100vw - 40px));
+}
+.polo-summary-stop {
+  border-left: 1px solid #ddcdeb;
+  border-radius: 0 13px 13px 0;
+}
+.polo-learning.is-summary {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  top: 96px;
+  bottom: 111px;
+  width: min(460px, calc(100% - 40px));
+  max-height: none;
+  padding: 20px;
+  overflow: hidden;
+  background: #fcf9fff5;
+}
+.polo-learning.is-summary[hidden] {
+  display: none;
+}
+#game[data-polo-learning='summary'] .polo-studio .polo-timeline {
+  visibility: visible;
+}
+#game[data-polo-learning] .polo-people {
+  visibility: hidden;
+}
+.polo-summary-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 0 20px;
+}
+.polo-learning .polo-summary-intro h2 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.1;
+}
+.polo-learning .polo-summary-intro > button {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+  font-size: 20px;
+}
+.polo-summary-content {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: 0 4px 4px 0;
+}
+.polo-summary-metrics {
+  display: grid;
+  gap: 10px;
+}
+.polo-summary-metric {
+  padding: 14px;
+  border: 1px solid #ecdeeb;
+  border-radius: 16px;
+  background: #fff;
+}
+.polo-summary-metric-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+.polo-summary-metric h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+.polo-summary-change {
+  flex-shrink: 0;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: #fce9e7;
+  color: #a23637;
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 750;
+}
+.polo-summary-metric[data-metric='electricity'] .polo-summary-change {
+  font-size: 20px;
+}
+.polo-summary-metric[data-tone='gain'] .polo-summary-change {
+  background: #ecf5da;
+  color: #496820;
+}
+.polo-summary-values {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  margin: 10px 0 0;
+}
+.polo-summary-values > div {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+.polo-summary-values > div > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.polo-summary-values strong {
+  color: #382044;
+  font-size: 20px;
+  line-height: 1.25;
+}
+.polo-summary-arrow {
+  color: #b599cc;
+  font-size: 20px;
+}
+.polo-summary-details {
+  margin: 16px 0 8px;
+  padding: 0 4px;
+  color: #715c80;
+}
+.polo-summary-details summary {
+  padding: 8px 0;
+  font-size: 16px;
+  cursor: pointer;
+}
+.polo-summary-details p {
+  font-size: 15px;
+}
+.polo-summary-details a {
+  display: block;
+  margin: 8px 0;
+  color: #6b2bb9;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.polo-summary-footer {
+  padding-top: 12px;
+  margin-top: 8px;
+  border-top: 1px solid #e4d7ee;
+}
+.polo-learning .polo-summary-footer .is-primary {
+  min-height: 52px;
+  font-size: 18px;
+}
+@media (max-width: 700px) {
+  #game[data-polo-confirmed='true'] .polo-studio .polo-timeline {
+    width: calc(100vw - 20px);
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  #game[data-polo-confirmed='true'] .polo-timeline .polo-stop {
+    flex: 0 0 88px;
+    overflow-wrap: normal;
+  }
+  .polo-learning.is-summary {
+    top: 126px;
+    bottom: 113px;
+    left: 10px;
+    width: calc(100% - 20px);
+    max-height: none;
+    padding: 14px;
+  }
+  .polo-summary-intro {
+    padding-bottom: 16px;
+  }
+  .polo-learning .polo-summary-intro h2 {
+    font-size: 28px;
+  }
+}
