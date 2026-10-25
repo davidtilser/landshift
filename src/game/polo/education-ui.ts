@@ -266,10 +266,11 @@ export function setupPoloEducation(
       details.append(research)
     }
     if (!storyOnly) {
+      const sourceElements = [...details.children].filter(
+        (child) => child !== summary,
+      )
       const fillSources = (): void => {
-        sourceBody.replaceChildren(
-          ...[...details.children].filter((child) => child !== summary),
-        )
+        sourceBody.replaceChildren(...sourceElements)
       }
       if (sourceDialog.open) fillSources()
       const sourceButton = document.createElement('button')
