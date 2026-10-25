@@ -1,0 +1,520 @@
+{
+  "phases": [
+    {
+      "id": "M0",
+      "title": "Today",
+      "kicker": "A place people already use",
+      "summary": "A four-hectare patch of playing-field grass supports sport and meeting. The trees and track around it stay outside this example.",
+      "tradeoff": "The field already needs care and water. Its actual water sources and energy use are not established.",
+      "metrics": [
+        {
+          "label": "Demo area",
+          "value": "4.0 ha",
+          "detail": "Authored subset of the Polo Fields, not the entire venue or a surveyed development plot."
+        },
+        {
+          "label": "Model irrigation",
+          "value": "12.0 million L/year",
+          "detail": "No-build teaching allowance: 300 mm delivered to 4 ha each year; not metered park demand."
+        }
+      ],
+      "details": [
+        "The campus is inactive. Existing park energy use is not established, not zero.",
+        "Optional rain replay: 86.4 mm recorded by NOAA San Francisco Downtown on December 11, 2014, about 5.8 km away. It is not an on-field observation."
+      ],
+      "data": {
+        "areasM2": {
+          "turf": 40000,
+          "stripped_not_graded": 0,
+          "bare_graded": 0,
+          "roof": 0,
+          "other_impervious": 0,
+          "landscape": 0
+        },
+        "rainfallMm": 86.4,
+        "rainRunoffM3": 537.6439241691463,
+        "rainCapturedM3": 0,
+        "rainManagedDrainageM3": 537.6439241691463,
+        "stageWaterSuppliedM3": 0,
+        "offsiteConcreteWaterM3": 0,
+        "selectedDieselL": null,
+        "selectedElectricityKWh": null,
+        "workdays": null,
+        "sourceIds": {
+          "water": ["P03", "P04", "P05", "P06", "S07"],
+          "energy": ["W01", "E04", "E05"]
+        }
+      }
+    },
+    {
+      "id": "M1",
+      "title": "Lift the turf",
+      "kicker": "Site preparation · 1 / 3",
+      "summary": "A tractor strips grass from the work area. Some original turf stays; surrounding trees are left in place.",
+      "tradeoff": "Removing turf changes the place people use and adds fuel and supplied-water needs. Runoff at this transitional step is not calculated.",
+      "metrics": [
+        {
+          "label": "Turf removed",
+          "value": "3.2 ha",
+          "detail": "Authored removal within the four-hectare demo area; no tree removal is included."
+        },
+        {
+          "label": "Selected diesel",
+          "value": "300 L",
+          "detail": "Illustrative selected equipment allowance over 10 workdays; not the whole construction inventory."
+        },
+        {
+          "label": "Work water",
+          "value": "50 m³",
+          "detail": "Selected water supplied to site during this whole step; research teaching budget, not a measurement."
+        }
+      ],
+      "details": [
+        "10 selected workdays. The animation duration is not real elapsed construction time.",
+        "0.8 ha of original turf remains. The ground has not yet been graded.",
+        "Runoff is not established at this stripped-but-ungraded transition; it must not appear as zero."
+      ],
+      "data": {
+        "areasM2": {
+          "turf": 8000,
+          "stripped_not_graded": 32000,
+          "bare_graded": 0,
+          "roof": 0,
+          "other_impervious": 0,
+          "landscape": 0
+        },
+        "rainfallMm": 86.4,
+        "rainRunoffM3": null,
+        "rainCapturedM3": null,
+        "rainManagedDrainageM3": null,
+        "stageWaterSuppliedM3": 50,
+        "offsiteConcreteWaterM3": 0,
+        "selectedDieselL": 300,
+        "selectedElectricityKWh": null,
+        "workdays": 10,
+        "sourceIds": { "water": ["S07", "S10", "S11"], "energy": ["W01"] }
+      }
+    },
+    {
+      "id": "M2",
+      "title": "Shape the ground",
+      "kicker": "Site preparation · 2 / 3",
+      "summary": "Earthmoving machines grade the already stripped ground. Replay the same rain to see what the changed surface means for drainage.",
+      "tradeoff": "Preparing the ground adds work-water and fuel demand. More modelled runoff needs management; no lake pollution is calculated.",
+      "metrics": [
+        {
+          "label": "Selected diesel",
+          "value": "4,320 L",
+          "detail": "Illustrative selected equipment allowance over 30 workdays; not the whole construction inventory."
+        },
+        {
+          "label": "Work water",
+          "value": "1,050 m³",
+          "detail": "Selected water supplied to site during this whole step; research teaching budget, not a measurement."
+        },
+        {
+          "label": "Rain runoff",
+          "value": "1.7 million L",
+          "detail": "Modelled runoff during the same 86.4 mm daily rainfall replay; not an annual total or a flood prediction."
+        }
+      ],
+      "details": [
+        "30 selected workdays; two illustrative earthmoving machines. Hauling, water trucks and other plant are not fully inventoried.",
+        "The runoff method uses an assumed soil group B and the same rainfall at every phase. Actual field soil and flood depths are not established."
+      ],
+      "data": {
+        "areasM2": {
+          "turf": 8000,
+          "stripped_not_graded": 0,
+          "bare_graded": 32000,
+          "roof": 0,
+          "other_impervious": 0,
+          "landscape": 0
+        },
+        "rainfallMm": 86.4,
+        "rainRunoffM3": 1742.4483071155214,
+        "rainCapturedM3": 0,
+        "rainManagedDrainageM3": 1742.4483071155214,
+        "stageWaterSuppliedM3": 1050,
+        "offsiteConcreteWaterM3": 0,
+        "selectedDieselL": 4320,
+        "selectedElectricityKWh": null,
+        "workdays": 30,
+        "sourceIds": {
+          "water": ["S07", "S10", "S11", "P04"],
+          "energy": ["W01", "E08"]
+        }
+      }
+    },
+    {
+      "id": "M3",
+      "title": "Firm the ground",
+      "kicker": "Site preparation · 3 / 3",
+      "summary": "A roller compacts the same prepared area. It does not clear another patch of grass.",
+      "tradeoff": "Another step uses water and fuel. This research does not assign compaction an extra runoff increase.",
+      "metrics": [
+        {
+          "label": "Selected diesel",
+          "value": "900 L",
+          "detail": "Illustrative selected equipment allowance over 15 workdays; not the whole construction inventory."
+        },
+        {
+          "label": "Work water",
+          "value": "525 m³",
+          "detail": "Selected water supplied to site during this whole step; research teaching budget, not a measurement."
+        },
+        {
+          "label": "Rain runoff",
+          "value": "1.7 million L",
+          "detail": "Modelled runoff during the same 86.4 mm daily rainfall replay; not an annual total or a flood prediction."
+        }
+      ],
+      "details": [
+        "15 selected workdays. The original 0.8 ha of turf still remains.",
+        "Runoff is intentionally identical to the grading step under the prepared model; do not invent a compaction multiplier."
+      ],
+      "data": {
+        "areasM2": {
+          "turf": 8000,
+          "stripped_not_graded": 0,
+          "bare_graded": 32000,
+          "roof": 0,
+          "other_impervious": 0,
+          "landscape": 0
+        },
+        "rainfallMm": 86.4,
+        "rainRunoffM3": 1742.4483071155214,
+        "rainCapturedM3": 0,
+        "rainManagedDrainageM3": 1742.4483071155214,
+        "stageWaterSuppliedM3": 525,
+        "offsiteConcreteWaterM3": 0,
+        "selectedDieselL": 900,
+        "selectedElectricityKWh": null,
+        "workdays": 15,
+        "sourceIds": {
+          "water": ["S07", "S10", "S11"],
+          "energy": ["W01", "E06"]
+        }
+      }
+    },
+    {
+      "id": "M4",
+      "title": "Build the campus",
+      "kicker": "Construction",
+      "summary": "Buildings rise on part of the prepared area. Construction needs supplied water, selected machinery and temporary electricity.",
+      "tradeoff": "Water used on site and water mixed into concrete elsewhere are separate. These are selected allowances, not a complete construction footprint.",
+      "metrics": [
+        {
+          "label": "Roof footprint",
+          "value": "1.2 ha",
+          "detail": "Authored building roof area, not an inferred server capacity or total floor area."
+        },
+        {
+          "label": "Selected electricity",
+          "value": "38.4 MWh",
+          "detail": "Illustrative selected temporary-power allowance over 160 workdays."
+        },
+        {
+          "label": "Selected diesel",
+          "value": "6,400 L",
+          "detail": "Illustrative selected equipment allowance over 160 workdays; not the whole construction inventory."
+        }
+      ],
+      "details": [
+        "160 selected workdays. 2 ha remains bare and 0.8 ha remains original turf at this stage.",
+        "Selected water supplied on site: 1,988 m³ for this whole step.",
+        "Selected offsite concrete-mixing water: 1,080 m³, kept separate from site supply.",
+        "Contained washwater is illustrated; an unverified discharge to a park lake is not."
+      ],
+      "data": {
+        "areasM2": {
+          "turf": 8000,
+          "stripped_not_graded": 0,
+          "bare_graded": 20000,
+          "roof": 12000,
+          "other_impervious": 0,
+          "landscape": 0
+        },
+        "rainfallMm": 86.4,
+        "rainRunoffM3": 2095.069676637949,
+        "rainCapturedM3": 0,
+        "rainManagedDrainageM3": 2095.069676637949,
+        "stageWaterSuppliedM3": 1988,
+        "offsiteConcreteWaterM3": 1080,
+        "selectedDieselL": 6400,
+        "selectedElectricityKWh": 38400,
+        "workdays": 160,
+        "sourceIds": {
+          "water": ["S07", "S12", "S17"],
+          "energy": ["W01", "E04", "E06"]
+        }
+      }
+    },
+    {
+      "id": "M5",
+      "title": "Get ready to open",
+      "kicker": "Opening",
+      "summary": "Cooling equipment and electrical tests come online. A roof tank captures part of the rain; the rest still needs managed drainage.",
+      "tradeoff": "Storage helps with one rainfall event. It does not create an annual water supply or prove the utilities have spare capacity.",
+      "metrics": [
+        {
+          "label": "Selected test electricity",
+          "value": "20 MWh",
+          "detail": "Illustrative selected grid tests over ten commissioning workdays; generator-test fuel is unknown."
+        },
+        {
+          "label": "Roof rain captured",
+          "value": "200 m³",
+          "detail": "Capture from the same 86.4 mm event, with the 200 m³ tank starting empty and no within-event release or reuse."
+        },
+        {
+          "label": "Onward drainage",
+          "value": "2.2 million L",
+          "detail": "Modelled volume needing managed drainage during this event; no peak-flow or flood-protection claim."
+        }
+      ],
+      "details": [
+        "Final surface mix: 1.2 ha roofs, 1.6 ha hard surfaces, 0.4 ha restored landscape and 0.8 ha retained turf.",
+        "Selected supplied water for this commissioning step: 215 m³.",
+        "Actual utility connection, spare capacity and full commissioning inventory are not established."
+      ],
+      "data": {
+        "areasM2": {
+          "turf": 8000,
+          "stripped_not_graded": 0,
+          "bare_graded": 0,
+          "roof": 12000,
+          "other_impervious": 16000,
+          "landscape": 4000
+        },
+        "rainfallMm": 86.4,
+        "rainRunoffM3": 2414.6309547995565,
+        "rainCapturedM3": 200,
+        "rainManagedDrainageM3": 2214.6309547995565,
+        "stageWaterSuppliedM3": 215,
+        "offsiteConcreteWaterM3": 0,
+        "selectedDieselL": null,
+        "selectedElectricityKWh": 20000,
+        "workdays": 10,
+        "sourceIds": {
+          "water": ["S07", "P10"],
+          "energy": ["W01", "E04", "E06"]
+        }
+      }
+    },
+    {
+      "id": "M6",
+      "title": "Switch it on",
+      "kicker": "Operation",
+      "summary": "Computing needs electricity and cooling every day. Follow the water and power paths, then explore three possible changes.",
+      "tradeoff": "Supporting systems also use power. Some cooling water evaporates and some becomes managed wastewater; shared-system capacity is not assessed.",
+      "metrics": [
+        {
+          "label": "Average facility demand",
+          "value": "12 MW",
+          "detail": "Annual-average electrical demand at the selected PUE, not peak load or connection rating."
+        },
+        {
+          "label": "Facility electricity",
+          "value": "105.12 GWh/year",
+          "detail": "First full 365-day operating year: IT plus all supporting systems; not cooling alone."
+        },
+        {
+          "label": "Cooling water supplied",
+          "value": "300 m³/day",
+          "detail": "Annual-average cooling make-up, not a hot-day peak. Domestic supply and irrigation are separate."
+        }
+      ],
+      "details": [
+        "Average IT electricity demand: 10 MW. It is already an average; do not apply utilization a second time.",
+        "IT electricity: 87.60 GWh/year. Supporting systems: 17.52 GWh/year, including cooling, electrical losses and other systems.",
+        "Cooling water: 225 m³/day evaporates and 75 m³/day becomes blowdown to an assumed managed sanitary connection.",
+        "All-source supplied water in the first operating year: 114,195 m³. This is supplied volume, not net consumptive use.",
+        "The three proposal previews are qualitative; no heat-delivery, recycled-water or green-roof savings have been calculated."
+      ],
+      "data": {
+        "areasM2": {
+          "turf": 8000,
+          "stripped_not_graded": 0,
+          "bare_graded": 0,
+          "roof": 12000,
+          "other_impervious": 16000,
+          "landscape": 4000
+        },
+        "rainfallMm": 86.4,
+        "rainRunoffM3": 2414.6309547995565,
+        "rainCapturedM3": 200,
+        "rainManagedDrainageM3": 2214.6309547995565,
+        "stageWaterSuppliedM3": 0,
+        "offsiteConcreteWaterM3": 0,
+        "selectedDieselL": null,
+        "selectedElectricityKWh": null,
+        "workdays": null,
+        "sourceIds": {
+          "water": ["S08", "S09", "P08", "P09"],
+          "energy": ["W01", "E01", "E03", "E04", "E05", "E06"]
+        }
+      }
+    }
+  ],
+  "reference": {
+    "siteAreaM2": 40000,
+    "roofAreaM2": 12000,
+    "averageItMW": 10,
+    "averageFacilityMW": 12,
+    "facilityElectricityGWhYear": 105.12,
+    "supportingElectricityGWhYear": 17.52,
+    "coolingMakeupM3Day": 300,
+    "rainfallMm": 86.4,
+    "existingParkElectricityKWhYear": null,
+    "gridHeadroomMW": null,
+    "peakFacilityMW": null
+  },
+  "assumptions": [
+    "Fictional educational campus on a schematic four-hectare grass subset of Polo Fields; not an actual development proposal or surveyed fit.",
+    "3.2 ha of turf is disturbed; surrounding trees and track are excluded. New planting does not replace public playing space.",
+    "10 MW is average IT demand. The transferred annual electrical PUE is 1.20; neither is measured Polo Fields performance.",
+    "Cooling make-up is an assumed 1.25 L/kWh IT with concentration ratio 4; coastal-climate performance is unverified.",
+    "The rain replay uses a real nearby station observation with assumed soil and runoff conditions; it is not a reconstruction or flood forecast.",
+    "A replay restores a complete phase. It never adds water, fuel or electricity to an accumulated score.",
+    "Heat reuse, recycled water and a green roof are visual concepts only. There are no numerical proposal benefits or combined savings."
+  ],
+  "sources": [
+    {
+      "title": "NOAA GHCN-Daily format and flags",
+      "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/readme.txt"
+    },
+    {
+      "title": "USDA NRCS TR-55, Urban Hydrology for Small Watersheds",
+      "url": "https://www.hydrocad.net/pdf/TR-55%20Manual.pdf"
+    },
+    {
+      "title": "Microsoft SJ04 fourth revised project description, July 2025",
+      "url": "https://efiling.energy.ca.gov/GetDocument.aspx?DocumentContentId=101543&tn=264764"
+    },
+    {
+      "title": "DOE FEMP: Cooling Tower Management",
+      "url": "https://www.energy.gov/cmei/femp/best-management-practice-10-cooling-tower-management"
+    },
+    {
+      "title": "EPA AP-42 13.2.3: Heavy Construction Operations",
+      "url": "https://www.epa.gov/sites/default/files/2020-10/documents/13.2.3_heavy_construction_operations.pdf"
+    },
+    {
+      "title": "CEC construction-water conversation for a different San Jose project, 2020",
+      "url": "https://efiling.energy.ca.gov/GetDocument.aspx?DocumentContentId=65450&tn=232985"
+    },
+    {
+      "title": "EPA: Concrete Washout",
+      "url": "https://www.epa.gov/sites/default/files/2020-02/documents/concretewashout.pdf"
+    },
+    {
+      "title": "CEC Walsh Data Center initial study, February 2020",
+      "url": "https://files.ceqanet.lci.ca.gov/259363-2/attachment/agW7OFEjD111eMa2a-2bulWi_pGeVksUxCXri4w6rUDo-hSXz52T1nULVowDYvuZlFVx6dU5jxO6pnQr0"
+    },
+    {
+      "title": "FAO: Basic materials for construction",
+      "url": "https://www.fao.org/fishery/static/FAO_Training/FAO_Training/General/x6708e/x6708e03.htm"
+    },
+    {
+      "title": "User map link: Golden Gate Park Polo Field",
+      "url": "https://maps.app.goo.gl/oWkaHd1QNv66b3C1A"
+    },
+    {
+      "title": "SF Recreation & Parks: Polo Field venue listing",
+      "url": "https://sfrecpark.org/877/Golden-Gate-Park---Polo-Field"
+    },
+    {
+      "title": "SF Recreation & Parks: official Polo Fields field map",
+      "url": "https://www.sfrecpark.org/DocumentCenter/View/19734/Polo-Fields-PDF"
+    },
+    {
+      "title": "NOAA GHCN-Daily San Francisco Downtown USW00023272",
+      "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00023272.dly"
+    },
+    {
+      "title": "NOAA SF Downtown 1991–2020 monthly precipitation normals",
+      "url": "https://www.ncei.noaa.gov/access/services/data/v1?dataset=normals-monthly-1991-2020&stations=USW00023272&dataTypes=MLY-PRCP-NORMAL&format=json&units=metric"
+    },
+    {
+      "title": "NOAA station metadata, San Francisco Downtown",
+      "url": "https://www.ncdc.noaa.gov/cdo-web/datasets/GHCND/stations/GHCND%3AUSW00023272/detail"
+    },
+    {
+      "title": "SF Recreation & Parks: Golden Gate Park Master Plan, objectives/policies",
+      "url": "https://sfrecpark.org/DocumentCenter/View/11713/C-Objectives-and-Policies"
+    },
+    {
+      "title": "SFPUC Westside Enhanced Water Recycling Project, FAQ Aug 2024",
+      "url": "https://www.sfpuc.gov/sites/default/files/documents/Westside_Enhanced_Water_Recycling_Project_FAQ_August_2024.pdf"
+    },
+    {
+      "title": "SFPUC Westside recycling project status",
+      "url": "https://www.sfpuc.gov/construction-contracts/construction-projects/westside-enhanced-water-recycling-project"
+    },
+    {
+      "title": "SFPUC Stormwater Management Requirements",
+      "url": "https://www.sfpuc.gov/construction-contracts/design-guidelines-standards/stormwater-requirements"
+    },
+    {
+      "title": "SF Recreation & Parks: Polo Field facility and usage",
+      "url": "https://www.sfrecpark.org/Facilities/Facility/Details/Polo-Field-419"
+    },
+    {
+      "title": "SFPUC regional water system: sources, treatment and distribution",
+      "url": "https://www.sfpuc.gov/about-us/our-systems/water-system"
+    },
+    {
+      "title": "EPA ENERGY STAR technical reference for data centers, August 2018",
+      "url": "https://www.energystar.gov/sites/default/files/tools/Data_Center_August_2018_EN_508.pdf"
+    },
+    {
+      "title": "LBNL 2024 United States Data Center Energy Usage Report",
+      "url": "https://eta-publications.lbl.gov/sites/default/files/2024-12/lbnl-2024-united-states-data-center-energy-usage-report.pdf?stream=top"
+    },
+    {
+      "title": "SFPUC Hetch Hetchy Power for Developers",
+      "url": "https://www.sfpuc.gov/hetch-hetchy-power"
+    },
+    {
+      "title": "SFPUC CleanPowerSF frequently asked questions",
+      "url": "https://cleanpowersf.org/faq"
+    },
+    {
+      "title": "California ISO large loads",
+      "url": "https://www.caiso.com/generation-transmission/load/large-loads"
+    },
+    {
+      "title": "California Energy Commission summer reliability",
+      "url": "https://www.energy.ca.gov/data-reports/california-energy-planning-library/reliability/summer-reliability"
+    },
+    {
+      "title": "Caterpillar 320D3 GC features and benefits",
+      "url": "https://s7d2.scene7.com/is/content/Caterpillar/CM20231103-119fd-8ac71"
+    },
+    {
+      "title": "LBNL United States Data Center Energy Usage Report 2025 Update landing page",
+      "url": "https://datacenters.lbl.gov/publications/united-states-data-center-energy-2025"
+    }
+  ],
+  "provenance": {
+    "generator": "node scripts/data/prepare-polo-demo.mjs",
+    "researchScenarioIds": ["sf-polo-turf-water-v1", "sf-polo-turf-energy-v1"],
+    "researchSha256": {
+      "docs/research/water-demo-golden-gate-polo/compute.py": "2a5b489cd9239b0ba03c530e02e510b4f5259201f4507ed753dcd772ec524227",
+      "docs/research/water-demo-golden-gate-polo/scenario.json": "b903e28a0265fa78ceb3ad98cdc2863dc317faf74f6b72b1e35d934bf905ba3d",
+      "docs/research/water-demo-golden-gate-polo/sources.json": "550bcff00d542aa4ee6593823f30e14f2db7af37f82378e9c08a04085f9aed8b",
+      "docs/research/water-demo-golden-gate-polo/milestones.sk.json": "3531dc3aa70152d8deebcca1c679e47018f7268a9bdb00762e1c61b68842f205",
+      "docs/research/energy-demo-golden-gate-polo/compute.py": "04f44cf3ce6298b0ef282d05ec42a99c89f101abca6610826624d28d6d8e1878",
+      "docs/research/energy-demo-golden-gate-polo/scenario.json": "07da904a62347de7dc038d18845bf94fc4f5d49d15377e3daae2269898bc4f12",
+      "docs/research/energy-demo-golden-gate-polo/sources.json": "98c08471ce37cb3cb6581f2cf4f71e8191d9b1de0f75e4889d1d394ecf379a14",
+      "docs/research/energy-demo-golden-gate-polo/milestones.en.json": "ba6fc87dc6118e7cec7b09687caeb36dbb5fdbbf583baed74ea484f42804852f"
+    },
+    "validation": [
+      "Both original Python generators reproduced offline in isolated temporary copies.",
+      "Water --check and energy --check --self-test passed, including source hashes and 14 negative energy cases.",
+      "Generated JSON matches frozen research within 1e-8 absolute plus 1e-12 relative tolerance; all nonnumeric content is identical.",
+      "Runtime copy is normalized English teaching text; source research was not modified."
+    ]
+  }
+}

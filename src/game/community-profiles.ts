@@ -6,6 +6,7 @@ import type {
 import { initialCommunityMoods } from './community-mood.ts'
 import { communityVoices } from './community.ts'
 import type { DiscussionContext } from './discussion.ts'
+import { poloProfiles } from './polo/perspectives.ts'
 
 export interface CommunityProfile {
   id: CommunityId
@@ -25,6 +26,7 @@ export interface CommunityProfile {
 export function communityProfiles(
   context: DiscussionContext,
 ): CommunityProfile[] {
+  if (context.polo) return poloProfiles(context.polo)
   const [neighbor, nature, student] = communityVoices(
     context.choices,
     context.site,
@@ -123,6 +125,23 @@ export function demoExchange(
     return {
       messages: [
         { speaker: target, text: profile.goal + ' ' + profile.flexible },
+      ],
+    }
+  if (context.polo)
+    return {
+      messages: [
+        { speaker: target, text: profile.post },
+        {
+          speaker: target === 'operator' ? 'nature' : 'operator',
+          text:
+            context.polo.scene.proposal && context.polo.scene.preview
+              ? 'This is a visual concept. Let’s compare the mechanism and what it cannot fix.'
+              : 'The baseline shows selected construction and operating assumptions, not a real development plan.',
+        },
+        {
+          speaker: target === 'student' ? 'neighbor' : 'student',
+          text: 'Who gains a benefit, and what happens to the people who already use this field?',
+        },
       ],
     }
   return {

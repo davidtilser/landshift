@@ -1,0 +1,816 @@
+.polo-studio {
+  color: #294638;
+  --polo-paper: #fcfdf2;
+}
+.polo-topbar {
+  position: absolute;
+  z-index: 5;
+  left: 20px;
+  right: 20px;
+  top: 18px;
+  height: 60px;
+  border: 1px solid #ffffffae;
+  border-radius: 20px;
+  padding: 0 17px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  background: #fbfcf0ed;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 9px 35px #153d2b10;
+}
+.polo-brand {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #294638;
+  text-decoration: none;
+  font-size: 26px;
+  letter-spacing: -1.3px;
+}
+.polo-brand > strong {
+  font-weight: 780;
+}
+.polo-place {
+  color: #74826b;
+  font-size: 11px;
+}
+.polo-place b {
+  padding: 0 8px;
+  color: #bac2ae;
+}
+.polo-topbar .top-actions {
+  margin-left: auto;
+  gap: 7px;
+}
+.polo-small-button,
+.polo-location-link,
+.polo-topbar .community-launch {
+  min-height: 34px;
+  padding: 8px 11px;
+  border: 1px solid #d5ddcb;
+  border-radius: 11px;
+  background: #f3f6e9;
+  font-size: 10px;
+  color: #617657;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.polo-topbar .community-launch {
+  background: #dee9c9;
+  color: #48633d;
+  font-weight: 750;
+}
+.polo-camera {
+  position: absolute;
+  z-index: 3;
+  top: 96px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 5px;
+  border-radius: 14px;
+  background: #fbfcf0ec;
+  box-shadow: 0 8px 24px #153d2b12;
+}
+.polo-camera button {
+  min-height: 32px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #5e7353;
+  font-size: 10px;
+  padding: 6px 9px;
+}
+.polo-camera button:hover {
+  background: #e6edda;
+}
+.polo-camera > span {
+  width: 1px;
+  height: 18px;
+  background: #dce2d1;
+  margin: 0 2px;
+}
+.polo-rotation {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+.polo-rotation output {
+  min-width: 29px;
+  text-align: center;
+  font-size: 10px;
+  color: #6e835b;
+}
+.polo-rotation button {
+  font-size: 17px;
+  padding-left: 7px;
+  padding-right: 7px;
+}
+.polo-scene-label {
+  position: absolute;
+  z-index: 2;
+  top: 153px;
+  left: 22px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #ffffff;
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 8px #11271a;
+}
+.polo-live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d9e7a7;
+  box-shadow: 0 0 0 4px #d9e7a71c;
+}
+.polo-people {
+  position: absolute;
+  z-index: 3;
+  right: 20px;
+  top: 96px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 5px;
+  border-radius: 14px;
+  background: #fbfcf0ec;
+  box-shadow: 0 8px 24px #153d2b12;
+}
+.polo-people-label {
+  padding: 0 6px;
+  color: #7b8c69;
+  font-size: 9px;
+}
+.polo-person {
+  display: grid;
+  place-items: center;
+  min-width: 33px;
+  min-height: 32px;
+  border: 0;
+  border-radius: 9px;
+  background: #edf2df;
+  font-size: 18px;
+}
+.polo-person:hover {
+  background: #dce8c6;
+}
+.polo-deck {
+  position: absolute;
+  z-index: 4;
+  bottom: 99px;
+  left: 20px;
+  width: 358px;
+  max-height: calc(100dvh - 292px);
+  padding: 19px 21px 17px;
+  overflow: auto;
+  scrollbar-width: thin;
+  border: 1px solid #ffffffb8;
+  border-radius: 24px;
+  background: #fcfdf2f5;
+  box-shadow: 0 15px 60px #19382626;
+  backdrop-filter: blur(18px);
+}
+#game[data-polo-confirmed='false'] .polo-deck {
+  width: auto;
+  max-height: none;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+#game[data-polo-confirmed='false'] .polo-deck > :not(.polo-deck-bottom) {
+  display: none;
+}
+#game[data-polo-confirmed='false'] .polo-deck-bottom {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+#game[data-polo-confirmed='false'] .polo-next {
+  min-width: 220px;
+  min-height: 48px;
+  box-shadow: 0 10px 35px #163b3333;
+}
+.polo-deck-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.polo-deck-head > span,
+.polo-eyebrow {
+  color: #849274;
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: 1.1px;
+}
+.polo-replay {
+  border: 0;
+  background: transparent;
+  color: #71875d;
+  font-size: 10px;
+  padding: 3px 0 3px 5px;
+  white-space: nowrap;
+}
+.polo-deck h1 {
+  font-size: 27px;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin: 13px 0 10px;
+  font-weight: 650;
+}
+.polo-summary {
+  font-size: 12px;
+  line-height: 1.55;
+  color: #708067;
+  margin: 0 0 14px;
+}
+.polo-placement {
+  padding: 12px;
+  border: 1px solid #dae4c8;
+  border-radius: 14px;
+  background: #eef4e1;
+}
+.polo-placement > p {
+  margin: 0 0 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #748768;
+}
+.polo-nudges {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+.polo-nudges > button {
+  width: 39px;
+  min-height: 38px;
+  border: 1px solid #cfddbc;
+  border-radius: 10px;
+  background: #f9fbf0;
+  color: #577946;
+  font-size: 19px;
+}
+.polo-nudges > span {
+  font-size: 10px;
+  padding: 0 4px;
+  color: #8c9b7a;
+}
+.polo-studio:has(#polo-placement:not([hidden])) .polo-deck {
+  bottom: 60px;
+}
+.polo-proposals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 13px 0;
+}
+.polo-proposal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  min-height: 85px;
+  border: 1.5px solid #dee5d2;
+  border-radius: 13px;
+  background: #f6f8ed;
+  padding: 8px 4px;
+  text-align: center;
+}
+.polo-proposal[aria-pressed='true'] {
+  border-color: #8caa6b;
+  background: #e5edcf;
+  box-shadow: inset 0 0 0 1px #8caa6b33;
+}
+.polo-proposal-icon {
+  display: grid;
+  place-items: center;
+  width: 33px;
+  height: 33px;
+  border-radius: 11px;
+  background: #eaf0db;
+  font-size: 23px;
+  color: #b88148;
+}
+.polo-proposal strong {
+  display: block;
+  font-size: 11px;
+  letter-spacing: -0.2px;
+}
+.polo-proposal small {
+  display: block;
+  color: #8b977a;
+  font-size: 7px;
+  margin-top: 2px;
+}
+.polo-proposal-arrow {
+  display: none;
+}
+.polo-compare {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #e9eedd;
+  border-radius: 11px;
+  margin: 12px 0 10px;
+}
+.polo-compare button {
+  flex: 1;
+  min-height: 34px;
+  border: 0;
+  background: transparent;
+  color: #7c8a6c;
+  border-radius: 8px;
+  font-size: 10px;
+}
+.polo-compare button[aria-pressed='true'] {
+  background: #fffef5;
+  color: #49643a;
+  box-shadow: 0 2px 7px #263c2810;
+  font-weight: 750;
+}
+.polo-concept-tag {
+  font-size: 7px;
+  font-weight: 750;
+  letter-spacing: 0.65px;
+  color: #9c875d;
+}
+.polo-concept p {
+  margin: 5px 0 11px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #7a846b;
+}
+.polo-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 13px 0 6px;
+  border-top: 1px solid #e5e9d9;
+  gap: 13px 20px;
+}
+.polo-metric {
+  flex: 1;
+  min-width: 80px;
+}
+.polo-metric strong {
+  display: block;
+  font-size: 20px;
+  font-weight: 650;
+  color: #49603d;
+  letter-spacing: -0.5px;
+}
+.polo-metric > span {
+  display: block;
+  font-size: 10px;
+  line-height: 1.4;
+  color: #7b8a69;
+  margin-top: 3px;
+}
+.polo-metric small {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+  line-height: 1.4;
+  color: #9ba48b;
+}
+.polo-tip {
+  font-size: 11px;
+  line-height: 1.45;
+  color: #6b8156;
+  margin: 10px 0;
+}
+.polo-experiment-button,
+.polo-rain-button {
+  min-height: 38px;
+  width: 100%;
+  border: 1px solid #c9d7b5;
+  border-radius: 11px;
+  background: #eaf0dd;
+  color: #577447;
+  font-size: 11px;
+  font-weight: 650;
+}
+.polo-rain-button {
+  min-height: 32px;
+  background: transparent;
+  font-size: 10px;
+}
+.polo-details {
+  margin-top: 12px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #81906f;
+}
+.polo-details > summary {
+  cursor: pointer;
+}
+.polo-details p {
+  margin: 8px 0;
+}
+.polo-deck-bottom {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  padding-top: 13px;
+  border-top: 1px solid #e2e8d7;
+  position: sticky;
+  bottom: -17px;
+  padding-bottom: 6px;
+  background: #fcfdf2;
+}
+.polo-back {
+  min-height: 43px;
+  padding: 0 12px 0 0;
+  border: 0;
+  background: transparent;
+  color: #81916d;
+  font-size: 11px;
+}
+.polo-back:disabled {
+  color: #b8c1aa;
+  cursor: default;
+}
+.polo-next {
+  flex: 1;
+  min-height: 43px;
+  border: 0;
+  border-radius: 12px;
+  background: #526f42;
+  color: #fffef3;
+  font-size: 12px;
+  font-weight: 650;
+  box-shadow: 0 4px 12px #58734022;
+}
+.polo-timeline {
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  position: absolute;
+  z-index: 4;
+  left: 20px;
+  bottom: 27px;
+  width: min(620px, calc(100vw - 40px));
+  min-height: 58px;
+  border-radius: 19px;
+  background: #fcfdf0ed;
+  padding: 8px;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 6px 28px #1b3d2b18;
+}
+.polo-stop {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  gap: 4px;
+  padding: 2px 4px;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: #94a080;
+  font-size: 9px;
+}
+.polo-stop-dot {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  background: #edf1e2;
+  border-radius: 50%;
+  font-size: 8px;
+  color: #94a17d;
+}
+.polo-stop[aria-current='step'] {
+  color: #3f6034;
+  background: #e1ebcc;
+  font-weight: 750;
+}
+.polo-stop[aria-current='step'] .polo-stop-dot {
+  background: #68864b;
+  color: #fffdef;
+}
+.polo-stop.is-complete .polo-stop-dot {
+  color: #54733c;
+  background: #e1eacc;
+}
+.polo-map-help {
+  position: absolute;
+  z-index: 2;
+  bottom: 9px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #f8faed;
+  font-size: 8px;
+  text-shadow: 0 1px 5px #263e2e;
+}
+.polo-map-help > span {
+  opacity: 0.5;
+}
+.polo-map-help > strong {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 7px;
+  border-radius: 7px;
+  background: #24463383;
+}
+.polo-map-help button {
+  color: inherit;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: inherit;
+  text-shadow: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.polo-toast {
+  position: absolute;
+  z-index: 12;
+  top: 94px;
+  right: 20px;
+  width: min(310px, calc(100vw - 40px));
+  padding: 13px 17px;
+  background: #fcfdf0f2;
+  color: #6b7e58;
+  border-radius: 14px;
+  box-shadow: 0 8px 30px #153d2b20;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.polo-loading {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  background: #edf1e3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px;
+}
+.polo-loading > span {
+  font-size: 48px;
+  color: #7d9660;
+}
+.polo-loading h2 {
+  margin: 18px 0 6px;
+  font-size: 28px;
+  font-weight: 550;
+  letter-spacing: -0.8px;
+}
+.polo-loading p {
+  max-width: 460px;
+  color: #8b977e;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.polo-recovery-link {
+  color: #577447;
+  font-size: 12px;
+}
+.polo-evidence {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 50px);
+  overflow: auto;
+  border: 1px solid #dce3cf;
+  border-radius: 24px;
+  padding: 30px;
+  background: #fcfdf2;
+  color: #48603d;
+}
+.polo-evidence::backdrop {
+  background: #203a306b;
+  backdrop-filter: blur(3px);
+}
+.polo-evidence h2 {
+  font-size: 27px;
+  letter-spacing: -1px;
+  margin: 10px 30px 18px 0;
+}
+.polo-evidence h3 {
+  margin: 20px 0 8px;
+  font-size: 14px;
+}
+.polo-evidence p,
+.polo-evidence li {
+  font-size: 12px;
+  line-height: 1.65;
+  color: #7a886b;
+}
+.polo-evidence ul {
+  padding-left: 18px;
+}
+.polo-dialog-close {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  height: 34px;
+  width: 34px;
+  border-radius: 50%;
+  border: 0;
+  background: #ebf0df;
+  color: #718661;
+  font-size: 23px;
+}
+.polo-source-list a {
+  color: #5b7950;
+  text-underline-offset: 3px;
+}
+.polo-studio.community-open .polo-deck,
+.polo-studio.community-open .polo-people,
+.polo-studio.community-open .polo-map-help {
+  display: none;
+}
+.polo-studio.community-open .polo-timeline {
+  width: min(620px, calc(100vw - 480px));
+}
+.polo-studio #cesium-credits {
+  bottom: 4px;
+}
+@media (max-width: 1100px) {
+  .polo-place {
+    display: none;
+  }
+  .polo-location-link {
+    font-size: 9px;
+  }
+  .polo-deck {
+    width: 330px;
+    max-height: calc(100dvh - 260px);
+  }
+}
+@media (max-height: 760px) and (min-width: 701px) {
+  .polo-deck {
+    padding: 14px 17px 13px;
+    max-height: calc(100dvh - 265px);
+  }
+  .polo-deck h1 {
+    font-size: 23px;
+    margin-top: 10px;
+  }
+  .polo-summary {
+    font-size: 11px;
+    margin-bottom: 9px;
+  }
+  .polo-proposal {
+    min-height: 49px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+  .polo-proposal-icon {
+    height: 29px;
+    width: 29px;
+    font-size: 20px;
+  }
+  .polo-details {
+    margin-top: 8px;
+  }
+}
+@media (max-width: 700px) {
+  .polo-topbar {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    padding: 0 10px;
+    height: 54px;
+    border-radius: 17px;
+    gap: 8px;
+  }
+  .polo-brand {
+    font-size: 20px;
+    gap: 4px;
+  }
+  .polo-topbar .top-actions {
+    gap: 3px;
+  }
+  .polo-small-button,
+  .polo-topbar .community-launch,
+  .polo-location-link {
+    padding: 7px;
+    min-height: 31px;
+    font-size: 8px;
+  }
+  .polo-location-link {
+    max-width: 61px;
+    white-space: normal;
+    line-height: 1.2;
+  }
+  .polo-camera {
+    top: 75px;
+    left: 10px;
+    max-width: calc(100vw - 20px);
+    flex-wrap: wrap;
+  }
+  .polo-camera button {
+    min-height: 29px;
+    padding: 5px 6px;
+    font-size: 9px;
+  }
+  .polo-rotation button {
+    font-size: 15px;
+  }
+  .polo-rotation output {
+    min-width: 24px;
+    font-size: 9px;
+  }
+  .polo-scene-label {
+    top: 123px;
+    left: 12px;
+    font-size: 7px;
+    max-width: 180px;
+  }
+  .polo-people {
+    right: 10px;
+    top: 122px;
+    padding: 3px;
+    border-radius: 11px;
+  }
+  .polo-people-label {
+    display: none;
+  }
+  .polo-person {
+    min-width: 29px;
+    min-height: 29px;
+    font-size: 16px;
+  }
+  .polo-deck {
+    left: 10px;
+    right: 10px;
+    width: auto;
+    bottom: 85px;
+    padding: 13px 17px;
+    max-height: min(430px, calc(100dvh - 205px));
+  }
+  .polo-deck h1 {
+    font-size: 22px;
+    margin: 9px 0 8px;
+  }
+  .polo-summary {
+    font-size: 11px;
+  }
+  .polo-proposals {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+  }
+  .polo-proposal {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+    padding: 8px 4px;
+  }
+  .polo-proposal strong {
+    font-size: 11px;
+  }
+  .polo-proposal-arrow {
+    display: none;
+  }
+  .polo-proposal small {
+    font-size: 7px;
+  }
+  .polo-timeline {
+    left: 10px;
+    width: calc(100vw - 20px);
+    bottom: 21px;
+    min-height: 53px;
+    padding: 6px;
+  }
+  .polo-map-help {
+    display: none;
+  }
+  .polo-studio.community-open .polo-timeline {
+    display: none;
+  }
+  .polo-studio .community-hub {
+    top: 75px;
+    left: 10px;
+    right: 10px;
+    bottom: 25px;
+    width: auto;
+  }
+  .polo-studio .community-launch {
+    display: inline-block;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .polo-studio * {
+    scroll-behavior: auto;
+    transition: none !important;
+  }
+}

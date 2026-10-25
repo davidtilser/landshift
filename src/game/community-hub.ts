@@ -175,8 +175,11 @@ export class CommunityHub {
     }
   }
   open(voice: CommunityVoice): void {
+    this.openPerson(voice.id)
+  }
+  openPerson(id: CommunityId): void {
     this.sync()
-    this.openPrivate(voice.id)
+    this.openPrivate(id)
   }
   private openPrivate(id: CommunityId): void {
     this.privateChat.open(this.profile(id))

@@ -169,6 +169,30 @@ export class CharacterChat {
   }
   private choices(): DialogueChoice[] {
     if (this.currentThread()?.freeText) return []
+    if (this.options.getContext().polo)
+      return [
+        {
+          kind: 'say',
+          topic: 'park',
+          label: 'What matters most to you?',
+          hint: 'Hear their perspective',
+          icon: '💬',
+        },
+        {
+          kind: 'say',
+          topic: 'benefit',
+          label: 'Who benefits from this idea?',
+          hint: 'Explore who gains and loses',
+          icon: '🤝',
+        },
+        {
+          kind: 'say',
+          topic: 'other',
+          label: 'What are we missing?',
+          hint: 'Ask about the trade-offs',
+          icon: '🔎',
+        },
+      ]
     if (this.profile?.id === 'operator')
       return [
         {

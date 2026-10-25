@@ -8,6 +8,7 @@ export interface ScenarioSummary {
 
 export const SAN_JOSE_SCENARIO_ID = 'san-jose-dc04'
 export const GOLDEN_GATE_SCENARIO_ID = 'golden-gate-park'
+export const POLO_SCENARIO_ID = 'golden-gate-polo'
 
 // Shared selection metadata. Geographic inputs belong in the local data pack.
 export const scenarios: readonly ScenarioSummary[] = [
@@ -17,6 +18,13 @@ export const scenarios: readonly ScenarioSummary[] = [
     location: 'Heroes’ Grove WWI Memorial, San Francisco',
     sourceUrl:
       'https://tile.loc.gov/storage-services/master/pnp/habshaer/ca/ca4300/ca4343/data/ca4343data.pdf',
+    dataStatus: 'prepared',
+  },
+  {
+    id: POLO_SCENARIO_ID,
+    title: 'Golden Gate Park · Polo Fields',
+    location: 'Polo Fields guided demo, San Francisco',
+    sourceUrl: 'https://sfrecpark.org/877/Golden-Gate-Park---Polo-Field',
     dataStatus: 'prepared',
   },
   {

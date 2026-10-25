@@ -7,12 +7,14 @@ import type {
   SiteContext,
   Weather,
 } from './consequences.ts'
+import type { PoloDiscussionFacts } from './polo/context.ts'
 
 export interface DiscussionContext {
   choices: PlanChoices
   site: SiteContext
   year: GameYear
   weather: Weather
+  polo?: PoloDiscussionFacts
 }
 export interface DiscussionTurn {
   role: 'user' | 'assistant'

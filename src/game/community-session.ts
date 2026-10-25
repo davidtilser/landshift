@@ -7,6 +7,7 @@ import type {
 import type { CommunityProfile } from './community-profiles.ts'
 import type { DiscussionTopic } from './discussion.ts'
 import { initialCommunityMoodBreakdown } from './community-mood.ts'
+import { POLO_PROPOSAL_NAMES } from './polo/model.ts'
 
 export interface CommunityLine extends ConversationLine {
   id: number
@@ -44,6 +45,28 @@ function planUpdate(
 ): { text: string; category: string } {
   const changes: string[] = []
   let category = 'plan'
+  if (
+    next.polo &&
+    JSON.stringify(previous.polo) !== JSON.stringify(next.polo)
+  ) {
+    const view = !next.polo.confirmed
+      ? 'Position preview · not confirmed'
+      : next.polo.proposal && next.polo.preview
+        ? POLO_PROPOSAL_NAMES[next.polo.proposal] + ' · visual concept'
+        : 'Original arrangement'
+    changes.push(`Polo Fields ${next.polo.phase} · ${view}.`)
+    if (next.polo.confirmed && !previous.polo?.confirmed)
+      changes.push(
+        'Location confirmed. The field is still shown before construction.',
+      )
+    if (next.polo.proposal === 'heat_reuse_neighbors' && next.polo.preview)
+      changes.push(
+        next.polo.recipientAvailable
+          ? 'Model pool can accept heat.'
+          : 'Model pool unavailable; original cooling stays active.',
+      )
+    category = 'polo'
+  }
   if (
     previous.center[0] !== next.center[0] ||
     previous.center[1] !== next.center[1]
@@ -115,9 +138,11 @@ export class CommunitySession {
           speaker: 'planner',
           source: 'scenario',
           text:
-            plan.scenarioId === 'golden-gate-park'
-              ? 'What if a data center went here, at Heroes’ Grove? Let’s hear what this place means before we decide.'
-              : 'What would this data center mean for the neighborhood? Let’s compare the plan and hear different perspectives.',
+            plan.scenarioId === 'golden-gate-polo'
+              ? 'What if a data center replaced part of the Polo Fields? Follow the changes, compare ideas and hear who gains or loses.'
+              : plan.scenarioId === 'golden-gate-park'
+                ? 'What if a data center went here, at Heroes’ Grove? Let’s hear what this place means before we decide.'
+                : 'What would this data center mean for the neighborhood? Let’s compare the plan and hear different perspectives.',
         },
       ])
       for (const profile of profiles)

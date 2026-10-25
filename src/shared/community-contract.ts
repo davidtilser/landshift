@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { POLO_PHASES, POLO_PROPOSALS } from '../game/polo/model.ts'
+import { poloPlacementValid } from '../game/polo/placement.ts'
 
 export const DEFAULT_COMMUNITY_MODEL = 'google/gemini-2.5-flash-lite'
 export const communityIdSchema = z.enum([
@@ -34,20 +36,75 @@ export const communityMoodBreakdownSchema = communityMoodBreakdownShape.refine(
 export type CommunityMoodBreakdown = z.infer<
   typeof communityMoodBreakdownSchema
 >
-export const plannerStateSchema = z.object({
-  scenarioId: z.enum(['golden-gate-park', 'san-jose-dc04']),
+export const poloSceneStateSchema = z.object({
   center: z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]),
   bearing: z.number().min(0).max(360),
-  choices: z.object({
-    cooling: z.enum(['evaporative', 'hybrid', 'dry']),
-    trees: z.union([z.literal(0), z.literal(24), z.literal(60)]),
-    restoration: z.enum(['none', 'meadow', 'rain-garden']),
-    training: z.boolean(),
-    access: z.boolean(),
-  }),
-  year: z.union([z.literal(0), z.literal(5), z.literal(10)]),
-  weather: z.enum(['drought', 'heatwave', 'storm']),
+  confirmed: z.boolean(),
+  phase: z.enum(POLO_PHASES),
+  proposal: z.enum(POLO_PROPOSALS).nullable(),
+  preview: z.boolean(),
+  recipientAvailable: z.boolean(),
+  rain: z.boolean(),
 })
+export const plannerStateSchema = z
+  .object({
+    scenarioId: z.enum([
+      'golden-gate-park',
+      'san-jose-dc04',
+      'golden-gate-polo',
+    ]),
+    center: z.tuple([
+      z.number().min(-180).max(180),
+      z.number().min(-90).max(90),
+    ]),
+    bearing: z.number().min(0).max(360),
+    choices: z.object({
+      cooling: z.enum(['evaporative', 'hybrid', 'dry']),
+      trees: z.union([z.literal(0), z.literal(24), z.literal(60)]),
+      restoration: z.enum(['none', 'meadow', 'rain-garden']),
+      training: z.boolean(),
+      access: z.boolean(),
+    }),
+    year: z.union([z.literal(0), z.literal(5), z.literal(10)]),
+    weather: z.enum(['drought', 'heatwave', 'storm']),
+    polo: poloSceneStateSchema.optional(),
+  })
+  .superRefine((plan, context) => {
+    if ((plan.scenarioId === 'golden-gate-polo') !== Boolean(plan.polo))
+      context.addIssue({
+        code: 'custom',
+        message: 'Polo Fields requires its own scene state.',
+      })
+    if (plan.polo?.proposal && plan.polo.phase !== 'M6')
+      context.addIssue({
+        code: 'custom',
+        message: 'Proposal previews belong to Operation.',
+      })
+    if (plan.polo && !poloPlacementValid(plan.polo.center))
+      context.addIssue({
+        code: 'custom',
+        message: 'Choose valid Polo map coordinates.',
+      })
+    if (
+      plan.polo &&
+      !plan.polo.confirmed &&
+      (plan.polo.phase !== 'M0' || plan.polo.proposal !== null)
+    )
+      context.addIssue({
+        code: 'custom',
+        message: 'Confirm the site before advancing the Polo story.',
+      })
+    if (
+      plan.polo &&
+      (plan.polo.center[0] !== plan.center[0] ||
+        plan.polo.center[1] !== plan.center[1] ||
+        plan.polo.bearing !== plan.bearing)
+    )
+      context.addIssue({
+        code: 'custom',
+        message: 'Polo plan and scene locations must match.',
+      })
+  })
 export type PlannerState = z.infer<typeof plannerStateSchema>
 export const conversationLineSchema = z.object({
   speaker: z.union([communityIdSchema, z.literal('planner')]),

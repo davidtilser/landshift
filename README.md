@@ -68,6 +68,8 @@ npm run dev
 
 Open `/` for onboarding or `/game.html?scenario=golden-gate-park` for the game. `npm run dev:game` opens the game directly. Prepare or extract the local geographic pack first: see [data preparation and sharing](data/README.md). CesiumJS renders the game with a movable concept campus, local aerial/terrain fallback, and optional Google Photorealistic 3D Tiles streamed through Cesium ion. Use `?scenario=san-jose-dc04` for the original scenario.
 
+The separate **Polo Fields guided demo** opens at `/game.html?scenario=golden-gate-polo`, with a link from Heroes’ Grove. First drag the campus onto the field, use Left/Right arrows to rotate, and confirm it. You can keep moving and rotating it during the story. Follow Today → site preparation → construction → opening → operation at that location, then compare **Heat for neighbours**, **Recycled water**, and **Green roof**. Walking people and their opinion bubbles stay active. All three proposals are interactive visual concepts, with no calculated proposal savings. The original-view baseline comes from Marian’s reproducible water/energy scripts; it uses its own 4 ha / 10 MW average IT case. Heroes’ Grove keeps its existing sandbox. See [the Polo demo implementation](docs/polo-demo.md).
+
 For the photorealistic view, copy `.env.example` to `.env.local`, add a browser-safe, read-only `VITE_CESIUM_ION_TOKEN`, and restart the dev server. Enable Google Photorealistic 3D Tiles in your ion account. A token can also be entered in the game's connection dialog for the current tab session. Tokens are not committed. Existing local packs need `npm run data:cesium` once to prepare the local terrain adapter.
 
 The MapLibre version is preserved in checkpoint commit `537167b` before the Cesium migration.

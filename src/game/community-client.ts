@@ -39,6 +39,16 @@ export class CommunityClient {
     await this.status(signal)
     if (signal.aborted) throw new DOMException('Canceled', 'AbortError')
     if (!this.configured) {
+      if (context.polo)
+        return {
+          ...demoExchange(
+            context,
+            request.target,
+            request.mode === 'discussion',
+          ),
+          source: 'demo',
+          model: 'Scripted demo',
+        }
       if (request.mode === 'private' && request.target !== 'operator') {
         const voice = communityVoices(context.choices, context.site).find(
           (item) => item.id === request.target,

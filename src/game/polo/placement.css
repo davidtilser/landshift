@@ -1,0 +1,48 @@
+.polo-placement-handle {
+  position: absolute;
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 45px;
+  padding: 11px 16px;
+  border: 2px solid #f0f6d4;
+  border-radius: 25px;
+  background: #456c56ed;
+  color: #fffef0;
+  box-shadow: 0 5px 22px #1d3b3b55;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.polo-placement-handle[hidden] {
+  display: none;
+}
+.polo-placement-handle.is-dragging {
+  cursor: grabbing;
+  background: #315c49;
+  box-shadow: 0 7px 28px #18393080;
+  border-color: #d6ee9c;
+}
+.polo-placement-handle:focus-visible {
+  outline: 3px solid #a9d3e4;
+  outline-offset: 4px;
+}
+.polo-placement-handle > span:first-child {
+  font-size: 20px;
+  line-height: 1;
+}
+@media (max-width: 600px) {
+  .polo-placement-handle {
+    min-height: 43px;
+    padding: 9px 12px;
+    font-size: 11px;
+  }
+}

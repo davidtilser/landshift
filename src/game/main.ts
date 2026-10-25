@@ -89,6 +89,14 @@ root.innerHTML = `
   </main>
 `
 
+if (isPark) {
+  const poloLink = document.createElement('a')
+  poloLink.href = './game.html?scenario=golden-gate-polo'
+  poloLink.className = 'text-button'
+  poloLink.textContent = 'Polo Fields demo ↗'
+  document.querySelector('.top-actions')?.prepend(poloLink)
+}
+
 function toast(message: string): void {
   const target = el('#toast', HTMLDivElement)
   target.textContent = message
