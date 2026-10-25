@@ -178,6 +178,7 @@
 
 .landing-headline {
   position: absolute;
+  z-index: 1;
   inset: 0;
   margin: 0;
   pointer-events: none;
@@ -202,6 +203,15 @@
 .landing-wordmark,
 .landing-wordmark-pixels {
   position: absolute;
+  height: auto;
+  pointer-events: none;
+}
+
+/* Behind the headline, so its mask does not clip the emblem and the letters cover it. */
+.landing-un-emblem,
+.landing-un-emblem-pixels {
+  position: absolute;
+  z-index: 0;
   height: auto;
   pointer-events: none;
 }

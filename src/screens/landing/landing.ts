@@ -27,13 +27,40 @@ import {
 import { createRegionCard, LOAD_FAILED_MESSAGE } from './regionCard.ts'
 import { createRegionList } from './regionList.ts'
 import wordmarkUrl from '../../../design/landshift-wordmark.svg'
+import emblemUrl from '../../../design/un-emblem.svg'
 import '../../ui/ui.css'
 import './landing.css'
 
-/** Full glow holds this long after the wordmark appears, or after the pointer last moved. */
+/** Full glow holds this long after the intro rise finishes, or after the pointer last moved. */
 const GLOW_HOLD_MS = 3000
 const GLOW_RISE_MS = 280
 const GLOW_FALL_MS = 820
+/** Dim hold before the intro rise. A pointer move during the wait starts the rise. */
+const GLOW_INTRO_DELAY_MS = 1500
+
+/** viewBox of design/landshift-wordmark.svg. */
+const WORDMARK_VIEW = { x: -36, y: -48, width: 1060.198, height: 587.641 }
+/** Right edge of the rendered foreground L after scale(1 1.786), stroke included. */
+const L_RIGHT_X = 166.4
+/** Clear space between that edge and the left of the wreath. */
+const WREATH_L_GAP = 48
+/** Leftmost point of the official olive branch, before the face stroke. */
+const WREATH_LEFT = 2
+const EMBLEM_STROKE = 6.05
+/** Visible top of the ink under the emblem, stroke included. */
+const LAND_INK_TOP = 233.98
+/** Official map center and olive-branch span. Paths are unmoved; the viewBox is padded. */
+const ART_CENTER_X = 235
+const WREATH_TOP = 18
+const WREATH_BOTTOM = 398
+/** Share of the wreath height that crosses the wordmark ink. */
+const WREATH_OVERLAP = 0.15
+/** viewBox of design/un-emblem.svg, padded around the original 470×400 art. */
+const EMBLEM_VIEW = { x: -240, y: -270, width: 1000, height: 1020 }
+/** Art width before the glow padding, in wordmark viewBox units. The image box is wider. */
+const EMBLEM_ART_WIDTH = 470
+/** 50% larger than the 114-unit emblem, in wordmark viewBox units. */
+const EMBLEM_WIDTH = 171
 
 const TAGLINE = 'How does our Earth develop?'
 const TEAM = ['Rikesh Subedi', 'Marian Hurta', 'David Tilser'] as const
@@ -82,6 +109,14 @@ function createWordmark(): HTMLHeadingElement {
   return title
 }
 
+function createEmblem(): HTMLImageElement {
+  const emblem = document.createElement('img')
+  emblem.className = 'landing-un-emblem'
+  emblem.src = emblemUrl
+  emblem.alt = ''
+  return emblem
+}
+
 /** Screen disc of the earth. Altitude is radii above the surface, so camera distance is one more. */
 function earthDisc(cell: HTMLElement): {
   x: number
@@ -101,6 +136,10 @@ function earthDisc(cell: HTMLElement): {
   }
 }
 
+function px(value: number): string {
+  return `${String(value)}px`
+}
+
 /** Keeps the whole wordmark, glow included, inside the screen. */
 function placeWordmark(headline: HTMLElement, cell: HTMLElement): void {
   const earth = earthDisc(cell)
@@ -108,29 +147,30 @@ function placeWordmark(headline: HTMLElement, cell: HTMLElement): void {
     headline.offsetParent instanceof HTMLElement
       ? headline.offsetParent.getBoundingClientRect()
       : cell.getBoundingClientRect()
-  const image = headline.querySelector('img')
+  const image = headline.querySelector('.landing-wordmark')
   if (!(image instanceof HTMLImageElement)) return
-  const aspect = 1060.198 / 587.641
+  const aspect = WORDMARK_VIEW.width / WORDMARK_VIEW.height
   const margin = 20
   const maxWidth = frame.width - margin * 2
   const maxHeight = frame.height - margin * 2
   let width = Math.min(earth.radius * 1.85, maxWidth)
   if (width / aspect > maxHeight) width = maxHeight * aspect
   const height = width / aspect
-  image.style.left = `${margin}px`
-  image.style.top = `${margin}px`
-  image.style.width = `${width}px`
+  image.style.left = px(margin)
+  image.style.top = px(margin)
+  image.style.width = px(width)
   const view = headline.parentElement
   const tagline = view?.querySelector('.landing-tagline')
   if (tagline instanceof HTMLElement) {
     const belowEarth = earth.y - frame.top + earth.radius + 18
     const maxTop = frame.height - tagline.offsetHeight - 12
-    tagline.style.left = `${earth.x - frame.left}px`
-    tagline.style.top = `${Math.min(belowEarth, maxTop)}px`
+    tagline.style.left = px(earth.x - frame.left)
+    tagline.style.top = px(Math.min(belowEarth, maxTop))
   }
   const buttons = view
     ? [...view.querySelectorAll<HTMLElement>('.landing-edge-button')]
     : []
+  if (view instanceof HTMLElement) placeEmblem(view, margin, width)
   if (buttons.length > 0) {
     placeEdgeBars(
       buttons,
@@ -140,14 +180,56 @@ function placeWordmark(headline: HTMLElement, cell: HTMLElement): void {
       earth,
     )
   }
-  headline.style.setProperty('--cut-x', `${earth.x - frame.left}px`)
-  headline.style.setProperty('--cut-y', `${earth.y - frame.top}px`)
-  headline.style.setProperty('--earth-r', `${earth.radius}px`)
+  headline.style.setProperty('--cut-x', px(earth.x - frame.left))
+  headline.style.setProperty('--cut-y', px(earth.y - frame.top))
+  headline.style.setProperty('--earth-r', px(earth.radius))
   const paint = (): void => {
-    requestAnimationFrame(() => pixelateWordmark(image))
+    requestAnimationFrame(() => {
+      pixelateWordmark(image)
+    })
   }
   if (image.complete && image.naturalWidth > 0) paint()
   else image.addEventListener('load', paint, { once: true })
+}
+
+/** Puts the wreath clear of the L, with the wreath crossing the ink. */
+function placeEmblem(
+  view: HTMLElement,
+  margin: number,
+  wordmarkWidth: number,
+): void {
+  const emblem = view.querySelector('.landing-un-emblem')
+  if (!(emblem instanceof HTMLImageElement)) return
+  const scale = wordmarkWidth / WORDMARK_VIEW.width
+  const emblemWidthUnits = EMBLEM_WIDTH * (EMBLEM_VIEW.width / EMBLEM_ART_WIDTH)
+  const emblemWidth = emblemWidthUnits * scale
+  const unit = emblemWidthUnits / EMBLEM_VIEW.width
+  const wreathHeight = (WREATH_BOTTOM - WREATH_TOP) * unit
+  const wreathBottom = LAND_INK_TOP + WREATH_OVERLAP * wreathHeight
+  const emblemHeightUnits =
+    emblemWidthUnits * (EMBLEM_VIEW.height / EMBLEM_VIEW.width)
+  const imageTop =
+    wreathBottom -
+    ((WREATH_BOTTOM - EMBLEM_VIEW.y) / EMBLEM_VIEW.height) * emblemHeightUnits
+  const wreathInset =
+    (ART_CENTER_X - (WREATH_LEFT - EMBLEM_STROKE / 2)) *
+    (EMBLEM_WIDTH / EMBLEM_ART_WIDTH)
+  const centerX = L_RIGHT_X + WREATH_L_GAP + wreathInset
+  const artFrac = (ART_CENTER_X - EMBLEM_VIEW.x) / EMBLEM_VIEW.width
+  const left =
+    margin + (centerX - WORDMARK_VIEW.x) * scale - artFrac * emblemWidth
+  emblem.style.left = px(left)
+  emblem.style.top = px(margin + (imageTop - WORDMARK_VIEW.y) * scale)
+  emblem.style.width = px(emblemWidth)
+  if (!(emblem.complete && emblem.naturalWidth > 0)) {
+    emblem.addEventListener(
+      'load',
+      () => {
+        if (glowImage?.isConnected) paintWordmark(glowImage, glowShown)
+      },
+      { once: true },
+    )
+  }
 }
 
 /** Shared right edge for the bars, shifted left when any of them would crowd the earth. */
@@ -174,9 +256,9 @@ function placeEdgeBars(
   }
   const left = frame.left - barHeight / 2 - 4
   buttons.forEach((button, index) => {
-    button.style.left = `${left - frame.left}px`
-    button.style.width = `${right - left}px`
-    button.style.top = `${top + index * (barHeight + gap)}px`
+    button.style.left = px(left - frame.left)
+    button.style.width = px(right - left)
+    button.style.top = px(top + index * (barHeight + gap))
   })
 }
 
@@ -214,40 +296,64 @@ function pixelateWordmark(image: HTMLImageElement): void {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   glowImage = image
   if (reduced) {
+    introRising = false
+    introWaitUntil = 0
+    glowShown = 1
     paintWordmark(image, 1)
     return
   }
+  // Paint dim and stay there until the intro delay elapses.
   if (!glowArmed) {
-    glowShown = 1
-    lastPointerAt = performance.now()
+    glowShown = 0
+    introRising = false
+    introWaitUntil = performance.now() + GLOW_INTRO_DELAY_MS
   }
   if (!paintWordmark(image, glowShown)) return
-  if (!glowArmed) {
-    glowShown = 1
-    lastPointerAt = performance.now()
-    glowArmed = true
-  }
+  if (!glowArmed) glowArmed = true
   watchPointer()
   if (glowFrame === 0) startWordmarkGlow()
 }
 
 let glowShown = 0
+let introRising = false
+let introWaitUntil = 0
 let lastGlowNow = 0
 let lastPointerAt = Number.NEGATIVE_INFINITY
+let pointerPlace: 'unknown' | 'inside' | 'outside' = 'unknown'
 let glowFrame = 0
 let glowImage: HTMLImageElement | null = null
 let glowArmed = false
 let stopPointerWatch: (() => void) | null = null
 let sampleCanvas: HTMLCanvasElement | null = null
 
+function pointerInViewport(event: PointerEvent): boolean {
+  return (
+    event.clientX >= 0 &&
+    event.clientY >= 0 &&
+    event.clientX <= window.innerWidth &&
+    event.clientY <= window.innerHeight
+  )
+}
+
 function watchPointer(): void {
   if (stopPointerWatch) return
-  const onMove = (): void => {
+  const onMove = (event: PointerEvent): void => {
+    if (!pointerInViewport(event)) return
+    pointerPlace = 'inside'
     lastPointerAt = performance.now()
     if (glowFrame === 0 && glowImage) startWordmarkGlow()
   }
+  const onLeave = (event: PointerEvent): void => {
+    if (event.relatedTarget !== null) return
+    pointerPlace = 'outside'
+    if (glowFrame === 0 && glowImage) startWordmarkGlow()
+  }
   window.addEventListener('pointermove', onMove, { passive: true })
-  stopPointerWatch = () => window.removeEventListener('pointermove', onMove)
+  document.documentElement.addEventListener('pointerleave', onLeave)
+  stopPointerWatch = () => {
+    window.removeEventListener('pointermove', onMove)
+    document.documentElement.removeEventListener('pointerleave', onLeave)
+  }
 }
 
 function startWordmarkGlow(): void {
@@ -260,13 +366,29 @@ function startWordmarkGlow(): void {
     }
     const dt = lastGlowNow === 0 ? 16 : Math.min(48, now - lastGlowNow)
     lastGlowNow = now
-    const holding = now - lastPointerAt < GLOW_HOLD_MS
+    const outside = pointerPlace === 'outside'
+    const movedHold = now - lastPointerAt < GLOW_HOLD_MS
+    if (outside) {
+      introWaitUntil = 0
+      introRising = false
+    } else if (introWaitUntil !== 0 && (movedHold || now >= introWaitUntil)) {
+      const interrupted =
+        pointerPlace === 'inside' && movedHold && now < introWaitUntil
+      introWaitUntil = 0
+      if (!interrupted) introRising = true
+    }
+    const holding =
+      outside || introRising || (pointerPlace !== 'outside' && movedHold)
     const target = holding ? 1 : 0
     const tau = target > glowShown ? GLOW_RISE_MS : GLOW_FALL_MS
     glowShown += (target - glowShown) * (1 - Math.exp(-dt / tau))
     if (Math.abs(glowShown - target) < 0.004) glowShown = target
+    if (introRising && glowShown === 1) {
+      introRising = false
+      lastPointerAt = now
+    }
     paintWordmark(image, glowShown)
-    if (glowShown === 0 && !holding) {
+    if (glowShown === 0 && !holding && introWaitUntil === 0) {
       glowFrame = 0
       lastGlowNow = 0
       return
@@ -276,24 +398,49 @@ function startWordmarkGlow(): void {
   glowFrame = requestAnimationFrame(tick)
 }
 
+/** Pixelates the wordmark and the emblem together, behind the letters. */
 function paintWordmark(image: HTMLImageElement, level: number): boolean {
+  const block = 1 + (1 - level) * 2.4
+  const brightness = 0.84 + level * 0.51
+  const painted = paintGlowImage(
+    image,
+    'landing-wordmark-pixels',
+    block,
+    brightness,
+  )
+  const emblem =
+    image.parentElement?.parentElement?.querySelector('.landing-un-emblem')
+  if (emblem instanceof HTMLImageElement) {
+    paintGlowImage(emblem, 'landing-un-emblem-pixels', block, brightness)
+  }
+  return painted
+}
+
+function paintGlowImage(
+  image: HTMLImageElement,
+  canvasClass: string,
+  block: number,
+  brightness: number,
+): boolean {
   const host = image.parentElement
   if (!host) return false
   const liveWidth = image.clientWidth
   const liveHeight = image.clientHeight
   if (liveWidth < 8 || liveHeight < 8) return false
-  let canvas = host.querySelector('canvas')
-  if (!(canvas instanceof HTMLCanvasElement)) {
+  let canvas: HTMLCanvasElement | null = null
+  for (const node of host.querySelectorAll('canvas')) {
+    if (node.classList.contains(canvasClass)) canvas = node
+  }
+  if (canvas === null) {
     canvas = document.createElement('canvas')
-    canvas.className = 'landing-wordmark-pixels'
+    canvas.className = canvasClass
     canvas.setAttribute('aria-hidden', 'true')
     host.append(canvas)
   }
   canvas.style.left = image.style.left
   canvas.style.top = image.style.top
-  canvas.style.width = `${liveWidth}px`
-  canvas.style.height = `${liveHeight}px`
-  const block = 1 + (1 - level) * 2.4
+  canvas.style.width = px(liveWidth)
+  canvas.style.height = px(liveHeight)
   const sample = sampleCanvas ?? document.createElement('canvas')
   sampleCanvas = sample
   sample.width = Math.max(1, Math.round(liveWidth / block))
@@ -305,7 +452,7 @@ function paintWordmark(image: HTMLImageElement, level: number): boolean {
   canvas.width = Math.round(liveWidth)
   canvas.height = Math.round(liveHeight)
   context.imageSmoothingEnabled = false
-  context.filter = `brightness(${0.84 + level * 0.51})`
+  context.filter = `brightness(${String(brightness)})`
   context.drawImage(sample, 0, 0, canvas.width, canvas.height)
   image.style.opacity = '0'
   return true
@@ -316,9 +463,12 @@ function stopWordmarkGlow(): void {
   glowFrame = 0
   glowImage = null
   glowArmed = false
+  introRising = false
+  introWaitUntil = 0
   glowShown = 0
   lastGlowNow = 0
   lastPointerAt = Number.NEGATIVE_INFINITY
+  pointerPlace = 'unknown'
   stopPointerWatch?.()
   stopPointerWatch = null
 }
@@ -602,15 +752,20 @@ export function mountLanding(
       team.focus()
     })
     const wordmark = createWordmark()
+    const emblem = createEmblem()
     const tagline = document.createElement('p')
     tagline.className = 'landing-tagline'
     tagline.textContent = TAGLINE
-    showView(wordmark, tagline, explore, team, teamDialog)
-    const fit = (): void => placeWordmark(wordmark, globeCell)
+    showView(wordmark, tagline, explore, team, emblem, teamDialog)
+    const fit = (): void => {
+      placeWordmark(wordmark, globeCell)
+    }
     const observer = new ResizeObserver(fit)
     observer.observe(globeCell)
     fit()
-    stopWordmarkFit = () => observer.disconnect()
+    stopWordmarkFit = () => {
+      observer.disconnect()
+    }
     globe.highlightMarker(null)
     if (!previous) return
     explore.focus()
