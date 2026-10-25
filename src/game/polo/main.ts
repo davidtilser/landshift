@@ -1,6 +1,8 @@
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import '../style.css'
 import './style.css'
+import './motion-overlay.css'
+import './private-chat.css'
 import { loadDataPack } from '../data.ts'
 import { loadElevationGrid } from '../terrain.ts'
 import type { LngLat } from '../geometry.ts'
@@ -16,6 +18,7 @@ import { setupPoloMapShortcuts } from './map-shortcuts.ts'
 import { setupPoloInterventions } from './intervention-ui.ts'
 import { activePoloImprovements } from './interventions.ts'
 import { poloPortraitOpinions } from './opinions.ts'
+import { POLO_TALK_PEOPLE, setupPoloTalkPicker } from './talk-picker.ts'
 import {
   lockPoloForProtest,
   poloExploreAfterProtest,
@@ -229,11 +232,11 @@ export async function startPoloDemo(): Promise<void> {
     () => state,
     (topic) => {
       scene?.setEnvironmentalLayer(topic)
-    },
-    () => {
       experience.sync()
     },
   )
+  // Keep animation controls on the map so playback never changes card height.
+  get('.polo-studio', HTMLElement).append(get('#polo-motion', HTMLDivElement))
   const experience = setupPoloExperience(
     root,
     () => state,
@@ -248,6 +251,12 @@ export async function startPoloDemo(): Promise<void> {
     get('#polo-title', HTMLHeadingElement).focus({ preventScroll: true })
   })
   let community: PoloCommunity | undefined
+  const talkPicker = setupPoloTalkPicker(
+    root,
+    get('.polo-people', HTMLElement),
+    () => state,
+    (id) => community?.open(id),
+  )
   let toastTimer: ReturnType<typeof setTimeout> | undefined
   let placementSyncTimer: ReturnType<typeof setTimeout> | undefined
   let online = false
@@ -412,6 +421,7 @@ export async function startPoloDemo(): Promise<void> {
         `${opinion.name}: ${opinion.text} Talk privately.`,
       )
     }
+    talkPicker.sync()
     root.dataset['poloBearing'] = String(state.bearing)
     get('#polo-bearing', HTMLOutputElement).value =
       `${state.bearing.toFixed(0)}°`
@@ -646,7 +656,9 @@ export async function startPoloDemo(): Promise<void> {
     }
     get('#polo-next', HTMLButtonElement).textContent = inOperation
       ? 'Back to today ↺'
-      : 'Continue →'
+      : state.confirmed
+        ? 'Next phase →'
+        : 'Continue →'
     for (const item of root.querySelectorAll<HTMLButtonElement>(
       '[data-phase]',
     )) {
@@ -681,12 +693,7 @@ export async function startPoloDemo(): Promise<void> {
     )
     timeline.append(stop)
   }
-  const people = [
-    { id: 'neighbor', avatar: 'maya', label: 'Maya · park regular' },
-    { id: 'nature', avatar: 'aisha', label: 'Aisha · soil volunteer' },
-    { id: 'student', avatar: 'leo', label: 'Leo · young player' },
-    { id: 'operator', avatar: 'owen', label: 'Owen · campus designer' },
-  ] as const
+  const people = POLO_TALK_PEOPLE
   const peopleControls = get('.polo-people', HTMLElement)
   peopleControls.append(element('span', 'polo-people-label', 'Talk'))
   for (const person of people) {
@@ -698,8 +705,9 @@ export async function startPoloDemo(): Promise<void> {
     portrait.height = 36
     chat.append(portrait, element('span', 'polo-person-opinion'))
     chat.dataset['person'] = person.id
-    chat.setAttribute('aria-label', 'Talk privately to ' + person.label)
-    chat.title = 'Talk to ' + person.label
+    const label = person.name + ' · ' + person.role.toLowerCase()
+    chat.setAttribute('aria-label', 'Talk privately to ' + label)
+    chat.title = 'Talk to ' + label
     peopleControls.append(chat)
   }
   render()
@@ -945,6 +953,7 @@ export async function startPoloDemo(): Promise<void> {
       intro.destroy()
       protest.destroy()
       interventions.destroy()
+      talkPicker.destroy()
       community?.destroy()
       scene?.destroy()
     },
@@ -982,8 +991,10 @@ export async function startPoloDemo(): Promise<void> {
       beforeOpen: () => {
         scene?.cancelPlacementDrag()
         evidence.close()
+        talkPicker.dismiss()
       },
     })
+    talkPicker.attachChatFocus()
     community.sync()
     scene.setState({ ...state })
     get('#polo-loading', HTMLDivElement).hidden = true

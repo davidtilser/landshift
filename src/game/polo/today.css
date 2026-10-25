@@ -1,27 +1,33 @@
-#game[data-polo-phase='M0']
+/* Every chapter uses Today's inline tabs. The concept controls remain available. */
+#game[data-polo-confirmed='true']
   :is(
-    .polo-deck-head,
     #polo-summary,
     #polo-metrics,
-    #polo-experiment,
     #polo-details,
+    #polo-endpoint-label,
     .polo-guide span
   ) {
   display: none;
 }
-#game[data-polo-phase='M0'] .polo-topic-buttons {
+#game[data-polo-proposal='baseline'] #polo-experiment,
+#game[data-polo-phase='M0'] .polo-deck-head {
+  display: none;
+}
+.polo-topic-buttons {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
-#game[data-polo-phase='M0'] .polo-topic-buttons button {
+.polo-topic-buttons button {
   min-height: 68px;
   font-size: 12px;
 }
-#game[data-polo-phase='M0'] .polo-topic-buttons [aria-selected='true'] {
+.polo-topic-buttons button[aria-selected='true'],
+.polo-topic-buttons button[aria-selected='true']:hover {
   background: #7226e8;
   border-color: #7226e8;
   color: #fff;
 }
-.polo-topic-buttons button:focus-visible {
+.polo-topic-buttons button:focus-visible,
+.polo-today-panel:focus-visible {
   outline: 3px solid #7629ec;
   outline-offset: 3px;
 }
@@ -40,36 +46,211 @@
   margin: 0;
 }
 .polo-today-copy,
-.polo-today-details p {
+.polo-today-details p,
+.polo-rain-story p {
   color: #655274;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.5;
 }
 .polo-today-copy {
-  margin: 16px 0;
+  margin: 0 0 16px;
 }
-.polo-today-details {
-  margin: 16px 0 0;
-  font-size: 14px;
+.polo-story-comparison {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 3px 9px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f0e7fb;
+  color: #6024a1;
+}
+.polo-story-comparison strong {
+  font-size: 18px;
+}
+.polo-story-comparison span {
+  font-size: 12px;
+  line-height: 1.4;
+}
+.polo-today-details,
+.polo-rain-story {
+  margin: 14px 0 0;
+  font-size: 13px;
   color: #655274;
 }
-.polo-today-details summary {
+.polo-today-details summary,
+.polo-rain-story summary {
   cursor: pointer;
   min-height: 30px;
+  line-height: 1.5;
+}
+.polo-rain-story > strong {
+  color: #542396;
+  font-size: 20px;
 }
 .polo-today-sources {
   display: grid;
   gap: 8px;
   margin: 16px 0;
 }
-.polo-today-sources span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.polo-today-sources a {
+  overflow-wrap: anywhere;
   color: #7226e8;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 .polo-today-panel .polo-rain-button {
-  margin-top: 12px;
+  margin-top: 8px;
+}
+
+#game[data-polo-confirmed='true'] .polo-deck-head {
+  float: right;
+  margin-top: 19px;
+}
+#game[data-polo-confirmed='true'] .polo-deck-head > span {
+  display: none;
+}
+
+/* Foundations is the layout trial before extending it to other chapters. */
+#game[data-polo-phase='M1'] .polo-guide {
+  display: none;
+}
+#game[data-polo-phase='M1'] .polo-topic-buttons {
+  margin: 0 0 18px;
+}
+#game[data-polo-phase='M1'] .polo-deck-head {
+  margin-top: 8px;
+}
+#game[data-polo-phase='M1'] .polo-deck h1 {
+  margin-top: 0;
+}
+.polo-foundations-story {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  margin: 0 0 18px;
+}
+.polo-foundations-story img {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 50%;
+  background: #eee3fc;
+}
+.polo-foundations-speech {
+  position: relative;
+  margin: 0;
+  padding: 13px 15px;
+  border-radius: 0 18px 18px;
+  background: #eee5fc;
+  color: #55416b;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.polo-foundations-speech::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -8px;
+  border-top: 9px solid #eee5fc;
+  border-left: 8px solid transparent;
+}
+
+/* Trial the larger disclosure and chapter navigation in Foundations only. */
+#game[data-polo-phase='M1'] .polo-today-details > summary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 7px 0;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  list-style: none;
+}
+#game[data-polo-phase='M1']
+  .polo-today-details
+  > summary::-webkit-details-marker {
+  display: none;
+}
+#game[data-polo-phase='M1'] .polo-today-details > summary::after {
+  content: '+';
+  display: grid;
+  place-items: center;
+  flex: 0 0 24px;
+  height: 24px;
+  border: 1px solid #d8c5ef;
+  border-radius: 50%;
+  background: #f3ebff;
+  color: #6522ba;
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1;
+}
+#game[data-polo-phase='M1'] .polo-today-details[open] > summary::after {
+  content: '−';
+}
+#game[data-polo-phase='M1'] .polo-today-details > summary:focus-visible {
+  outline: 3px solid #7629ec;
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+#game[data-polo-phase='M1'] .polo-timeline {
+  width: min(744px, calc(100vw - 40px));
+  min-height: 70px;
+  padding: 10px;
+  gap: 4px;
+  border-radius: 23px;
+}
+#game[data-polo-phase='M1'] .polo-stop {
+  gap: 5px;
+  border-radius: 13px;
+  font-size: 14.4px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+#game[data-polo-phase='M1'] .polo-stop-dot {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  font-size: 14.4px;
+}
+#game[data-polo-phase='M1'] .polo-deck {
+  bottom: 111px;
+  max-height: calc(100dvh - 304px);
+}
+#game[data-polo-phase='M1'] .polo-studio.community-open .polo-timeline {
+  width: min(744px, calc(100vw - 480px));
+}
+@media (max-width: 1100px) {
+  #game[data-polo-phase='M1'] .polo-deck {
+    max-height: calc(100dvh - 272px);
+  }
+}
+@media (max-height: 760px) and (min-width: 701px) {
+  #game[data-polo-phase='M1'] .polo-deck {
+    max-height: calc(100dvh - 277px);
+  }
+}
+@media (max-width: 700px) {
+  #game[data-polo-phase='M1'] .polo-timeline {
+    width: calc(100vw - 20px);
+    min-height: 78px;
+    padding: 8px 6px;
+  }
+  #game[data-polo-phase='M1'] .polo-stop {
+    gap: 4px;
+    padding: 2px;
+    font-size: clamp(12px, 2.5vw, 14.4px);
+    line-height: 1.1;
+  }
+  #game[data-polo-phase='M1'] .polo-deck {
+    bottom: 113px;
+    /* Talk and the compact support row end near 284px; leave a 20px gap. */
+    max-height: min(470px, calc(100dvh - 417px));
+  }
 }

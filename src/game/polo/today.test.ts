@@ -24,21 +24,22 @@ describe('Today card information', () => {
     const large = poloTodayCard({ ...INITIAL_POLO_STATE, areaHa: 6 }, 'water')
     expect(small.metrics[0]).toMatchObject({
       value: '1.6M US gal/year',
-      note: 'Teaching allowance',
     })
     expect(large.metrics[0]).toMatchObject({
       value: '4.8M US gal/year',
-      note: 'Teaching allowance',
     })
-    expect(small.metrics[1]).toEqual(large.metrics[1])
+    expect(small.rain?.comparison).toEqual(large.rain?.comparison)
     expect(small.details.join(' ')).toContain('not metered park demand')
-    expect(small.details.join(' ')).toContain('not an on-field measurement')
+    expect(small.rain?.details.join(' ')).toContain(
+      'not an on-field measurement',
+    )
   })
 
-  it('leaves existing electricity use unknown rather than implying zero', () => {
+  it('shows zero added project demand while keeping park use unknown', () => {
     const card = poloTodayCard(INITIAL_POLO_STATE, 'electricity')
-    expect(card.metrics[0]?.value).toBe('Not established')
-    expect(card.copy).toContain('does not mean zero')
+    expect(card.metrics[0]?.value).toBe('0 kWh/day')
+    expect(card.metrics[0]?.label).toBe('Added data-centre electricity')
+    expect(card.copy).toContain('existing use is unknown')
   })
 
   it('shows original turf and no built surfaces within the same Today boundary', () => {

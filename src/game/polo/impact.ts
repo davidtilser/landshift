@@ -1,12 +1,9 @@
-import {
-  poloSizedPhase,
-  poloSizedReference,
-  poloSizedIrrigationM3Year,
-} from './size.ts'
+import { poloSizedPhase } from './size.ts'
 import { POLO_DEFAULT_AREA_HA } from './model.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
-import { usAcres, usGallons, usNumber } from './us-units.ts'
+import { usAcres } from './us-units.ts'
 import { activePoloImprovements } from './interventions.ts'
+import { poloWaterStory, poloElectricityStory } from './resource-story.ts'
 
 export type EnvironmentalLayer = 'water' | 'electricity' | 'land' | 'heat'
 export const ENVIRONMENTAL_LAYERS: Record<EnvironmentalLayer, string> = {
@@ -88,25 +85,13 @@ export function poloImpact(state: PoloSceneState): ImpactCard[] {
       },
     ]
   const phase = poloSizedPhase(state, state.confirmed ? state.phase : 'M0')
-  const reference = poloSizedReference(state)
   const proposal =
     state.confirmed && state.phase === 'M6' && state.preview
       ? state.proposal
       : null
-  const operating = state.confirmed && state.phase === 'M6'
-  const water =
-    phase.id === 'M0'
-      ? `${usGallons(poloSizedIrrigationM3Year(state))}/year`
-      : operating
-        ? `${usGallons(reference.coolingMakeupM3Day)}/day`
-        : phase.data.stageWaterSuppliedM3 === null
-          ? 'Unknown'
-          : `${usGallons(phase.data.stageWaterSuppliedM3)} / stage`
-  const power = operating
-    ? `${usNumber(reference.facilityElectricityGWhYear)} GWh/year`
-    : phase.data.selectedElectricityKWh === null
-      ? 'Unknown'
-      : `${usNumber(phase.data.selectedElectricityKWh / 1000)} MWh / stage`
+  const storyState = { ...state, phase: phase.id }
+  const water = poloWaterStory(storyState).value
+  const power = poloElectricityStory(storyState).value
   const noBuild = poloSizedPhase(state, 'M0').data.areasM2.turf
   const turfLost = noBuild - phase.data.areasM2.turf
   const support = poloSupport(state)

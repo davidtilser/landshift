@@ -125,16 +125,6 @@ export function setupPoloExperience(
     dialog.showModal()
   })
   studio.append(panel, dialog)
-  let previous = getState()
-  let visited = new Set<string>()
-  let pendingCompletion = false
-  const observer = new MutationObserver(() => {
-    if (pendingCompletion && root.dataset['poloAnimating'] !== 'true') sync()
-  })
-  observer.observe(root, {
-    attributes: true,
-    attributeFilter: ['data-polo-animating'],
-  })
   function sync(): void {
     const state = getState()
     panel.hidden = !poloConstructionStarted(state)
@@ -143,8 +133,6 @@ export function setupPoloExperience(
     status.title =
       'Response to the current plan. This indicator is not a poll or public consent.'
     if (!poloConstructionStarted(state)) {
-      visited = new Set()
-      pendingCompletion = false
       layerGroup.open = false
       if (layer !== null) {
         getScene()?.setEnvironmentalLayer(null)
@@ -158,34 +146,10 @@ export function setupPoloExperience(
         String(button.dataset['environmentLayer'] === layer),
       )
     if (dialog.open) renderResult()
-    const decision =
-      state.confirmed &&
-      state.phase === 'M6' &&
-      state.preview &&
-      state.proposal &&
-      (previous.proposal !== state.proposal ||
-        previous.phase !== state.phase ||
-        !previous.preview)
-    if (state.confirmed && state.phase === 'M6' && previous.phase !== 'M6')
-      pendingCompletion = true
-    if (state.phase !== 'M6') pendingCompletion = false
-    const completion =
-      pendingCompletion && root.dataset['poloAnimating'] !== 'true'
-    const key = decision ? state.proposal : completion ? 'operation' : null
-    const otherDialog = root.querySelector('dialog[open]')
-    if (key && !visited.has(key) && (!otherDialog || otherDialog === dialog)) {
-      visited.add(key)
-      pendingCompletion = false
-      page = 0
-      renderResult()
-      if (!dialog.open) dialog.showModal()
-    }
-    previous = { ...state, center: [...state.center] }
   }
   return {
     sync,
     destroy: () => {
-      observer.disconnect()
       dialog.close()
       dialog.remove()
       panel.remove()
