@@ -63,6 +63,7 @@ export function poloPhaseAt(
     bearing: state.bearing,
     confirmed: true,
     phase,
+    preview: phase !== 'M6',
     proposal: phase === 'M6' ? 'heat_reuse_neighbors' : null,
   }
 }

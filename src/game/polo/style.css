@@ -206,6 +206,53 @@
   justify-content: space-between;
   gap: 10px;
 }
+.polo-motion {
+  padding: 10px 0 6px;
+}
+.polo-motion-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #476239;
+}
+.polo-motion-heading button {
+  border: 0;
+  background: transparent;
+  color: #6a8059;
+  font: inherit;
+  font-size: 10px;
+  padding: 5px;
+}
+.polo-motion-track {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 5px;
+  background: #dfe6d4;
+  margin-top: 6px;
+}
+.polo-motion-track span {
+  display: block;
+  height: 100%;
+  background: #6f914d;
+  border-radius: inherit;
+}
+.polo-motion > small {
+  display: block;
+  margin-top: 4px;
+  font-size: 8px;
+  color: #8b967d;
+}
+.polo-endpoint-label {
+  margin: 8px 0 0;
+  font-size: 9px;
+  color: #7a896b;
+}
+.polo-stop.is-playing {
+  box-shadow: inset 0 0 0 2px #8ca568;
+}
 .polo-deck-head > span,
 .polo-eyebrow {
   color: #849274;
