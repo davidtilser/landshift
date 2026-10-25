@@ -79,8 +79,8 @@
 #game[data-polo-confirming='true'] .polo-opinions {
   display: none;
 }
-/* Foundations uses the Talk chooser instead of floating chat invitations. */
-#game[data-polo-phase='M1'] .polo-opinions {
+/* Every confirmed chapter uses Talk instead of floating invitations. */
+#game[data-polo-confirmed='true'] .polo-opinions {
   display: none;
 }
 @media (max-width: 700px) {

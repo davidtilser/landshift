@@ -250,7 +250,7 @@
   }
   #game[data-polo-phase='M1'] .polo-deck {
     bottom: 113px;
-    /* Talk and the compact support row end near 284px; leave a 20px gap. */
-    max-height: min(470px, calc(100dvh - 417px));
+    /* Talk and the compact support row end near 310px; leave a 20px gap. */
+    max-height: min(470px, calc(100dvh - 443px));
   }
 }

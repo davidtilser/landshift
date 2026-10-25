@@ -1,5 +1,6 @@
 import './talk-picker.css'
 import type { CommunityId } from '../../shared/community-contract.ts'
+import type { ConversationReactions } from '../community-reactions.ts'
 import type { PoloSceneState } from './model.ts'
 
 export const POLO_TALK_PEOPLE = [
@@ -9,7 +10,7 @@ export const POLO_TALK_PEOPLE = [
   { id: 'operator', avatar: 'owen', name: 'Owen', role: 'Campus designer' },
 ] as const
 
-/** Trial the people chooser in Foundations while preserving the existing chats. */
+/** One people chooser and private-chat flow across all five chapters. */
 export function setupPoloTalkPicker(
   root: HTMLElement,
   peopleControls: HTMLElement,
@@ -19,6 +20,7 @@ export function setupPoloTalkPicker(
   sync(): void
   dismiss(): void
   attachChatFocus(): void
+  setReactions(reactions: ConversationReactions): void
   destroy(): void
 } {
   const launcher = document.createElement('button')
@@ -28,7 +30,7 @@ export function setupPoloTalkPicker(
   launcher.setAttribute('aria-controls', 'polo-talk-picker')
   launcher.setAttribute('aria-expanded', 'false')
   launcher.innerHTML =
-    '<span class="polo-talk-launcher-copy"><strong>Talk <span aria-hidden="true">↗</span></strong><span>Hear four perspectives</span></span><span class="polo-talk-faces" aria-hidden="true"></span>'
+    '<span class="polo-talk-launcher-copy"><strong>Talk <span aria-hidden="true">↗</span></strong><span>Hear different perspectives</span></span><span class="polo-talk-faces" aria-hidden="true"></span>'
   const faces = launcher.querySelector('.polo-talk-faces')
   for (const person of POLO_TALK_PEOPLE) {
     const image = document.createElement('img')
@@ -46,6 +48,7 @@ export function setupPoloTalkPicker(
   picker.innerHTML =
     '<header class="polo-talk-heading"><h2 id="polo-talk-title">Who would you like to talk to?</h2><button type="button" class="polo-talk-close" aria-label="Close people chooser">×</button></header><div class="polo-talk-grid"></div>'
   const grid = picker.querySelector('.polo-talk-grid')
+  const choices = new Map<CommunityId, HTMLButtonElement>()
   for (const person of POLO_TALK_PEOPLE) {
     const choice = document.createElement('button')
     choice.type = 'button'
@@ -66,13 +69,13 @@ export function setupPoloTalkPicker(
       dismiss()
       openPerson(person.id)
     })
+    choices.set(person.id, choice)
     grid?.append(choice)
   }
   root.querySelector('.polo-studio')?.append(picker)
 
   let privateChat: HTMLDialogElement | undefined
-  const active = (): boolean =>
-    getState().confirmed && getState().phase === 'M1'
+  const active = (): boolean => getState().confirmed
   function open(): void {
     if (!active()) return
     if (!picker.open) picker.showModal()
@@ -106,6 +109,24 @@ export function setupPoloTalkPicker(
       if (!active()) dismiss()
     },
     dismiss,
+    setReactions(reactions): void {
+      for (const person of POLO_TALK_PEOPLE) {
+        const choice = choices.get(person.id)
+        if (!choice) continue
+        const reaction = reactions.get(person.id)
+        if (reaction) {
+          choice.dataset['mood'] = reaction.mood
+          const scope =
+            reaction.scope === 'private'
+              ? 'From your private chat, visible only to you'
+              : 'From the Community discussion'
+          choice.title = `${person.name} · ${scope}: ${reaction.text}`
+        } else {
+          delete choice.dataset['mood']
+          choice.title = `Talk to ${person.name}`
+        }
+      }
+    },
     attachChatFocus(): void {
       const dialog = root.querySelector('.character-chat')
       if (!(dialog instanceof HTMLDialogElement) || privateChat) return

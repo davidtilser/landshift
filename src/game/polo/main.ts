@@ -17,9 +17,7 @@ import { setupPoloProjectIntro } from './project-setup.ts'
 import { setupPoloMapShortcuts } from './map-shortcuts.ts'
 import { setupPoloInterventions } from './intervention-ui.ts'
 import { activePoloImprovements } from './interventions.ts'
-import { poloPortraitOpinions } from './opinions.ts'
 import { POLO_TALK_PEOPLE, setupPoloTalkPicker } from './talk-picker.ts'
-import type { ConversationReactions } from '../community-reactions.ts'
 import {
   lockPoloForProtest,
   poloExploreAfterProtest,
@@ -199,7 +197,6 @@ export async function startPoloDemo(): Promise<void> {
     center: [...INITIAL_POLO_STATE.center],
   }
   let scene: PoloScene | undefined
-  let conversationReactions: ConversationReactions = new Map()
   const interventions = setupPoloInterventions(
     root,
     () => scene,
@@ -404,25 +401,6 @@ export async function startPoloDemo(): Promise<void> {
   }
   function renderPeople(): void {
     get('.polo-people', HTMLElement).hidden = !state.confirmed
-    for (const opinion of poloPortraitOpinions(state, conversationReactions)) {
-      const portrait = get(
-        `.polo-person[data-person="${opinion.id}"]`,
-        HTMLButtonElement,
-      )
-      const bubble = portrait.querySelector('.polo-person-opinion')
-      if (bubble) bubble.textContent = opinion.text
-      portrait.setAttribute(
-        'aria-label',
-        `${opinion.name}: ${opinion.text} Talk privately.`,
-      )
-      portrait.dataset['mood'] = opinion.mood ?? 'concerned'
-      portrait.title =
-        opinion.scope === 'private'
-          ? `${opinion.name} · From your private chat, visible only to you.`
-          : opinion.scope === 'community'
-            ? `${opinion.name} · From the Community discussion.`
-            : `Talk to ${opinion.name}`
-    }
     talkPicker.sync()
   }
   function render(): void {
@@ -706,22 +684,6 @@ export async function startPoloDemo(): Promise<void> {
     timeline.append(stop)
   }
   const people = POLO_TALK_PEOPLE
-  const peopleControls = get('.polo-people', HTMLElement)
-  peopleControls.append(element('span', 'polo-people-label', 'Talk'))
-  for (const person of people) {
-    const chat = button('', 'person', 'polo-person')
-    const portrait = element('img', '')
-    portrait.src = '/avatars/' + person.avatar + '.png'
-    portrait.alt = ''
-    portrait.width = 36
-    portrait.height = 36
-    chat.append(portrait, element('span', 'polo-person-opinion'))
-    chat.dataset['person'] = person.id
-    const label = person.name + ' · ' + person.role.toLowerCase()
-    chat.setAttribute('aria-label', 'Talk privately to ' + label)
-    chat.title = 'Talk to ' + label
-    peopleControls.append(chat)
-  }
   render()
 
   function openEvidence(): void {
@@ -1006,8 +968,7 @@ export async function startPoloDemo(): Promise<void> {
         talkPicker.dismiss()
       },
       reactionsChanged: (reactions) => {
-        conversationReactions = reactions
-        renderPeople()
+        talkPicker.setReactions(reactions)
         scene?.setConversationReactions(reactions)
       },
     })
