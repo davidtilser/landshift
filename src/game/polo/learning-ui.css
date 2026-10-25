@@ -2,7 +2,7 @@
   position: absolute;
   z-index: 8;
   top: 96px;
-  bottom: 111px;
+  bottom: 16px;
   left: 20px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -12,8 +12,9 @@
   pointer-events: none;
 }
 .polo-learning-workspace:not([data-mode='summary']) {
-  width: min(892px, calc(100% - 40px));
-  grid-template-columns: minmax(0, 400px) minmax(0, 480px);
+  bottom: 16px;
+  width: min(1120px, calc(100% - 40px));
+  grid-template-columns: minmax(300px, 0.8fr) minmax(0, 1.6fr);
 }
 .polo-learning {
   position: relative;
@@ -22,7 +23,7 @@
   min-width: 0;
   min-height: 0;
   pointer-events: auto;
-  padding: 20px;
+  padding: 14px;
   overflow: hidden;
   background: var(--ls-role-surface);
   color: var(--ls-role-ink);
@@ -39,12 +40,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 20px;
+  gap: 10px;
+  padding-bottom: 10px;
 }
 .polo-learning h2 {
   margin: 0;
-  font-size: 32px;
+  font-size: clamp(20px, 2.2vw, 28px);
   line-height: 1.1;
   letter-spacing: -0.7px;
 }
@@ -109,18 +110,18 @@ html.ls-system-dark .polo-learning button.is-primary:disabled {
 .polo-learning-toolbar {
   display: flex;
   justify-content: flex-end;
-  margin: -4px 0 8px;
+  margin: -4px 0 6px;
 }
 .polo-learning button.polo-learning-select-all,
 .polo-learning button.polo-add-idea {
   width: fit-content;
-  min-height: 44px;
-  padding: 8px 0;
+  min-height: 32px;
+  padding: 5px 0;
   border: 0;
   border-radius: 4px;
   background: transparent;
   color: var(--ls-role-action);
-  font-size: 18px;
+  font-size: 14px;
   text-decoration: underline;
   text-underline-offset: 4px;
 }
@@ -130,17 +131,20 @@ html.ls-system-dark .polo-learning button.is-primary:disabled {
 }
 .polo-learning-cards {
   display: grid;
-  gap: 10px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
 }
 .polo-learning button.polo-learning-choice {
   display: grid;
-  gap: 8px;
-  padding: 16px;
+  gap: 6px;
+  align-content: start;
+  min-width: 0;
+  padding: 10px;
   border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 16px;
   text-align: left;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 450;
 }
 .polo-learning .polo-learning-choice[aria-pressed='true'] {
@@ -152,13 +156,15 @@ html.ls-system-dark .polo-learning button.is-primary:disabled {
 .polo-learning-choice-top {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   color: var(--ls-role-ink);
-  font-size: 20px;
+  font-size: 16px;
   line-height: 1.25;
 }
 .polo-learning-choice-top > strong {
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .polo-learning
   .polo-learning-choice[aria-pressed='true']
@@ -174,12 +180,12 @@ html.ls-system-dark .polo-learning button.is-primary:disabled {
 .polo-learning-check {
   display: grid;
   place-items: center;
-  flex: 0 0 26px;
-  height: 26px;
+  flex: 0 0 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--ls-role-inset);
   color: var(--ls-role-ink);
-  font-size: 22px;
+  font-size: 18px;
 }
 [aria-pressed='true'] .polo-learning-check {
   background: var(--ls-role-selected-label);
@@ -187,28 +193,29 @@ html.ls-system-dark .polo-learning button.is-primary:disabled {
 }
 .polo-learning-tradeoff {
   color: var(--ls-role-muted);
-  font-size: 18px;
+  font-size: 13px;
   line-height: 1.4;
 }
 .polo-learning-impact {
   color: var(--ls-role-ink);
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.4;
 }
 .polo-learning-benefit {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-top: 4px;
-  padding: 12px 14px;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 0;
+  padding: 7px 8px;
   border-radius: 12px;
   background: #edf6de;
   color: #3c661b;
 }
 .polo-learning-benefit-value {
   flex: 0 0 auto;
-  font-size: 36px;
+  font-size: 25px;
   line-height: 1;
   font-weight: 750;
   letter-spacing: -1px;
@@ -216,46 +223,52 @@ html.ls-system-dark .polo-learning button.is-primary:disabled {
 .polo-learning-benefit-label {
   display: grid;
   gap: 3px;
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 650;
   line-height: 1.2;
 }
 .polo-learning-benefit-context {
-  font-size: 16px;
+  font-size: 11px;
   font-weight: 450;
 }
 .polo-learning-changes {
   display: grid;
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 .polo-learning-change {
   display: grid;
-  gap: 8px;
-  padding: 16px;
+  align-content: start;
+  gap: 6px;
+  padding: 10px;
   border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 16px;
   background: var(--ls-role-raised);
   color: var(--ls-role-muted);
-  font-size: 18px;
+  font-size: 14px;
   line-height: 1.4;
 }
 .polo-learning-change strong {
   color: var(--ls-role-ink);
-  font-size: 20px;
+  font-size: 16px;
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
 .polo-learning .polo-learning-conflict {
-  padding: 14px 16px;
-  margin-top: 16px;
+  padding: 8px 10px;
+  margin: 8px 0;
   border-radius: 14px;
   background: color-mix(in srgb, var(--ls-role-action) 22%, transparent);
   color: var(--ls-role-ink);
   font-weight: 650;
+  font-size: 14px;
+}
+.polo-learning-proposal[data-mode='compare'] .polo-learning-content > small {
+  font-size: 13px;
 }
 .polo-learning-footer {
-  padding-top: 12px;
-  margin-top: 8px;
+  padding-top: 8px;
+  margin-top: 6px;
   border-top: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
 }
 .polo-learning-footer > div {
@@ -268,6 +281,14 @@ html.ls-system-dark .polo-learning button.is-primary:disabled {
   gap: 8px;
   padding: 0;
   margin-bottom: 12px;
+}
+.polo-custom-learning {
+  grid-column: 1 / -1;
+}
+.polo-learning-footer > button.is-primary {
+  min-height: 44px;
+  padding: 10px;
+  font-size: 16px;
 }
 .polo-custom-learning-form label {
   font-size: 20px;
@@ -335,23 +356,171 @@ html.ls-system-dark .polo-learning button.is-primary:disabled {
     width: calc(100% - 20px);
   }
   .polo-learning-workspace:not([data-mode='summary']) {
+    bottom: 12px;
     width: calc(100% - 20px);
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(230px, 0.8fr) minmax(320px, 1.2fr);
-    overflow-y: auto;
-    pointer-events: auto;
-    scrollbar-width: thin;
   }
   .polo-learning {
-    padding: 14px;
+    padding: 12px;
   }
   .polo-learning h2 {
-    font-size: 28px;
+    font-size: 22px;
   }
   .polo-learning-heading {
-    padding-bottom: 16px;
+    padding-bottom: 8px;
   }
   #game[data-polo-learning] .polo-people {
     visibility: hidden;
   }
+}
+@media (max-width: 480px) {
+  .polo-learning-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-height: 650px) and (min-width: 701px) {
+  .polo-learning-workspace {
+    top: 88px;
+    bottom: 12px;
+  }
+  .polo-learning-workspace:not([data-mode='summary']) {
+    bottom: 12px;
+  }
+  .polo-learning {
+    padding: 12px;
+  }
+  .polo-learning h2 {
+    font-size: 20px;
+  }
+  .polo-learning-heading {
+    padding-bottom: 6px;
+  }
+  .polo-learning button.polo-learning-choice {
+    gap: 4px;
+    padding: 8px;
+  }
+  .polo-learning-choice-top {
+    font-size: 15px;
+  }
+  .polo-learning-impact,
+  .polo-learning-tradeoff {
+    font-size: 13px;
+    line-height: 1.3;
+  }
+  .polo-learning-benefit {
+    padding: 6px;
+  }
+  .polo-learning-benefit-value {
+    font-size: 22px;
+  }
+  .polo-learning-benefit-label {
+    font-size: 12px;
+  }
+  .polo-learning button.polo-learning-select-all {
+    min-height: 28px;
+    padding: 3px 0;
+  }
+  .polo-learning-impact {
+    display: none;
+  }
+  .polo-learning.is-summary .polo-summary-metric-heading {
+    flex-wrap: nowrap;
+  }
+  .polo-learning.is-summary .polo-summary-metric h3 {
+    font-size: 13px;
+  }
+  .polo-learning.is-summary .polo-summary-values strong {
+    font-size: 13px;
+  }
+  .polo-learning.is-summary .polo-summary-metric {
+    padding: 6px 8px;
+    border-radius: 12px;
+  }
+  .polo-learning.is-summary .polo-summary-title {
+    gap: 3px;
+  }
+  .polo-learning.is-summary .polo-summary-intro h2 {
+    font-size: 20px;
+  }
+  .polo-learning-workspace .polo-learning.is-summary {
+    padding: 10px;
+  }
+  .polo-learning.is-summary .polo-summary-metrics {
+    gap: 4px;
+  }
+  .polo-learning.is-summary .polo-summary-arrow {
+    font-size: 13px;
+    line-height: 1;
+  }
+  .polo-learning.is-summary .polo-summary-intro {
+    padding-bottom: 6px;
+  }
+  .polo-learning.is-summary .polo-summary-change {
+    font-size: 16px;
+  }
+  .polo-learning.is-summary [data-metric='electricity'] .polo-summary-change {
+    font-size: 14px;
+  }
+}
+
+.polo-learning button.polo-plan-detail-link {
+  display: block;
+  min-height: 28px;
+  padding: 5px 0;
+  border: 0;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 450;
+  text-align: left;
+}
+.polo-plan-detail-dialog {
+  width: min(600px, calc(100vw - 48px));
+  max-height: calc(100dvh - 48px);
+  box-sizing: border-box;
+  padding: 20px;
+  border: 1px solid var(--ls-role-muted);
+  border-radius: 20px;
+  background: var(--ls-role-raised);
+  color: var(--ls-role-ink);
+  overflow-y: auto;
+  font: inherit;
+}
+.polo-plan-detail-dialog::backdrop {
+  background: var(--ls-role-scrim);
+  backdrop-filter: blur(8px);
+}
+.polo-plan-detail-dialog h2 {
+  margin: 0;
+  font-size: 23px;
+}
+.polo-plan-detail-dialog button {
+  font: inherit;
+  cursor: pointer;
+  min-height: 36px;
+  border: 1px solid var(--ls-role-muted);
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+.polo-plan-detail-dialog .polo-add-idea {
+  min-height: 44px;
+}
+.polo-plan-detail-dialog :is(p, a) {
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.polo-plan-detail-dialog a {
+  display: block;
+  color: var(--ls-role-ink);
+  margin-bottom: 8px;
+}
+.polo-custom-idea-list {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.polo-plan-detail-dialog .polo-custom-learning > button[aria-pressed='true'] {
+  background: var(--ls-role-selected);
+  color: var(--ls-role-selected-label);
+  border-color: var(--ls-role-selected-label);
 }

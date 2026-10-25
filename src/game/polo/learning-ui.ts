@@ -39,6 +39,9 @@ export function setupPoloLearning(
   panel.setAttribute('aria-label', 'Propose changes')
   workspace.append(summaryPanel, panel)
   host.append(workspace)
+  const detailDialog = document.createElement('dialog')
+  detailDialog.className = 'polo-plan-detail-dialog'
+  host.append(detailDialog)
   let mode: 'summary' | 'choose' | 'compare' | 'map' = 'summary'
   let active = false
   const mapComparison = setupPoloMapComparison(
@@ -81,6 +84,19 @@ export function setupPoloLearning(
     node.addEventListener('click', action)
     return node
   }
+  function showDetail(title: string, content: HTMLElement): void {
+    const heading = make('h2', title)
+    heading.id = 'polo-plan-detail-title'
+    const close = button('×', () => {
+      detailDialog.close()
+    })
+    close.setAttribute('aria-label', 'Close ' + title.toLowerCase())
+    const header = make('header', '', 'polo-learning-heading')
+    header.append(heading, close)
+    detailDialog.setAttribute('aria-labelledby', heading.id)
+    detailDialog.replaceChildren(header, content)
+    detailDialog.showModal()
+  }
   function syncTimeline(): void {
     const summaryOpen = active
     root
@@ -99,6 +115,7 @@ export function setupPoloLearning(
     active = false
     mode = 'summary'
     workspace.hidden = panel.hidden = true
+    detailDialog.close()
     mapComparison.setVisible(false)
     delete root.dataset['poloLearning']
     if (wasOpen && getState().preview) change({ ...getState(), preview: false })
@@ -122,8 +139,6 @@ export function setupPoloLearning(
     if (summaryArea === state.areaHa && summaryPanel.childElementCount) return
     const content = summaryPanel.querySelector('.polo-summary-content')
     const scrollTop = content?.scrollTop ?? 0
-    const detailsOpen =
-      summaryPanel.querySelector<HTMLDetailsElement>('details')?.open ?? false
     summaryPanel.replaceChildren()
     const closeButton = button('×', dismiss)
     closeButton.setAttribute('aria-label', 'Close project summary and changes')
@@ -157,7 +172,18 @@ export function setupPoloLearning(
     const nextContent = summaryPanel.querySelector('.polo-summary-content')
     if (nextContent) nextContent.scrollTop = scrollTop
     const details = summaryPanel.querySelector<HTMLDetailsElement>('details')
-    if (details) details.open = detailsOpen
+    if (details) {
+      const body = make('div')
+      body.append(
+        ...[...details.children].filter((child) => child.tagName !== 'SUMMARY'),
+      )
+      const sources = button('How these numbers compare ↗', () => {
+        showDetail('How these numbers compare', body)
+      })
+      sources.className = 'polo-plan-detail-link'
+      sources.setAttribute('aria-haspopup', 'dialog')
+      details.replaceWith(sources)
+    }
     summaryArea = state.areaHa
   }
   function render(): void {
@@ -225,6 +251,7 @@ export function setupPoloLearning(
       toolbar.append(selectAll)
       content.append(toolbar)
       const cards = make('div', '', 'polo-learning-cards')
+      const customChoices = make('div', '', 'polo-custom-idea-list')
       for (const item of POLO_LEARNINGS) {
         const selected = Boolean(draft[item.id])
         const card = button('', () => {
@@ -249,8 +276,8 @@ export function setupPoloLearning(
               ? { ...entry, selected: !entry.selected }
               : entry,
           )
-          render()
-          panel
+          refreshCustomEditor()
+          detailDialog
             .querySelector<HTMLButtonElement>(
               `[data-custom-learning="${item.id}"]`,
             )
@@ -260,14 +287,14 @@ export function setupPoloLearning(
         choice.setAttribute('aria-pressed', String(item.selected))
         const remove = button('×', () => {
           customDraft = customDraft.filter((entry) => entry.id !== item.id)
-          render()
-          panel
+          refreshCustomEditor()
+          detailDialog
             .querySelector<HTMLTextAreaElement>('#polo-custom-learning')
             ?.focus()
         })
         remove.setAttribute('aria-label', 'Remove idea: ' + item.text)
         row.append(choice, remove)
-        cards.append(row)
+        customChoices.append(row)
       }
       const customForm = document.createElement('form')
       customForm.className = 'polo-custom-learning-form'
@@ -299,10 +326,9 @@ export function setupPoloLearning(
           { id: crypto.randomUUID(), text, selected: true },
         ]
         customText = ''
+        detailDialog.close()
         render()
-        panel
-          .querySelector<HTMLTextAreaElement>('#polo-custom-learning')
-          ?.focus()
+        panel.querySelector<HTMLButtonElement>('[data-custom-editor]')?.focus()
       })
       customForm.append(
         label,
@@ -315,6 +341,25 @@ export function setupPoloLearning(
             : 'Saved as a proposal; not mapped yet.',
         ),
       )
+      const customEditor = make('div')
+      customEditor.append(customChoices, customForm)
+      const customButton = button(
+        customDraft.length
+          ? `Your own ideas · ${String(customDraft.length)} ↗`
+          : 'Add your own idea ↗',
+        () => {
+          showDetail('Your own ideas', customEditor)
+          input.focus()
+        },
+      )
+      customButton.className = 'polo-plan-detail-link'
+      customButton.dataset['customEditor'] = ''
+      customButton.setAttribute('aria-haspopup', 'dialog')
+      function refreshCustomEditor(): void {
+        detailDialog.close()
+        render()
+        panel.querySelector<HTMLButtonElement>('[data-custom-editor]')?.click()
+      }
       const count =
         POLO_LEARNINGS.filter((item) => draft[item.id]).length +
         customDraft.filter((item) => item.selected).length
@@ -353,7 +398,7 @@ export function setupPoloLearning(
         true,
       )
       compare.disabled = !canApply
-      content.append(cards, customForm)
+      content.append(cards, customButton)
       footer.append(compare)
     } else {
       const changes = make('div', '', 'polo-learning-changes')
@@ -367,28 +412,50 @@ export function setupPoloLearning(
         )
         changes.append(row)
       }
-      for (const item of selectedCustomPoloLearnings(state)) {
-        const row = make('div', '', 'polo-learning-change')
-        row.append(
-          make('strong', '✎ ' + item.text),
-          make('span', 'Your proposal · not mapped yet'),
+      if (state.learnings?.heat) {
+        const heat = make('div', '', 'polo-learning-change')
+        const heatDetails = make('div')
+        appendPoloHeatComparison(heatDetails, state)
+        const inspect = button('Heat details ↗', () => {
+          showDetail('Heat reuse benefits and trade-offs', heatDetails)
+        })
+        inspect.className = 'polo-plan-detail-link'
+        inspect.setAttribute('aria-haspopup', 'dialog')
+        heat.append(
+          make('strong', '♨ Put waste heat to work'),
+          make(
+            'span',
+            state.recipientAvailable
+              ? 'Useful heating needs extra electricity and upfront investment. Backup systems remain.'
+              : 'No useful heat without a heat user. Equipment costs and backup systems remain.',
+          ),
+          inspect,
         )
-        changes.append(row)
+        changes.append(heat)
       }
-      if (changes.childElementCount) content.append(changes)
-      appendPoloHeatComparison(content, state)
-      if (!state.learnings?.heat)
-        content.append(
-          make(
-            'p',
-            'The playing field is still lost.',
-            'polo-learning-conflict',
-          ),
-          make(
-            'small',
-            'Design comparison · water, energy and heat savings need assessment.',
-          ),
+      content.append(changes)
+      const custom = selectedCustomPoloLearnings(state)
+      if (custom.length) {
+        const ideas = make('div')
+        ideas.append(make('p', 'Your proposals · not mapped yet'))
+        for (const item of custom) ideas.append(make('p', '✎ ' + item.text))
+        const inspect = button(
+          `Your own ideas · ${String(custom.length)} ↗`,
+          () => {
+            showDetail('Your proposed ideas', ideas)
+          },
         )
+        inspect.className = 'polo-plan-detail-link'
+        inspect.setAttribute('aria-haspopup', 'dialog')
+        content.append(inspect)
+      }
+      content.append(
+        make('p', 'The playing field is still lost.', 'polo-learning-conflict'),
+        make(
+          'small',
+          'Design comparison · water, energy and heat savings need assessment.',
+        ),
+      )
       footer.append(
         button(
           'View changes on map',
@@ -442,6 +509,7 @@ export function setupPoloLearning(
       active = false
       delete root.dataset['poloLearning']
       workspace.remove()
+      detailDialog.remove()
       mapComparison.destroy()
     },
   }
