@@ -234,6 +234,17 @@
   color: var(--ls-role-ink);
   font-size: 12px;
 }
+.chat-status.is-typing {
+  animation: chat-typing-pulse 800ms ease-in-out infinite alternate;
+}
+@keyframes chat-typing-pulse {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
 .chat-custom,
 .chat-history {
   margin: 8px 16px 0;
@@ -400,6 +411,9 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .chat-status.is-typing {
+    animation: none;
+  }
   .chat-prompts .dialogue-choice {
     transition: none;
   }
