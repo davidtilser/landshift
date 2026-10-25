@@ -82,7 +82,7 @@ Click a **map speech bubble** for a private chat. It starts with large dialogue 
 
 Community mood shows the percentage of a simulated crowd feeling Worried, Angry, Okay or Hopeful, with a colored bar and one short reason. The four shares always total 100% and update as each public character reply appears. These are game simulation values, not real polling; private conversations do not change them.
 
-The official `@openrouter/sdk` runs only in the Node server. Both `npm run dev` and `npm run preview` include `/api/community`; for preview, run `npm run build` first. A generic static host alone cannot provide live chat. Keep `public/data/` beside the app because the server recomputes geographic checks from the prepared pack. No deployment is configured.
+The official `@openrouter/sdk` runs only in the Node backend. Both `npm run dev` and `npm run preview` include `/api/community`; for preview, run `npm run build` first. On Vercel, the same API runs as Node.js Functions alongside the static frontend. `npm run build:vercel` prepares and verifies missing geographic packs before building. See [Vercel deployment](docs/vercel.md) for project settings, environment variables, asset preparation, and verification.
 
 Town-square reactions are authored from map choices and labeled **Scenario**. Live replies are labeled **AI character**. Without a key/server, clearly labeled demo replies remain available. Public and private histories are separate in tab memory; Reset design clears them. Live conversation content and a compact plan summary are sent through OpenRouter to the model provider. “Private” describes visibility inside the game, not offline processing.
 

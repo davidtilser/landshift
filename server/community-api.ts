@@ -6,139 +6,207 @@ import {
 import { communityContext, generateCommunityReply } from './community-engine.ts'
 import type { CommunitySettings } from './community-engine.ts'
 
-function json(res: ServerResponse, status: number, value: unknown): void {
-  res.writeHead(status, {
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-store',
+function json(status: number, value: unknown): Response {
+  return Response.json(value, {
+    status,
+    headers: { 'Cache-Control': 'no-store' },
   })
-  res.end(JSON.stringify(value))
 }
 
-export function createCommunityMiddleware(
+const MAX_BODY_BYTES = 20000
+
+export function createCommunityHandler(
   getSettings: () => CommunitySettings,
-): (req: IncomingMessage, res: ServerResponse, next: () => void) => void {
-  let requests = 0
+): (request: Request) => Promise<Response> {
+  // These renewable limits apply to one warm process, not the whole deployment.
   let active = 0
   let windowStart = Date.now()
   let windowRequests = 0
-  async function handle(
-    req: IncomingMessage,
-    res: ServerResponse,
-    next: () => void,
-  ): Promise<void> {
-    const path = req.url?.split('?')[0]
-    if (path !== '/api/community' && path !== '/api/community/status') {
-      next()
-      return
+
+  return async (request): Promise<Response> => {
+    const url = new URL(request.url)
+    if (
+      url.pathname !== '/api/community' &&
+      url.pathname !== '/api/community/status'
+    )
+      return json(404, { error: 'Not found' })
+
+    const configured = getSettings()
+    const settings = {
+      ...configured,
+      model: /^google\/gemini-[a-z0-9.-]+$/.test(configured.model)
+        ? configured.model
+        : DEFAULT_COMMUNITY_MODEL,
     }
-    const settings = getSettings()
-    if (!/^google\/gemini-[a-z0-9.-]+$/.test(settings.model))
-      settings.model = DEFAULT_COMMUNITY_MODEL
-    if (req.method === 'GET' && path === '/api/community/status') {
-      json(res, 200, {
+    if (request.method === 'GET' && url.pathname === '/api/community/status')
+      return json(200, {
         configured: Boolean(settings.apiKey),
         model: settings.model,
       })
-      return
-    }
-    if (req.method !== 'POST' || path !== '/api/community') {
-      json(res, 405, { error: 'Method not allowed' })
-      return
-    }
-    const origin = req.headers.origin
+    if (request.method !== 'POST' || url.pathname !== '/api/community')
+      return json(405, { error: 'Method not allowed' })
+
+    const origin = request.headers.get('origin')
     if (
-      (origin && new URL(origin).host !== req.headers.host) ||
-      req.headers['sec-fetch-site'] === 'cross-site'
-    ) {
-      json(res, 403, { error: 'Use the community chat to continue.' })
-      return
-    }
-    if (!req.headers['content-type']?.startsWith('application/json')) {
-      json(res, 415, { error: 'Expected JSON' })
-      return
-    }
-    if (!settings.apiKey) {
-      json(res, 503, {
-        error: 'Add OPENROUTER_API_KEY to .env.local to connect live replies.',
-      })
-      return
-    }
-    if (Date.now() - windowStart > 60000) {
-      windowStart = Date.now()
-      windowRequests = 0
-    }
-    if (active >= 2 || windowRequests >= 30 || requests >= 500) {
-      json(res, 429, {
+      (origin && origin !== url.origin) ||
+      request.headers.get('sec-fetch-site') === 'cross-site'
+    )
+      return json(403, { error: 'Use the community chat to continue.' })
+    if (!request.headers.get('content-type')?.startsWith('application/json'))
+      return json(415, { error: 'Expected JSON' })
+    if (!settings.apiKey)
+      return json(503, {
         error:
-          requests >= 500
-            ? 'Session request limit reached. Restart the local server to begin a new session.'
-            : 'Take a moment, then try again.',
+          'Configure OPENROUTER_API_KEY on the server to connect live replies.',
       })
-      return
-    }
-    const chunks: Buffer[] = []
-    let bytes = 0
-    for await (const chunk of req) {
-      const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk))
-      bytes += buffer.length
-      if (bytes > 20000) {
-        json(res, 413, { error: 'That conversation is too long.' })
-        return
+
+    function limited(): boolean {
+      if (Date.now() - windowStart >= 60000) {
+        windowStart = Date.now()
+        windowRequests = 0
       }
-      chunks.push(buffer)
+      return active >= 2 || windowRequests >= 30
+    }
+    function rateLimited(): Response {
+      const response = json(429, { error: 'Take a moment, then try again.' })
+      response.headers.set('Retry-After', '60')
+      return response
+    }
+    if (limited()) return rateLimited()
+
+    const reader = request.body?.getReader()
+    const chunks: Uint8Array[] = []
+    let bytes = 0
+    try {
+      if (reader) {
+        for (
+          let chunk = await reader.read();
+          !chunk.done;
+          chunk = await reader.read()
+        ) {
+          const value = chunk.value
+          bytes += value.byteLength
+          if (bytes > MAX_BODY_BYTES) {
+            await reader.cancel()
+            return json(413, { error: 'That conversation is too long.' })
+          }
+          chunks.push(value)
+        }
+      }
+    } catch {
+      return json(400, { error: 'Invalid conversation' })
+    } finally {
+      reader?.releaseLock()
     }
     let body: unknown
     try {
       body = JSON.parse(Buffer.concat(chunks).toString('utf8'))
     } catch {
-      json(res, 400, { error: 'Invalid conversation' })
-      return
+      return json(400, { error: 'Invalid conversation' })
     }
     const parsed = communityRequestSchema.safeParse(body)
-    if (!parsed.success) {
-      json(res, 400, { error: 'Invalid conversation or plan' })
-      return
-    }
-    // Recheck after reading the request: simultaneous requests cannot bypass limits.
-    if (active >= 2 || windowRequests >= 30 || requests >= 500) {
-      json(res, 429, { error: 'Take a moment, then try again.' })
-      return
-    }
+    if (!parsed.success)
+      return json(400, { error: 'Invalid conversation or plan' })
+    // Recheck after reading the body so simultaneous requests cannot bypass limits.
+    if (limited()) return rateLimited()
     active++
-    requests++
     windowRequests++
-    const controller = new AbortController()
-    const abort = (): void => {
-      if (!res.writableEnded) controller.abort()
-    }
-    res.on('close', abort)
     try {
       const context = await communityContext(parsed.data.plan)
       const reply = await generateCommunityReply(
         parsed.data,
         context,
         settings,
-        controller.signal,
+        request.signal,
       )
-      if (!controller.signal.aborted) json(res, 200, reply)
+      return json(200, reply)
     } catch {
-      if (!controller.signal.aborted)
-        json(res, 502, {
-          error:
-            'A reply could not arrive. Your message is kept—try again in a moment.',
-        })
+      return json(502, {
+        error:
+          'A reply could not arrive. Your message is kept—try again in a moment.',
+      })
     } finally {
       active--
-      res.off('close', abort)
     }
   }
+}
+
+/** Adapt Vite's Node middleware to the same Web handler used by Vercel. */
+export function createCommunityMiddleware(
+  getSettings: () => CommunitySettings,
+): (req: IncomingMessage, res: ServerResponse, next: () => void) => void {
+  const handle = createCommunityHandler(getSettings)
   return (req, res, next): void => {
-    void handle(req, res, next).catch(() => {
-      if (!res.headersSent)
-        json(res, 500, {
-          error: 'Community chat is unavailable. Try again in a moment.',
-        })
-      else res.end()
-    })
+    const path = req.url?.split('?')[0]
+    if (path !== '/api/community' && path !== '/api/community/status') {
+      next()
+      return
+    }
+    const controller = new AbortController()
+    const abort = (): void => {
+      if (!res.writableEnded) controller.abort()
+    }
+    res.on('close', abort)
+    async function respond(): Promise<void> {
+      const headers = new Headers()
+      for (const [name, value] of Object.entries(req.headers)) {
+        if (Array.isArray(value)) {
+          for (const item of value) headers.append(name, item)
+        } else if (value !== undefined) headers.set(name, value)
+      }
+      const init = {
+        method: req.method ?? 'GET',
+        headers,
+        signal: controller.signal,
+        ...(req.method !== 'GET' && req.method !== 'HEAD'
+          ? { body: requestBody(req), duplex: 'half' }
+          : {}),
+      }
+      const request = new Request(
+        new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`),
+        init,
+      )
+      const response = await handle(request)
+      if (!controller.signal.aborted) {
+        res.writeHead(response.status, Object.fromEntries(response.headers))
+        res.end(await response.text())
+      }
+    }
+    void respond()
+      .catch(() => {
+        if (!res.headersSent) {
+          res.writeHead(500, {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store',
+          })
+          res.end(
+            JSON.stringify({
+              error: 'Community chat is unavailable. Try again in a moment.',
+            }),
+          )
+        } else res.end()
+      })
+      .finally(() => {
+        res.off('close', abort)
+        req.resume()
+      })
   }
+}
+
+function requestBody(req: IncomingMessage): ReadableStream<Uint8Array> {
+  const iterator: AsyncIterator<unknown, unknown> = req[Symbol.asyncIterator]()
+  return new ReadableStream<Uint8Array>({
+    async pull(controller): Promise<void> {
+      const { done, value } = await iterator.next()
+      if (done) controller.close()
+      else
+        controller.enqueue(
+          Buffer.isBuffer(value) ? value : Buffer.from(String(value)),
+        )
+    },
+    cancel(): void {
+      // Drain rejected bodies without closing the socket before sending the error.
+      req.resume()
+    },
+  })
 }
