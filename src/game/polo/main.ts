@@ -404,7 +404,8 @@ export async function startPoloDemo(): Promise<void> {
     if (phase === 'M6') scene?.focus('site')
   }
   function renderPeople(): void {
-    get('.polo-people', HTMLElement).hidden = !state.confirmed
+    get('.polo-people', HTMLElement).hidden =
+      !state.confirmed || state.phase === 'M0' || protest.pending()
     talkPicker.sync()
   }
   function render(): void {
