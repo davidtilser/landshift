@@ -351,6 +351,12 @@ export function createGlobe(container: HTMLElement): GlobeHandle {
     setInteractive(enabled) {
       if (!destroyed) markers.setInteractive(enabled)
     },
+    setScenarioPins(points) {
+      if (!destroyed) markers.setScenarioPins(points)
+    },
+    setHoverPoint(point) {
+      if (!destroyed) markers.setHoverPoint(point)
+    },
     destroy() {
       if (destroyed) {
         return

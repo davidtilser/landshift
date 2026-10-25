@@ -61,6 +61,10 @@ export interface LandingGlobe {
    * hides the locale packs and outlines.
    */
   focusRegion(regionId: string | null): void
+  /** Scenario pins for the locale view. An empty list removes them. */
+  setScenarioPins(points: readonly { lat: number; lng: number }[]): void
+  /** Greens the pin at `point`. `null` clears that highlight; the landing screen flies the camera separately. */
+  setHoverPoint(point: { lat: number; lng: number } | null): void
   pause(): void
   resume(): void
 }

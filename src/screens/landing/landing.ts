@@ -5,7 +5,11 @@ import {
   regions,
   type Region,
 } from '../../regions/regions.ts'
-import { findScenario, type Scenario } from '../../scenarios/scenarios.ts'
+import {
+  findScenario,
+  scenariosForRegion,
+  type Scenario,
+} from '../../scenarios/scenarios.ts'
 import { mountCreditsPanel } from '../../ui/creditsPanel.ts'
 import { createBackButton, createButton, createTitle } from './elements.ts'
 import {
@@ -115,6 +119,10 @@ function relayGlobe(
   let flight: GlobeTarget | null = null
   let focusedRegion: string | null = null
   let focusKnown = false
+  let hoverPoint: { lat: number; lng: number } | null = null
+  let hoverKnown = false
+  let scenarioPins: readonly { lat: number; lng: number }[] = []
+  let pinsKnown = false
 
   const attach = (next: LandingGlobe): void => {
     if (isClosed()) return
@@ -126,6 +134,8 @@ function relayGlobe(
     next.highlightMarker(highlighted)
     next.setInteractive(interactive)
     if (focusKnown) next.focusRegion(focusedRegion)
+    if (pinsKnown) next.setScenarioPins(scenarioPins)
+    if (hoverKnown) next.setHoverPoint(hoverPoint)
     if (paused === true) next.pause()
     else if (paused === false) next.resume()
     if (flight !== null) {
@@ -189,6 +199,19 @@ function relayGlobe(
       focusedRegion = regionId
       focusKnown = true
       inner?.focusRegion(regionId)
+    },
+    setScenarioPins(points) {
+      scenarioPins = points.map((point) => ({
+        lat: point.lat,
+        lng: point.lng,
+      }))
+      pinsKnown = true
+      inner?.setScenarioPins(scenarioPins)
+    },
+    setHoverPoint(point) {
+      hoverPoint = point
+      hoverKnown = true
+      inner?.setHoverPoint(point)
     },
     pause() {
       paused = true
@@ -410,6 +433,7 @@ export function mountLanding(
       onBack: back,
       onStart: startScenario,
       onScenarioHover(location) {
+        globe.setHoverPoint(location)
         void globe.flyTo(localeFlight(region, location ?? undefined))
       },
     })
@@ -454,6 +478,15 @@ export function mountLanding(
     setPaused(next.screen === 'handoff')
     // Locale view hides the globe pills. Explore still shows them; the keyboard list is separate.
     setMarkersShown(next.screen === 'explore')
+    globe.setHoverPoint(null)
+    globe.setScenarioPins(
+      next.screen === 'regionFocused'
+        ? scenariosForRegion(next.regionId).map((scenario) => ({
+            lat: scenario.location.lat,
+            lng: scenario.location.lng,
+          }))
+        : [],
+    )
     setInteractive(next.screen === 'explore' || next.screen === 'regionFocused')
     globe.focusRegion(next.screen === 'regionFocused' ? next.regionId : null)
     switch (next.screen) {
@@ -484,6 +517,8 @@ export function mountLanding(
     if (store.get().screen !== 'handoff') {
       globe.setMarkers([])
       globe.highlightMarker(null)
+      globe.setHoverPoint(null)
+      globe.setScenarioPins([])
       globe.focusRegion(null)
       globe.setInteractive(true)
       if (pausedByLanding) globe.resume()

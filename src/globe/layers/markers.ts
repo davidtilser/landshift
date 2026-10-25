@@ -5,7 +5,12 @@ import type { GlobeMarker, LatLngAlt } from '../types.ts'
 import '../markers.css'
 
 /** Clears the tallest displaced land, which sits this far above the analytic sphere. */
+/** Clears the tallest displaced land, so region dots stay above the mountains. */
 const MARKER_ALTITUDE = MAX_TERRAIN_RADIUS_RATIO - 1
+/** Scenario pins sit just above sea level; the park is not a mountain. */
+const HOVER_ALTITUDE = 0.003
+/** Degrees. Float noise stays under this; a neighboring scenario does not. */
+const PIN_MATCH_EPSILON = 1e-4
 const RIM_GAP_PX = 14
 const CLUSTER_GAP_PX = 8
 const VIEW_MARGIN_PX = 8
@@ -31,6 +36,10 @@ export interface MarkerOverlay {
   highlightMarker(id: string | null): void
   onMarkerClick(listener: (id: string) => void): () => void
   setInteractive(enabled: boolean): void
+  /** Copies `points`. An empty list removes the pins. */
+  setScenarioPins(points: readonly { lat: number; lng: number }[]): void
+  /** Greens the matching pin. `null` clears that highlight and leaves the pins. */
+  setHoverPoint(point: { lat: number; lng: number } | null): void
   destroy(): void
 }
 
@@ -41,6 +50,8 @@ interface MarkerOverlayOptions {
   controls: DragControls
   globeRadius: number
   flyTo(target: LatLngAlt): Promise<void>
+  /** Starts work for a cluster fly, such as prefetching that group's terrain. */
+  onClusterZoom?(memberIds: readonly string[]): void
 }
 
 interface ScreenPoint {
@@ -79,12 +90,22 @@ interface Frame {
   height: number
   altitude: number
   atMinimum: boolean
-  project(lat: number, lng: number): ScreenPoint | null
+  project(lat: number, lng: number, altitude?: number): ScreenPoint | null
 }
 
 interface Size {
   width: number
   height: number
+}
+
+function pinMatches(
+  pin: { lat: number; lng: number },
+  hover: { lat: number; lng: number },
+): boolean {
+  return (
+    Math.abs(pin.lat - hover.lat) <= PIN_MATCH_EPSILON &&
+    Math.abs(pin.lng - hover.lng) <= PIN_MATCH_EPSILON
+  )
 }
 
 function unit(x: number, y: number): { x: number; y: number } {
@@ -224,9 +245,12 @@ export function createMarkerOverlay(
 
   let markers: GlobeMarker[] = []
   let highlighted: string | null = null
+  let scenarioPins: { lat: number; lng: number }[] = []
+  let hoverPoint: { lat: number; lng: number } | null = null
   let interactive = true
   let destroyed = false
   let frameId = 0
+  const pinNodes: HTMLSpanElement[] = []
 
   const minimumAltitude = (): number => controls.minDistance / globeRadius - 1
 
@@ -249,8 +273,9 @@ export function createMarkerOverlay(
     lng: number,
     width: number,
     height: number,
+    altitude: number,
   ): ScreenPoint | null {
-    const coords = globe.getCoords(lat, lng, MARKER_ALTITUDE)
+    const coords = globe.getCoords(lat, lng, altitude)
     point.set(coords.x, coords.y, coords.z)
     normal.copy(point).normalize()
     toCamera.copy(cam.position).sub(point)
@@ -292,8 +317,8 @@ export function createMarkerOverlay(
       height,
       altitude,
       atMinimum: altitude <= minimumAltitude() + 1e-4,
-      project(lat, lng) {
-        return readScreen(cam, lat, lng, width, height)
+      project(lat, lng, altitude = MARKER_ALTITUDE) {
+        return readScreen(cam, lat, lng, width, height, altitude)
       },
     }
   }
@@ -596,6 +621,7 @@ export function createMarkerOverlay(
     if (pill.members.length > 1) {
       if (!pill.enabled) return
       const group = pill.members.map((member) => member.marker)
+      options.onClusterZoom?.(group.map((marker) => marker.id))
       const center = geographicCentroid(group)
       void options.flyTo({
         lat: center.lat,
@@ -634,6 +660,41 @@ export function createMarkerOverlay(
     return dot
   }
 
+  function pinNode(index: number): HTMLSpanElement {
+    const existing = pinNodes[index]
+    if (existing !== undefined) return existing
+    const dot = document.createElement('span')
+    dot.className = 'marker-dot'
+    dot.setAttribute('aria-hidden', 'true')
+    overlay.append(dot)
+    pinNodes[index] = dot
+    return dot
+  }
+
+  function placeScenarioPins(frame: Frame | null): void {
+    for (let index = 0; index < scenarioPins.length; index += 1) {
+      const pin = scenarioPins[index]
+      if (pin === undefined) continue
+      const node = pinNode(index)
+      const screen =
+        frame === null ? null : frame.project(pin.lat, pin.lng, HOVER_ALTITUDE)
+      node.className =
+        hoverPoint !== null && pinMatches(pin, hoverPoint)
+          ? 'marker-dot marker-pin-hover'
+          : 'marker-dot'
+      if (screen === null) {
+        node.hidden = true
+        continue
+      }
+      node.hidden = false
+      node.style.left = `${screen.x.toFixed(1)}px`
+      node.style.top = `${screen.y.toFixed(1)}px`
+    }
+    while (pinNodes.length > scenarioPins.length) {
+      pinNodes.pop()?.remove()
+    }
+  }
+
   function render(): void {
     if (destroyed) return
     const width = globe.width()
@@ -642,6 +703,7 @@ export function createMarkerOverlay(
     const altitude = globe.pointOfView().altitude
     const frame = makeFrame(camera, altitude)
     viewsByKey.clear()
+    placeScenarioPins(frame)
     if (frame === null) return
     const pills = arrange(memberViews(markers, frame), frame)
     const seenPills = new Set<string>()
@@ -730,6 +792,16 @@ export function createMarkerOverlay(
       if (destroyed) return
       interactive = enabled
       controls.enableRotate = enabled
+    },
+    setScenarioPins(points) {
+      if (destroyed) return
+      scenarioPins = points.map((point) => ({ lat: point.lat, lng: point.lng }))
+      render()
+    },
+    setHoverPoint(point) {
+      if (destroyed) return
+      hoverPoint = point === null ? null : { lat: point.lat, lng: point.lng }
+      render()
     },
     destroy() {
       if (destroyed) return

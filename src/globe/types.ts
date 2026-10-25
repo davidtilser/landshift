@@ -54,6 +54,10 @@ export interface GlobeHandle {
   destroy(): void
   /** Replaces the region pills. Copies `markers`; an empty list removes them. */
   setMarkers(markers: readonly GlobeMarker[]): void
+  /** Scenario pins for the focused locale. Copies `points`; an empty list removes them. */
+  setScenarioPins(points: readonly { lat: number; lng: number }[]): void
+  /** Greens the pin at `point`. `null` leaves the pins up and clears the highlight. */
+  setHoverPoint(point: { lat: number; lng: number } | null): void
   /** Draws the selection ring on that pill, or the cluster containing it. Ignores unknown ids; `null` clears. */
   highlightMarker(id: string | null): void
   /** Fires for an enabled pill that is not a cluster. Returns a function that removes `listener`. */
