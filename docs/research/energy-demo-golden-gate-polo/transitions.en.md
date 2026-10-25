@@ -2,6 +2,8 @@
 
 This English companion extends the visualization direction without changing the energy inventory or generated outputs. Follow **E1 Machines leave; continuous electricity starts** and **C1 Wider relationships become visible** in the [shared transition pack](../transitions-demo-golden-gate-polo/README.md). Their complete states and metric references are in [transitions.en.json](../transitions-demo-golden-gate-polo/transitions.en.json).
 
+Use this pack's [verifiable transition table](transition-checklist.en.md) during implementation and QA. Stable **SF-E1** row IDs cover onset, machine replacement, temporary power, commissioning and recurring operation, with observable criteria and evidence limits. Shared controls and community-context checks are linked from that table. Engine verification remains **Not run**.
+
 From M1 to M4, replace the selected work machines rather than accumulating them as a permanent fleet. Fuel and temporary electricity remain separate pathways. At M5 remove construction equipment and show the selected commissioning tests. At M6 replace the tests with the normal-operating IT/supporting-system split: a finished, quieter-looking campus has a recurring electrical demand.
 
 This is a change of operating mode, not a calibrated ramp-up curve. Stage fuel and electricity totals cover different work periods; they do not establish instantaneous load. Keep litres separate from kWh/MWh, and annual-average demand separate from peak connection rating. Original park electricity, unlisted machinery and standby fuel remain unknown rather than zero.

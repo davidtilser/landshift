@@ -36,6 +36,8 @@ The [land-and-space baseline layer](../land-space-demo-golden-gate-polo/README.m
 
 The shared [transition pack](../transitions-demo-golden-gate-polo/README.md) defines continuing stories across the topics. Its **P1–P3** patterns give each proposal an original state, intervention phases, active mechanism and limitation/reset replay inside M6. These phases do not add milestone IDs or place proposal equipment in the original construction history. The **Recipient unavailable** heat replay changes the heat pathway; returning to an earlier baseline milestone is a snapshot comparison, not physical reversal.
 
+Use the [verifiable proposal transition tables](transition-checklist.en.md): **SF-P1** for heat, **SF-P2** for recycled water and **SF-P3** for the green roof. Rows specify phase triggers, observable results, pass criteria and evidence limits; shared switch/reset and numerical-visibility checks are linked there. All engine verification remains **Not run**. A passing content check does not establish implemented proposal behaviour or calculated heat results.
+
 ## Heat for neighbours
 
 ### Proposal and intended learning

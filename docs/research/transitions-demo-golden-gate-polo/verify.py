@@ -5,7 +5,11 @@ import hashlib
 import json
 import math
 import re
+import sys
 from pathlib import Path
+
+sys.dont_write_bytecode = True
+from acceptance import check_or_write
 
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[2]
@@ -29,6 +33,7 @@ def pointer(document, path):
 
 
 def main():
+    check_or_write(check=True)
     pack = json.loads((ROOT / 'transitions.en.json').read_text())
     require(pack['locale'] == 'en', 'New handoff must be English')
     docs = {}
@@ -89,6 +94,7 @@ def main():
             require(hashlib.sha256(path.read_bytes()).hexdigest() == digest, 'Original packet changed: ' + relative)
             preserved += 1
     files = list(ROOT.glob('*.md')) + [ROOT.parent / f / 'transitions.en.md' for f in ['water-demo-golden-gate-polo', 'energy-demo-golden-gate-polo']]
+    files += [ROOT.parent / f / 'transition-checklist.en.md' for f in ['water-demo-golden-gate-polo', 'energy-demo-golden-gate-polo', 'land-space-demo-golden-gate-polo', 'change-catalog-golden-gate-polo']]
     files += [ROOT.parent / 'land-space-demo-golden-gate-polo' / 'README.md', ROOT.parent / 'change-catalog-golden-gate-polo' / 'README.md']
     for path in files:
         for target in re.findall(r'\]\(([^)]+)\)', path.read_text()):

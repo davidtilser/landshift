@@ -1,0 +1,864 @@
+{
+  "schema_version": 1,
+  "scenario_id": "sf-polo-transition-acceptance-v1",
+  "locale": "en",
+  "status": "acceptance_specification_not_engine_verification",
+  "status_rule": "All criteria are planned. Not run means no engine evidence; generator/data checks cannot mark a visual transition Pass.",
+  "groups": [
+    {
+      "id": "water",
+      "title": "Water transition acceptance table",
+      "output": "../water-demo-golden-gate-polo/transition-checklist.en.md",
+      "pattern_ids": ["W1", "W2", "W3"]
+    },
+    {
+      "id": "energy",
+      "title": "Energy transition acceptance table",
+      "output": "../energy-demo-golden-gate-polo/transition-checklist.en.md",
+      "pattern_ids": ["E1"]
+    },
+    {
+      "id": "land",
+      "title": "Land and space transition acceptance table",
+      "output": "../land-space-demo-golden-gate-polo/transition-checklist.en.md",
+      "pattern_ids": ["L1", "L2"]
+    },
+    {
+      "id": "proposals",
+      "title": "Proposal transition acceptance tables",
+      "output": "../change-catalog-golden-gate-polo/transition-checklist.en.md",
+      "pattern_ids": ["P1", "P2", "P3"]
+    },
+    {
+      "id": "shared",
+      "title": "Shared navigation and community transition acceptance tables",
+      "output": "transition-checklist.en.md",
+      "pattern_ids": ["C1"]
+    }
+  ],
+  "transitions": [
+    {
+      "id": "SF-W1-01",
+      "owner": "water",
+      "pattern_ids": ["W1"],
+      "from_state": "M0 rain comparison",
+      "to_state": "M1",
+      "trigger": "Replay reference rain at M0, then advance to M1.",
+      "visible_change": "Turf removal replaces the original cover; the M1 quantified outflow disappears.",
+      "pass_criteria": [
+        "M0 reference rain retains 86.4 mm and the reference-station/model label.",
+        "M1 displays Not quantified for event runoff; no zero or interpolated runoff appears."
+      ],
+      "state_refs": {
+        "W1": ["M0", "M1"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-W1-02",
+      "owner": "water",
+      "pattern_ids": ["W1"],
+      "from_state": "M1",
+      "to_state": "M2 then M3 rain comparison",
+      "trigger": "Advance through grading and compaction; replay the same rain independently at each supported state.",
+      "visible_change": "Grading changes ground appearance; rolling changes activity but not the runoff result.",
+      "pass_criteria": [
+        "M2 and M3 both show 1742.4 m³ managed drainage when rounded to one decimal.",
+        "The roller adds no runoff increment and the rain conditions stay identical."
+      ],
+      "state_refs": {
+        "W1": ["M1", "M2", "M3"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-W1-03",
+      "owner": "water",
+      "pattern_ids": ["W1"],
+      "from_state": "M3 rain comparison",
+      "to_state": "M4 then M5 rain comparison",
+      "trigger": "Advance to construction and opening; replay the same reference rain.",
+      "visible_change": "Roof/hard-surface pathways replace prepared-ground pathways; tank routing appears only at M5.",
+      "pass_criteria": [
+        "Managed drainage resolves to M4 2095.1 m³ and M5 2214.6 m³, each an independent event.",
+        "No interpolated flow curve, flood depth or automatic external repair runoff credit appears."
+      ],
+      "state_refs": {
+        "W1": ["M3", "M4", "M5"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-W1-04",
+      "owner": "water",
+      "pattern_ids": ["W1"],
+      "from_state": "M5 rain comparison",
+      "to_state": "M6 rain comparison",
+      "trigger": "Switch from M5 to M6 while using the independent rain mode.",
+      "visible_change": "Completed surfaces and rainfall response remain the same.",
+      "pass_criteria": [
+        "M5 and M6 show the same event outputs and final surface allocation.",
+        "Event drainage remains distinct from operating wastewater and annual supply."
+      ],
+      "state_refs": {
+        "W1": ["M5", "M6"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-W2-01",
+      "owner": "water",
+      "pattern_ids": ["W2"],
+      "from_state": "M1 work view",
+      "to_state": "M2 to M4 work views",
+      "trigger": "Advance through preparation to construction with water details open.",
+      "visible_change": "Work-water activities replace each other; construction adds a contained-wash cue.",
+      "pass_criteria": [
+        "Step site-supply totals read 50 / 1050 / 525 / 1988 m³ for M1 / M2 / M3 / M4, labelled whole step.",
+        "Offsite mixing is separate and raw washwater is not sent directly into the rain-drainage arrow.",
+        "No smooth demand-rate curve is inferred from unequal step totals."
+      ],
+      "state_refs": {
+        "W2": ["M1", "M2", "M3", "M4"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-W2-02",
+      "owner": "water",
+      "pattern_ids": ["W2"],
+      "from_state": "M4 work view",
+      "to_state": "M5 commissioning",
+      "trigger": "Advance from construction to opening.",
+      "visible_change": "Work-water activity ends; one-time commissioning fills/flushing are introduced.",
+      "pass_criteria": [
+        "M5 selected site supply is 215 m³ for the commissioning step, not a recurring daily demand.",
+        "Construction wash/spray loops are removed; one-time fills do not run continuously."
+      ],
+      "state_refs": {
+        "W2": ["M4", "M5"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-W2-03",
+      "owner": "water",
+      "pattern_ids": ["W2"],
+      "from_state": "M5 commissioning",
+      "to_state": "M6 normal operation",
+      "trigger": "Advance to M6 and replay its operating view twice.",
+      "visible_change": "One-time filling gives way to supply, evaporation and blowdown pathways.",
+      "pass_criteria": [
+        "Average-day cooling labels show 300 / 225 / 75 m³ per day for supply / evaporation / blowdown.",
+        "Commissioning fills never repeat and replay does not add consumption again.",
+        "Other-user icons stay neutral; no shortage or utility-headroom result appears."
+      ],
+      "state_refs": {
+        "W2": ["M5", "M6"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-W3-01",
+      "owner": "water",
+      "pattern_ids": ["W3"],
+      "from_state": "M0 through M4",
+      "to_state": "M5 ready for rain",
+      "trigger": "Inspect M0–M4, then advance to M5 without starting rain.",
+      "visible_change": "The tank becomes available without an automatic event fill.",
+      "pass_criteria": [
+        "No active campus tank appears in M0–M4; the tank becomes available at M5.",
+        "M5 availability does not imply permanently full storage or annual reuse savings."
+      ],
+      "state_refs": {
+        "W3": ["M0", "M1", "M2", "M3", "M4", "M5"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-W3-02",
+      "owner": "water",
+      "pattern_ids": ["W3", "W1"],
+      "from_state": "M5 or M6 before rain replay",
+      "to_state": "Event endpoint, then independent replay",
+      "trigger": "Start an independent rain replay, inspect its endpoint, then replay again.",
+      "visible_change": "Roof water fills an initially empty tank to the supported endpoint; remaining water goes onward.",
+      "pass_criteria": [
+        "Each event starts empty and ends at 200 m³ captured, with 2214.6 m³ requiring managed drainage.",
+        "Reset is labelled a new independent comparison, not an actual simulated emptying/reuse cycle.",
+        "Intermediate fill frames are illustrative; no routed storm timing or annual supply credit is claimed."
+      ],
+      "state_refs": {
+        "W3": ["M5", "M6"],
+        "W1": ["M5", "M6"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-E1-01",
+      "owner": "energy",
+      "pattern_ids": ["E1"],
+      "from_state": "M1",
+      "to_state": "M2 then M3",
+      "trigger": "Advance from stripping through grading to compaction.",
+      "visible_change": "Tractor emphasis is replaced by excavators, then a roller.",
+      "pass_criteria": [
+        "Selected fuel values remain 300 / 4320 / 900 L diesel for the respective whole steps.",
+        "Previous active machine groups do not accumulate into a permanent fleet.",
+        "Unknown electricity does not become zero and city-grid icons are not drained by diesel use."
+      ],
+      "state_refs": {
+        "E1": ["M1", "M2", "M3"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-E1-02",
+      "owner": "energy",
+      "pattern_ids": ["E1"],
+      "from_state": "M3",
+      "to_state": "M4",
+      "trigger": "Advance to construction with energy details visible.",
+      "visible_change": "Loader and temporary electrical-connection symbols replace compaction emphasis.",
+      "pass_criteria": [
+        "M4 shows 6400 L selected diesel and 38400 kWh selected electricity with their work-step basis.",
+        "Fuel and electricity remain separate; no unsupported instantaneous electrical ramp or route is displayed."
+      ],
+      "state_refs": {
+        "E1": ["M3", "M4"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-E1-03",
+      "owner": "energy",
+      "pattern_ids": ["E1"],
+      "from_state": "M4",
+      "to_state": "M5",
+      "trigger": "Advance to commissioning.",
+      "visible_change": "Construction machines and temporary work activity leave; selected testing appears.",
+      "pass_criteria": [
+        "M5 shows 20000 kWh for the selected commissioning step.",
+        "Unknown generator-test fuel stays Not established; construction machines do not continue running behind the tests."
+      ],
+      "state_refs": {
+        "E1": ["M4", "M5"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-E1-04",
+      "owner": "energy",
+      "pattern_ids": ["E1"],
+      "from_state": "M5 tests",
+      "to_state": "M6 normal operation",
+      "trigger": "Advance to operation, inspect the split and replay.",
+      "visible_change": "Testing gives way to continuous IT and supporting-system paths.",
+      "pass_criteria": [
+        "The model shows 12 MW annual-average facility demand and 105120 MWh/year facility electricity.",
+        "IT 87600 and support 17520 MWh/year sum to the total; support is not labelled cooling alone.",
+        "12 MW is not a peak connection rating; no blackout, load ramp or accumulating replay total appears."
+      ],
+      "state_refs": {
+        "E1": ["M5", "M6"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-L1-01",
+      "owner": "land",
+      "pattern_ids": ["L1"],
+      "from_state": "M0",
+      "to_state": "M1",
+      "trigger": "Advance from the original field to stripping.",
+      "visible_change": "Turf disappears only from the selected campus works area.",
+      "pass_criteria": [
+        "3.2 ha become disturbed while 0.8 ha original turf remain; the campus stays 4 ha.",
+        "No tree removal, perimeter-track conversion or external verge area is added to the campus total."
+      ],
+      "state_refs": {
+        "L1": ["M0", "M1"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-L1-02",
+      "owner": "land",
+      "pattern_ids": ["L1"],
+      "from_state": "M1",
+      "to_state": "M2 to M4",
+      "trigger": "Advance through grading, compaction and construction.",
+      "visible_change": "The same worked ground is reshaped and rolled, then partly occupied by buildings.",
+      "pass_criteria": [
+        "Cumulative campus disturbance stays 3.2 ha at every endpoint; no repeated land-take increment.",
+        "M4 surfaces show 1.2 ha roof, 2 ha bare ground and 0.8 ha original turf.",
+        "Qualitative ground changes do not acquire invented density, carbon or damage-depth readings."
+      ],
+      "state_refs": {
+        "L1": ["M1", "M2", "M3", "M4"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-L1-03",
+      "owner": "land",
+      "pattern_ids": ["L1"],
+      "from_state": "M4",
+      "to_state": "M5 reveal",
+      "trigger": "Advance to opening and play Building / Whole campus; inspect the ghost overlay.",
+      "visible_change": "A 1.2 ha building outline expands in emphasis to the full 4 ha campus; original sports markings ghost through it.",
+      "pass_criteria": [
+        "The reveal visibly includes supporting surfaces and preserves a recognisable site boundary.",
+        "Final cover is 2.8 ha sealed, 0.8 ha retained turf and 0.4 ha restored vegetation.",
+        "Original markings are labelled schematic; no verified lost-pitch count or public-access claim appears."
+      ],
+      "state_refs": {
+        "L1": ["M4", "M5"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-L1-04",
+      "owner": "land",
+      "pattern_ids": ["L1"],
+      "from_state": "M5",
+      "to_state": "M6",
+      "trigger": "Advance to operation and toggle before/after surfaces.",
+      "visible_change": "The completed campus remains while recurring utility flows begin.",
+      "pass_criteria": [
+        "Surface areas stay identical to M5; sealed and vegetated shares remain 70% and 30%.",
+        "Recurring activity does not consume another area increment or make retained/restored green space automatically public."
+      ],
+      "state_refs": {
+        "L1": ["M5", "M6"]
+      },
+      "evidence_kind": "scenario calculation plus authored animation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-L2-01",
+      "owner": "land",
+      "pattern_ids": ["L2"],
+      "from_state": "M0",
+      "to_state": "M1 access setup",
+      "trigger": "Advance to first heavy-access activity.",
+      "visible_change": "Barriers and a signed illustrative diversion appear before the first vehicle; possible external verge wear begins.",
+      "pass_criteria": [
+        "M0 has no construction barriers or wear patch; M1 shows their setup before heavy access.",
+        "The overlay is labelled Illustrative construction access and repair; no real route, dimensions or closure duration is asserted."
+      ],
+      "state_refs": {
+        "L2": ["M0", "M1"]
+      },
+      "evidence_kind": "authored qualitative scenario; no measured route or wear area",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-L2-02",
+      "owner": "land",
+      "pattern_ids": ["L2"],
+      "from_state": "M1",
+      "to_state": "M2 to M4",
+      "trigger": "Advance through works and replay any middle step.",
+      "visible_change": "Temporary access restriction persists with qualitative worn/flattened grass.",
+      "pass_criteria": [
+        "The restriction/wear overlay remains through M4 and does not disappear between adjacent work stages.",
+        "Replay does not increase a damage-area counter or modify the 4 ha surface budget; retained campus turf is not silently damaged."
+      ],
+      "state_refs": {
+        "L2": ["M1", "M2", "M3", "M4"]
+      },
+      "evidence_kind": "authored qualitative scenario; unquantified external wear",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-L2-03",
+      "owner": "land",
+      "pattern_ids": ["L2"],
+      "from_state": "M4",
+      "to_state": "M5 handover",
+      "trigger": "Advance from construction to the authored handover scene.",
+      "visible_change": "Heavy traffic ends, temporary barriers are removed, the schematic path reopens and verge repair starts.",
+      "pass_criteria": [
+        "Removal/reopening and repair are visible actions, not an instant switch to a mature lawn.",
+        "The campus remains and the external repair is not counted in its existing 0.4 ha restored vegetation.",
+        "The scene does not assert an approved reopening plan or real-world safety assessment."
+      ],
+      "state_refs": {
+        "L2": ["M4", "M5"]
+      },
+      "evidence_kind": "authored qualitative handover scenario",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-L2-04",
+      "owner": "land",
+      "pattern_ids": ["L2"],
+      "from_state": "M5 repair begins",
+      "to_state": "M6 recovery illustration",
+      "trigger": "Play the recovery replay, then compare the completed campus with the original field.",
+      "visible_change": "The external repaired verge gradually becomes greener; permanent campus surfaces persist.",
+      "pass_criteria": [
+        "A time-compressed illustrative-recovery label is visible; no recovery date or full soil-function claim appears.",
+        "Permanent sealed area remains 2.8 ha and repair creates no new water/energy credit.",
+        "Replaying or returning to M0 restores the selected state without accumulating damage or repair."
+      ],
+      "state_refs": {
+        "L2": ["M5", "M6"]
+      },
+      "evidence_kind": "authored qualitative recovery, not a calibrated ecological forecast",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-C1-01",
+      "owner": "shared",
+      "pattern_ids": ["C1"],
+      "from_state": "M0",
+      "to_state": "M1 to M4",
+      "trigger": "Follow the construction walkthrough with the contextual layer visible.",
+      "visible_change": "Existing users remain present as access and work-service concerns are introduced.",
+      "pass_criteria": [
+        "Scenario perspectives are labelled rather than presented as quotes or surveyed views.",
+        "Other-user service icons stay neutral: no dry taps, dimmed lights, depleted reserves or claimed allocation.",
+        "Drainage context appears only in rain mode; routes/capacity remain unverified."
+      ],
+      "state_refs": {
+        "C1": ["M0", "M1", "M2", "M3", "M4"]
+      },
+      "evidence_kind": "authored community-context handoff; no review of David implementation",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-C1-02",
+      "owner": "shared",
+      "pattern_ids": ["C1", "L2"],
+      "from_state": "M4",
+      "to_state": "M5 then M6",
+      "trigger": "Advance through handover to operation and open the related community question.",
+      "visible_change": "The access question changes to long-term use while the permanent campus and recurring utility needs remain.",
+      "pass_criteria": [
+        "Temporary reopening does not imply restored sports use, consent or verified permanent public access.",
+        "No displacement count, opinion percentage or utility shortage is derived from this transition pack."
+      ],
+      "state_refs": {
+        "C1": ["M4", "M5", "M6"],
+        "L2": ["M4", "M5", "M6"]
+      },
+      "evidence_kind": "authored community-context handoff; actual views unknown",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-P1-01",
+      "owner": "proposals",
+      "pattern_ids": ["P1"],
+      "from_state": "M6 original heat arrangement",
+      "to_state": "proposed_works",
+      "trigger": "Select Heat for neighbours and preview the proposed connection.",
+      "visible_change": "Reveal exchanger, conditional heat pump and schematic trench; lay the supply/return pair and restore the surface.",
+      "pass_criteria": [
+        "The replay remains inside M6 with no new milestone IDs or implied baseline M1–M5 installation.",
+        "One model recipient and an illustrative route are labelled; no selected length, temperature or delivered-heat result appears.",
+        "Heat-pump presence is conditional, not a silently selected cooling redesign."
+      ],
+      "state_refs": {
+        "P1": ["original", "proposed_works"]
+      },
+      "evidence_kind": "authored proposal; heat model pending",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-P1-02",
+      "owner": "proposals",
+      "pattern_ids": ["P1"],
+      "from_state": "proposed_works",
+      "to_state": "active",
+      "trigger": "Continue the heat proposal replay.",
+      "visible_change": "Warm supply reaches the recipient; cooler water returns through a separate pipe.",
+      "pass_criteria": [
+        "Heat crosses exchangers while water particles remain within their isolated circuits; no datacentre coolant enters pool water.",
+        "Residual cooling, recipient backup heating and recovery-equipment electricity remain visible.",
+        "Model pending is visible; no heat, water or electricity saving is fabricated."
+      ],
+      "state_refs": {
+        "P1": ["proposed_works", "active"]
+      },
+      "evidence_kind": "authored proposal; temperatures and performance unselected",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-P1-03",
+      "owner": "proposals",
+      "pattern_ids": ["P1"],
+      "from_state": "active",
+      "to_state": "recipient_unavailable then resume",
+      "trigger": "Run the optional recipient-unavailable replay, then restore recipient availability.",
+      "visible_change": "Useful delivery stops while original cooling continues; delivery may resume when the recipient accepts heat.",
+      "pass_criteria": [
+        "Computing continues and heat is rejected through original cooling when the recipient is unavailable.",
+        "Resuming is not assumed full-time annual utilisation; no saved-heat counter grows during unavailability."
+      ],
+      "state_refs": {
+        "P1": ["active", "recipient_unavailable", "resume"]
+      },
+      "evidence_kind": "authored operating-mechanism replay; not a demand forecast",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-P2-01",
+      "owner": "proposals",
+      "pattern_ids": ["P2"],
+      "from_state": "original",
+      "to_state": "follow_source",
+      "trigger": "Select Recycled water, including immediately after heat or a numerical baseline view.",
+      "visible_change": "Reveal the treatment, storage/pumping and schematic delivery chain.",
+      "pass_criteria": [
+        "Concept preview label is visible and all numerical panels/hover values are absent, including baseline and previous heat/land values.",
+        "No treatment capacity, real cooling connection, exact route or reservoir fill is implied."
+      ],
+      "state_refs": {
+        "P2": ["original", "follow_source"]
+      },
+      "evidence_kind": "visual concept only; no numerical assessment",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-P2-02",
+      "owner": "proposals",
+      "pattern_ids": ["P2"],
+      "from_state": "follow_source",
+      "to_state": "active",
+      "trigger": "Continue the source-path preview.",
+      "visible_change": "Highlight the alternative supply branch while internal cooling and its outputs remain visible.",
+      "pass_criteria": [
+        "The source changes visually while evaporation and blowdown remain; no claimed reduction in total cooling demand.",
+        "No numerical share, flow width or saving is shown and the alternative connection is labelled conceptual."
+      ],
+      "state_refs": {
+        "P2": ["follow_source", "active"]
+      },
+      "evidence_kind": "visual concept only; service and capacity unassessed",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-P2-03",
+      "owner": "proposals",
+      "pattern_ids": ["P2"],
+      "from_state": "active",
+      "to_state": "constraint then reset",
+      "trigger": "Open the limitation beat, then reset the concept.",
+      "visible_change": "Treatment/energy/quality questions are highlighted; reset restores the original-source illustration.",
+      "pass_criteria": [
+        "No household shortage is shown as solved and no capacity upgrade is sized.",
+        "Alternative source equipment/route and quantitative overlays do not leak into the reset concept state."
+      ],
+      "state_refs": {
+        "P2": ["active", "constraint", "reset"]
+      },
+      "evidence_kind": "visual concept only; no calculated benefit",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-P3-01",
+      "owner": "proposals",
+      "pattern_ids": ["P3"],
+      "from_state": "original",
+      "to_state": "proposed_layers",
+      "trigger": "Select Green roof and continue to its cutaway.",
+      "visible_change": "A schematic planted patch appears in constructed layers while equipment/service areas remain.",
+      "pass_criteria": [
+        "Concept preview label is visible and all numbers/hover statistics are hidden.",
+        "The roof is not wholly planted or made public by default; no numerical planting area or percentage is invented."
+      ],
+      "state_refs": {
+        "P3": ["original", "proposed_layers"]
+      },
+      "evidence_kind": "visual concept only; roof fit and structural design unassessed",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-P3-02",
+      "owner": "proposals",
+      "pattern_ids": ["P3"],
+      "from_state": "proposed_layers",
+      "to_state": "rain",
+      "trigger": "Play the illustrative green-roof rain beat.",
+      "visible_change": "Rain enters substrate; temporary storage and excess-water paths appear.",
+      "pass_criteria": [
+        "Storage is finite and an overflow path is visible.",
+        "No measured retention volume, runoff/energy saving, calibrated flow width or baseline-water result appears."
+      ],
+      "state_refs": {
+        "P3": ["proposed_layers", "rain"]
+      },
+      "evidence_kind": "visual concept only; separate from quantified baseline rain replay",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-P3-03",
+      "owner": "proposals",
+      "pattern_ids": ["P3"],
+      "from_state": "rain",
+      "to_state": "dry_conditions",
+      "trigger": "Switch to the illustrative dry-condition beat.",
+      "visible_change": "Moisture fades and a vegetation-care cue appears.",
+      "pass_criteria": [
+        "The scene is labelled illustrative conditions with no selected drying time, measured temperature or simulated weather year.",
+        "No automatic maturity, irrigation volume, biodiversity or carbon benefit is claimed."
+      ],
+      "state_refs": {
+        "P3": ["rain", "dry_conditions"]
+      },
+      "evidence_kind": "visual concept only; no calibrated vegetation response",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-P3-04",
+      "owner": "proposals",
+      "pattern_ids": ["P3"],
+      "from_state": "dry_conditions or another green-roof phase",
+      "to_state": "reset",
+      "trigger": "Reset the green-roof concept.",
+      "visible_change": "Restore the original roof and clear planted-layer, rain and dry-state overlays.",
+      "pass_criteria": [
+        "Existing equipment/service paths remain, with no residual plants or rain/drying effects.",
+        "The reset concept stays free of numerical panels; leaving the selector restores the original baseline separately."
+      ],
+      "state_refs": {
+        "P3": ["original", "proposed_layers", "rain", "dry_conditions", "reset"]
+      },
+      "evidence_kind": "visual concept only; reset does not demonstrate physical removal",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-X-01",
+      "owner": "shared",
+      "pattern_ids": [],
+      "from_state": "M0 or any baseline state",
+      "to_state": "Direct jump to M4 then M2",
+      "trigger": "Use milestone selection without playing intermediate animations.",
+      "visible_change": "Complete target snapshots replace the prior state.",
+      "pass_criteria": [
+        "Surface allocation, machines, access overlay, labels and mode match the selected milestone without leftover objects.",
+        "M2 has no future roofs/tank/operating flows; M4 has no M6-only proposals."
+      ],
+      "state_refs": {},
+      "evidence_kind": "shared UI contract; verify in engine",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-X-02",
+      "owner": "shared",
+      "pattern_ids": [],
+      "from_state": "Later baseline state",
+      "to_state": "Earlier baseline state",
+      "trigger": "Navigate backward, for example M4 to M1 or M6 to M0.",
+      "visible_change": "Restore the earlier comparison snapshot instead of reversing physical processes.",
+      "pass_criteria": [
+        "Comparison/earlier-state context is visible; no backwards water/heat flow or claimed instant ecological recovery.",
+        "Earlier surface and access states are restored, not gradually subtracted from a cumulative damage score."
+      ],
+      "state_refs": {},
+      "evidence_kind": "shared UI contract; verify in engine",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-X-03",
+      "owner": "shared",
+      "pattern_ids": [],
+      "from_state": "Any baseline transition",
+      "to_state": "Same target after Skip or Replay",
+      "trigger": "Compare completed playback with Skip, then replay twice.",
+      "visible_change": "Each route settles in the identical target scene and data.",
+      "pass_criteria": [
+        "No duplicated machines, repeated resource totals, extra land take or persistent intermediate overlays.",
+        "Skipping preserves labels and default cards; animation duration is never presented as real work/recovery time."
+      ],
+      "state_refs": {},
+      "evidence_kind": "shared UI contract; verify in engine",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-X-04",
+      "owner": "shared",
+      "pattern_ids": ["W1", "W2", "W3"],
+      "from_state": "M6 operating view",
+      "to_state": "Rain replay then operating view",
+      "trigger": "Switch modes and repeat the independent event comparison.",
+      "visible_change": "Rain, tank and drainage replace the operating overlay, then operating labels return.",
+      "pass_criteria": [
+        "Rain remains an independent empty-start event; annual-average operation is labelled separately.",
+        "Drainage is not shown as cooling blowdown and captured event water is not deducted from annual supply.",
+        "No event or annual demand is added again on switching."
+      ],
+      "state_refs": {
+        "W1": ["M6"],
+        "W2": ["M6"],
+        "W3": ["M6"]
+      },
+      "evidence_kind": "mode and accounting separation; verify in engine",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-X-05",
+      "owner": "shared",
+      "pattern_ids": ["P1", "P2", "P3"],
+      "from_state": "Any M6 proposal",
+      "to_state": "Another proposal then original baseline",
+      "trigger": "Select Heat, then Recycled water, then Green roof; leave the selector.",
+      "visible_change": "Each proposal replaces the previous one; exiting restores the original M6 state.",
+      "pass_criteria": [
+        "No combined pipes/plants/temporary works or summed savings remain after switching.",
+        "Both concept views hide all numerical cards, charts, badges and hover statistics.",
+        "Original M6 surfaces and baseline cards return only when exiting to the separate baseline view."
+      ],
+      "state_refs": {},
+      "evidence_kind": "shared selector contract; heat pending and concepts unquantified",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-X-06",
+      "owner": "shared",
+      "pattern_ids": ["P1", "P2", "P3"],
+      "from_state": "Any proposal or phase",
+      "to_state": "Same proposal selected again / restarted",
+      "trigger": "Restart the selected case and replay its available phases twice.",
+      "visible_change": "The proposal begins again from its defined original phase without state accumulation.",
+      "pass_criteria": [
+        "Only one instance of proposed equipment/planting and its effects exists.",
+        "No installation duration, heat result or concept number appears through restart; each case retains its readiness label."
+      ],
+      "state_refs": {},
+      "evidence_kind": "shared selector contract; verify in engine",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-W2-00",
+      "owner": "water",
+      "pattern_ids": ["W2"],
+      "from_state": "M0",
+      "to_state": "M1",
+      "trigger": "Advance from the original field to turf stripping.",
+      "visible_change": "Original irrigation context gives way to a selected stripping work-water activity.",
+      "pass_criteria": [
+        "M0 has no operating-campus cooling flow; its irrigation source remains unverified.",
+        "M1 introduces the 50 m³ whole-step work-water budget, not a daily cooling demand."
+      ],
+      "state_refs": {
+        "W2": ["M0", "M1"]
+      },
+      "evidence_kind": "authored activity and selected work-step accounting",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "id": "SF-E1-00",
+      "owner": "energy",
+      "pattern_ids": ["E1"],
+      "from_state": "M0",
+      "to_state": "M1",
+      "trigger": "Advance from the original field to turf stripping.",
+      "visible_change": "A selected tractor and fuel symbol enter the scene before later work-machine replacements.",
+      "pass_criteria": [
+        "M0 park energy stays Not established, not zero; the future campus has no operating load.",
+        "M1 shows 300 L selected tractor diesel for the whole step; no neighbourhood electricity effect is inferred."
+      ],
+      "state_refs": {
+        "E1": ["M0", "M1"]
+      },
+      "evidence_kind": "authored activity and selected work-step accounting",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run"
+    },
+    {
+      "owner": "shared",
+      "pattern_ids": ["P1", "P2", "P3"],
+      "state_refs": {},
+      "evidence_kind": "shared proposal interruption/exit contract; verify in engine",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run",
+      "id": "SF-X-07",
+      "from_state": "Any in-progress M6 proposal phase",
+      "to_state": "The requested phase endpoint after Skip",
+      "trigger": "For each proposal, compare full playback with Skip during its works/layers/flow or weather beat; repeat from the same initial phase.",
+      "visible_change": "Skip immediately restores the same settled phase endpoint as completed playback.",
+      "pass_criteria": [
+        "Phase, equipment, labels and numerical visibility match the completed-playback target exactly; Skip does not silently select a different case or phase.",
+        "No unfinished trench, half-installed pipe, partial planted layer or previous phase flow/weather effect remains unless it belongs to the target endpoint.",
+        "No extra resource total, concept number or pending heat result is introduced by skipping."
+      ]
+    },
+    {
+      "owner": "shared",
+      "pattern_ids": ["P1", "P2", "P3"],
+      "state_refs": {},
+      "evidence_kind": "shared proposal interruption/exit contract; verify in engine",
+      "implementation_status": "not_assessed",
+      "verification_status": "not_run",
+      "id": "SF-X-08",
+      "from_state": "Any M6 proposal, including an in-progress phase",
+      "to_state": "Direct jump to an earlier baseline milestone M0–M5",
+      "trigger": "From each proposal and during an animation, select M0, M1, M2, M3, M4 and M5 directly in separate runs.",
+      "visible_change": "Exit the proposal and restore the entire requested baseline state without playing physical reversal.",
+      "pass_criteria": [
+        "All proposal equipment, pipes, plants, trench/weather effects, result panels and proposal-readiness labels are cleared; baseline labels and data visibility are restored.",
+        "Surface allocation, construction activity, temporary access state and default cards match the requested baseline milestone, with no M6 operating or proposal flow left behind.",
+        "Concept hidden-number state does not suppress baseline cards; M1 runoff remains Not quantified and other baseline unknowns remain Not established."
+      ]
+    }
+  ]
+}

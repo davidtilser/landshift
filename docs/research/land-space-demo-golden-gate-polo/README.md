@@ -6,6 +6,8 @@ The learning question is **“What does the development occupy, what changes on 
 
 Follow the shared [cross-topic transition pack](../transitions-demo-golden-gate-polo/README.md) for how these states develop alongside water, electricity and the proposals. **L1** covers one disturbance becoming a permanent allocation; **L2** covers temporary access wear and repair; **C1** connects changing community questions. Earlier-state navigation restores a comparison snapshot rather than reversing physical damage.
 
+The [verifiable transition table](transition-checklist.en.md) gives stable **SF-L1** and **SF-L2** IDs, triggers, visible changes and pass criteria for implementation and later QA. It includes barrier-before-vehicle ordering, persistence during works, explicit reopening/repair and recovery labels. Shared navigation checks are linked from the table. Engine verification is **Not run** until evidence is recorded for a tested build.
+
 ## For David: milestones, defaults and user actions
 
 Keep **Today → Site preparation → Construction → Opening → Operation**, with three preparation beats giving seven cards. Open at M0. On advance, play the change animation and show the milestone's area card, implication and **Authored demo areas** label automatically. Investigations are optional.

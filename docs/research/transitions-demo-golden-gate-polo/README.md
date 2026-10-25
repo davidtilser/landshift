@@ -71,6 +71,19 @@ For recycled water, switch only the highlighted source route; a dissolve or expl
 
 ## Data handoff, ownership and checks
 
+### Verifiable transition tables
+
+Use the [shared acceptance table and pack index](transition-checklist.en.md) for implementation tracking and later engine verification. Each owning pack has its own table: [water](../water-demo-golden-gate-polo/transition-checklist.en.md), [energy](../energy-demo-golden-gate-polo/transition-checklist.en.md), [land/space](../land-space-demo-golden-gate-polo/transition-checklist.en.md) and [the three proposals](../change-catalog-golden-gate-polo/transition-checklist.en.md). Community-context and shared control checks are in the shared table; this does not modify David's separate community implementation.
+
+The [acceptance registry](acceptance.en.json) defines **43 stable row IDs** with a starting state, target state, trigger, visible change, observable pass criteria and evidence boundary. Every pattern state/phase is referenced. Shared rows explicitly cover skipping in-progress proposal phases and jumping directly from a proposal to an earlier baseline milestone, including cleanup and restoration of numerical visibility. Record IDs in implementation work and QA results; changes to a contract must retain or explicitly supersede its ID. The per-table verification-log template records build/environment, Pass/Fail/Blocked/Not run and evidence identifying the criterion. A recording or ordered captures are needed to demonstrate a transition, rather than only its final frame.
+
+All rows currently mean **implementation not assessed; engine verification not run**. Content/generator validation cannot mark the visual behaviour as passing. Re-render the owning tables after editing the registry:
+
+```sh
+python3 docs/research/transitions-demo-golden-gate-polo/acceptance.py
+python3 docs/research/transitions-demo-golden-gate-polo/acceptance.py --check
+```
+
 `transitions.en.json` is an authored transition manifest. It contains the ten patterns, seven-state baseline trajectories or M6 proposal phases, visual directions, mode and evidence labels, explicit unknowns and references into existing numerical outputs. Numeric bindings are JSON Pointers into named local files; values are not new model outputs. Binding units and time bases must stay visible. Files are SHA-256 pinned so source drift requires review.
 
 This brief owns the **cross-topic transition convention**. The [water companion](../water-demo-golden-gate-polo/transitions.en.md), [energy companion](../energy-demo-golden-gate-polo/transitions.en.md), [land brief](../land-space-demo-golden-gate-polo/README.md) and [proposal brief](../change-catalog-golden-gate-polo/README.md) point here. Existing water/energy calculation files and their frozen checks stay unchanged. The community pattern is a handoff for David's separate work, not a claim that his implementation was inspected or modified.

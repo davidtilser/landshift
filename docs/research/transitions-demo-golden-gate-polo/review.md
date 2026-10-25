@@ -26,9 +26,16 @@ The packet also reproduced in an isolated checkout of current published `main`. 
 
 Limitations: this was a documentation/data audit. No engine render, animation timing, real route, utility headroom, recipient availability or actual ecological recovery was validated.
 
+## Acceptance-table extension
+
+The later table refinement adds `acceptance.en.json`, its `acceptance.py` renderer/validator and five owning-pack Markdown tables. It defines 43 stable contracts spanning all ten patterns, their states/phases and shared navigation/visibility behaviour. Table validation covers IDs, ownership, state/phase references, complete coverage, exact generated output and explicit **Not run** engine status. This extends the content verification; it does not retroactively mark any implemented animation as passing.
+
+Follow-up independent review identified a gap in proposal interruption coverage: baseline Skip and direct-jump checks did not cover skipping an in-progress proposal phase or jumping from a proposal to M0–M5. Added **SF-X-07** and **SF-X-08** to cover correct endpoints, removal of intermediate proposal effects and restoration of baseline numerical visibility. These contracts are included in the shared table and validated as required IDs. The independent agent rechecked both fixes and confirmed **no remaining actionable findings**. Acceptance validation, transition verification and scoped formatting passed: 43 rows across five tables and all 67 original files unchanged. Engine behaviour remains **Not run**.
+
 ## Reproduction
 
 ```sh
+python3 docs/research/transitions-demo-golden-gate-polo/acceptance.py --check
 python3 docs/research/transitions-demo-golden-gate-polo/verify.py
 python3 docs/research/land-space-demo-golden-gate-polo/compute.py --check
 python3 docs/research/water-demo-golden-gate-polo/compute.py --check
