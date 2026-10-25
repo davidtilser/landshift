@@ -2,6 +2,7 @@ import './placement.css'
 import {
   CallbackPositionProperty,
   CallbackProperty,
+  ConstantProperty,
   ColorMaterialProperty,
   CameraEventType,
   Cesium3DTileset,
@@ -55,6 +56,12 @@ import type { PoloPhase, PoloSceneState } from './model.ts'
 import { poloTransitionFrame } from './transitions.ts'
 import type { PoloTransitionFrame } from './transitions.ts'
 import { segmentReveal, workPass } from './scene-animation.ts'
+import {
+  poloReactions,
+  poloProtestTurnout,
+  poloProtesterPosition,
+  poloReactionLines,
+} from './reactions.ts'
 import { poloPlacementValid } from './placement.ts'
 import { PoloAccessScene } from './access-scene.ts'
 import {
@@ -717,23 +724,38 @@ export class PoloScene {
     protesting = false,
     base = 0,
     fieldAnchored = false,
-  ): void {
+    movement?: (activity: number) => readonly [number, number],
+  ): (z: number) => CallbackPositionProperty {
+    const scale = protesting ? 2 : 1
     const position = (z: number): CallbackPositionProperty =>
       new CallbackPositionProperty(() => {
         const activity = this.reducedMotion.matches
           ? 6
           : (performance.now() - this.activityStartAt) / 1000
         const offset = walking ? Math.sin(activity * 0.45 + index) * 7 : 0
+        const [px, py] = movement?.(activity) ?? [
+          x + offset,
+          y + Math.sin(index) * 1.5,
+        ]
         return fieldAnchored
-          ? this.fieldPoint(x + offset, y + Math.sin(index) * 1.5, z + base)
-          : this.point(x + offset, y + Math.sin(index) * 1.5, z + base)
+          ? this.fieldPoint(px, py, z * scale + base)
+          : this.point(px, py, z * scale + base)
       }, false)
+    const orientation = fieldAnchored
+      ? new ConstantProperty(
+          FixedFrameTransforms.headingPitchRollQuaternion(
+            this.fieldPoint(x, y),
+            new HeadingPitchRoll(),
+          ),
+        )
+      : new CallbackProperty(() => this.campusOrientation(), false)
     this.source.entities.add({
       position: position(1.5),
+      orientation,
       cylinder: {
-        length: 2,
-        topRadius: 0.5,
-        bottomRadius: 0.5,
+        length: 2 * scale,
+        topRadius: 0.5 * scale,
+        bottomRadius: 0.5 * scale,
         slices: 6,
         material: Color.fromCssColorString(color),
       },
@@ -741,17 +763,107 @@ export class PoloScene {
     this.source.entities.add({
       position: position(2.9),
       ellipsoid: {
-        radii: new Cartesian3(0.55, 0.55, 0.55),
+        radii: new Cartesian3(0.55 * scale, 0.55 * scale, 0.55 * scale),
         stackPartitions: 6,
         slicePartitions: 6,
         material: Color.fromCssColorString('#dfb998'),
       },
     })
     if (protesting) {
-      const pole = this.box(x, y, 2.4, 0.2, 0.2, 2.5, '#786a49', fieldAnchored)
-      const board = this.box(x, y, 4.1, 4.2, 0.3, 2, '#f4e7b4', fieldAnchored)
+      const pole = this.box(
+        x,
+        y,
+        2.4,
+        0.2 * scale,
+        0.2 * scale,
+        2.5 * scale,
+        '#786a49',
+        fieldAnchored,
+      )
+      const board = this.box(
+        x,
+        y,
+        4.1,
+        4.2 * scale,
+        0.3 * scale,
+        2 * scale,
+        '#f4e7b4',
+        fieldAnchored,
+      )
       pole.position = position(3.65)
       board.position = position(5.1)
+      pole.orientation = orientation
+      board.orientation = orientation
+    }
+    return position
+  }
+  private fieldPlayers(leaving = false): void {
+    for (let index = 0; index < 12; index++) {
+      const x = -80 + index * 14
+      const y = index % 2 ? 22 : -15
+      this.person(
+        x,
+        y,
+        index % 2 ? '#f0c766' : '#638bab',
+        true,
+        index,
+        false,
+        0,
+        true,
+        leaving
+          ? (activity) => {
+              const progress = Math.min(1, this.transition.turfRemoved * 2)
+              return [
+                x + Math.sin(activity * 0.45 + index) * 4,
+                y + ((index % 2 ? 83 : -83) - y) * progress,
+              ]
+            }
+          : undefined,
+      )
+    }
+  }
+  private protestCrowd(): void {
+    if (!this.state.confirmed || this.state.phase === 'M0') return
+    const reactions = poloReactions(this.state)
+    const groups = ['neighbor', 'student', 'nature'] as const
+    const colors = ['#ce7755', '#698fa7', '#728c56'] as const
+    const turnout = (): number =>
+      poloProtestTurnout(this.state, this.transition.progress)
+    for (let index = 0; index < reactions.turnout; index++) {
+      const first = this.source.entities.values.length
+      const group = groups[index % groups.length] ?? 'neighbor'
+      const position = this.person(
+        0,
+        -92,
+        colors[index % colors.length] ?? '#ce7755',
+        true,
+        index + 24,
+        true,
+        0,
+        true,
+        (activity) => poloProtesterPosition(index, activity, turnout()),
+      )
+      if (index === 3 || index === 8) {
+        const sign = this.label(
+          0,
+          -92,
+          10,
+          reactions.voices[group].sign ?? 'Hear us out',
+          '#985947',
+          undefined,
+          new Cartesian2(0, -5),
+          true,
+        )
+        sign.position = position(6.4)
+        if (sign.label) {
+          sign.label.font = new ConstantProperty('700 11px sans-serif')
+          sign.label.scale = new ConstantProperty(0.85)
+          sign.label.backgroundPadding = new ConstantProperty(
+            new Cartesian2(5, 3),
+          )
+        }
+      }
+      this.revealGroup(first, () => turnout() > index + 0.05)
     }
   }
   private fieldActivity(): void {
@@ -801,17 +913,7 @@ export class PoloScene {
       false,
       true,
     )
-    for (let index = 0; index < 12; index++)
-      this.person(
-        -80 + index * 14,
-        index % 2 ? 22 : -15,
-        index % 2 ? '#f0c766' : '#638bab',
-        true,
-        index,
-        false,
-        0,
-        true,
-      )
+    this.fieldPlayers()
     for (const hall of POLO_LAYOUT.halls) {
       const ghost = this.source.entities.add({
         position: new CallbackPositionProperty(
@@ -1523,85 +1625,80 @@ export class PoloScene {
     }
   }
   private community(): void {
-    const phase = this.state.phase
-    const built = phase !== 'M0'
+    const reactions = poloReactions(this.state)
     const bubbles: {
       id: CommunityId
       x: number
       y: number
-      text: string
+      name: string
       color: string
     }[] = [
       {
         id: 'neighbor',
-        x: -120,
-        y: 90,
-        text: built
-          ? 'PARK REGULAR\nWe need our shared field.\nTap to chat ↗'
-          : 'PARK REGULAR\nThis is where we meet.\nTap to chat ↗',
+        x: -150,
+        y: 95,
+        name: 'PARK REGULAR',
         color: '#84734d',
       },
       {
         id: 'nature',
-        x: 55,
-        y: 150,
-        text: built
-          ? 'SOIL VOLUNTEER\nWhat happens to living soil?\nTap to chat ↗'
-          : 'SOIL VOLUNTEER\nLiving soil matters too.\nTap to chat ↗',
+        x: 120,
+        y: 145,
+        name: 'SOIL VOLUNTEER',
         color: '#587448',
       },
-      {
-        id: 'student',
-        x: 25,
-        y: -132,
-        text: built
-          ? 'YOUNG PLAYER\nWhere can we play now?\nTap to chat ↗'
-          : 'YOUNG PLAYER\nA place to play together.\nTap to chat ↗',
-        color: '#5b7d88',
-      },
+      { id: 'student', x: 25, y: -145, name: 'YOUNG PLAYER', color: '#5b7d88' },
     ]
-    for (const bubble of bubbles) {
+    if (this.state.confirmed && ['M4', 'M5', 'M6'].includes(this.state.phase))
+      bubbles.push({
+        id: 'operator',
+        x: 180,
+        y: 35,
+        name: 'DESIGNER',
+        color: '#647f70',
+      })
+    for (const [index, bubble] of bubbles.entries()) {
+      const reaction = reactions.voices[bubble.id]
+      const protesting = reaction.sign !== null
+      const color =
+        reaction.mood === 'angry'
+          ? '#a45343'
+          : reaction.mood === 'concerned'
+            ? '#8a7143'
+            : reaction.mood === 'hopeful'
+              ? '#57784c'
+              : bubble.color
+      const position = this.person(
+        bubble.x,
+        bubble.y,
+        bubble.color,
+        true,
+        index + 7,
+        protesting,
+        0,
+        true,
+      )
       const label = this.label(
         bubble.x,
         bubble.y,
         12,
-        bubble.text,
-        bubble.color,
+        (protesting ? 'PROTEST · ' : '') +
+          bubble.name +
+          '\n' +
+          poloReactionLines(reaction.text) +
+          '\nTap to chat ↗',
+        color,
         'polo-community-' + bubble.id,
-      )
-      const walking = bubble.id !== 'student'
-      const index = bubble.id === 'nature' ? 9 : 7
-      label.position = new CallbackPositionProperty(() => {
-        const activity = this.reducedMotion.matches
-          ? 6
-          : (performance.now() - this.activityStartAt) / 1000
-        const offset = walking ? Math.sin(activity * 0.45 + index) * 7 : 0
-        return this.fieldPoint(
-          bubble.x + offset,
-          bubble.y + Math.sin(index) * 1.5,
-          12,
-        )
-      }, false)
-      this.person(
-        bubble.x,
-        bubble.y,
-        bubble.color,
-        walking,
-        index,
-        built,
-        0,
+        new Cartesian2(0, -12),
         true,
       )
+      label.position = position(protesting ? 6 : 12)
+      if (bubble.id === 'student' && label.label) {
+        label.label.verticalOrigin = new ConstantProperty(VerticalOrigin.TOP)
+        label.label.pixelOffset = new ConstantProperty(new Cartesian2(0, 16))
+      }
     }
-    if (phase === 'M6' && !activePoloProposal(this.state))
-      this.label(
-        95,
-        60,
-        13,
-        'DESIGNER\nEvery idea has trade-offs.\nTap to chat ↗',
-        '#647f70',
-        'polo-community-operator',
-      )
+    this.protestCrowd()
   }
   private rebuild(): void {
     this.source.entities.removeAll()
@@ -1651,19 +1748,10 @@ export class PoloScene {
         false,
         true,
       )
-      for (let index = 0; index < 12; index++)
-        this.person(
-          -80 + index * 14,
-          index % 2 ? 22 : -15,
-          index % 2 ? '#f0c766' : '#638bab',
-          true,
-          index,
-          false,
-          0,
-          true,
-        )
+      this.fieldPlayers()
       this.label(65, 48, 4, 'Today · shared sports turf', '#69834c')
     } else if (phase === 'M1') {
+      this.fieldPlayers(true)
       this.workSurface(() => this.transition.turfRemoved, PALETTE.soil, 0.7)
       this.machinery(0, 0, false, () => ({
         ...workPass(this.transition.turfRemoved),

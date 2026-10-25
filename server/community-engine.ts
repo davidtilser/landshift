@@ -154,6 +154,8 @@ export function communityPrompt(
             goal: profile.goal,
             boundary: profile.boundary,
             flexible: profile.flexible,
+            currentReaction: profile.post,
+            currentMood: profile.initialMood,
           })),
       ),
     'Scenario: ' +

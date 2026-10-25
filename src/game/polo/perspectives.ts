@@ -1,41 +1,10 @@
 import type { CommunityProfile } from '../community-profiles.ts'
 import type { PoloDiscussionFacts } from './context.ts'
+import { poloReactions } from './reactions.ts'
 
 /** Authored fictional individuals; no imported Heroes’ Grove or real group positions. */
 export function poloProfiles(facts: PoloDiscussionFacts): CommunityProfile[] {
-  const concept = facts.scene.preview ? facts.scene.proposal : null
-  const posts = {
-    neighbor:
-      concept === 'heat_reuse_neighbors'
-        ? 'Who gets the heat—and who loses the field?'
-        : concept === 'recycled_water'
-          ? 'Is a recycled supply actually available?'
-          : concept === 'green_roof'
-            ? 'A green roof isn’t our playing field.'
-            : 'This field already belongs to everyday park life.',
-    nature:
-      concept === 'heat_reuse_neighbors'
-        ? 'A buried pipe needs digging and restoration too.'
-        : concept === 'recycled_water'
-          ? 'Water quality and backup still matter.'
-          : concept === 'green_roof'
-            ? 'Who keeps the roof plants alive?'
-            : 'Stripping and compacting soil changes how rain moves.',
-    student:
-      concept === 'heat_reuse_neighbors'
-        ? 'Could a model pool benefit everyone?'
-        : concept === 'green_roof'
-          ? 'Will we still have somewhere to play?'
-          : 'Where would we play if this field changed?',
-    operator:
-      concept === 'heat_reuse_neighbors'
-        ? 'Let’s follow the heat. The cooling backup stays.'
-        : concept === 'recycled_water'
-          ? 'A different supply still needs treatment and a connection.'
-          : concept === 'green_roof'
-            ? 'A planted roof needs structure, drainage and care.'
-            : 'Let’s follow what changes from turf to operating campus.',
-  }
+  const reactions = poloReactions(facts.scene).voices
   return [
     {
       id: 'neighbor',
@@ -50,10 +19,10 @@ export function poloProfiles(facts: PoloDiscussionFacts): CommunityProfile[] {
       flexible:
         'Compare the original field and ask who would benefit from a proposal.',
       question: 'What happens to people who use this field?',
-      post: posts.neighbor,
+      post: reactions.neighbor.text,
       initialMood: {
-        mood: 'concerned',
-        reason: 'Public playing space could be lost.',
+        mood: reactions.neighbor.mood,
+        reason: reactions.neighbor.text,
       },
     },
     {
@@ -69,10 +38,10 @@ export function poloProfiles(facts: PoloDiscussionFacts): CommunityProfile[] {
       flexible:
         'Explore roof plants, recycled supply and restoration of an illustrative trench.',
       question: 'What still needs care after the equipment is installed?',
-      post: posts.nature,
+      post: reactions.nature.text,
       initialMood: {
-        mood: 'concerned',
-        reason: 'Soil and rainfall pathways will change.',
+        mood: reactions.nature.mood,
+        reason: reactions.nature.text,
       },
     },
     {
@@ -87,10 +56,10 @@ export function poloProfiles(facts: PoloDiscussionFacts): CommunityProfile[] {
       flexible:
         'Ask about access and compare possible benefits with lost uses.',
       question: 'Who can use the spaces in this idea?',
-      post: posts.student,
+      post: reactions.student.text,
       initialMood: {
-        mood: 'concerned',
-        reason: 'Playing space matters to young people.',
+        mood: reactions.student.mood,
+        reason: reactions.student.text,
       },
     },
     {
@@ -106,10 +75,10 @@ export function poloProfiles(facts: PoloDiscussionFacts): CommunityProfile[] {
       flexible:
         'Preview heat delivery, recycled supply or a planted roof independently, and compare the original.',
       question: 'What extra equipment does this benefit need?',
-      post: posts.operator,
+      post: reactions.operator.text,
       initialMood: {
-        mood: 'neutral',
-        reason: 'Ready to compare mechanisms and limits.',
+        mood: reactions.operator.mood,
+        reason: reactions.operator.text,
       },
     },
   ]

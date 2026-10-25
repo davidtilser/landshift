@@ -50,4 +50,22 @@ describe('Polo community server grounding', () => {
       context.polo?.baseline?.some((metric) => metric.value.includes('105.12')),
     ).toBe(true)
   })
+  it('grounds private replies in the character’s current phase reaction', async () => {
+    const state = request.plan.polo
+    if (!state) throw new Error('Missing test scene')
+    const construction: CommunityRequest = {
+      ...request,
+      target: 'student',
+      plan: {
+        ...request.plan,
+        polo: { ...state, phase: 'M4', proposal: null },
+      },
+    }
+    const prompt = communityPrompt(
+      construction,
+      await communityContext(construction.plan),
+    )
+    expect(prompt).toContain('Servers get a home. What about our team?')
+    expect(prompt).toContain('"mood":"angry"')
+  })
 })
