@@ -1,3 +1,5 @@
+import { openingView } from '../../globe/openingView.ts'
+
 /** A region pill on the globe. */
 export interface LandingMarker {
   id: string
@@ -5,6 +7,8 @@ export interface LandingMarker {
   lng: number
   label: string
   enabled: boolean
+  /** Parent region label. Clusters use it when every member shares one. */
+  group: string
 }
 
 export interface GlobeTarget {
@@ -14,12 +18,8 @@ export interface GlobeTarget {
   altitude: number
 }
 
-/** Whole-planet camera used outside a focused region. */
-export const OVERVIEW: Readonly<GlobeTarget> = {
-  lat: 20,
-  lng: -122.3,
-  altitude: 2.5,
-}
+/** Whole-planet camera for this visit. Longitude is chosen once when the page loads. */
+export const OVERVIEW: Readonly<GlobeTarget> = { ...openingView }
 
 /** What the landing screen needs from the globe; any implementation that matches structurally works. */
 export interface LandingGlobe {
@@ -30,12 +30,12 @@ export interface LandingGlobe {
    * Replaces the region pills; an empty list removes them. Pills are pointer-only buttons kept out of
    * the Tab order (the landing screen's hidden region list is the keyboard path) and render only on
    * the visible hemisphere. Enabled pills are highlighted and glow dimly on hover; disabled pills are
-   * muted, read "Coming soon", and never emit clicks.
+   * muted, read "Coming soon", and never emit clicks. Overlapping pills merge only when they share a group.
    */
   setMarkers(markers: readonly LandingMarker[]): void
-  /** Marks the selected region's pill; `null` clears it and unknown ids are ignored. */
+  /** Marks the selected region's pill, or the cluster that contains it; `null` clears it and unknown ids are ignored. */
   highlightMarker(id: string | null): void
-  /** Fires for clicks on enabled pills only. Returns a function that removes `listener`. */
+  /** Fires for clicks on enabled pills that are not clusters. Returns a function that removes `listener`. */
   onMarkerClick(listener: (id: string) => void): () => void
   /** `false` disables drag-rotate and pill clicks; zoom stays disabled either way. */
   setInteractive(enabled: boolean): void

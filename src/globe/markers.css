@@ -1,0 +1,79 @@
+.marker-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.marker-lines {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.marker-dot {
+  position: absolute;
+  z-index: 1;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.marker-pill {
+  position: absolute;
+  z-index: 2;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font:
+    600 12px/1.5 system-ui,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  user-select: none;
+}
+
+.marker-pill-enabled {
+  border: 1px solid #9fd3ff;
+  color: #04050a;
+  background: #cfe9ff;
+  cursor: pointer;
+}
+
+.marker-pill-enabled:hover {
+  box-shadow: 0 0 14px rgba(159, 211, 255, 0.45);
+}
+
+.marker-pill-disabled {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(4, 5, 10, 0.6);
+  cursor: default;
+}
+
+.marker-pill[data-highlighted] {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.marker-line {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+/* Same metrics as a pill, kept out of view while measuring label width. */
+.marker-measure {
+  visibility: hidden;
+  pointer-events: none;
+}

@@ -1,2 +1,2 @@
 export { createGlobe } from './createGlobe.ts'
-export type { GlobeHandle, LatLngAlt } from './types.ts'
+export type { GlobeHandle, GlobeMarker, LatLngAlt } from './types.ts'

@@ -1,10 +1,16 @@
 import type { LandingState, LandingStore } from '../../app/state.ts'
-import { findRegion, leafRegions, type Region } from '../../regions/regions.ts'
+import {
+  findRegion,
+  leafRegions,
+  regions,
+  type Region,
+} from '../../regions/regions.ts'
 import { findScenario, type Scenario } from '../../scenarios/scenarios.ts'
 import { mountCreditsPanel } from '../../ui/creditsPanel.ts'
 import { createBackButton, createButton, createTitle } from './elements.ts'
 import {
   OVERVIEW,
+  type GlobeTarget,
   type LandingGlobe,
   type LandingMarker,
 } from './landingGlobe.ts'
@@ -21,7 +27,11 @@ let mountCount = 0
 export interface LandingOptions {
   /** Caller-owned globe host; landing moves it into the globe cell and never replaces its contents. */
   globeHost: HTMLElement
-  globe: LandingGlobe
+  /**
+   * The real globe, or a promise for it. A promise lets the menu paint before that bundle parses;
+   * calls made meanwhile are replayed when it resolves.
+   */
+  globe: LandingGlobe | Promise<LandingGlobe>
   /** Called on `startGame`; the caller swaps in the game or dispatches `handoffFailed`. */
   onHandoff: (regionId: string, scenarioId: string) => void
 }
@@ -52,13 +62,130 @@ function requireScenario(id: string): Scenario {
   return scenario
 }
 
+const groupByRegionId = new Map<string, string>()
+
+function indexGroups(
+  list: readonly Region[],
+  parentLabel: string | null,
+): void {
+  for (const region of list) {
+    if (parentLabel !== null) groupByRegionId.set(region.id, parentLabel)
+    indexGroups(region.children, region.label)
+  }
+}
+
+indexGroups(regions, null)
+
 function toMarker(region: Region): LandingMarker {
+  const group = groupByRegionId.get(region.id)
+  if (group === undefined) {
+    throw new Error(`Region ${region.id} has no parent group`)
+  }
   return {
     id: region.id,
     lat: region.center.lat,
     lng: region.center.lng,
     label: region.label,
     enabled: region.enabled,
+    group,
+  }
+}
+
+function isGlobePromise(
+  value: LandingGlobe | Promise<LandingGlobe>,
+): value is Promise<LandingGlobe> {
+  return 'then' in value && typeof value.then === 'function'
+}
+
+/** Forwards landing calls, and replays the latest ones if the globe arrives later. */
+function relayGlobe(
+  source: LandingGlobe | Promise<LandingGlobe>,
+  isClosed: () => boolean,
+): LandingGlobe {
+  let inner: LandingGlobe | null = null
+  const listeners = new Set<(id: string) => void>()
+  const removers = new Map<(id: string) => void, () => void>()
+  let flightResolvers: (() => void)[] = []
+  let markers: readonly LandingMarker[] = []
+  let highlighted: string | null = null
+  let interactive = true
+  let autoRotate: boolean | null = null
+  let paused: boolean | null = null
+  let flight: GlobeTarget | null = null
+
+  const attach = (next: LandingGlobe): void => {
+    if (isClosed()) return
+    inner = next
+    for (const listener of listeners) {
+      removers.set(listener, next.onMarkerClick(listener))
+    }
+    next.setMarkers(markers)
+    next.highlightMarker(highlighted)
+    next.setInteractive(interactive)
+    if (paused === true) next.pause()
+    else if (paused === false) next.resume()
+    if (flight !== null) {
+      const resolvers = flightResolvers
+      flightResolvers = []
+      void next.flyTo(flight).then(() => {
+        for (const resolve of resolvers) resolve()
+      })
+      return
+    }
+    if (autoRotate !== null) next.setAutoRotate(autoRotate)
+  }
+
+  if (isGlobePromise(source)) {
+    void source.then(attach, (error: unknown) => {
+      console.error('Globe failed to load', error)
+    })
+  } else {
+    attach(source)
+  }
+
+  return {
+    flyTo(target) {
+      flight = target
+      for (const resolve of flightResolvers) resolve()
+      flightResolvers = []
+      if (inner) return inner.flyTo(target)
+      return new Promise((resolve) => {
+        flightResolvers.push(resolve)
+      })
+    },
+    setAutoRotate(enabled) {
+      autoRotate = enabled
+      inner?.setAutoRotate(enabled)
+    },
+    setMarkers(next) {
+      markers = next
+      inner?.setMarkers(next)
+    },
+    highlightMarker(id) {
+      highlighted = id
+      inner?.highlightMarker(id)
+    },
+    onMarkerClick(listener) {
+      listeners.add(listener)
+      if (inner) removers.set(listener, inner.onMarkerClick(listener))
+      return () => {
+        listeners.delete(listener)
+        removers.get(listener)?.()
+        removers.delete(listener)
+      }
+    },
+    setInteractive(enabled) {
+      interactive = enabled
+      inner?.setInteractive(enabled)
+    },
+    pause() {
+      paused = true
+      inner?.pause()
+    },
+    resume() {
+      paused = false
+      inner?.resume()
+    },
   }
 }
 
@@ -73,7 +200,8 @@ export function mountLanding(
   store: LandingStore,
   options: LandingOptions,
 ): () => void {
-  const { globe } = options
+  let disposed = false
+  const globe = relayGlobe(options.globe, () => disposed)
   mountCount += 1
   const idPrefix = `landing-${String(mountCount)}`
 
@@ -113,7 +241,6 @@ export function mountLanding(
   let pausedByLanding = false
   let markersShown = false
   let interactive: boolean | null = null
-  let disposed = false
 
   function showView(...children: HTMLElement[]): void {
     const view = document.createElement('div')

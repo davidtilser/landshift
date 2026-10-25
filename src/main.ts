@@ -1,51 +1,68 @@
 import './style.css'
-import { renderCredits } from './credits/credits.ts'
-import { createGlobe } from './globe/index.ts'
-
-const SF_BAY_AREA = { lat: 37.8, lng: -122.3, altitude: 0.35 }
-const GLOBE_VIEW = { lat: 20, lng: -122.3, altitude: 2.5 }
+import { createLandingStore } from './app/state.ts'
+import { mountLanding } from './screens/landing/landing.ts'
+import type { LandingGlobe } from './screens/landing/landingGlobe.ts'
 
 const app = document.querySelector('#app')
 if (!(app instanceof HTMLDivElement)) {
   throw new Error('Missing #app container')
 }
 
-function createButton(label: string, onClick: () => void): HTMLButtonElement {
-  const button = document.createElement('button')
-  button.type = 'button'
-  button.textContent = label
-  button.addEventListener('click', onClick)
-  return button
+const store = createLandingStore({ screen: 'idle' })
+const globeHost = document.createElement('div')
+globeHost.className = 'globe'
+
+interface LiveGlobe extends LandingGlobe {
+  destroy(): void
 }
 
-const globeContainer = document.createElement('div')
-globeContainer.className = 'globe'
+let unmountLanding = (): void => {}
+let globe: LiveGlobe | undefined
+let landingMounted = true
 
-const harnessControls = document.createElement('div')
-harnessControls.className = 'harness-controls'
-
-const footer = document.createElement('footer')
-footer.className = 'credits'
-renderCredits(footer)
-
-app.replaceChildren(globeContainer, harnessControls, footer)
-
-const globe = createGlobe(globeContainer)
-
-let focused = false
-const focusButton = createButton('Fly to SF Bay Area', () => {
-  focused = !focused
-  focusButton.textContent = focused ? 'Return to globe' : 'Fly to SF Bay Area'
-  if (focused) {
-    void globe.flyTo(SF_BAY_AREA)
-    return
-  }
-  void globe.flyTo(GLOBE_VIEW).then(() => {
-    // A newer click may have focused again while the flight was underway.
-    if (!focused) {
-      globe.setAutoRotate(true)
-    }
-  })
+const globeReady = new Promise<LiveGlobe>((resolve, reject) => {
+  // A later task lets the headline and Explore paint before the globe bundle parses.
+  window.setTimeout(() => {
+    void import('./globe/index.ts').then(
+      ({ createGlobe }) => {
+        try {
+          const created = createGlobe(globeHost)
+          if (!landingMounted) {
+            created.destroy()
+            return
+          }
+          globe = created
+          resolve(created)
+        } catch (error: unknown) {
+          reject(
+            error instanceof Error ? error : new Error('Globe failed to load'),
+          )
+        }
+      },
+      (error: unknown) => {
+        reject(
+          error instanceof Error ? error : new Error('Globe failed to load'),
+        )
+      },
+    )
+  }, 0)
 })
 
-harnessControls.append(focusButton)
+unmountLanding = mountLanding(app, store, {
+  globeHost,
+  globe: globeReady,
+  onHandoff(regionId, scenarioId) {
+    void import('./screens/game/index.ts').then(
+      ({ mountGame }) => {
+        landingMounted = false
+        unmountLanding()
+        globe?.destroy()
+        mountGame(app, regionId, scenarioId)
+      },
+      (error: unknown) => {
+        console.error('Could not load the game', error)
+        store.dispatch({ type: 'handoffFailed' })
+      },
+    )
+  },
+})

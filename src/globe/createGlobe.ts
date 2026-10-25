@@ -16,6 +16,7 @@ import type { Object3D, Texture } from 'three'
 import { createCameraController } from './camera.ts'
 import { createCompositor } from './compositor.ts'
 import { createCloudsLayer } from './layers/clouds.ts'
+import { createMarkerOverlay } from './layers/markers.ts'
 import { createOceanLayer } from './layers/ocean.ts'
 import { RENDER_ORDER } from './layers/shells.ts'
 import type { GlobeLayer } from './layers/types.ts'
@@ -26,6 +27,7 @@ import {
   SEA_LEVEL_CODE,
 } from './relief.ts'
 import { createStarfield } from './stars.ts'
+import { openingView } from './openingView.ts'
 import type { GlobeHandle } from './types.ts'
 
 const TEXTURES_URL = `${import.meta.env.BASE_URL}textures/`
@@ -40,7 +42,6 @@ const STANDARD_CURVATURE_DEGREES = 1
 const EARTH_RADIUS_KM = 6371
 const MIN_ALTITUDE_KM = 1000
 const MAX_ALTITUDE_RADII = 4
-const INITIAL_ALTITUDE_RADII = 2.5
 // globe.gl's 0.05 near plane cannot resolve the 0.025-unit gap between the ocean shell and the lowest land.
 const CAMERA_NEAR = 5
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
@@ -126,14 +127,15 @@ export function createGlobe(container: HTMLElement): GlobeHandle {
     .globeImageUrl(DAY_TEXTURE_4K_URL)
     .showGlobe(false)
     .showAtmosphere(false)
-    .pointOfView({ altitude: INITIAL_ALTITUDE_RADII })
+    .pointOfView(openingView)
   applySunLighting(globe.lights())
 
   const camera = globe.camera()
-  if (camera instanceof PerspectiveCamera) {
-    camera.near = CAMERA_NEAR
-    camera.updateProjectionMatrix()
+  if (!(camera instanceof PerspectiveCamera)) {
+    throw new Error('Expected a perspective camera')
   }
+  camera.near = CAMERA_NEAR
+  camera.updateProjectionMatrix()
   const controls = globe.controls()
   controls.enableZoom = false
   controls.enablePan = false
@@ -163,6 +165,14 @@ export function createGlobe(container: HTMLElement): GlobeHandle {
   let ocean: GlobeLayer | undefined
 
   const cameraController = createCameraController(globe)
+  const markers = createMarkerOverlay({
+    container,
+    globe,
+    camera,
+    controls,
+    globeRadius,
+    flyTo: (target) => cameraController.flyTo(target),
+  })
 
   const reducedMotion = window.matchMedia(REDUCED_MOTION_QUERY)
   let paused = false
@@ -268,11 +278,24 @@ export function createGlobe(container: HTMLElement): GlobeHandle {
       globe.resumeAnimation()
       applyMotionPreferences()
     },
+    setMarkers(next) {
+      if (!destroyed) markers.setMarkers(next)
+    },
+    highlightMarker(id) {
+      if (!destroyed) markers.highlightMarker(id)
+    },
+    onMarkerClick(listener) {
+      return markers.onMarkerClick(listener)
+    },
+    setInteractive(enabled) {
+      if (!destroyed) markers.setInteractive(enabled)
+    },
     destroy() {
       if (destroyed) {
         return
       }
       destroyed = true
+      markers.destroy()
       resizeObserver.disconnect()
       reducedMotion.removeEventListener('change', applyMotionPreferences)
       cameraController.destroy()

@@ -16,7 +16,10 @@
 .landing-globe {
   position: absolute;
   inset: 0;
+  z-index: 0;
   display: grid;
+  /* The globe host is position:fixed; this keeps it, and its pills, under the panel. */
+  contain: paint;
 }
 
 .landing-globe > * {
