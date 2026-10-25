@@ -1,0 +1,284 @@
+@import './palette.css';
+@import './type.css';
+
+/* Ground matches the landing panel. Paper is the game sheet on palette roles. */
+.ls-surface {
+  --ls-ink: var(--ls-fg);
+  --ls-quiet: color-mix(in srgb, var(--ls-fg) 70%, transparent);
+  --ls-ring: var(--ls-focus);
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--ls-fg) 14%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--ls-bg) 86%, transparent);
+  color: var(--ls-ink);
+  font-family: var(--ls-font-ui);
+  line-height: 1.4;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.ls-surface-paper {
+  --ls-ink: var(--ls-menu-fg);
+  --ls-quiet: var(--ls-muted-on-paper);
+  /* Sand on paper is 1.07:1, so the paper ring uses earth. */
+  --ls-ring: var(--ls-earth);
+  border-color: color-mix(in srgb, var(--ls-menu-fg) 14%, transparent);
+  background: var(--ls-fg);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.ls-type {
+  display: grid;
+  gap: 4px;
+}
+
+.ls-label,
+.ls-title,
+.ls-body {
+  margin: 0;
+}
+
+.ls-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ls-quiet, var(--ls-fg));
+}
+
+.ls-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ls-ink, var(--ls-fg));
+}
+
+.ls-body {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--ls-ink, var(--ls-fg));
+}
+
+.ls-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.ls-button {
+  --ls-action: var(--ls-source-wordmark-bottom);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 22px;
+  border: 1px solid
+    color-mix(in srgb, var(--ls-ink, var(--ls-fg)) 35%, transparent);
+  border-radius: 999px;
+  font: inherit;
+  color: var(--ls-ink, var(--ls-fg));
+  background: transparent;
+  cursor: pointer;
+}
+
+.ls-button:hover {
+  background: color-mix(in srgb, var(--ls-ink, var(--ls-fg)) 8%, transparent);
+}
+
+.ls-button-primary {
+  border-color: transparent;
+  font-weight: 600;
+  color: var(--ls-bg);
+  background: var(--ls-action);
+}
+
+.ls-button-primary:hover {
+  color: var(--ls-bg);
+  background: color-mix(in srgb, var(--ls-bg) 12%, var(--ls-action));
+}
+
+.ls-button-quiet {
+  min-height: 36px;
+  padding: 6px 10px;
+  border-color: transparent;
+  color: var(--ls-quiet, var(--ls-fg));
+}
+
+.ls-button-quiet:hover {
+  color: var(--ls-ink, var(--ls-fg));
+  background: transparent;
+}
+
+.ls-button:focus-visible,
+.ls-focus-demo {
+  outline: 2px solid var(--ls-ring, var(--ls-focus));
+  outline-offset: 3px;
+}
+
+.ls-focus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.ls-focus-demo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: var(--ls-ink, var(--ls-fg));
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../src/design-system/fonts/Roboto-Regular.ttf') format('truetype');
+}
+
+/* Role tokens. Dark and light set the same names; components read the names. */
+.ls-system-dark {
+  --ls-role-surface: color-mix(in srgb, var(--ls-bg) 86%, transparent);
+  --ls-role-ink: var(--ls-fg);
+  --ls-role-muted: color-mix(in srgb, var(--ls-fg) 70%, transparent);
+  --ls-role-action: var(--ls-source-wordmark-bottom);
+  --ls-role-action-label: var(--ls-bg);
+  --ls-role-focus: var(--ls-fg); /* Black disappears on this sheet. */
+  --ls-role-title-font: var(--ls-font-ui);
+  --ls-role-body-font: Roboto, sans-serif;
+}
+
+.ls-system-light {
+  --ls-role-surface: var(--ls-fg);
+  --ls-role-ink: var(--ls-menu-fg);
+  --ls-role-muted: var(--ls-muted-on-paper);
+  --ls-role-action: var(--ls-source-wordmark-bottom);
+  --ls-role-action-label: var(--ls-bg);
+  --ls-role-focus: #000000;
+  --ls-role-title-font: var(--ls-font-ui);
+  --ls-role-body-font: Roboto, sans-serif;
+}
+
+.ls-system {
+  --ls-ring: var(--ls-role-focus);
+  --ls-ink: var(--ls-role-ink);
+  --ls-quiet: var(--ls-role-muted);
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 14%, transparent);
+  border-radius: 16px;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
+  font-family: var(--ls-role-body-font);
+  line-height: 1.4;
+}
+
+.ls-system-dark {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.ls-system-light {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.ls-system .ls-title {
+  font-family: var(--ls-role-title-font);
+  color: var(--ls-role-ink);
+  text-transform: uppercase;
+}
+
+.ls-system .ls-body {
+  font-family: var(--ls-role-body-font);
+  font-weight: 400;
+  color: var(--ls-role-ink);
+  text-transform: none;
+}
+
+.ls-system .ls-label {
+  color: var(--ls-role-muted);
+}
+
+.ls-system .ls-button {
+  --ls-action: var(--ls-role-action);
+  border-color: color-mix(in srgb, var(--ls-role-ink) 35%, transparent);
+  font-family: var(--ls-role-body-font);
+  font-weight: 400;
+  color: var(--ls-role-ink);
+}
+
+.ls-system .ls-button-primary {
+  border-color: transparent;
+  background: var(--ls-role-action);
+  color: var(--ls-role-action-label);
+}
+
+.ls-system .ls-button-primary:hover,
+.ls-system .ls-primary-hover {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--ls-fg) 22%, var(--ls-role-action));
+  color: var(--ls-role-action-label);
+}
+
+.ls-system .ls-button-primary:active,
+.ls-system .ls-primary-press {
+  border-color: transparent;
+  background: color-mix(
+    in srgb,
+    var(--ls-role-action-label) 22%,
+    var(--ls-role-action)
+  );
+  color: var(--ls-role-action-label);
+}
+
+.ls-primary-states {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+}
+
+.ls-primary-state {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+}
+
+.ls-primary-state span {
+  margin: 0;
+  font-family: var(--ls-role-body-font);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--ls-role-ink);
+}
+
+.ls-system .ls-button-quiet {
+  color: var(--ls-role-muted);
+}
+
+.ls-system .ls-button-quiet:hover {
+  background: transparent;
+  color: var(--ls-role-ink);
+}
+
+.ls-system .ls-focus-demo {
+  color: var(--ls-role-ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ls-button {
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
+  }
+}

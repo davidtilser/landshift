@@ -1,5 +1,6 @@
 import './colors.css'
 import wordmarkUrl from '../design/landshift-wordmark.svg'
+import { mountExploration, mountSystem } from './design-system/preview.ts'
 
 interface Token {
   name: string
@@ -25,18 +26,28 @@ const paper = byName.get('--ls-fg') ?? '#fcfcfc'
 root.append(
   heading('Design system'),
   paragraph(
+    'Dark and light surfaces share one set of roles. Titles are Fredoka in all caps. Body text and button labels are Roboto. The focus ring is white on the dark sheet and black on the light sheet. Primary is a filled wordmark color with ground-colored text.',
+  ),
+)
+mountSystem(root)
+root.append(
+  heading('Palette', 2),
+  paragraph(
     'Source colors are the measured reference values. Roles are the text and control colors. A sample outlined in red is under 4.5:1. The page title is the wordmark. Menu, body, and other interface text use Fredoka.',
   ),
-  heading('Type', 2),
+  heading('Type', 3),
   typeSpecimens(),
-  heading('Sources', 2),
+  heading('Sources', 3),
   swatchGrid(sources),
-  heading('Roles', 2),
+  heading('Roles', 3),
   roleList(roles),
 )
+mountExploration(root)
 
 function readTokens(): Token[] {
   const found: Token[] = []
+  // shared.css imports the same sheets; keep one swatch per token.
+  const seen = new Set<string>()
   for (const sheet of document.styleSheets) {
     let rules: CSSRuleList
     try {
@@ -49,7 +60,8 @@ function readTokens(): Token[] {
         continue
       for (let index = 0; index < rule.style.length; index += 1) {
         const name = rule.style.item(index)
-        if (!name.startsWith('--ls-')) continue
+        if (!name.startsWith('--ls-') || seen.has(name)) continue
+        seen.add(name)
         found.push({
           name,
           value: getComputedStyle(document.documentElement)
@@ -80,10 +92,21 @@ function typeSpecimens(): HTMLElement {
   return section
 }
 
-function heading(text: string, level: 1 | 2 = 1): HTMLHeadingElement {
-  const element = document.createElement(level === 1 ? 'h1' : 'h2')
+function heading(text: string, level: 1 | 2 | 3 = 1): HTMLHeadingElement {
+  const element = document.createElement(headingTag(level))
   element.textContent = text
   return element
+}
+
+function headingTag(level: 1 | 2 | 3): 'h1' | 'h2' | 'h3' {
+  switch (level) {
+    case 1:
+      return 'h1'
+    case 2:
+      return 'h2'
+    case 3:
+      return 'h3'
+  }
 }
 
 function paragraph(text: string): HTMLParagraphElement {

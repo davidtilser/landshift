@@ -12,13 +12,14 @@ body {
 }
 
 main {
-  max-width: 1080px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 32px 20px 64px;
 }
 
 h1,
-h2 {
+h2,
+h3 {
   font-weight: 560;
   letter-spacing: -0.03em;
 }
@@ -31,6 +32,11 @@ h1 {
 h2 {
   margin: 36px 0 12px;
   font-size: 20px;
+}
+
+h3 {
+  margin: 28px 0 12px;
+  font-size: 16px;
 }
 
 .type-title {
@@ -123,6 +129,182 @@ h2 {
 
 .sample.fail {
   outline: 2px solid var(--ls-alert);
+}
+
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.compare-column,
+.specimen-block,
+.specimen {
+  display: grid;
+  gap: 10px;
+}
+
+.compare-column {
+  gap: 12px;
+}
+
+.compare h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.compare-note,
+.specimen-caption {
+  margin: 0;
+  color: var(--ls-title);
+}
+
+.specimen {
+  margin: 0;
+  padding: 14px 16px;
+}
+
+.specimen-label,
+.specimen-title,
+.specimen-body,
+.specimen-button,
+.specimen-focus {
+  margin: 0;
+}
+
+.specimen-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.specimen-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.specimen-body {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.specimen-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.specimen-button,
+.specimen-focus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 16px;
+  font: inherit;
+}
+
+.specimen-button {
+  cursor: pointer;
+}
+
+.specimen-focus {
+  min-height: 36px;
+  outline-offset: 3px;
+}
+
+.specimen-caption {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+}
+
+.compare-facts {
+  display: grid;
+  gap: 8px;
+}
+
+.compare-fact,
+.compare-judgment {
+  margin: 0;
+  color: var(--ls-fg);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.compare-fact {
+  font-size: 12px;
+}
+
+.compare-fact a {
+  color: var(--ls-link);
+}
+
+.compare-judgment {
+  padding: 10px 12px;
+  border-left: 3px solid var(--ls-focus);
+  background: color-mix(in srgb, var(--ls-fg) 8%, transparent);
+  font-size: 13px;
+}
+
+.compare-judgment-label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ls-focus);
+}
+
+.token-plan {
+  display: grid;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+.token-table-wrap {
+  overflow-x: auto;
+}
+
+.token-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.token-table caption {
+  margin-bottom: 8px;
+  caption-side: top;
+  text-align: left;
+  color: var(--ls-fg);
+  overflow-wrap: anywhere;
+}
+
+.token-table th,
+.token-table td {
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--ls-fg) 18%, transparent);
+  vertical-align: top;
+  text-align: left;
+}
+
+.token-table th {
+  font-weight: 600;
+}
+
+.token-suggestion {
+  background: color-mix(in srgb, var(--ls-fg) 8%, transparent);
+}
+
+@media (max-width: 960px) {
+  .compare {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {

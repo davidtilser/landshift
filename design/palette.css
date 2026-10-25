@@ -40,6 +40,7 @@
   --ls-fg: var(--ls-source-paper); /* 17.59:1 on --ls-bg */
   --ls-menu-bg: var(--ls-source-chrome);
   --ls-menu-fg: var(--ls-source-ink); /* 8.83:1 on --ls-menu-bg */
+  --ls-muted-on-paper: var(--ls-source-chrome-dark); /* 7.38:1 on --ls-fg */
   --ls-title: var(--ls-source-script-bottom); /* 9.17:1 on --ls-bg */
   --ls-link: #3b85be; /* script top lifted to 4.54:1 on --ls-bg */
   --ls-offset: #3d9a34; /* forest, more vivid than the dull olive; 5.05:1 on --ls-bg */
