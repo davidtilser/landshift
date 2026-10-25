@@ -570,7 +570,7 @@
 .polo-map-help {
   position: absolute;
   z-index: 2;
-  bottom: 9px;
+  bottom: 96px;
   right: 20px;
   display: flex;
   align-items: center;

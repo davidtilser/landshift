@@ -1,5 +1,7 @@
 # Four modelled changes at Golden Gate Park Polo Fields
 
+> **Historical calculated catalogue.** These four alternatives are retained research, not the current three proposal cards. The active demo has five chapters: Today → Foundations → Structure → Ready → Operating; proposals are explored inside Operating. Original M0–M6 labels below are calculation references. Follow [the current selection](README.md) and [runtime contract](../../polo-demo.md#five-chapter-contract-and-retained-use-cases).
+
 Each is a separate alternative design against the same frozen baseline. Quantities are educational calculations, not site approvals.
 
 | Change | Primary result |

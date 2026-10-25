@@ -15,6 +15,12 @@ AREA_KEYS = (
 )
 
 
+def current_demo_markdown(content):
+    """Label original calculation stages without changing any numerical output."""
+    title, body = content.split('\n', 1)
+    return title + '\n\n' + '> **Current demo: five chapters — Today → Foundations → Structure → Ready → Operating.** M0–M6 below are the seven original calculation stages, not seven selectable timeline points. The new Foundations checkpoint has no separately assessed water, fuel, electricity or runoff. Original M4 construction inventories cover foundations and structure together; they must not be split arbitrarily or counted twice. See the [five-chapter mapping in this packet](README.md#current-demo-and-calculation-stages) and the [runtime contract](../../polo-demo.md#five-chapter-contract-and-retained-use-cases).' + '\n' + body
+
+
 def read_json(name):
     return json.loads((ROOT / name).read_text(encoding="utf-8"))
 
@@ -253,6 +259,8 @@ def main():
         "walkthrough.sk.md": walkthrough_markdown(cards),
         "wider-water-story.md": wider_story_markdown(cards["wider_water_story"], manifest),
     }
+    outputs = {name: current_demo_markdown(content) if name.endswith('.md') else content
+               for name, content in outputs.items()}
     for name, content in outputs.items():
         path = ROOT / name
         if args.check:

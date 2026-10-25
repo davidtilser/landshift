@@ -41,8 +41,11 @@ describe('Polo preparation and construction transitions', () => {
       for (const key of physical) expect(start[key]).toBe(before[key])
     }
     expect(endpoint('M1').turfRemoved).toBe(1)
-    expect(endpoint('M2').grading).toBe(1)
-    expect(endpoint('M3').compaction).toBe(1)
+    expect(endpoint('M1').grading).toBe(1)
+    expect(endpoint('M1').compaction).toBe(1)
+    expect(endpoint('M1').foundation).toBe(1)
+    expect(endpoint('M1').frame).toBe(0)
+    expect(endpoint('M1').roof).toBe(0)
     expect(endpoint('M4').roof).toBe(1)
     expect(endpoint('M4').cladding).toBe(0)
     expect(endpoint('M5').commissioning).toBe(1)
@@ -51,14 +54,14 @@ describe('Polo preparation and construction transitions', () => {
   })
   it('builds foundations, frame and roof in causal order before closing and finishing the campus', () => {
     const foundations = poloTransitionFrame(
-      'M4',
-      POLO_TRANSITION_SECONDS.M4 * 0.125,
+      'M1',
+      POLO_TRANSITION_SECONDS.M1 * 0.65,
     )
     expect(foundations.foundation).toBeGreaterThan(0)
     expect(foundations.foundation).toBeLessThan(1)
     expect(foundations.frame).toBe(0)
     expect(foundations.roof).toBe(0)
-    const steel = poloTransitionFrame('M4', POLO_TRANSITION_SECONDS.M4 * 0.45)
+    const steel = poloTransitionFrame('M4', POLO_TRANSITION_SECONDS.M4 * 0.3)
     expect(steel.foundation).toBe(1)
     expect(steel.frame).toBeGreaterThan(0)
     expect(steel.frame).toBeLessThan(1)
@@ -81,6 +84,20 @@ describe('Polo preparation and construction transitions', () => {
     expect(ready.landscaping).toBeGreaterThan(0)
     expect(ready.commissioning).toBeGreaterThan(0)
     expect(ready.operation).toBe(0)
+  })
+  it('compresses preparation into three seconds and leaves five seconds for the foundation reveal', () => {
+    const prepared = poloTransitionFrame('M1', 3)
+    expect(prepared.turfRemoved).toBe(1)
+    expect(prepared.grading).toBe(1)
+    expect(prepared.compaction).toBe(1)
+    expect(prepared.foundation).toBe(0)
+    expect(poloTransitionFrame('M1', 5).foundation).toBeGreaterThan(0)
+    expect(
+      POLO_PHASES.reduce(
+        (sum, phase) => sum + POLO_TRANSITION_SECONDS[phase],
+        0,
+      ),
+    ).toBe(28)
   })
   it('keeps every visual fraction bounded and monotonic through each transition', () => {
     for (const phase of POLO_PHASES) {
@@ -131,11 +148,12 @@ describe('Polo preparation and construction transitions', () => {
         bare_graded:
           32000 * frame.turfRemoved -
           stripped -
-          12000 * frame.roof -
+          12000 * frame.foundation -
           16000 * frame.hardstanding -
           4000 * frame.landscaping,
         roof: 12000 * frame.roof,
-        other_impervious: 16000 * frame.hardstanding,
+        other_impervious:
+          12000 * (frame.foundation - frame.roof) + 16000 * frame.hardstanding,
         landscape: 4000 * frame.landscaping,
       }
       expect(areas).toEqual(poloSurfaceAreas(phase))
@@ -148,8 +166,8 @@ describe('Polo preparation and construction transitions', () => {
       if (phase !== 'M0') expect(areas.turf).toBe(8000)
     }
     expect(POLO_BASELINE.phases[1]?.data.rainRunoffM3).toBeNull()
-    expect(POLO_BASELINE.phases[2]?.data.rainRunoffM3).toBe(
-      POLO_BASELINE.phases[3]?.data.rainRunoffM3,
+    expect(POLO_BASELINE.researchPhases[2]?.data.rainRunoffM3).toBe(
+      POLO_BASELINE.researchPhases[3]?.data.rainRunoffM3,
     )
   })
 })

@@ -1,5 +1,7 @@
 # Beyond the site: a simple San Francisco water story
 
+> **Current demo: five chapters — Today → Foundations → Structure → Ready → Operating.** M0–M6 below are the seven original calculation stages, not seven selectable timeline points. The new Foundations checkpoint has no separately assessed water, fuel, electricity or runoff. Original M4 construction inventories cover foundations and structure together; they must not be split arbitrarily or counted twice. See the [five-chapter mapping in this packet](README.md#current-demo-and-calculation-stages) and the [runtime contract](../../polo-demo.md#five-chapter-contract-and-retained-use-cases).
+
 The campus changes rainfall pathways and adds demand to a wider water system. Its footprint, water supply and wastewater do not stop at the site boundary.
 
 English content and visualization brief for the SF scenario only. This extends the existing numerical model with qualitative regional context; it adds no city-capacity, household-shortage or downstream-impact calculation. Product implementation is separate.

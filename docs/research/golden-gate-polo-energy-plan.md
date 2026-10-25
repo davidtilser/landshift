@@ -1,5 +1,7 @@
 # Golden Gate Park Polo Fields energy modelling plan
 
+> **Historical modelling plan; presentation superseded.** The energy calculation packet has been completed. The current demo uses Today → Foundations → Structure → Ready → Operating. Seven-stage references below describe the original analytical programme, not current UI instructions. Follow [the current energy mapping](energy-demo-golden-gate-polo/README.md#current-demo-and-calculation-stages) and [completed methodology](energy-demo-golden-gate-polo/methodology.md).
+
 The user approved this scope on 24 October 2026. The resulting [energy packet](energy-demo-golden-gate-polo/README.md) follows this plan; no numerical alternative cooling design is supplied where compatible evidence is unavailable.
 
 This plan proposes an energy layer for the existing fictional Polo Fields datacentre. Its purpose is to explain energy use through the same seven steps as the water scenario, including the connection between cooling water and electricity and a simple connection to the wider power system. The next deliverable would be a separate English energy packet. Numerical parameter selection, packet generation and product implementation follow review of this plan.
@@ -12,7 +14,7 @@ Use the [SF water scenario](water-demo-golden-gate-polo/scenario.json) and [expe
 - **10 MW is average IT electrical demand**, independently authored for the water model. It is neither maximum IT capacity nor total facility demand. Do not apply another utilization factor to it.
 - Operation covers the first complete **365-day year**, without a ramp-up. The existing water reference is **1.25 L of cooling make-up per kWh IT**, giving **300 m³ per average day**. This water factor is not PUE.
 - The selected cooling concept has a closed internal loop and indirect evaporative outdoor heat rejection. It is a teaching assumption, not a validated SF engineering design.
-- The timeline is Today → Site preparation → Construction → Opening → Operation, with three preparation steps, M1–M3. The authored programme has 10 stripping, 30 grading, 15 compaction, 160 construction and 10 commissioning workdays. Workdays do not establish equipment operating hours or calendar duration.
+- The original analytical sequence was Today → Site preparation → Construction → Opening → Operation, with three preparation stages, M1–M3; current UI chapter names and mapping are linked above. The authored programme has 10 stripping, 30 grading, 15 compaction, 160 construction and 10 commissioning workdays. Workdays do not establish equipment operating hours or calendar duration.
 
 The core numerical target is the annual operating electricity budget. Earlier steps receive a bounded equipment-energy inventory where defensible assumptions can be made. A stage may explain a mechanism while its quantity remains unknown. The wider story explains the need to assess electrical service, without inventing local capacity or a required grid upgrade.
 

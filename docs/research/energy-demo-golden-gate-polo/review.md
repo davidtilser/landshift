@@ -1,5 +1,7 @@
 # Energy packet verification
 
+> **Historical calculation review.** The audit below records the original seven-stage research packet. The current demo has five visible chapters; see [the current mapping](README.md#current-demo-and-calculation-stages). Numerical assumptions and results are unchanged. This documentation update does not turn the earlier audit into certification of the new UI.
+
 ## Scope
 
 Verification covers arithmetic, provenance, shared-scenario consistency, explicit unknowns, the seven-card data handoff and limits of the wider-network story. It does not validate an SF electrical design, engineering feasibility or a public-park development proposal. No product code or server is involved.

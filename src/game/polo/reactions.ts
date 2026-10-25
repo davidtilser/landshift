@@ -32,7 +32,7 @@ const PHASE_REACTIONS: Record<PoloPhase, PhaseReaction> = {
     },
   },
   M1: {
-    turnout: 4,
+    turnout: 11,
     voices: {
       neighbor: voice(
         'Wait—the shared field is disappearing!',
@@ -46,59 +46,11 @@ const PHASE_REACTIONS: Record<PoloPhase, PhaseReaction> = {
       ),
       student: voice(
         'Our game has to stop. Where do we go?',
-        'concerned',
+        'angry',
         'Let us play',
       ),
       operator: voice(
-        'Site work has impacts. Who needs to be heard?',
-        'concerned',
-      ),
-    },
-  },
-  M2: {
-    turnout: 8,
-    voices: {
-      neighbor: voice(
-        'We’re gathering. Keep this space public!',
-        'concerned',
-        'Public space',
-      ),
-      nature: voice(
-        'Bare ground changes where the rain goes.',
-        'concerned',
-        'Care for soil',
-      ),
-      student: voice(
-        'You’re reshaping our pitch. Hear us out!',
-        'angry',
-        'Hear young people',
-      ),
-      operator: voice(
-        'We need drainage—and a plan for lost uses.',
-        'concerned',
-      ),
-    },
-  },
-  M3: {
-    turnout: 11,
-    voices: {
-      neighbor: voice(
-        'We asked for a say. We’re still here!',
-        'angry',
-        'Listen to us',
-      ),
-      nature: voice(
-        'Firm ground helps building. What about soil life?',
-        'concerned',
-        'Living soil matters',
-      ),
-      student: voice(
-        'A prepared site isn’t a place to play.',
-        'angry',
-        'Keep play public',
-      ),
-      operator: voice(
-        'The ground is ready. The disagreement isn’t solved.',
+        'Foundations are in place. Who needs to be heard?',
         'concerned',
       ),
     },

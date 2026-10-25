@@ -1,5 +1,7 @@
 # San José woodland and Polo Fields: what can be compared?
 
+> **Current demo: five chapters — Today → Foundations → Structure → Ready → Operating.** M0–M6 below are the seven original calculation stages, not seven selectable timeline points. The new Foundations checkpoint has no separately assessed water, fuel, electricity or runoff. Original M4 construction inventories cover foundations and structure together; they must not be split arbitrarily or counted twice. See the [five-chapter mapping in this packet](README.md#current-demo-and-calculation-stages) and the [runtime contract](../../polo-demo.md#five-chapter-contract-and-retained-use-cases).
+
 These are two separate authored demos. The original 10 ha woodland packet is separate research; [this alternative](README.md) changes the setting to a smaller grass subset of Polo Fields. This document retains a checked snapshot of the comparison, so the separate packet is not needed to read these tables or reproduce the SF calculations. Neither is a real proposed development. Figures below come from each packet's frozen `scenario.json` and generated `results.json`, checked on 24 October 2026. Source IDs refer to each packet's own registry.
 
 ## Selected demos side by side

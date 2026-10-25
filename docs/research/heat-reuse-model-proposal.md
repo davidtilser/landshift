@@ -26,7 +26,7 @@ Assumed total useful demand is 66 MWh thermal/year; the original heaters still c
 
 ## Intended learner loop
 
-Follow the original M0–M6 project, choose the prepared heat alternative, compare benefits and added requirements, and optionally inspect the cause-and-effect explanation. The two named buildings are fixed; there is no building selector or route editor.
+Follow the five-chapter project (Today → Foundations → Structure → Ready → Operating), choose the prepared heat alternative, compare benefits and added requirements, and optionally inspect the cause-and-effect explanation. The two named buildings are fixed; there is no building selector or route editor.
 
 The source and delivery equipment serve two isolated building-heating circuits. Heat delivery is limited by available source heat, equipment capacity and useful coincident demand. Original cooling and backup heating remain. Turning the single pair-wide demand replay off stops delivery while computing continues; the fixed annual result is not recalculated by an explanatory toggle.
 

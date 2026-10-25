@@ -1,4 +1,6 @@
-# Seven energy milestones for Golden Gate Park Polo Fields
+# Original seven calculation-stage energy cards for Polo Fields
+
+> **Current demo: five chapters — Today → Foundations → Structure → Ready → Operating.** M0–M6 below are the seven original calculation stages, not seven selectable timeline points. The new Foundations checkpoint has no separately assessed water, fuel, electricity or runoff. Original M4 construction inventories cover foundations and structure together; they must not be split arbitrarily or counted twice. See the [five-chapter mapping in this packet](README.md#current-demo-and-calculation-stages) and the [runtime contract](../../polo-demo.md#five-chapter-contract-and-retained-use-cases).
 
 Open at M0. Show each change and its short energy/wider-context card automatically; advancing remains user-controlled.
 

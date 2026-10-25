@@ -1079,15 +1079,44 @@ export class PoloScene {
 
   private campus(): void {
     // Baseline target areas remain 4 ha: retained original turf is never covered.
-    this.box(
-      0,
-      0,
-      1.06,
-      POLO_LAYOUT.workBand.width,
-      POLO_LAYOUT.workBand.depth,
-      0.16,
-      PALETTE.compacted,
-    )
+    if (this.state.phase === 'M1') {
+      this.fieldPlayers(true)
+      this.workSurface(() => this.transition.turfRemoved, PALETTE.soil, 0.7)
+      this.workSurface(() => this.transition.grading, '#b69a70', 0.88)
+      this.workSurface(
+        () => this.transition.compaction,
+        PALETTE.compacted,
+        1.06,
+      )
+      this.machinery(0, 0, false, () => ({
+        ...workPass(
+          this.transition.turfRemoved < 1
+            ? this.transition.turfRemoved
+            : this.transition.grading,
+        ),
+        shown: this.transition.grading < 1,
+      }))
+      this.machinery(0, 0, true, () => ({
+        ...workPass(this.transition.compaction),
+        shown: this.transition.grading === 1 && this.transition.compaction < 1,
+      }))
+      this.machinery(0, 0, false, () => ({
+        x: -145 + 290 * this.transition.foundation,
+        y: -44,
+        heading: 0,
+        shown: this.transition.compaction === 1 && !this.transition.complete,
+      }))
+    } else {
+      this.box(
+        0,
+        0,
+        1.06,
+        POLO_LAYOUT.workBand.width,
+        POLO_LAYOUT.workBand.depth,
+        0.16,
+        PALETTE.compacted,
+      )
+    }
     let foundationIndex = 0,
       columnIndex = 0,
       roofIndex = 0,
@@ -1597,7 +1626,7 @@ export class PoloScene {
       this.flow(
         [
           [x, y, 65],
-          [x - 5, y, this.state.phase >= 'M5' ? 21 : 2],
+          [x - 5, y, ['M4', 'M5', 'M6'].includes(this.state.phase) ? 21 : 2],
         ],
         '#94d2e0',
         1,
@@ -1649,7 +1678,10 @@ export class PoloScene {
       },
       { id: 'student', x: 25, y: -145, name: 'YOUNG PLAYER', color: '#5b7d88' },
     ]
-    if (this.state.confirmed && ['M4', 'M5', 'M6'].includes(this.state.phase))
+    if (
+      this.state.confirmed &&
+      ['M1', 'M4', 'M5', 'M6'].includes(this.state.phase)
+    )
       bubbles.push({
         id: 'operator',
         x: 180,
@@ -1750,70 +1782,6 @@ export class PoloScene {
       )
       this.fieldPlayers()
       this.label(65, 48, 4, 'Today · shared sports turf', '#69834c')
-    } else if (phase === 'M1') {
-      this.fieldPlayers(true)
-      this.workSurface(() => this.transition.turfRemoved, PALETTE.soil, 0.7)
-      this.machinery(0, 0, false, () => ({
-        ...workPass(this.transition.turfRemoved),
-        shown: true,
-      }))
-      for (let roll = 0; roll < 8; roll++) {
-        const first = this.source.entities.values.length
-        this.cylinder(-145 + roll * 8, 44, 1, 3, 4, '#75864e')
-        this.revealGroup(
-          first,
-          () => this.transition.turfRemoved > (roll + 0.6) / 8,
-        )
-      }
-    } else if (phase === 'M2') {
-      this.box(0, 0, 0.7, 320, 100, 0.16, PALETTE.soil)
-      this.workSurface(() => this.transition.grading, '#b69a70', 0.88)
-      this.machinery(0, 0, false, () => ({
-        ...workPass(this.transition.grading),
-        shown: true,
-      }))
-      const first = this.source.entities.values.length
-      for (let puff = 0; puff < 5; puff++)
-        this.source.entities.add({
-          position: new CallbackPositionProperty(() => {
-            const vehicle = workPass(this.transition.grading)
-            return this.point(
-              vehicle.x - 5 - puff * 2,
-              vehicle.y + (puff % 2 ? 2 : -2),
-              3 + ((this.elapsed() + puff) % 2),
-            )
-          }, false),
-          ellipsoid: {
-            radii: new Cartesian3(3 + puff * 0.5, 2, 1.8),
-            material: Color.fromCssColorString('#c6b08a').withAlpha(0.13),
-            stackPartitions: 6,
-            slicePartitions: 6,
-          },
-        })
-      this.revealGroup(
-        first,
-        () => this.baselinePlaying && !this.transition.complete,
-      )
-    } else if (phase === 'M3') {
-      this.box(0, 0, 0.88, 320, 100, 0.16, '#b69a70')
-      this.workSurface(
-        () => this.transition.compaction,
-        PALETTE.compacted,
-        1.06,
-      )
-      this.machinery(0, 0, true, () => ({
-        ...workPass(this.transition.compaction),
-        shown: true,
-      }))
-      for (let lane = 0; lane < 8; lane++) {
-        const first = this.source.entities.values.length
-        this.box(0, -43.75 + lane * 12.5 - 2, 1.23, 318, 0.7, 0.03, '#a48d6d')
-        this.box(0, -43.75 + lane * 12.5 + 2, 1.23, 318, 0.7, 0.03, '#a48d6d')
-        this.revealGroup(
-          first,
-          () => this.transition.compaction > (lane + 0.98) / 8,
-        )
-      }
     } else this.campus()
     if (phase === 'M5') {
       const ready = this.source.entities.values.length
@@ -1821,7 +1789,7 @@ export class PoloScene {
         0,
         48,
         25,
-        'Opening · equipment ready, computing not yet running',
+        'Ready · equipment tested, computing not yet running',
         '#6b826f',
       )
       this.revealGroup(ready, () => this.transition.complete)

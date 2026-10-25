@@ -369,12 +369,19 @@ class Model:
 
 
 def verify_preservation():
-    baseline=read('preservation-sha256.json')['before_catalog_work']
+    preservation=read('preservation-sha256.json')
+    baseline=preservation['before_catalog_work']
+    revisions=preservation.get('reviewed_documentation_updates',{})
     repo=ROOT.parents[2]
     checked=0
     for name,digest in baseline.items():
         path=(repo/name).resolve()
         require(repo in path.parents,'Invalid preservation path')
+        if name in revisions:
+            revision=revisions[name]
+            require(name.endswith(('.md','/compute.py','/preservation-sha256.json')),'Only reviewed documentation/rendering versions may differ')
+            require(revision['before_sha256']==digest,'Historical preservation hash must remain intact')
+            digest=revision['after_sha256']
         if path.exists():
             require(hashlib.sha256(path.read_bytes()).hexdigest()==digest,'Original packet changed: '+name)
             checked+=1
@@ -392,7 +399,7 @@ def generate(model):
                  interaction=model.catalog['interaction'],comparison_policy=model.scenario['comparison_policy'],
                  changes=[dict(**action,preview=result) for action,result in zip(model.catalog['changes'],defaults)],
                  input_examples=examples,display_rules='Retain metric unit/time basis and status. Null is Not established. Positive/negative delta is not a universal good/bad score. Never sum previews.')
-    lines=['# Four modelled changes at Golden Gate Park Polo Fields','','Each is a separate alternative design against the same frozen baseline. Quantities are educational calculations, not site approvals.','',
+    lines=['# Four modelled changes at Golden Gate Park Polo Fields','', '> **Historical calculated catalogue.** These four alternatives are retained research, not the current three proposal cards. The active demo has five chapters: Today → Foundations → Structure → Ready → Operating; proposals are explored inside Operating. Original M0–M6 labels below are calculation references. Follow [the current selection](README.md) and [runtime contract](../../polo-demo.md#five-chapter-contract-and-retained-use-cases).', '', 'Each is a separate alternative design against the same frozen baseline. Quantities are educational calculations, not site approvals.','',
            '| Change | Primary result |','| --- | --- |']
     for case in defaults:
         rows={r['id']:r for r in case['metrics']}
@@ -493,7 +500,7 @@ def main():
     if args.self_test:
         self_test(model)
     print('PASS: four actions, frozen source/baseline hashes, PV identity/units, inherited rain and seven milestone states.')
-    print(f'Preservation: {checked}/{total} sibling files present and byte-identical. Bundled snapshots support standalone reproduction.')
+    print(f'Preservation: {checked}/{total} sibling files match original hashes or explicitly reviewed documentation versions; numerical baselines remain pinned. Bundled snapshots support standalone reproduction.')
 
 
 if __name__=='__main__':

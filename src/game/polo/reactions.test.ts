@@ -122,7 +122,7 @@ describe('fictional Polo phase reactions', () => {
       initialCommunityMoodBreakdown(
         communityProfiles(poloDiscussionContext({ ...confirmed, phase })),
       ).angry
-    expect(mood('M4')).toBeGreaterThan(mood('M2'))
-    expect(mood('M2')).toBeGreaterThan(mood('M0'))
+    expect(mood('M4')).toBeGreaterThan(mood('M1'))
+    expect(mood('M1')).toBeGreaterThan(mood('M0'))
   })
 })

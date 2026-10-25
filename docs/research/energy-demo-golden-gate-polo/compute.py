@@ -230,6 +230,12 @@ def build(scenario, content, registry):
     return results, handoff
 
 
+def current_demo_markdown(content):
+    """Label original calculation stages without changing any numerical output."""
+    title, body = content.split('\n', 1)
+    return title + '\n\n' + '> **Current demo: five chapters — Today → Foundations → Structure → Ready → Operating.** M0–M6 below are the seven original calculation stages, not seven selectable timeline points. The new Foundations checkpoint has no separately assessed water, fuel, electricity or runoff. Original M4 construction inventories cover foundations and structure together; they must not be split arbitrarily or counted twice. See the [five-chapter mapping in this packet](README.md#current-demo-and-calculation-stages) and the [runtime contract](../../polo-demo.md#five-chapter-contract-and-retained-use-cases).' + '\n' + body
+
+
 def displayed(card, path, definitions):
     d = definitions[path]
     value = resolve(card['data'], path) * d['display_multiplier']
@@ -262,7 +268,7 @@ def outputs(results, handoff):
     lines += ['', f"Listed-item sums: **{sums['diesel_l']:,.0f} L diesel** and **{sums['grid_electricity_kwh']:,.0f} kWh grid electricity**, kept separate. These are partial inventories; unlisted uses and generator tests are not zero. No full construction or lifecycle energy total is available.", '',
               '## Unknowns and comparison', '',
               'Existing park energy, net electricity change, peak demand, capacity allocation, actual cable/substation routes, required reinforcement, standby fuel and cooling-only electricity are not established. No numeric alternative cooling design or heatwave outcome is supplied.', '']
-    walkthrough = ['# Seven energy milestones for Golden Gate Park Polo Fields', '', handoff['shared']['default_view'], '',
+    walkthrough = ['# Original seven calculation-stage energy cards for Polo Fields', '', handoff['shared']['default_view'], '',
                    'Read each figure with its unit, time basis and evidence label. All stage budgets are selected teaching inventories. The city-network strip is schematic.', '']
     wider = ['# Electricity beyond the Polo Fields site', '',
              'Use a small, explicitly schematic strip: **regional supply → distribution → campus and existing users**. It explains relationships; it does not map a shared feeder, allocated capacity or power-flow result.', '',
@@ -289,17 +295,25 @@ def outputs(results, handoff):
                   'Source IDs: ' + ', '.join(item['source_ids']) + ' in [sources.json](sources.json).', '']
     return {'results.json': json.dumps(results, indent=2, ensure_ascii=False) + '\n',
             'milestones.en.json': json.dumps(handoff, indent=2, ensure_ascii=False) + '\n',
-            'results.md': '\n'.join(lines), 'walkthrough.en.md': '\n'.join(walkthrough),
-            'wider-energy-story.md': '\n'.join(wider)}
+            'results.md': current_demo_markdown('\n'.join(lines)),
+            'walkthrough.en.md': current_demo_markdown('\n'.join(walkthrough)),
+            'wider-energy-story.md': current_demo_markdown('\n'.join(wider))}
 
 
 def preservation_check():
-    manifest = read('preservation-sha256.json')['captured_before_energy_work']
+    preservation = read('preservation-sha256.json')
+    manifest = preservation['captured_before_energy_work']
+    revisions = preservation.get('reviewed_documentation_updates', {})
     repo = ROOT.parents[2]
     checked = 0
     for name, digest in manifest.items():
         path = (repo / name).resolve()
         require(repo in path.parents, 'Preservation path outside repository')
+        if name in revisions:
+            revision = revisions[name]
+            require(name.endswith(('.md', '/compute.py', '/preservation-sha256.json')), 'Only reviewed documentation/rendering versions may differ')
+            require(revision['before_sha256'] == digest, 'Historical preservation hash must remain intact')
+            digest = revision['after_sha256']
         if path.exists():
             require(hashlib.sha256(path.read_bytes()).hexdigest() == digest,
                     'Existing packet changed since energy baseline: ' + name)
@@ -357,7 +371,7 @@ def main():
     if args.self_test:
         self_test(scenario, content, registry)
     print('PASS: source hashes, inherited water/schedule, energy and water balance, units, unknowns and seven English cards.')
-    print(f'Preservation: {checked}/{recorded} recorded sibling files present and byte-identical; bundled inheritance supports standalone reproduction.')
+    print(f'Preservation: {checked}/{recorded} recorded sibling files match original hashes or reviewed documentation versions; numerical baselines remain pinned. Bundled inheritance supports standalone reproduction.')
 
 
 if __name__ == '__main__':

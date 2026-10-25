@@ -1,5 +1,7 @@
 # Golden Gate Park: heat for two nearby buildings
 
+> **Timeline binding:** the original campus now has five visible chapters — Today → Foundations → Structure → Ready → Operating. Heat proposals remain inside Operating (stable ID M6), with their own replay phases. This changes neither the two-building calculation nor its UI-pending status. See [the runtime contract](../../polo-demo.md#five-chapter-contract-and-retained-use-cases).
+
 **Status: closed, reproducible educational data case. UI implementation is outside this delivery.**
 
 This packet completes the numerical part of the [heat alternative](../change-catalog-golden-gate-polo/README.md) for **Anglers Lodge and Golden Gate Park Senior Center together**. The user selected the pair and authorised explicit teaching assumptions on 24 October 2026. Building identities are real; the campus, demand profiles, compatible heating interfaces and connections form an authored scenario. No measured building performance, surveyed pipe route or agreement to connect is claimed.

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import generated from './baseline.generated.json' with { type: 'json' }
-import { POLO_PHASES } from './model.ts'
+import { POLO_PHASES, POLO_RESEARCH_PHASES } from './model.ts'
 import type { PoloPhase } from './model.ts'
 
 const quantity = z.number().nonnegative()
@@ -30,8 +30,8 @@ const phaseSchema = z.object({
     rainRunoffM3: quantity.nullable(),
     rainCapturedM3: quantity.nullable(),
     rainManagedDrainageM3: quantity.nullable(),
-    stageWaterSuppliedM3: quantity,
-    offsiteConcreteWaterM3: quantity,
+    stageWaterSuppliedM3: quantity.nullable(),
+    offsiteConcreteWaterM3: quantity.nullable(),
     selectedDieselL: quantity.nullable(),
     selectedElectricityKWh: quantity.nullable(),
     workdays: quantity.int().positive().nullable(),
@@ -43,7 +43,10 @@ const phaseSchema = z.object({
 })
 export const poloBaselineSchema = z
   .object({
-    phases: z.array(phaseSchema).length(7),
+    phases: z.array(phaseSchema).length(5),
+    researchPhases: z
+      .array(phaseSchema.extend({ id: z.enum(POLO_RESEARCH_PHASES) }))
+      .length(7),
     reference: z.object({
       siteAreaM2: quantity,
       roofAreaM2: quantity,
@@ -72,7 +75,8 @@ export const poloBaselineSchema = z
         context.addIssue({
           code: 'custom',
           path: ['phases', index, 'id'],
-          message: 'Polo phases must be ordered M0–M6.',
+          message:
+            'Polo chapters must be Today, Foundations, Structure, Ready, Operating.',
         })
       const area = Object.values(phase.data.areasM2).reduce(
         (sum, value) => sum + value,
@@ -83,6 +87,14 @@ export const poloBaselineSchema = z
           code: 'custom',
           path: ['phases', index, 'data', 'areasM2'],
           message: 'Surface areas must preserve the same demo footprint.',
+        })
+    }
+    for (const [index, phase] of baseline.researchPhases.entries()) {
+      if (phase.id !== POLO_RESEARCH_PHASES[index])
+        context.addIssue({
+          code: 'custom',
+          path: ['researchPhases', index, 'id'],
+          message: 'Research snapshots must retain their original M0–M6 order.',
         })
     }
   })

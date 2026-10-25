@@ -1,5 +1,7 @@
 # Čo sa stane s vodou, ak na časti Polo Fields vznikne dátové centrum?
 
+> **Current demo: five chapters — Today → Foundations → Structure → Ready → Operating.** M0–M6 below are the seven original calculation stages, not seven selectable timeline points. The new Foundations checkpoint has no separately assessed water, fuel, electricity or runoff. Original M4 construction inventories cover foundations and structure together; they must not be split arbitrarily or counted twice. See the [five-chapter mapping in this packet](README.md#current-demo-and-calculation-stages) and the [runtime contract](../../polo-demo.md#five-chapter-contract-and-retained-use-cases).
+
 Alternatívny model: 4-hektárový trávnatý výrez Polo Fields, Golden Gate Park, San Francisco.
 
 Ide o hypotetické výučbové demo na skutočnom mieste, nie o ohlásený projekt. Plochu, pôdu, budovu a odbery sme zvolili pre scenár. Existujúce okrajové stromy a dráhy do zásahu nezahŕňame.

@@ -39,9 +39,11 @@ export function poloSurfaceAreas(phase: PoloPhase): {
     landscape: 0,
   }
   if (phase === 'M0') areas.turf = pad
-  else if (phase === 'M1') areas.stripped_not_graded = work
-  else if (phase === 'M2' || phase === 'M3') areas.bare_graded = work
-  else if (phase === 'M4') {
+  else if (phase === 'M1') {
+    // New visual checkpoint, not the original research M1 stripping snapshot.
+    areas.other_impervious = roofs
+    areas.bare_graded = work - roofs
+  } else if (phase === 'M4') {
     areas.roof = roofs
     areas.bare_graded = work - roofs
   } else {

@@ -70,6 +70,10 @@ def main():
             binding_count += 1
 
     water, energy, land = (docs[k] for k in ['water_results', 'energy_results', 'land_handoff'])
+    runtime = json.loads((REPO / 'src/game/polo/baseline.generated.json').read_text())
+    require([{'id': c['id'], 'title': c['title']} for c in land['presentation']['chapters']] ==
+            [{'id': c['id'], 'title': c['title']} for c in runtime['phases']],
+            'Land presentation must match the five runtime chapters')
     stages = water['stages']
     require(stages[1]['rain_event'] is None, 'M1 runoff must remain unquantified')
     require(stages[2]['rain_event'] == stages[3]['rain_event'], 'M2/M3 rain plateau changed')
@@ -101,9 +105,17 @@ def main():
 
     preserved = 0
     manifest = docs['preservation']['before_catalog_work']
+    revisions = docs['preservation'].get('reviewed_documentation_updates', {})
+    reviewed_documents = 0
     for relative, digest in manifest.items():
         path = (REPO / relative).resolve()
         require(REPO in path.parents, 'Invalid preservation path')
+        if relative in revisions:
+            revision = revisions[relative]
+            require(relative.endswith(('.md', '/compute.py', '/preservation-sha256.json')), 'Only reviewed documentation/rendering versions may differ')
+            require(revision['before_sha256'] == digest, 'Historical preservation hash must remain intact')
+            digest = revision['after_sha256']
+            reviewed_documents += int(path.exists())
         if path.exists():
             require(hashlib.sha256(path.read_bytes()).hexdigest() == digest, 'Original packet changed: ' + relative)
             preserved += 1
@@ -116,7 +128,7 @@ def main():
                 require((path.parent / target.split('#')[0]).exists(), 'Broken local link: ' + target)
     print(f'PASS: 10 patterns, seven-state baselines, M6-only proposal phases, {binding_count} endpoint bindings and pinned source files.')
     print('PASS: runoff gaps/plateaus, tank and cooling balances, electrical balance, land budgets and explicit access unknowns.')
-    print(f'Preservation: {preserved}/{len(manifest)} original files present and byte-identical; local documentation links checked.')
+    print(f'Preservation: {preserved}/{len(manifest)} recorded files verified; {preserved-reviewed_documents} retain original bytes and {reviewed_documents} use explicitly recorded documentation/rendering revisions. Numerical baselines remain pinned; local documentation links checked.')
 
 
 if __name__ == '__main__':

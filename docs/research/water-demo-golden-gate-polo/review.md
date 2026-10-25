@@ -1,5 +1,7 @@
 # Independent review: Polo Fields water-only alternative
 
+> **Historical calculation review.** The audit below records the original seven-stage research packet. The current demo has five visible chapters; see [the current mapping](README.md#current-demo-and-calculation-stages). Numerical assumptions and results are unchanged. This documentation update does not turn the earlier audit into certification of the new UI.
+
 **Status: accepted for the stated educational water-only data/content packet, 24 October 2026.** Independent subagent: `/root/polo_water_audit`. Review happened after the alternative packet was prepared; the reviewer did not edit files. The primary agent corrected the finding and the same reviewer explicitly rechecked the saved file and generator.
 
 Acceptance covers source fidelity, declared assumptions, reproducible arithmetic, seven Slovak milestone cards and comparison boundaries. It does not establish a surveyed footprint, current field soils, irrigation metering, utility service, approved siting or engineering feasibility.

@@ -6,7 +6,7 @@ This is the shared **English transition direction** for the fictional SF Polo Fi
 
 Find what starts, builds up, stays constant, switches pathways, recedes, recovers or repeats. For each story, identify its beginning and ending states, visible mechanism, learner takeaway and evidence boundary. A milestone card should be a pause in a continuing story, rather than an unrelated static scene.
 
-Use the **same M0–M6 timeline and scene**. Preserve visible anchors: campus boundary, original turf, access corridor and schematic service strip. On Continue, animate the relevant change and settle into the selected milestone's complete state. The user may skip, replay, jump or go back. Do not require an interaction to advance.
+Use the **five-chapter timeline Today → Foundations → Structure → Ready → Operating** (stable runtime IDs M0, M1, M4, M5, M6). The original seven analytical snapshots remain the evidence layer. Preparation is compressed inside Foundations; frame/roof rise in Structure; Ready remains distinct from Operating. See the [runtime binding](../../polo-demo.md#five-chapter-contract-and-retained-use-cases). Runtime M1 is a new foundation checkpoint with no standalone resource budget or runoff estimate; research M1 below still means stripping-only. M2/M3 are research comparisons rather than extra visible stops. Preserve visible anchors: campus boundary, original turf, access corridor and schematic service strip. On Continue, animate the relevant change and settle into the selected milestone's complete state. The user may skip, replay, jump or go back. Do not require an interaction to advance.
 
 **Earlier-state navigation is a comparison, not physical reversal.** Going from M4 to M1 restores the earlier snapshot with a comparison label; it does not imply that a building can vanish, soil recover instantly or pollution reverse. M1→M4 and M4→M6 can be forward story spans even when effects move in opposite directions: construction pressure grows, then temporary pressure recedes while permanent occupation remains.
 
@@ -25,7 +25,9 @@ Use the **same M0–M6 timeline and scene**. Preserve visible anchors: campus bo
 | **P2 Recycled water**                                | Concept replay inside M6      | Follow treatment, storage/pumping and delivery; then switch the highlighted source branch while cooling evaporation and blowdown remain visible.                                                                             | Qualitative concept; hide all numbers. No service confirmation, measured share, construction route, savings or invented filling reservoir.                                                 |
 | **P3 Green roof**                                    | Concept replay inside M6      | Existing roof → constructed planted layers → illustrative rainfall/storage/overflow → illustrative drying and maintenance. Living cover changes over conditions and needs care.                                              | Qualitative concept; hide all numbers. No measured temperature, quantified storage, soil maturity, annual cycle or combined savings.                                                       |
 
-## How to stage the shared timeline
+## Analytical story spans and their five-chapter binding
+
+The M0–M6 labels below refer to preserved research snapshots. Apply them through the five-chapter binding above: M1–M3 preparation plays within Foundations, original M4 construction spans Foundations/Structure, M5 maps to Ready and M6 maps to Operating. Foundation-specific quantities are not inferred from the original stage inventories.
 
 ### M0→M1: begin the intervention
 

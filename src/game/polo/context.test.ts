@@ -32,6 +32,26 @@ describe('separate Polo Fields research context', () => {
       }).success,
     ).toBe(false)
   })
+  it('rejects removed preparation stops and keeps foundation-only budgets out of chat', () => {
+    for (const phase of ['M2', 'M3'])
+      expect(
+        plannerStateSchema.safeParse({
+          ...plan,
+          polo: { ...plan.polo, confirmed: true, phase },
+        }).success,
+      ).toBe(false)
+    const context = poloDiscussionContext({
+      ...plan.polo,
+      confirmed: true,
+      phase: 'M1',
+    })
+    expect(context.polo?.stage).toBe('Foundations')
+    expect(context.polo?.baseline?.map((metric) => metric.label)).toEqual([
+      'Turf disturbed',
+      'Foundation footprint',
+    ])
+    expect(context.polo?.mechanism).toContain('not separately assessed')
+  })
   it('hides baseline figures from every visual concept and restores them for original comparison', () => {
     for (const proposal of POLO_PROPOSALS) {
       const state = {

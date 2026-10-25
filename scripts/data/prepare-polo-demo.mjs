@@ -142,7 +142,7 @@ try {
   const waterOperation = water.cards[6].data.operation
   const energyOperation = energy.cards[6].data.operation
   const baseline = {
-    phases: phases.map((id, index) => {
+    researchPhases: phases.map((id, index) => {
       const w = water.cards[index],
         e = energy.cards[index]
       const data = {
@@ -358,7 +358,7 @@ try {
             'All-source supplied water in the first operating year: ' +
               number(waterOperation.first_year_total_supplied_m3) +
               ' m³. This is supplied volume, not net consumptive use.',
-            'The three proposal previews are qualitative; no heat-delivery, recycled-water or green-roof savings have been calculated.',
+            'The current three proposal previews show no calculated savings. A separate two-building heat teaching-data packet is ready for later UI integration; recycled water and green roof remain qualitative concepts.',
           ],
         },
       }
@@ -388,7 +388,7 @@ try {
       'Cooling make-up is an assumed 1.25 L/kWh IT with concentration ratio 4; coastal-climate performance is unverified.',
       'The rain replay uses a real nearby station observation with assumed soil and runoff conditions; it is not a reconstruction or flood forecast.',
       'A replay restores a complete phase. It never adds water, fuel or electricity to an accumulated score.',
-      'Heat reuse, recycled water and a green roof are visual concepts only. There are no numerical proposal benefits or combined savings.',
+      'The running proposal previews show no calculated benefits or combined savings. Two-building heat teaching data are available separately with UI integration pending; recycled water and green roof remain concepts.',
     ],
     sources: [
       ...packets.water.sources.sources,
@@ -412,6 +412,107 @@ try {
       ],
     },
   }
+  // Five presentation chapters over seven unchanged analytical snapshots. The
+  // foundations checkpoint is newly authored geometry, not research M1 runoff
+  // or an invented split of the original M4 construction water/fuel budgets.
+  const [today, , , , construction, ready, operating] = baseline.researchPhases
+  const foundations = {
+    id: 'M1',
+    title: 'Foundations',
+    kicker: '2 / 5 · Prepare and lay the foundations',
+    summary:
+      'Briefly lift, shape and firm the same ground, then pour the foundations. The building outline is now visible; the original turf around the work area stays.',
+    tradeoff:
+      'The field changes before the building rises. Foundation-only water, fuel and rain runoff are not separately assessed.',
+    metrics: [
+      metric(
+        'Turf disturbed',
+        '3.2 ha',
+        'Unique ground worked inside the authored campus; counted once across preparation and construction, with no tree removal.',
+      ),
+      metric(
+        'Foundation footprint',
+        '1.2 ha',
+        'Authored visual checkpoint using the planned building footprint, not a surveyed foundation design or new runoff calculation.',
+      ),
+    ],
+    details: [
+      'Preparation is a short sequence inside this chapter. The foundation slabs then appear before the frame and roof in Structure.',
+      'This new checkpoint has 0.8 ha retained turf, 2 ha bare works and 1.2 ha schematic foundation slabs. Foundation runoff is not quantified.',
+      'Original stripping, grading and compaction inventories remain separate in the research details. The original 160-workday construction budget covers foundations and structure together; no foundation-only share is invented.',
+      'The same-rain comparison for prepared ground remains available in the research details. Grading and compaction have equal modelled runoff; stripping-only runoff remains unknown.',
+    ],
+    data: {
+      ...construction.data,
+      areasM2: {
+        turf: 8000,
+        stripped_not_graded: 0,
+        bare_graded: 20000,
+        roof: 0,
+        other_impervious: 12000,
+        landscape: 0,
+      },
+      rainRunoffM3: null,
+      rainCapturedM3: null,
+      rainManagedDrainageM3: null,
+      stageWaterSuppliedM3: null,
+      offsiteConcreteWaterM3: null,
+      selectedDieselL: null,
+      selectedElectricityKWh: null,
+      workdays: null,
+      sourceIds: {
+        water: [
+          ...new Set(
+            baseline.researchPhases
+              .slice(1, 5)
+              .flatMap((phase) => phase.data.sourceIds.water),
+          ),
+        ],
+        energy: [
+          ...new Set(
+            baseline.researchPhases
+              .slice(1, 5)
+              .flatMap((phase) => phase.data.sourceIds.energy),
+          ),
+        ],
+      },
+    },
+  }
+  const structure = {
+    ...construction,
+    title: 'Structure',
+    kicker: '3 / 5 · Raise the frame and fit the roofs',
+    summary:
+      'Steel rises from the completed foundations, then roof panels follow. The open structure remains visible before the walls and services are fitted in Ready.',
+    metrics: construction.metrics.map((item) => ({
+      ...item,
+      detail:
+        item.detail +
+        ' Construction inventories cover foundations and structure together, not an additional budget for this chapter.',
+    })),
+    details: [
+      'The foundations remain in place throughout. Frame and roof grow in sequence; walls, hardstanding and planting follow in Ready.',
+      ...construction.details,
+      'All construction inventory figures cover the original whole 160-workday stage, including foundations. They are not allocated between the Foundations and Structure chapters or added on replay.',
+    ],
+  }
+  baseline.phases = [
+    { ...today, kicker: '1 / 5 · A place people already use' },
+    foundations,
+    structure,
+    {
+      ...ready,
+      title: 'Ready',
+      kicker: '4 / 5 · Finish and test',
+      summary:
+        'Close the walls, fit equipment, finish the grounds and test the systems. The roof tank is available, but computing and everyday cooling have not started.',
+    },
+    {
+      ...operating,
+      title: 'Operating',
+      kicker: '5 / 5 · Switch on recurring demand',
+    },
+  ]
   assert(
     baseline.phases.every(
       (phase) => phase.metrics.length >= 2 && phase.metrics.length <= 3,
@@ -429,7 +530,7 @@ try {
     )
   else await writeFile(output, expected)
   console.log(
-    'PASS: offline research reproduction, provenance and seven-phase Polo runtime baseline' +
+    'PASS: offline research reproduction, provenance, seven research snapshots and five Polo story chapters' +
       (check ? ' (unchanged).' : '.'),
   )
 } finally {

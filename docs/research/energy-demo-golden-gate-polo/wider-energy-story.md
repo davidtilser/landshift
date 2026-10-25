@@ -1,5 +1,7 @@
 # Electricity beyond the Polo Fields site
 
+> **Current demo: five chapters — Today → Foundations → Structure → Ready → Operating.** M0–M6 below are the seven original calculation stages, not seven selectable timeline points. The new Foundations checkpoint has no separately assessed water, fuel, electricity or runoff. Original M4 construction inventories cover foundations and structure together; they must not be split arbitrarily or counted twice. See the [five-chapter mapping in this packet](README.md#current-demo-and-calculation-stages) and the [runtime contract](../../polo-demo.md#five-chapter-contract-and-retained-use-cases).
+
 Use a small, explicitly schematic strip: **regional supply → distribution → campus and existing users**. It explains relationships; it does not map a shared feeder, allocated capacity or power-flow result.
 
 City-owned-property development must apply for Hetch Hetchy Power; service and delivery design still require assessment. SFPUC describes service points involving PG&E distribution. CleanPowerSF is a separate local example of procurement using PG&E delivery, not the campus supplier. [SFPUC developers](https://www.sfpuc.gov/hetch-hetchy-power), [CleanPowerSF FAQ](https://cleanpowersf.org/faq).

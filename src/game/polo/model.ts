@@ -3,8 +3,20 @@ import type { LngLat } from '../geometry.ts'
 export { POLO_SCENARIO_ID } from '../../shared/scenarios.ts'
 // Local OSM place point, used only to position an explicitly schematic campus.
 export const POLO_CENTER: LngLat = [-122.49275743961334, 37.76817893476351]
-export const POLO_PHASES = ['M0', 'M1', 'M2', 'M3', 'M4', 'M5', 'M6'] as const
+// Stable IDs preserve the original research references. M1 is now a visual
+// foundations checkpoint; M2/M3 remain research snapshots, not story stops.
+export const POLO_PHASES = ['M0', 'M1', 'M4', 'M5', 'M6'] as const
 export type PoloPhase = (typeof POLO_PHASES)[number]
+export const POLO_RESEARCH_PHASES = [
+  'M0',
+  'M1',
+  'M2',
+  'M3',
+  'M4',
+  'M5',
+  'M6',
+] as const
+export type PoloResearchPhase = (typeof POLO_RESEARCH_PHASES)[number]
 export const POLO_PROPOSALS = [
   'heat_reuse_neighbors',
   'recycled_water',

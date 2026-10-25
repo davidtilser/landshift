@@ -3,9 +3,7 @@ import type { PoloPhase } from './model.ts'
 /** Seconds are authored screen time, never workdays or a measured demand ramp. */
 export const POLO_TRANSITION_SECONDS: Record<PoloPhase, number> = {
   M0: 0,
-  M1: 6,
-  M2: 6,
-  M3: 5,
+  M1: 8,
   M4: 9,
   M5: 7,
   M6: 4,
@@ -77,38 +75,32 @@ export function poloTransitionFrame(
     machineProgress: progress,
   }
   if (phase === 'M0') return state
-  state.turfRemoved = phase === 'M1' ? reveal(progress) : 1
+  // Preparation occupies only the first three seconds. Foundations then get
+  // their own visible endpoint before the next chapter raises the structure.
+  state.turfRemoved = phase === 'M1' ? reveal(progress, 0, 0.12) : 1
+  state.grading = phase === 'M1' ? reveal(progress, 0.12, 0.25) : 1
+  state.compaction = phase === 'M1' ? reveal(progress, 0.25, 0.375) : 1
+  state.foundation = phase === 'M1' ? reveal(progress, 0.375, 1) : 1
   if (phase === 'M1') {
     state.caption = complete
-      ? 'Grass lifted; original turf stays around the works'
-      : 'Lift the grass inside the work area'
-    return state
-  }
-  state.grading = phase === 'M2' ? reveal(progress) : 1
-  if (phase === 'M2') {
-    state.caption = complete
-      ? 'Ground shaped; the work area stays the same'
-      : 'Grade the already stripped ground'
-    return state
-  }
-  state.compaction = phase === 'M3' ? reveal(progress) : 1
-  if (phase === 'M3') {
-    state.caption = complete
-      ? 'Ground firmed; no more turf removed'
-      : 'Roll the same prepared ground'
+      ? 'Foundations in place; the building outline is visible'
+      : progress < 0.12
+        ? 'Lift the grass inside the work area'
+        : progress < 0.25
+          ? 'Shape the same cleared ground'
+          : progress < 0.375
+            ? 'Firm the prepared ground'
+            : 'Pour the foundations'
     return state
   }
   if (phase === 'M4') {
-    state.foundation = reveal(progress, 0, 0.25)
-    state.frame = reveal(progress, 0.25, 0.68)
+    state.frame = reveal(progress, 0, 0.68)
     state.roof = reveal(progress, 0.68, 1)
     state.caption = complete
       ? 'Structure and roofs in place'
-      : progress < 0.25
-        ? 'Pour the foundations'
-        : progress < 0.68
-          ? 'Raise the steel frame'
-          : 'Fit the roofs'
+      : progress < 0.68
+        ? 'Raise the steel frame from the foundations'
+        : 'Fit the roofs'
     return state
   }
   state.foundation = 1

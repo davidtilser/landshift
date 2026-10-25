@@ -67,5 +67,82 @@
     "docs/research/water-demo-golden-gate-polo/walkthrough.sk.md": "b354649dc366c11a2c0c565855b626e6b27d80fe0b9ac60f8b3efac34f910fd7",
     "docs/research/water-demo-golden-gate-polo/wider-water-story.json": "8efd3be7103f1e4dca1945f7eccb530a6e20bed65c82f888a9a469faff54840d",
     "docs/research/water-demo-golden-gate-polo/wider-water-story.md": "6ebc674c316bb7b612c90b3b3bdb8c8a5a462dce43ed248b134c5fc2b95871bd"
+  },
+  "reviewed_documentation_updates": {
+    "docs/research/energy-demo-golden-gate-polo/README.md": {
+      "before_sha256": "44426604c86e4d4cabb6f4d797da909275d6effc410d011262691c7c38d01d29",
+      "after_sha256": "3097e92efa5364a02641cb5abcc2dd921f08d4c9ca69cbbbf3bca3930df1d30f",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    },
+    "docs/research/energy-demo-golden-gate-polo/compute.py": {
+      "before_sha256": "04f44cf3ce6298b0ef282d05ec42a99c89f101abca6610826624d28d6d8e1878",
+      "after_sha256": "f7806ddd1fb518c7a251a6c9a96efc8c4c2ed361eb899ae52bd8a263c02c2a3c",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    },
+    "docs/research/energy-demo-golden-gate-polo/methodology.md": {
+      "before_sha256": "e19b0873a04f61879b42c870726057a42734c7d500429511968b9bc7f55d1797",
+      "after_sha256": "d61ecf8bfe7e520ffeba5df57efa5d2150dcd21726676bfca163d8942b0f6329",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    },
+    "docs/research/energy-demo-golden-gate-polo/preservation-sha256.json": {
+      "before_sha256": "8b5f015471290ec62ff71ff3e948d5670972918614ae8bd7d1a3246443e5d73e",
+      "after_sha256": "8387d7995b4ba67cdcb736ba941cb56cbdd2c299aa5a5516a6040833cdf45cbe",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    },
+    "docs/research/energy-demo-golden-gate-polo/results.md": {
+      "before_sha256": "d54ada6f4c5bd7102dd89e19f3a6cf2676808e75404bbb55deb191028bddcac2",
+      "after_sha256": "704bf4d2e11a2d7cc5459ab4cdc40a4ab81c984bcc53ae69e2bfadf941255519",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    },
+    "docs/research/energy-demo-golden-gate-polo/review.md": {
+      "before_sha256": "6274fb321f7566113cfec63102e3089096a9be7cfac3dd14a6d6f056d10e30eb",
+      "after_sha256": "b3341c4bd3bb14bee5fba444c434f26457c5f3f42bee3402c3e1f0ea7f623025",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    },
+    "docs/research/energy-demo-golden-gate-polo/walkthrough.en.md": {
+      "before_sha256": "7a229ed4bceabdb1775de2b5064474a7c88f954015aaad712342214817906f6f",
+      "after_sha256": "929fe6fc11611c355af4d88b8ae920690fb298b3730fad3f47137d7209366ac2",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    },
+    "docs/research/energy-demo-golden-gate-polo/wider-energy-story.md": {
+      "before_sha256": "e0e3ac6f70537f0bd55e22bea30b863d8d16954691c93325ee9e527c5798c547",
+      "after_sha256": "71ad96a7b5d3d543db0563e7bec03dd0650a3159d9ecca646706527db1e20084",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    },
+    "docs/research/water-demo-golden-gate-polo/README.md": {
+      "before_sha256": "62b5bbb1af30e3d78bc37b9b05bb61084d75c230439307e0f4625de3e19a1dd6",
+      "after_sha256": "f01b4d30d7fd9eed60073ab769962425bc464c1a8366534694b43101d0622044",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    },
+    "docs/research/water-demo-golden-gate-polo/comparison.md": {
+      "before_sha256": "cb25020bab2d14113adb81af98ce3268cbe6198b4e448b3425f45e7e76257bdf",
+      "after_sha256": "3eb36027d486ad59b81460be7103f3378e2355bc663be115ed430428eaf52624",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    },
+    "docs/research/water-demo-golden-gate-polo/compute.py": {
+      "before_sha256": "2a5b489cd9239b0ba03c530e02e510b4f5259201f4507ed753dcd772ec524227",
+      "after_sha256": "4e5c78cbbd4a0575f33dd9eb80aab5b1f948ee8e8450ab8eb1642e48ce585e55",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    },
+    "docs/research/water-demo-golden-gate-polo/results.md": {
+      "before_sha256": "10dc6cc59ee6ab38a78e459e11a3316b67adfcfa7717694f1bf3ef6b37b01cec",
+      "after_sha256": "e115a5ac0efc8a3778a5d8c11611040168b2047934f1c108466d19b7e7952186",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    },
+    "docs/research/water-demo-golden-gate-polo/review.md": {
+      "before_sha256": "58ebabb38ab4d0922a6c9f3dd739c1dfd17ecdadfa2fbc46a6aad9499d27d658",
+      "after_sha256": "fbd3d23189c83584fee9788e64dc3ce591d974d4c2c45f6bdd59f343e74b228b",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    },
+    "docs/research/water-demo-golden-gate-polo/walkthrough.sk.md": {
+      "before_sha256": "b354649dc366c11a2c0c565855b626e6b27d80fe0b9ac60f8b3efac34f910fd7",
+      "after_sha256": "b3e55c6fefa6b58c0d078030fcec9bed41794403425d7c48a5bff63c6e457dd3",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    },
+    "docs/research/water-demo-golden-gate-polo/wider-water-story.md": {
+      "before_sha256": "6ebc674c316bb7b612c90b3b3bdb8c8a5a462dce43ed248b134c5fc2b95871bd",
+      "after_sha256": "9a68bf158009b600a530f6d187f88eb17f35b82f8a0dddfe5ca044a4bc71b7a0",
+      "reason": "Approved five-chapter documentation sync: current UI mapping and reproducible Markdown labels; numerical inputs/results unchanged."
+    }
   }
 }

@@ -1,5 +1,7 @@
 # Energy methods and assumptions for the Polo Fields demo
 
+> **Current demo: five chapters — Today → Foundations → Structure → Ready → Operating.** M0–M6 below are the seven original calculation stages, not seven selectable timeline points. The new Foundations checkpoint has no separately assessed water, fuel, electricity or runoff. Original M4 construction inventories cover foundations and structure together; they must not be split arbitrarily or counted twice. See the [five-chapter mapping in this packet](README.md#current-demo-and-calculation-stages) and the [runtime contract](../../polo-demo.md#five-chapter-contract-and-retained-use-cases).
+
 ## Shared project reference
 
 The frozen water scenario supplies the 4 ha site, 1.2 ha roof, 10 MW average IT load, indirect evaporative cooling concept, 365-day operating year and work-stage schedule. The energy layer adds an electrical-efficiency assumption and selected equipment inventories. It does not resize the campus or modify the water scenario.

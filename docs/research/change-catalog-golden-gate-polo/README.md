@@ -16,7 +16,7 @@ Keep these roles visible: **Detailed showcase** for heat, **Concept preview — 
 
 ## What the user experiences
 
-The existing M0–M6 timeline explains the original project. At **M6 Operation**, the user enters a proposal view and can select one of the three case cards. This is one choice area inside the existing flow, not another construction milestone or a requirement to complete three tasks.
+The active five-chapter timeline **Today → Foundations → Structure → Ready → Operating** explains the original project (stable runtime IDs M0, M1, M4, M5, M6). The original seven analytical snapshots remain research references; M2/M3 are not selectable story stops. Runtime Foundations is a new checkpoint, not the original stripping-only M1 result. See the [current runtime contract](../../polo-demo.md#five-chapter-contract-and-retained-use-cases). At **M6 Operation**, the user enters a proposal view and can select one of the three case cards. This is one choice area inside the existing flow, not another construction milestone or a requirement to complete three tasks.
 
 1. Open the proposal view on **Heat for neighbours**. Show the datacentre and both fixed recipients: Anglers Lodge and Golden Gate Park Senior Center.
 2. Let the user preview the change and compare it with the original arrangement. For a later UI integration, use the checked heat handoff for its short data card beside the physical connection.
@@ -32,7 +32,7 @@ Only the heat case has checked proposal-result numbers available for a later UI 
 
 The original baseline's numerical cards remain available in its separate view. They are not carried into the two concept views. Their qualitative arrows, colour changes, water levels and vegetation are explanatory animation, not scaled data, measured temperature or a simulation output. Source details can remain optional text links.
 
-The [land-and-space baseline layer](../land-space-demo-golden-gate-polo/README.md) adds surface allocation and recreational-use questions to the same M0–M6 walkthrough. It reuses the original water surfaces and is not a fourth proposal. Its numerical overlay also stays hidden in the recycled-water and green-roof concept previews.
+The [land-and-space baseline layer](../land-space-demo-golden-gate-polo/README.md) adds surface allocation and recreational-use questions to the same five-chapter walkthrough. It reuses the original water surfaces and is not a fourth proposal. Its numerical overlay also stays hidden in the recycled-water and green-roof concept previews.
 
 The shared [transition pack](../transitions-demo-golden-gate-polo/README.md) defines continuing stories across the topics. Its **P1–P3** patterns give each proposal an original state, intervention phases, active mechanism and limitation/reset replay inside M6. These phases do not add milestone IDs or place proposal equipment in the original construction history. The **Recipient unavailable** heat replay changes the heat pathway; returning to an earlier baseline milestone is a snapshot comparison, not physical reversal.
 
@@ -190,7 +190,7 @@ The roof does not replace the lost public sports field, and a possible thermal b
 ## Shared visualization and state rules
 
 - Keep the campus and camera context consistent. Only one proposal overlay is active at a time.
-- Keep the existing seven milestone IDs. Proposed equipment/route hints at M4 and M5 are optional visual context; M6 is the main use-case selector and demonstration stage.
+- Use the five active chapter IDs M0, M1, M4, M5 and M6. Keep original M0–M6 analytical snapshots as research references rather than seven visible stops. Proposed equipment/route hints at M4 and M5 are optional visual context; M6 is the main use-case selector and demonstration stage.
 - Give each case a clear concept/detailed label. Keep actual readiness separate from the intended demo role.
 - When entering either concept preview, remove all numerical result components and heat-specific state, including charts and hover values. Returning to heat may restore only its own verified results once available.
 - Use complete target scene states for switches, replay and reset. Do not accumulate results or leave another case's pipes, plants, heat flows or counters behind.

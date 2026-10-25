@@ -24,12 +24,10 @@ import {
 
 const PHASE_LABELS: Record<PoloPhase, string> = {
   M0: 'Today',
-  M1: 'Clear',
-  M2: 'Grade',
-  M3: 'Compact',
-  M4: 'Build',
-  M5: 'Open',
-  M6: 'Operate',
+  M1: 'Foundations',
+  M4: 'Structure',
+  M5: 'Ready',
+  M6: 'Operating',
 }
 const PROPOSAL_COPY: Record<
   PoloProposal,
@@ -422,6 +420,51 @@ export async function startPoloDemo(): Promise<void> {
             metric.label + ' · ' + metric.value + ': ' + metric.detail,
           ),
         )
+      const research = element('details', 'polo-research-details')
+      research.append(
+        element(
+          'summary',
+          '',
+          'Work budgets and the same rain on prepared ground',
+        ),
+      )
+      research.append(
+        element(
+          'p',
+          '',
+          'Independent research snapshots. Work budgets cover their whole named stage; they are not extra consumption on replay or separate foundation and structure estimates. Rain is the same 86.4 mm event, not an annual total or a flood forecast.',
+        ),
+      )
+      for (const snapshot of POLO_BASELINE.researchPhases.slice(0, 6)) {
+        const data = snapshot.data
+        research.append(
+          element(
+            'p',
+            '',
+            snapshot.title +
+              ' · ' +
+              (data.workdays === null
+                ? 'No selected work duration'
+                : String(data.workdays) + ' selected workdays') +
+              '; work-stage site water: ' +
+              (data.stageWaterSuppliedM3 === null
+                ? 'Not established'
+                : data.stageWaterSuppliedM3.toLocaleString('en-US') + ' m³') +
+              '; diesel: ' +
+              (data.selectedDieselL === null
+                ? 'Not established'
+                : data.selectedDieselL.toLocaleString('en-US') + ' L') +
+              '; rain runoff: ' +
+              (data.rainRunoffM3 === null
+                ? 'Not quantified'
+                : data.rainRunoffM3.toLocaleString('en-US', {
+                    maximumFractionDigits: 1,
+                  }) + ' m³') +
+              '.',
+          ),
+        )
+      }
+      detail.append(research)
     }
     get('#polo-details', HTMLDetailsElement).open = false
     const previous = root.querySelector<HTMLButtonElement>(
@@ -514,7 +557,7 @@ export async function startPoloDemo(): Promise<void> {
         element(
           'p',
           '',
-          'Place the schematic campus on the playing field for this demo. You can move and rotate it throughout the story. Confirming starts the research walkthrough; it does not approve a real project or recalculate a new site assessment.',
+          'Place and rotate the schematic campus before confirmation. Confirmation locks its location and starts the five-part walkthrough; reset to place it again. This does not approve a real project or recalculate a new site assessment.',
         ),
       )
     } else if (state.phase === 'M6' && state.preview) {
@@ -615,7 +658,7 @@ export async function startPoloDemo(): Promise<void> {
           scene?.cancelPlacementDrag()
           if (poloPlacementValid(state.center)) {
             setState(confirmPoloPlacement(state))
-            scene?.focus('access')
+            scene?.focus('site')
           }
         } else setPhase(POLO_PHASES[index + 1] ?? 'M0')
         break

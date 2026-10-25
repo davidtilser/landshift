@@ -1,5 +1,5 @@
 {
-  "phases": [
+  "researchPhases": [
     {
       "id": "M0",
       "title": "Today",
@@ -330,7 +330,7 @@
         "IT electricity: 87.60 GWh/year. Supporting systems: 17.52 GWh/year, including cooling, electrical losses and other systems.",
         "Cooling water: 225 m³/day evaporates and 75 m³/day becomes blowdown to an assumed managed sanitary connection.",
         "All-source supplied water in the first operating year: 114,195 m³. This is supplied volume, not net consumptive use.",
-        "The three proposal previews are qualitative; no heat-delivery, recycled-water or green-roof savings have been calculated."
+        "The current three proposal previews show no calculated savings. A separate two-building heat teaching-data packet is ready for later UI integration; recycled water and green roof remain qualitative concepts."
       ],
       "data": {
         "areasM2": {
@@ -377,7 +377,7 @@
     "Cooling make-up is an assumed 1.25 L/kWh IT with concentration ratio 4; coastal-climate performance is unverified.",
     "The rain replay uses a real nearby station observation with assumed soil and runoff conditions; it is not a reconstruction or flood forecast.",
     "A replay restores a complete phase. It never adds water, fuel or electricity to an accumulated score.",
-    "Heat reuse, recycled water and a green roof are visual concepts only. There are no numerical proposal benefits or combined savings."
+    "The running proposal previews show no calculated benefits or combined savings. Two-building heat teaching data are available separately with UI integration pending; recycled water and green roof remain concepts."
   ],
   "sources": [
     {
@@ -501,11 +501,11 @@
     "generator": "node scripts/data/prepare-polo-demo.mjs",
     "researchScenarioIds": ["sf-polo-turf-water-v1", "sf-polo-turf-energy-v1"],
     "researchSha256": {
-      "docs/research/water-demo-golden-gate-polo/compute.py": "2a5b489cd9239b0ba03c530e02e510b4f5259201f4507ed753dcd772ec524227",
+      "docs/research/water-demo-golden-gate-polo/compute.py": "4e5c78cbbd4a0575f33dd9eb80aab5b1f948ee8e8450ab8eb1642e48ce585e55",
       "docs/research/water-demo-golden-gate-polo/scenario.json": "b903e28a0265fa78ceb3ad98cdc2863dc317faf74f6b72b1e35d934bf905ba3d",
       "docs/research/water-demo-golden-gate-polo/sources.json": "550bcff00d542aa4ee6593823f30e14f2db7af37f82378e9c08a04085f9aed8b",
       "docs/research/water-demo-golden-gate-polo/milestones.sk.json": "3531dc3aa70152d8deebcca1c679e47018f7268a9bdb00762e1c61b68842f205",
-      "docs/research/energy-demo-golden-gate-polo/compute.py": "04f44cf3ce6298b0ef282d05ec42a99c89f101abca6610826624d28d6d8e1878",
+      "docs/research/energy-demo-golden-gate-polo/compute.py": "f7806ddd1fb518c7a251a6c9a96efc8c4c2ed361eb899ae52bd8a263c02c2a3c",
       "docs/research/energy-demo-golden-gate-polo/scenario.json": "07da904a62347de7dc038d18845bf94fc4f5d49d15377e3daae2269898bc4f12",
       "docs/research/energy-demo-golden-gate-polo/sources.json": "98c08471ce37cb3cb6581f2cf4f71e8191d9b1de0f75e4889d1d394ecf379a14",
       "docs/research/energy-demo-golden-gate-polo/milestones.en.json": "ba6fc87dc6118e7cec7b09687caeb36dbb5fdbbf583baed74ea484f42804852f"
@@ -516,5 +516,262 @@
       "Generated JSON matches frozen research within 1e-8 absolute plus 1e-12 relative tolerance; all nonnumeric content is identical.",
       "Runtime copy is normalized English teaching text; source research was not modified."
     ]
-  }
+  },
+  "phases": [
+    {
+      "id": "M0",
+      "title": "Today",
+      "kicker": "1 / 5 · A place people already use",
+      "summary": "A four-hectare patch of playing-field grass supports sport and meeting. The trees and track around it stay outside this example.",
+      "tradeoff": "The field already needs care and water. Its actual water sources and energy use are not established.",
+      "metrics": [
+        {
+          "label": "Demo area",
+          "value": "4.0 ha",
+          "detail": "Authored subset of the Polo Fields, not the entire venue or a surveyed development plot."
+        },
+        {
+          "label": "Model irrigation",
+          "value": "12.0 million L/year",
+          "detail": "No-build teaching allowance: 300 mm delivered to 4 ha each year; not metered park demand."
+        }
+      ],
+      "details": [
+        "The campus is inactive. Existing park energy use is not established, not zero.",
+        "Optional rain replay: 86.4 mm recorded by NOAA San Francisco Downtown on December 11, 2014, about 5.8 km away. It is not an on-field observation."
+      ],
+      "data": {
+        "areasM2": {
+          "turf": 40000,
+          "stripped_not_graded": 0,
+          "bare_graded": 0,
+          "roof": 0,
+          "other_impervious": 0,
+          "landscape": 0
+        },
+        "rainfallMm": 86.4,
+        "rainRunoffM3": 537.6439241691463,
+        "rainCapturedM3": 0,
+        "rainManagedDrainageM3": 537.6439241691463,
+        "stageWaterSuppliedM3": 0,
+        "offsiteConcreteWaterM3": 0,
+        "selectedDieselL": null,
+        "selectedElectricityKWh": null,
+        "workdays": null,
+        "sourceIds": {
+          "water": ["P03", "P04", "P05", "P06", "S07"],
+          "energy": ["W01", "E04", "E05"]
+        }
+      }
+    },
+    {
+      "id": "M1",
+      "title": "Foundations",
+      "kicker": "2 / 5 · Prepare and lay the foundations",
+      "summary": "Briefly lift, shape and firm the same ground, then pour the foundations. The building outline is now visible; the original turf around the work area stays.",
+      "tradeoff": "The field changes before the building rises. Foundation-only water, fuel and rain runoff are not separately assessed.",
+      "metrics": [
+        {
+          "label": "Turf disturbed",
+          "value": "3.2 ha",
+          "detail": "Unique ground worked inside the authored campus; counted once across preparation and construction, with no tree removal."
+        },
+        {
+          "label": "Foundation footprint",
+          "value": "1.2 ha",
+          "detail": "Authored visual checkpoint using the planned building footprint, not a surveyed foundation design or new runoff calculation."
+        }
+      ],
+      "details": [
+        "Preparation is a short sequence inside this chapter. The foundation slabs then appear before the frame and roof in Structure.",
+        "This new checkpoint has 0.8 ha retained turf, 2 ha bare works and 1.2 ha schematic foundation slabs. Foundation runoff is not quantified.",
+        "Original stripping, grading and compaction inventories remain separate in the research details. The original 160-workday construction budget covers foundations and structure together; no foundation-only share is invented.",
+        "The same-rain comparison for prepared ground remains available in the research details. Grading and compaction have equal modelled runoff; stripping-only runoff remains unknown."
+      ],
+      "data": {
+        "areasM2": {
+          "turf": 8000,
+          "stripped_not_graded": 0,
+          "bare_graded": 20000,
+          "roof": 0,
+          "other_impervious": 12000,
+          "landscape": 0
+        },
+        "rainfallMm": 86.4,
+        "rainRunoffM3": null,
+        "rainCapturedM3": null,
+        "rainManagedDrainageM3": null,
+        "stageWaterSuppliedM3": null,
+        "offsiteConcreteWaterM3": null,
+        "selectedDieselL": null,
+        "selectedElectricityKWh": null,
+        "workdays": null,
+        "sourceIds": {
+          "water": ["S07", "S10", "S11", "P04", "S12", "S17"],
+          "energy": ["W01", "E08", "E06", "E04"]
+        }
+      }
+    },
+    {
+      "id": "M4",
+      "title": "Structure",
+      "kicker": "3 / 5 · Raise the frame and fit the roofs",
+      "summary": "Steel rises from the completed foundations, then roof panels follow. The open structure remains visible before the walls and services are fitted in Ready.",
+      "tradeoff": "Water used on site and water mixed into concrete elsewhere are separate. These are selected allowances, not a complete construction footprint.",
+      "metrics": [
+        {
+          "label": "Roof footprint",
+          "value": "1.2 ha",
+          "detail": "Authored building roof area, not an inferred server capacity or total floor area. Construction inventories cover foundations and structure together, not an additional budget for this chapter."
+        },
+        {
+          "label": "Selected electricity",
+          "value": "38.4 MWh",
+          "detail": "Illustrative selected temporary-power allowance over 160 workdays. Construction inventories cover foundations and structure together, not an additional budget for this chapter."
+        },
+        {
+          "label": "Selected diesel",
+          "value": "6,400 L",
+          "detail": "Illustrative selected equipment allowance over 160 workdays; not the whole construction inventory. Construction inventories cover foundations and structure together, not an additional budget for this chapter."
+        }
+      ],
+      "details": [
+        "The foundations remain in place throughout. Frame and roof grow in sequence; walls, hardstanding and planting follow in Ready.",
+        "160 selected workdays. 2 ha remains bare and 0.8 ha remains original turf at this stage.",
+        "Selected water supplied on site: 1,988 m³ for this whole step.",
+        "Selected offsite concrete-mixing water: 1,080 m³, kept separate from site supply.",
+        "Contained washwater is illustrated; an unverified discharge to a park lake is not.",
+        "All construction inventory figures cover the original whole 160-workday stage, including foundations. They are not allocated between the Foundations and Structure chapters or added on replay."
+      ],
+      "data": {
+        "areasM2": {
+          "turf": 8000,
+          "stripped_not_graded": 0,
+          "bare_graded": 20000,
+          "roof": 12000,
+          "other_impervious": 0,
+          "landscape": 0
+        },
+        "rainfallMm": 86.4,
+        "rainRunoffM3": 2095.069676637949,
+        "rainCapturedM3": 0,
+        "rainManagedDrainageM3": 2095.069676637949,
+        "stageWaterSuppliedM3": 1988,
+        "offsiteConcreteWaterM3": 1080,
+        "selectedDieselL": 6400,
+        "selectedElectricityKWh": 38400,
+        "workdays": 160,
+        "sourceIds": {
+          "water": ["S07", "S12", "S17"],
+          "energy": ["W01", "E04", "E06"]
+        }
+      }
+    },
+    {
+      "id": "M5",
+      "title": "Ready",
+      "kicker": "4 / 5 · Finish and test",
+      "summary": "Close the walls, fit equipment, finish the grounds and test the systems. The roof tank is available, but computing and everyday cooling have not started.",
+      "tradeoff": "Storage helps with one rainfall event. It does not create an annual water supply or prove the utilities have spare capacity.",
+      "metrics": [
+        {
+          "label": "Selected test electricity",
+          "value": "20 MWh",
+          "detail": "Illustrative selected grid tests over ten commissioning workdays; generator-test fuel is unknown."
+        },
+        {
+          "label": "Roof rain captured",
+          "value": "200 m³",
+          "detail": "Capture from the same 86.4 mm event, with the 200 m³ tank starting empty and no within-event release or reuse."
+        },
+        {
+          "label": "Onward drainage",
+          "value": "2.2 million L",
+          "detail": "Modelled volume needing managed drainage during this event; no peak-flow or flood-protection claim."
+        }
+      ],
+      "details": [
+        "Final surface mix: 1.2 ha roofs, 1.6 ha hard surfaces, 0.4 ha restored landscape and 0.8 ha retained turf.",
+        "Selected supplied water for this commissioning step: 215 m³.",
+        "Actual utility connection, spare capacity and full commissioning inventory are not established."
+      ],
+      "data": {
+        "areasM2": {
+          "turf": 8000,
+          "stripped_not_graded": 0,
+          "bare_graded": 0,
+          "roof": 12000,
+          "other_impervious": 16000,
+          "landscape": 4000
+        },
+        "rainfallMm": 86.4,
+        "rainRunoffM3": 2414.6309547995565,
+        "rainCapturedM3": 200,
+        "rainManagedDrainageM3": 2214.6309547995565,
+        "stageWaterSuppliedM3": 215,
+        "offsiteConcreteWaterM3": 0,
+        "selectedDieselL": null,
+        "selectedElectricityKWh": 20000,
+        "workdays": 10,
+        "sourceIds": {
+          "water": ["S07", "P10"],
+          "energy": ["W01", "E04", "E06"]
+        }
+      }
+    },
+    {
+      "id": "M6",
+      "title": "Operating",
+      "kicker": "5 / 5 · Switch on recurring demand",
+      "summary": "Computing needs electricity and cooling every day. Follow the water and power paths, then explore three possible changes.",
+      "tradeoff": "Supporting systems also use power. Some cooling water evaporates and some becomes managed wastewater; shared-system capacity is not assessed.",
+      "metrics": [
+        {
+          "label": "Average facility demand",
+          "value": "12 MW",
+          "detail": "Annual-average electrical demand at the selected PUE, not peak load or connection rating."
+        },
+        {
+          "label": "Facility electricity",
+          "value": "105.12 GWh/year",
+          "detail": "First full 365-day operating year: IT plus all supporting systems; not cooling alone."
+        },
+        {
+          "label": "Cooling water supplied",
+          "value": "300 m³/day",
+          "detail": "Annual-average cooling make-up, not a hot-day peak. Domestic supply and irrigation are separate."
+        }
+      ],
+      "details": [
+        "Average IT electricity demand: 10 MW. It is already an average; do not apply utilization a second time.",
+        "IT electricity: 87.60 GWh/year. Supporting systems: 17.52 GWh/year, including cooling, electrical losses and other systems.",
+        "Cooling water: 225 m³/day evaporates and 75 m³/day becomes blowdown to an assumed managed sanitary connection.",
+        "All-source supplied water in the first operating year: 114,195 m³. This is supplied volume, not net consumptive use.",
+        "The current three proposal previews show no calculated savings. A separate two-building heat teaching-data packet is ready for later UI integration; recycled water and green roof remain qualitative concepts."
+      ],
+      "data": {
+        "areasM2": {
+          "turf": 8000,
+          "stripped_not_graded": 0,
+          "bare_graded": 0,
+          "roof": 12000,
+          "other_impervious": 16000,
+          "landscape": 4000
+        },
+        "rainfallMm": 86.4,
+        "rainRunoffM3": 2414.6309547995565,
+        "rainCapturedM3": 200,
+        "rainManagedDrainageM3": 2214.6309547995565,
+        "stageWaterSuppliedM3": 0,
+        "offsiteConcreteWaterM3": 0,
+        "selectedDieselL": null,
+        "selectedElectricityKWh": null,
+        "workdays": null,
+        "sourceIds": {
+          "water": ["S08", "S09", "P08", "P09"],
+          "energy": ["W01", "E01", "E03", "E04", "E05", "E06"]
+        }
+      }
+    }
+  ]
 }

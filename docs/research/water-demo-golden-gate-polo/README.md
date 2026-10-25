@@ -1,64 +1,30 @@
 # Alternative water-only demo: Golden Gate Park Polo Fields
 
-## For David: milestones, 3D scene and user actions
+## Current demo and calculation stages
 
-This is a **content brief for the 3D visualization and game engine**; it does not imply that these controls already exist in the prototype. The demo follows one fixed project and isolates **water impacts**. Users move through land-development states and understand the change, its cause and its water implications at each step. Completing a task or opening a detail panel is never required to continue.
+The active experience has exactly **Today → Foundations → Structure → Ready → Operating**. This replaces the earlier seven-stop presentation. The water model still keeps seven analytical reference states so its surface classes, work budgets and uncertainty remain inspectable. The [runtime contract](../../polo-demo.md#five-chapter-contract-and-retained-use-cases) owns current controls and animation timing; the research cards describe supporting calculations rather than seven UI screens.
 
-### SF extension: the wider water story
+| Visible chapter          | Water interpretation and original calculation stages                                                                                                                                                                          |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Today (runtime M0)       | Original managed turf, assumed no-build irrigation and original M0 rain comparison.                                                                                                                                           |
+| Foundations (runtime M1) | Short stripping/grading/compaction sequence followed by visible slabs. Original research M1/M2/M3 inventories remain in optional details. The new slab checkpoint has no separately assessed water budget or runoff.          |
+| Structure (runtime M4)   | Frame and roof rise. Original M4 runoff applies to the completed roof snapshot. Its construction water covers the whole original construction stage, including foundations; it is not an additional Structure-only allowance. |
+| Ready (runtime M5)       | Finish walls, grounds and commissioning. Original M5 has final surfaces, the roof tank and one-time fills/testing.                                                                                                            |
+| Operating (runtime M6)   | Original M6 recurring cooling supply, evaporation and blowdown, plus separate domestic water and irrigation.                                                                                                                  |
 
-The SF demo now includes [Beyond the site: a simple water story](wider-water-story.md), an English brief for David with one short context beat per existing milestone. A small schematic strip shows the relevant **shared supply**, **rainfall drainage** or **cooling/wastewater** pathway alongside the campus. The new sentence appears by default; further explanation is optional. The 4 ha layout, 10 MW load and all calculated water volumes remain unchanged.
+**Runtime M1 and research M1 have different meanings:** runtime M1 is Foundations; research M1 is stripping-only. The research M1 runoff null must never be interpreted as a calculated result for the new foundations geometry. Original grading and compaction rain results remain equal. Their comparison is available in optional research details, without additional timeline points.
 
-This is a qualitative extension using documented regional context and clearly labelled campus assumptions. It explains how other water users and infrastructure can be involved without predicting shortages, pollution, river-level changes or a new treatment plant. At M5/M6, a neutral status states that campus service and spare capacity have not been assessed. Existing timeline navigation and rainfall controls still apply; no new required task is added.
+Preparation takes approximately 3 screen seconds inside Foundations, followed by 5 seconds for slabs. Structure, Ready and Operating have their own animation and endpoint. Screen time does not rescale workdays or water budgets. Continue, Back, replay/skip and direct chapter selection replace complete states without accumulating consumption. Location and orientation are chosen before confirmation, then locked until reset.
 
-### What users see by default
+Rain is an independent optional event, separate from daily/annual supply. The runtime rain control is available at Today, Structure, Ready and Operating, but no quantified Foundations rain replay is offered. Each independent Ready/Operating event begins with the model's empty tank. Prepared-ground rain remains a research comparison; it is not a sixth selectable construction chapter.
 
-The scenario opens at **M0 / Today**. Users see the original landscape in 3D, the model campus boundary, the scenario name and area, and a timeline. Moving to the next step automatically plays a short animation of **that change only**, then shows its resulting state. Users control subsequent progression; the demo does not advance to the end on its own.
-
-Every step includes a compact water card without requiring a click: **what changed → why → what it means**, the relevant primary figures with units and time bases, and material assumptions or uncertainties. Figures may describe water supplied during an entire construction step, volume during one comparison rainfall event, or daily/annual operating supply; those time bases must remain visible. Exact copy and numeric fields are already provided in [milestones.sk.json](milestones.sk.json), particularly `cards[].primary_metrics`, `visible_assumptions` and `metric_definitions`.
-
-**Rainfall replay is off when a step opens.** The card can immediately show results labelled “during the comparison rainfall event,” but rain plays in the 3D scene only on request. It must not imply that rainfall actually occurs during every construction stage. M6 also shows a schematic distinction between operating water supply, evaporation and blowdown by default; daily averages are not an animation of measured instantaneous flow.
-
-### Five main milestones, seven steps
-
-**Today → Site preparation → Construction → Opening → Operation**
-
-Site preparation contains three separate animations: M1, M2 and M3. Each other milestone has one step. The timeline must clearly identify the active preparation step.
-
-| ID / milestone                            | Automatic 3D change                                                                                                                                   | Information visible without opening details                                                                                                                                                                                                | Optional action specific to this step                                                                                     |
-| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
-| **M0 · Today**                            | Original 4 ha model subset of sports turf. Perimeter trees and tracks remain outside the intervention.                                                | Selected area, reference runoff under the recorded 86.4 mm rainfall input, and the assumed original irrigation budget. Four hectares is not the area of the whole Polo Fields venue.                                                       | Replay comparison rainfall on the turf; inspect the weather source and soil/irrigation assumptions.                       |
-| **M1 · Site preparation / sod stripping** | Remove turf on 3.2 ha; retain 0.8 ha of original turf. No tree felling or completed grading.                                                          | Removed and retained turf areas and water supplied during this work step. Runoff after sod stripping alone is **not quantified**.                                                                                                          | Replay sod stripping or open the mechanism explanation. A quantified rainfall replay is unavailable for this state.       |
-| **M2 · Site preparation / grading**       | Grade the already stripped 3.2 ha; retain 0.8 ha of turf.                                                                                             | Prepared-ground runoff compared with M0 under the same rainfall, this step's water supply, and the qualitative risk of sediment transport.                                                                                                 | Replay rainfall; compare the prepared surface with the original M0 state.                                                 |
-| **M3 · Site preparation / compaction**    | Compact the same 3.2 ha without removing further turf.                                                                                                | Additional water supplied for this work step. Runoff remains at the M2 level because both states use the same coarse model category.                                                                                                       | Replay compaction or rainfall; open the explanation of the unchanged runoff estimate.                                     |
-| **M4 · Construction**                     | Buildings occupy 1.2 ha; 2 ha remain bare and 0.8 ha remain turf.                                                                                     | Water supplied during this stage, separate offsite concrete-mixing water, and runoff from the selected construction snapshot.                                                                                                              | Replay rainfall; expand the construction budget and explanation of contained washwater management.                        |
-| **M5 · Opening**                          | Complete 1.2 ha of roofs, 1.6 ha of hardstanding and 0.4 ha of restored vegetation, retaining 0.8 ha of turf; add the tank and one-time system fills. | Generated runoff, capture in the initially empty 200 m³ roof tank, remaining water requiring managed drainage, and commissioning water.                                                                                                    | Replay rainfall and follow the split from roof to tank and onward drainage.                                               |
-| **M6 · Operation**                        | Completed surfaces remain unchanged; servers and the schematic cooling-water flows start.                                                             | Average daily supply, evaporation and blowdown, plus first-year supplied water and its increase over assumed original irrigation. Keep **10 MW IT, 1.25 L/kWh IT, CoC 4** and the unverified irrigation source visible beside the figures. | Expand the annual budget and before/after irrigation comparison; optionally replay the same rainfall surface state as M5. |
-
-### Actions available to users
-
-- **Continue / Back / select a timeline step:** move between states without mandatory investigation or questions. At M6, users can finish the demo or return to the beginning.
-- **Orbit and zoom the camera:** inspect the campus boundary and layout. Provide a way to reset the camera to the whole campus. Camera navigation does not change the model.
-- **Replay or skip an animation:** replay changes the visualization; skipping immediately applies the correct final state and card for that step. Waiting for an animation or opening details must never block progression.
-- **Replay comparison rainfall / return to the dry scene:** available at M0 and M2–M6. Always use the same rainfall input within this scenario and distinguish it from operating flows. M1 offers a qualitative explanation only. Each independent M5/M6 replay starts with the assumed empty tank.
-- **Compare with the original state:** M2–M5 rainfall cards already show the baseline in their default content; users can optionally switch the visualization to M0 and back. This is the original surface of the same site, not another location. Sequential replays still use identical input conditions.
-- **Open details, assumptions and sources:** expand a work-step/annual budget, mechanism explanation or data provenance. Material uncertainties and assumptions beside primary figures remain visible without opening details.
-- **Select a prepared contextual question:** use the questions and answers in `shared.optional_questions` in [milestones.sk.json](milestones.sk.json). This brief does not require an open-ended AI chat; questions are optional and never block progression.
-
-### Engine rules and scope of this version
-
-Each step **M0–M6 is a complete state**, not an instruction to “add more damage.” A direct timeline jump applies the entire target state from `scenario.json.stages` and displays its card. A normal forward transition animates the area changes in `data.area_change_from_previous_step_m2`; M0 has no preceding-state delta. When jumping across multiple steps or moving backwards, use the complete target states rather than a delta against the wrong preceding step.
-
-Replaying, returning, triggering rainfall or comparing **must not add tree/turf removal, construction water or annual supply again**. Load cumulative construction figures for the selected step from the data. M5 and M6 have identical surfaces; M6 has a separate operating-water budget. Rainfall replay does not recalculate annual supply, the tank has no automatic annual supply credit, and M1's `null` must never display as zero runoff. Short animations summarize stages; their duration does not represent actual working days.
-
-In this closed demo, users **do not change the boundary, area, server count, cooling technology, watering allowance or tank**. They do not design roads or select another development site. General proposal editing remains a broader future flow in the project specification; these two packets are fixed scenarios. Sensitivity calculations in the supporting material are explanatory detail, not ready-made playable alternatives. The outcome is understanding consequences; progression requires no score, quiz or correct answer.
-
-**Implementation inputs:** [milestones.sk.json](milestones.sk.json) provides card content and figures; [scenario.json](scenario.json) provides states and inputs; [walkthrough.sk.md](walkthrough.sk.md) is a readable preview of every card. The technical material below explains the sources and limits of the figures.
+The [generated numerical results](results.md), [original Slovak card archive](walkthrough.sk.md) and [wider-water research story](wider-water-story.md) retain the original stage labels, units and assumptions. The wider story distinguishes shared supply, rain drainage and cooling/wastewater without predicting household shortages or new utility capacity. Optional investigations never block progression. The three proposal previews belong to Operating and do not replace the original water budget.
 
 ---
 
 This is a self-contained SF alternative. [comparison.md](comparison.md) includes a snapshot comparison with a separate San José woodland scenario; that separate research packet is not required to generate or use the SF handoff. This packet closes one **authored 4 ha / 10 MW IT educational scenario** in the real Polo Fields setting, using primary-source local context and NOAA weather. It is not an announced development, a site-selection recommendation or an engineered prediction. Product code and the existing prototype are outside this task.
 
-Start with [the seven Slovak cards](walkthrough.sk.md). [comparison.md](comparison.md) explains the differences from San José and the limits of comparing them. [sources.json](sources.json) gives direct source links, provenance, locators and frozen-data hashes. Identifiers in brackets below refer to that registry.
+For the original research content, use [the seven archived Slovak cards](walkthrough.sk.md). [comparison.md](comparison.md) explains the differences from San José and the limits of comparing them. [sources.json](sources.json) gives direct source links, provenance, locators and frozen-data hashes. Identifiers in brackets below refer to that registry.
 
 ## Files and reproduction
 
@@ -113,9 +79,9 @@ The event replay uses **86.4 mm**, GHCN daily observation indexed **11 December 
 
 Every surface state gets an independent replay of that depth with the same assumed average antecedent condition. We are not reconstructing that storm's actual runoff, simulating a dated construction programme, or adding seven storms into a lifecycle total. Event surface flows and annual supply remain separate.
 
-## 3. Milestone contract
+## 3. Calculation-stage contract
 
-The same five main milestones contain seven independently animated cards:
+The numerical model retains seven reference cards. They are calculation stages, not the five visible demo chapters; use the mapping above when displaying them.
 
 | Card | Milestone / state               | Numerical scope                                                                                                                                                             |
 | ---- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -163,6 +129,8 @@ The residual is **not groundwater recharge**; it may include storage and later e
 Quality effects stay qualitative: uncovered ground can generate sediment; concrete washwater needs containment [S12]. No sediment mass, turbidity, receiving-water pH or pollution occurrence is invented.
 
 ## 5. Construction and commissioning inventory
+
+Stage IDs in this table refer to the original calculation inventory. M1–M3 preparation is compressed visually inside Foundations. M4 covers foundations and structure together, with no supported split between those two chapters. M5 commissioning remains distinct from M6 recurring operation. No quantities are multiplied by the number of visible chapters.
 
 These quantities are **authored budgets**, not a real project estimate. The dose remains 1 L/m² per eligible workday for combined dust control/soil wetting. CEC's rough 1,000 US gallons/acre/day is about 0.935 L/m²/day [S11], providing only an order-of-magnitude reference. It does not prove a required compaction moisture or a universal dose. Selected eligible days are net watering workdays, not derived from precipitation normals.
 
@@ -218,7 +186,7 @@ SFPUC's project page checked 24 October 2026 still lists the Westside recycling 
 
 ## 7. Handoff and remaining limits
 
-Use [milestones.sk.json](milestones.sk.json) for implementation. It includes exact numeric data, metric definitions, units, area deltas and visible assumptions. Display provenance next to numbers, especially baseline irrigation, soil choice, IT load and cooling intensity. Optional questions cover dust, groundwater, rainfall capture and capacity comparisons. Surface runoff and utility supply must never become one water score.
+Use [milestones.sk.json](milestones.sk.json) as the original calculation handoff, through the five-chapter mapping above. It includes exact numeric data, metric definitions, units, area deltas and visible assumptions. Display provenance next to numbers, especially baseline irrigation, soil choice, IT load and cooling intensity. Optional questions cover dust, groundwater, rainfall capture and capacity comparisons. Surface runoff and utility supply must never become one water score.
 
 This packet is closed for the stated water-only educational demo. The wider-story extension adds qualitative shared-system context, not a capacity or downstream-impact model. Unknown stripping-only runoff, actual irrigation-source shares and drainage connection are explicit limits with safe display behaviour. They are not silently filled with zero. Real engineering would require a surveyed site, current soils/underdrains, utility agreements, measured water use, dated programme, material design and hourly cooling/weather calculations. This task does not certify those or assess the public-park development's feasibility.
 

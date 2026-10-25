@@ -18,11 +18,11 @@
     },
     "land_handoff": {
       "path": "../land-space-demo-golden-gate-polo/milestones.en.json",
-      "sha256": "05b7d378d28dc281c6a01b8660925437e10a2560c1f3468dd12268f8408335b5"
+      "sha256": "dc3afb5228db5d09c7c77b3b1fb52f46e59c0a0def72f633928b0dec7977114f"
     },
     "preservation": {
       "path": "../change-catalog-golden-gate-polo/preservation-sha256.json",
-      "sha256": "f827b0c7899316d6ed778ad7e805608a23275e4fdd29c025b5ae0cb58a56476d"
+      "sha256": "15378d5abd0b7eb790643d86b697de5ef705a85182c430b29a619924865c2a2d"
     },
     "heat_results": {
       "path": "../heat-demo-golden-gate-polo/results.json",
@@ -35,7 +35,7 @@
     "reset": "Restore complete target state on jumps and replay; no accumulating resource counters or alternative overlays.",
     "concept_visibility": "P2 and P3 hide all numerical panels including original water, energy, land and any heat results.",
     "unknowns": "Null means Not established, never zero; M1 runoff remains Not quantified.",
-    "scope": "SF only. Community is a scenario handoff, not reviewed David implementation. Existing San Jos\u00e9/Muhos packets are unchanged."
+    "scope": "SF only. Community is a scenario handoff, not reviewed David implementation. Existing San José/Muhos packets are unchanged."
   },
   "patterns": [
     {
@@ -53,7 +53,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/0/rain_event/water_to_managed_drainage_m3",
-              "unit": "m\u00b3",
+              "unit": "m³",
               "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
             }
           ]
@@ -65,7 +65,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/1/rain_event",
-              "unit": "m\u00b3",
+              "unit": "m³",
               "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
             }
           ]
@@ -77,7 +77,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/2/rain_event/water_to_managed_drainage_m3",
-              "unit": "m\u00b3",
+              "unit": "m³",
               "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
             }
           ]
@@ -89,7 +89,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/3/rain_event/water_to_managed_drainage_m3",
-              "unit": "m\u00b3",
+              "unit": "m³",
               "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
             }
           ]
@@ -101,7 +101,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/4/rain_event/water_to_managed_drainage_m3",
-              "unit": "m\u00b3",
+              "unit": "m³",
               "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
             }
           ]
@@ -113,7 +113,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/5/rain_event/water_to_managed_drainage_m3",
-              "unit": "m\u00b3",
+              "unit": "m³",
               "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
             }
           ]
@@ -125,7 +125,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/6/rain_event/water_to_managed_drainage_m3",
-              "unit": "m\u00b3",
+              "unit": "m³",
               "time_basis": "one independent 86.4 mm rain replay; M1 null means not quantified"
             }
           ]
@@ -152,7 +152,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/1/step_site_supply_m3",
-              "unit": "m\u00b3",
+              "unit": "m³",
               "time_basis": "whole selected work step"
             }
           ]
@@ -164,7 +164,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/2/step_site_supply_m3",
-              "unit": "m\u00b3",
+              "unit": "m³",
               "time_basis": "whole selected work step"
             }
           ]
@@ -176,7 +176,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/3/step_site_supply_m3",
-              "unit": "m\u00b3",
+              "unit": "m³",
               "time_basis": "whole selected work step"
             }
           ]
@@ -188,7 +188,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/4/step_site_supply_m3",
-              "unit": "m\u00b3",
+              "unit": "m³",
               "time_basis": "whole selected work step"
             }
           ]
@@ -200,7 +200,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/5/step_site_supply_m3",
-              "unit": "m\u00b3",
+              "unit": "m³",
               "time_basis": "whole selected work step"
             }
           ]
@@ -212,19 +212,19 @@
             {
               "source": "water_results",
               "pointer": "/operation/daily_average_cooling_supply_m3",
-              "unit": "m\u00b3/day",
+              "unit": "m³/day",
               "time_basis": "annual-average operating day"
             },
             {
               "source": "water_results",
               "pointer": "/operation/daily_average_cooling_evaporation_m3",
-              "unit": "m\u00b3/day",
+              "unit": "m³/day",
               "time_basis": "annual-average operating day"
             },
             {
               "source": "water_results",
               "pointer": "/operation/daily_average_cooling_blowdown_m3",
-              "unit": "m\u00b3/day",
+              "unit": "m³/day",
               "time_basis": "annual-average operating day"
             }
           ]
@@ -239,26 +239,10 @@
       "label": "Storage appears and fills during rain",
       "mode": "milestone snapshots; optional independent rain where specified",
       "states": [
-        {
-          "milestone": "M0",
-          "visual": "No campus roof tank.",
-          "bindings": []
-        },
-        {
-          "milestone": "M1",
-          "visual": "No campus roof tank.",
-          "bindings": []
-        },
-        {
-          "milestone": "M2",
-          "visual": "No campus roof tank.",
-          "bindings": []
-        },
-        {
-          "milestone": "M3",
-          "visual": "No campus roof tank.",
-          "bindings": []
-        },
+        { "milestone": "M0", "visual": "No campus roof tank.", "bindings": [] },
+        { "milestone": "M1", "visual": "No campus roof tank.", "bindings": [] },
+        { "milestone": "M2", "visual": "No campus roof tank.", "bindings": [] },
+        { "milestone": "M3", "visual": "No campus roof tank.", "bindings": [] },
         {
           "milestone": "M4",
           "visual": "No active tank in the selected construction snapshot.",
@@ -266,12 +250,12 @@
         },
         {
           "milestone": "M5",
-          "visual": "Tank available: empty-start rain replay fills up to 200 m\u00b3; remaining roof runoff goes onward.",
+          "visual": "Tank available: empty-start rain replay fills up to 200 m³; remaining roof runoff goes onward.",
           "bindings": [
             {
               "source": "water_results",
               "pointer": "/stages/5/rain_event/roof_capture_m3",
-              "unit": "m\u00b3",
+              "unit": "m³",
               "time_basis": "one independent rain event; empty tank start"
             }
           ]
@@ -283,7 +267,7 @@
             {
               "source": "water_results",
               "pointer": "/stages/6/rain_event/roof_capture_m3",
-              "unit": "m\u00b3",
+              "unit": "m³",
               "time_basis": "one independent rain event; empty tank start"
             }
           ]
@@ -440,13 +424,13 @@
             {
               "source": "land_handoff",
               "pointer": "/milestones/0/data/cumulative_disturbed_area_m2",
-              "unit": "m\u00b2",
+              "unit": "m²",
               "time_basis": "unique campus ground worked since M0; excludes external access"
             },
             {
               "source": "land_handoff",
               "pointer": "/milestones/0/data/sealed_area_m2",
-              "unit": "m\u00b2",
+              "unit": "m²",
               "time_basis": "surface snapshot"
             }
           ]
@@ -458,13 +442,13 @@
             {
               "source": "land_handoff",
               "pointer": "/milestones/1/data/cumulative_disturbed_area_m2",
-              "unit": "m\u00b2",
+              "unit": "m²",
               "time_basis": "unique campus ground worked since M0; excludes external access"
             },
             {
               "source": "land_handoff",
               "pointer": "/milestones/1/data/sealed_area_m2",
-              "unit": "m\u00b2",
+              "unit": "m²",
               "time_basis": "surface snapshot"
             }
           ]
@@ -476,13 +460,13 @@
             {
               "source": "land_handoff",
               "pointer": "/milestones/2/data/cumulative_disturbed_area_m2",
-              "unit": "m\u00b2",
+              "unit": "m²",
               "time_basis": "unique campus ground worked since M0; excludes external access"
             },
             {
               "source": "land_handoff",
               "pointer": "/milestones/2/data/sealed_area_m2",
-              "unit": "m\u00b2",
+              "unit": "m²",
               "time_basis": "surface snapshot"
             }
           ]
@@ -494,13 +478,13 @@
             {
               "source": "land_handoff",
               "pointer": "/milestones/3/data/cumulative_disturbed_area_m2",
-              "unit": "m\u00b2",
+              "unit": "m²",
               "time_basis": "unique campus ground worked since M0; excludes external access"
             },
             {
               "source": "land_handoff",
               "pointer": "/milestones/3/data/sealed_area_m2",
-              "unit": "m\u00b2",
+              "unit": "m²",
               "time_basis": "surface snapshot"
             }
           ]
@@ -512,13 +496,13 @@
             {
               "source": "land_handoff",
               "pointer": "/milestones/4/data/cumulative_disturbed_area_m2",
-              "unit": "m\u00b2",
+              "unit": "m²",
               "time_basis": "unique campus ground worked since M0; excludes external access"
             },
             {
               "source": "land_handoff",
               "pointer": "/milestones/4/data/sealed_area_m2",
-              "unit": "m\u00b2",
+              "unit": "m²",
               "time_basis": "surface snapshot"
             }
           ]
@@ -530,13 +514,13 @@
             {
               "source": "land_handoff",
               "pointer": "/milestones/5/data/cumulative_disturbed_area_m2",
-              "unit": "m\u00b2",
+              "unit": "m²",
               "time_basis": "unique campus ground worked since M0; excludes external access"
             },
             {
               "source": "land_handoff",
               "pointer": "/milestones/5/data/sealed_area_m2",
-              "unit": "m\u00b2",
+              "unit": "m²",
               "time_basis": "surface snapshot"
             }
           ]
@@ -548,13 +532,13 @@
             {
               "source": "land_handoff",
               "pointer": "/milestones/6/data/cumulative_disturbed_area_m2",
-              "unit": "m\u00b2",
+              "unit": "m²",
               "time_basis": "unique campus ground worked since M0; excludes external access"
             },
             {
               "source": "land_handoff",
               "pointer": "/milestones/6/data/sealed_area_m2",
-              "unit": "m\u00b2",
+              "unit": "m²",
               "time_basis": "surface snapshot"
             }
           ]
@@ -660,7 +644,7 @@
       "readiness": "calculated_data_ui_pending",
       "show_numbers": false,
       "bindings": [],
-      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1\u2013M5 retrofit history",
+      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1–M5 retrofit history",
       "phases": [
         {
           "id": "original",
@@ -715,7 +699,7 @@
       "readiness": "visual_concept_only",
       "show_numbers": false,
       "bindings": [],
-      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1\u2013M5 retrofit history",
+      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1–M5 retrofit history",
       "phases": [
         {
           "id": "original",
@@ -749,7 +733,7 @@
       "readiness": "visual_concept_only",
       "show_numbers": false,
       "bindings": [],
-      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1\u2013M5 retrofit history",
+      "phase_time_basis": "illustrative proposal replay; no calendar duration or baseline M1–M5 retrofit history",
       "phases": [
         {
           "id": "original",
