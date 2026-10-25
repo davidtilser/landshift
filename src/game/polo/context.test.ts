@@ -108,3 +108,46 @@ describe('separate Polo Fields research context', () => {
     ).toBe(true)
   })
 })
+
+describe('Polo size context and request validation', () => {
+  it('defaults old requests and rejects sizes outside the slider model', () => {
+    const legacy: Record<string, unknown> = { ...plan.polo }
+    delete legacy['areaHa']
+    expect(
+      plannerStateSchema.parse({ ...plan, polo: legacy }).polo?.areaHa,
+    ).toBe(4)
+    for (const areaHa of [2, 3.5, 6])
+      expect(
+        plannerStateSchema.safeParse({
+          ...plan,
+          polo: { ...plan.polo, areaHa },
+        }).success,
+      ).toBe(true)
+    for (const areaHa of [NaN, Infinity, 1.5, 2.1, 6.5])
+      expect(
+        plannerStateSchema.safeParse({
+          ...plan,
+          polo: { ...plan.polo, areaHa },
+        }).success,
+      ).toBe(false)
+  })
+  it('grounds current size facts and labels the teaching assumption', () => {
+    const context = poloDiscussionContext({
+      ...INITIAL_POLO_STATE,
+      areaHa: 6,
+      confirmed: true,
+      phase: 'M6',
+      preview: false,
+    })
+    expect(context.polo?.scene.areaHa).toBe(6)
+    expect(context.polo?.setting).toContain('fictional 15 acres')
+    expect(context.polo?.setting).toContain(
+      'area-proportional teaching assumption',
+    )
+    expect(context.polo?.baseline?.map((metric) => metric.value)).toEqual([
+      '18 MW',
+      '158 GWh/year',
+      '120k US gal/day',
+    ])
+  })
+})

@@ -1,0 +1,318 @@
+import './protest.css'
+import type { PoloSceneState } from './model.ts'
+import { confirmPoloPlacement, poloPhaseAt } from './placement.ts'
+
+export const POLO_PROTEST_STEPS = [
+  {
+    question: 'Why are people protesting?',
+    answer: 'This is shared public space. We oppose building here.',
+    detail: 'People already meet, walk and play on this field.',
+    next: 'Ask about nature →',
+  },
+  {
+    question: 'What would happen to nature?',
+    answer: 'Construction would remove living turf and disturb the soil.',
+    detail: 'Roof plants cannot replace this ground or its existing uses.',
+    next: 'Ask about resources →',
+  },
+  {
+    question: 'What about water and electricity?',
+    answer: 'Cooling and computing still need water and electricity.',
+    detail: 'Real supply and utility capacity would need checking.',
+    next: 'Ask about people →',
+  },
+  {
+    question: 'Who would be affected?',
+    answer: 'Players, neighbors and park users would lose a shared place.',
+    detail: 'Those losses stay even if the equipment becomes more efficient.',
+    next: 'Ask about efficiency →',
+  },
+  {
+    question: 'Would efficient technology change your mind?',
+    answer: 'For us, this public playing field is the wrong site.',
+    detail: 'Compare other locations. Efficiency does not replace our field.',
+    next: 'Continue the story →',
+  },
+] as const
+
+export interface PoloProtestProgress {
+  stage: 'idle' | 'gathering' | 'invitation' | 'conversation' | 'finished'
+  step: number
+  outcome: 'heard' | 'skipped' | null
+}
+export type PoloProtestEvent =
+  | 'confirm'
+  | 'crowd-ready'
+  | 'talk'
+  | 'back'
+  | 'next'
+  | 'skip'
+  | 'reset'
+  | 'close'
+export const INITIAL_POLO_PROTEST: PoloProtestProgress = {
+  stage: 'idle',
+  step: 0,
+  outcome: null,
+}
+
+/** The story cannot advance while people gather or while the player is talking. */
+export function poloProtestTransition(
+  progress: PoloProtestProgress,
+  event: PoloProtestEvent,
+): PoloProtestProgress {
+  if (event === 'reset') return { ...INITIAL_POLO_PROTEST }
+  if (event === 'confirm' && progress.stage === 'idle')
+    return { stage: 'gathering', step: 0, outcome: null }
+  if (event === 'crowd-ready' && progress.stage === 'gathering')
+    return { ...progress, stage: 'invitation' }
+  if (event === 'talk' && progress.stage === 'invitation')
+    return { ...progress, stage: 'conversation' }
+  if (
+    event === 'skip' &&
+    (progress.stage === 'invitation' || progress.stage === 'conversation')
+  )
+    return { ...progress, stage: 'finished', outcome: 'skipped' }
+  if (event === 'close' && progress.stage === 'conversation')
+    return { ...progress, stage: 'invitation' }
+  if (progress.stage !== 'conversation') return progress
+  if (event === 'back')
+    return { ...progress, step: Math.max(0, progress.step - 1) }
+  if (event === 'next')
+    return progress.step === POLO_PROTEST_STEPS.length - 1
+      ? { ...progress, stage: 'finished', outcome: 'heard' }
+      : { ...progress, step: progress.step + 1 }
+  return progress
+}
+
+/** Completion is emitted once, after UI subscribers observe the finished state. */
+export class PoloProtestFlow {
+  private progress: PoloProtestProgress = { ...INITIAL_POLO_PROTEST }
+  private readonly onChange: (progress: PoloProtestProgress) => void
+  private readonly onComplete: (progress: PoloProtestProgress) => void
+  private destroyed = false
+
+  constructor(
+    onChange: (progress: PoloProtestProgress) => void,
+    onComplete: (progress: PoloProtestProgress) => void,
+  ) {
+    this.onChange = onChange
+    this.onComplete = onComplete
+  }
+  dispatch(event: PoloProtestEvent): void {
+    if (this.destroyed) return
+    const before = this.progress
+    this.progress = poloProtestTransition(before, event)
+    this.onChange(this.progress)
+    if (before.stage !== 'finished' && this.progress.stage === 'finished')
+      this.onComplete(this.progress)
+  }
+  destroy(): void {
+    this.destroyed = true
+  }
+}
+
+/** Lock the chosen footprint without ever sending M1 to the scene early. */
+export function lockPoloForProtest(state: PoloSceneState): PoloSceneState {
+  if (state.confirmed) throw new Error('This location is already locked.')
+  return { ...confirmPoloPlacement(state), phase: 'M0', proposal: null }
+}
+
+export function poloConstructionAfterProtest(
+  state: PoloSceneState,
+  progress: PoloProtestProgress,
+): PoloSceneState {
+  if (
+    !state.confirmed ||
+    state.phase !== 'M0' ||
+    progress.stage !== 'finished' ||
+    !progress.outcome
+  )
+    throw new Error('Hear or skip the protest before construction starts.')
+  return poloPhaseAt(state, 'M1')
+}
+
+function node<K extends keyof HTMLElementTagNameMap>(
+  tag: K,
+  className: string,
+  text = '',
+): HTMLElementTagNameMap[K] {
+  const element = document.createElement(tag)
+  element.className = className
+  element.textContent = text
+  return element
+}
+function action(text: string, className = ''): HTMLButtonElement {
+  const button = node('button', className, text)
+  button.type = 'button'
+  return button
+}
+
+export function setupPoloProtest(
+  root: HTMLElement,
+  onComplete: (progress: PoloProtestProgress) => void,
+): {
+  begin(): void
+  talk(): void
+  reset(): void
+  pending(): boolean
+  destroy(): void
+} {
+  const host = root.querySelector('.polo-studio') ?? root
+  const invitation = node('section', 'polo-protest-invitation')
+  invitation.hidden = true
+  invitation.setAttribute('aria-labelledby', 'polo-protest-invitation-title')
+  const identity = (): HTMLElement => {
+    const header = node('div', 'polo-protest-person')
+    const portrait = node('img', '')
+    portrait.src = '/avatars/maya.png'
+    portrait.alt = ''
+    portrait.width = portrait.height = 60
+    const name = node('div', '')
+    name.append(
+      node('strong', '', 'Maya · protest leader'),
+      node('span', '', 'Fictional park user'),
+    )
+    header.append(portrait, name)
+    return header
+  }
+  const title = node('h2', '', 'Before we build, listen.')
+  title.id = 'polo-protest-invitation-title'
+  const notice = node(
+    'p',
+    'polo-protest-notice',
+    'Location locked. People want to be heard.',
+  )
+  notice.setAttribute('role', 'status')
+  const talk = action('Talk to Maya →', 'polo-protest-primary')
+  const skip = action('Skip conversation', 'polo-protest-skip')
+  const choices = node('div', 'polo-protest-choices')
+  choices.append(talk, skip)
+  invitation.append(identity(), title, notice, choices)
+
+  const dialog = node('dialog', 'polo-protest-dialog')
+  dialog.setAttribute('aria-labelledby', 'polo-protest-question')
+  dialog.setAttribute('aria-describedby', 'polo-protest-disclosure')
+  const exit = action('Skip conversation', 'polo-protest-skip')
+  const header = node('header', 'polo-protest-dialog-header')
+  header.append(identity(), exit)
+  const question = node('h2', '')
+  question.id = 'polo-protest-question'
+  const reply = node('div', 'polo-protest-reply')
+  reply.setAttribute('aria-live', 'polite')
+  const answer = node('p', 'polo-protest-answer')
+  const detail = node('p', 'polo-protest-detail')
+  reply.append(answer, detail)
+  const footer = node('nav', 'polo-protest-navigation')
+  footer.setAttribute('aria-label', 'Protest conversation steps')
+  const back = action('← Back')
+  const next = action('', 'polo-protest-primary')
+  const count = node('span', 'polo-protest-progress')
+  footer.append(back, count, next)
+  const disclosure = node(
+    'p',
+    'polo-protest-disclosure',
+    'Continuing explores a fictional build. It is not community consent.',
+  )
+  disclosure.id = 'polo-protest-disclosure'
+  const escape = node(
+    'p',
+    'polo-protest-escape',
+    'Esc skips this conversation and starts the construction story.',
+  )
+  dialog.append(header, question, reply, footer, disclosure, escape)
+  host.append(invitation, dialog)
+
+  let progress = { ...INITIAL_POLO_PROTEST }
+  let gatheringTimer: ReturnType<typeof setTimeout> | undefined
+  let destroyed = false
+  const pending = (): boolean =>
+    progress.stage !== 'idle' && progress.stage !== 'finished'
+  const render = (): void => {
+    root.dataset['poloProtestPending'] = String(pending())
+    root.dataset['poloProtest'] = progress.stage
+    invitation.hidden =
+      progress.stage !== 'gathering' && progress.stage !== 'invitation'
+    const gathering = progress.stage === 'gathering'
+    talk.disabled = skip.disabled = gathering
+    notice.textContent = gathering
+      ? 'Location locked. People want to be heard.'
+      : 'People are protesting the proposed site. Hear their concerns.'
+    if (progress.stage === 'conversation') {
+      const step = POLO_PROTEST_STEPS[progress.step]
+      if (!step) return
+      question.textContent = step.question
+      answer.textContent = step.answer
+      detail.textContent = step.detail
+      count.textContent = `${String(progress.step + 1)} of ${String(POLO_PROTEST_STEPS.length)}`
+      back.disabled = progress.step === 0
+      next.textContent = step.next
+      if (!dialog.open) dialog.showModal()
+    } else if (dialog.open) dialog.close()
+  }
+  const flow = new PoloProtestFlow((next) => {
+    progress = next
+    render()
+  }, onComplete)
+  const dispatch = (event: PoloProtestEvent): void => {
+    flow.dispatch(event)
+  }
+  talk.addEventListener('click', () => {
+    dispatch('talk')
+  })
+  for (const button of [skip, exit])
+    button.addEventListener('click', () => {
+      dispatch('skip')
+    })
+  back.addEventListener('click', () => {
+    dispatch('back')
+  })
+  next.addEventListener('click', () => {
+    dispatch('next')
+  })
+  dialog.addEventListener('cancel', (event) => {
+    event.preventDefault()
+    dispatch('skip')
+  })
+  // Programmatic close cannot quietly release the construction gate.
+  dialog.addEventListener('close', () => {
+    if (!destroyed && progress.stage === 'conversation') {
+      dispatch('close')
+      talk.focus()
+    }
+  })
+  render()
+  return {
+    begin: () => {
+      if (destroyed || progress.stage !== 'idle') return
+      dispatch('confirm')
+      gatheringTimer = setTimeout(() => {
+        dispatch('crowd-ready')
+        if (
+          !destroyed &&
+          progress.stage === 'invitation' &&
+          !root.querySelector('dialog[open]')
+        )
+          dispatch('talk')
+      }, 1100)
+    },
+    talk: () => {
+      dispatch('talk')
+    },
+    reset: () => {
+      clearTimeout(gatheringTimer)
+      dispatch('reset')
+    },
+    pending,
+    destroy: () => {
+      if (destroyed) return
+      destroyed = true
+      flow.destroy()
+      clearTimeout(gatheringTimer)
+      dialog.close()
+      dialog.remove()
+      invitation.remove()
+      delete root.dataset['poloProtestPending']
+      delete root.dataset['poloProtest']
+    },
+  }
+}

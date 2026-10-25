@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { revealCommunityReplies } from './community-replies.ts'
+import { CommunityClient } from './community-client.ts'
+import { DEFAULT_CHOICES } from './consequences.ts'
+import { INITIAL_POLO_STATE } from './polo/model.ts'
+import { poloDiscussionContext } from './polo/context.ts'
+import type { CommunityRequest } from '../shared/community-contract.ts'
 import { CommunitySession } from './community-session.ts'
 import type { CommunityReply } from '../shared/community-contract.ts'
 
@@ -29,6 +34,7 @@ const messages: CommunityReply['messages'] = [
 ]
 afterEach(() => {
   vi.useRealTimers()
+  vi.unstubAllGlobals()
 })
 describe('public messages and their mood snapshots', () => {
   it('updates percentages with each visible reply rather than the whole round', async () => {
@@ -70,5 +76,110 @@ describe('public messages and their mood snapshots', () => {
     expect(session.publicThread.lines).toHaveLength(1)
     expect(session.publicMood?.concerned).toBe(80)
     expect(vi.getTimerCount()).toBe(0)
+  })
+})
+
+describe('Polo private reply routing', () => {
+  const state = {
+    ...INITIAL_POLO_STATE,
+    confirmed: true,
+    phase: 'M6' as const,
+    proposal: 'heat_reuse_neighbors' as const,
+  }
+  const context = poloDiscussionContext(state)
+  const request: CommunityRequest = {
+    mode: 'private',
+    target: 'student',
+    message: 'Who would gain from this?',
+    history: [],
+    plan: {
+      scenarioId: 'golden-gate-polo',
+      center: [...state.center],
+      bearing: state.bearing,
+      choices: { ...DEFAULT_CHOICES },
+      year: 0,
+      weather: 'drought',
+      polo: state,
+    },
+  }
+  it('uses the actual custom question for the offline fallback', async () => {
+    const fetch = vi.fn(() =>
+      Promise.resolve(Response.json({ configured: false, model: 'offline' })),
+    )
+    vi.stubGlobal('fetch', fetch)
+    const client = new CommunityClient()
+    const response = await client.exchange(
+      request,
+      context,
+      new AbortController().signal,
+    )
+    expect(response.source).toBe('demo')
+    expect(response.model).toBe('Authored scenario')
+    expect(response.messages[0]?.text).toContain('no jobs or training places')
+    expect(response.messages[0]?.text).toContain('fictional pool')
+    const followup = await client.exchange(
+      { ...request, message: 'What if nobody needs the heat?' },
+      context,
+      new AbortController().signal,
+    )
+    expect(followup.messages[0]?.text).toContain('Delivery stops')
+    expect(followup.messages[0]?.text).not.toBe(response.messages[0]?.text)
+    expect(fetch).toHaveBeenCalledTimes(2)
+  })
+  it('preserves the configured live path and its full conversation context', async () => {
+    const live = {
+      source: 'live',
+      model: 'configured-model',
+      messages: [
+        { speaker: 'student', text: 'A live answer to your own question.' },
+      ],
+    }
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({ configured: true, model: 'configured-model' }),
+      )
+      .mockResolvedValueOnce(Response.json(live))
+    vi.stubGlobal('fetch', fetch)
+    const client = new CommunityClient()
+    const withHistory: CommunityRequest = {
+      ...request,
+      history: [
+        { speaker: 'planner', text: 'Who benefits?' },
+        {
+          speaker: 'student',
+          text: 'Computing users, but public space is lost.',
+        },
+      ],
+    }
+    const controller = new AbortController()
+    const response = await client.exchange(
+      withHistory,
+      context,
+      controller.signal,
+    )
+    expect(response).toEqual(live)
+    expect(fetch).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('api/community'),
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify(withHistory),
+        signal: controller.signal,
+      }),
+    )
+  })
+  it('does not deliver a local answer after cancellation', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve(Response.json({ configured: false, model: 'offline' })),
+      ),
+    )
+    const controller = new AbortController()
+    controller.abort()
+    await expect(
+      new CommunityClient().exchange(request, context, controller.signal),
+    ).rejects.toMatchObject({ name: 'AbortError' })
   })
 })

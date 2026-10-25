@@ -11,8 +11,28 @@ import {
 } from './access.ts'
 import { INITIAL_POLO_STATE } from './model.ts'
 import { poloCoordinate } from './scene-geometry.ts'
+import { poloGeometryScale } from './size.ts'
 
 describe('Polo proposed access', () => {
+  it('keeps observed roads fixed and connects the scaled campus gate', () => {
+    for (const areaHa of [2, 6]) {
+      for (const bearing of [0, 90, 210]) {
+        const state = { ...INITIAL_POLO_STATE, areaHa, bearing }
+        const connector = poloAccessConnector(state)
+        expect(connector[0]).toEqual(POLO_ACCESS_ROAD.at(-1))
+        expect(connector[1]).toEqual(POLO_ACCESS_FIELD_ENTRY)
+        expect(connector.at(-1)).toEqual(
+          poloCoordinate(
+            0,
+            -43,
+            state.center,
+            bearing,
+            poloGeometryScale(state),
+          ),
+        )
+      }
+    }
+  })
   it('keeps the observed road and field entrance fixed while the gate follows campus pose', () => {
     const original = structuredClone(POLO_ACCESS_ROAD)
     for (const bearing of [0, 90, 180, 270, 340]) {

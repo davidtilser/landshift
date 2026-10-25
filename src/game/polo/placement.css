@@ -1,19 +1,31 @@
-.polo-placement-handle {
+.polo-placement-controls {
   position: absolute;
   z-index: 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  transform: translate(-50%, -45px);
+}
+.polo-placement-controls[hidden],
+.polo-placement-confirm[hidden] {
+  display: none;
+}
+.polo-placement-handle {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   min-height: 45px;
   padding: 11px 16px;
-  border: 2px solid #f0f6d4;
+  border: 2px solid #ead9ff;
   border-radius: 25px;
-  background: #456c56ed;
-  color: #fffef0;
+  background: #7226e8f5;
+  color: #ffffff;
   box-shadow: 0 5px 22px #1d3b3b55;
   font: inherit;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1.2;
   white-space: nowrap;
@@ -22,17 +34,37 @@
   user-select: none;
   -webkit-user-select: none;
 }
+.polo-placement-confirm {
+  min-height: 44px;
+  padding: 10px 17px;
+  border: 2px solid #efffc5;
+  border-radius: 24px;
+  background: #b1ed0c;
+  color: #213000;
+  box-shadow: 0 5px 22px #1d3b3b44;
+  font:
+    750 15px/1.2 system-ui,
+    sans-serif;
+  cursor: pointer;
+}
+.polo-placement-confirm:hover {
+  background: #c4fb31;
+}
+.polo-placement-confirm:focus-visible {
+  outline: 3px solid #7226e8;
+  outline-offset: 4px;
+}
 .polo-placement-handle[hidden] {
   display: none;
 }
 .polo-placement-handle.is-dragging {
   cursor: grabbing;
-  background: #315c49;
+  background: #5918ba;
   box-shadow: 0 7px 28px #18393080;
-  border-color: #d6ee9c;
+  border-color: #b6ee00;
 }
 .polo-placement-handle:focus-visible {
-  outline: 3px solid #a9d3e4;
+  outline: 3px solid #b6ee00;
   outline-offset: 4px;
 }
 .polo-placement-handle > span:first-child {
@@ -43,6 +75,6 @@
   .polo-placement-handle {
     min-height: 43px;
     padding: 9px 12px;
-    font-size: 11px;
+    font-size: 15px;
   }
 }

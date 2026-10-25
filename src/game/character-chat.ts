@@ -1,11 +1,42 @@
 import './character-chat.css'
+import { authoredPrivateCommunityReply } from './community-replies.ts'
+import { pagedUiText } from './ui-text.ts'
 import { dialogueChoices } from './dialogue-choices.ts'
 import type { DialogueChoice, DialogueTarget } from './dialogue-choices.ts'
 import type { DiscussionContext, DiscussionTopic } from './discussion.ts'
-import type { PlannerState } from '../shared/community-contract.ts'
+import type { CommunityId, PlannerState } from '../shared/community-contract.ts'
 import type { CommunityProfile } from './community-profiles.ts'
 import type { CommunityClient } from './community-client.ts'
 import type { CommunitySession, CommunityThread } from './community-session.ts'
+
+const PORTRAITS: Record<CommunityId | 'planner', string> = {
+  neighbor: 'maya',
+  nature: 'aisha',
+  student: 'leo',
+  operator: 'owen',
+  planner: 'community-guide',
+}
+export function communityAvatarPath(id: CommunityId | 'planner'): string {
+  return '/avatars/' + PORTRAITS[id] + '.png'
+}
+export function setCommunityAvatar(
+  element: HTMLElement,
+  id: CommunityId | 'planner',
+  fallback: string,
+): void {
+  element.textContent = fallback
+  const image = document.createElement('img')
+  image.src = communityAvatarPath(id)
+  image.alt = ''
+  image.addEventListener(
+    'error',
+    () => {
+      image.remove()
+    },
+    { once: true },
+  )
+  element.append(image)
+}
 
 interface ChatOptions {
   getContext: () => DiscussionContext
@@ -35,19 +66,27 @@ export class CharacterChat {
   private readonly send: HTMLButtonElement
   private readonly status: HTMLElement
   private readonly composer: HTMLDetailsElement
-  private readonly history: HTMLDetailsElement
-  private readonly transcript: HTMLElement
+  private readonly logResizeObserver: ResizeObserver
+  private followBottom = true
+  private logWidth = 0
+  private logHeight = 0
   private profile: CommunityProfile | undefined
   private pending: Pending | undefined
   private error = ''
   private destroyed = false
+  private readonly textPages = new Map<number, number>()
+  private renderedProfile: CommunityId | undefined
+  private readonly renderedLines = new Map<
+    number,
+    { text: string; element: HTMLElement }
+  >()
 
   constructor(options: ChatOptions) {
     this.options = options
-    this.dialog.className = 'character-chat'
+    this.dialog.className = 'character-chat is-conversation'
     this.dialog.setAttribute('aria-labelledby', 'chat-person-name')
     this.dialog.innerHTML =
-      '<header class="chat-header"><span class="chat-avatar" aria-hidden="true"></span><div><span class="chat-label">MEET YOUR NEIGHBORS</span><h2 id="chat-person-name"></h2><p class="chat-subtitle"></p></div><button type="button" class="chat-close" aria-label="Close private conversation">×</button></header><div class="chat-messages" role="log" aria-label="Private dialogue" aria-live="polite" aria-relevant="additions text"></div><p class="dialogue-prompt">YOUR MOVE <span>Choose a line · 1 / 2 / 3</span></p><div class="chat-prompts" role="group" aria-label="Choose your dialogue"></div><p class="chat-status" role="status"></p><details class="chat-custom" open><summary>Write your own reply</summary><form class="chat-composer"><label for="chat-question" class="sr-only">Your private message</label><input id="chat-question" maxlength="600" autocomplete="off" placeholder="What would you like to ask?"><button type="submit" aria-label="Send private message">↑</button></form></details><details class="chat-history" hidden><summary>Earlier dialogue</summary><div class="chat-transcript"></div></details><footer class="chat-footer"><span>Fictional character · not shared to Community</span><button type="button" class="chat-back">Back to map ↗</button></footer>'
+      '<header class="chat-header"><span class="chat-avatar" aria-hidden="true"></span><div><span class="chat-label">MEET YOUR NEIGHBORS</span><h2 id="chat-person-name"></h2><p class="chat-subtitle"></p></div><button type="button" class="chat-close" aria-label="Close private conversation">×</button></header><div class="chat-messages" role="log" aria-label="Private dialogue" aria-live="polite" aria-relevant="additions text"></div><p class="dialogue-prompt">KEEP TALKING <span>Choose a follow-up · 1 / 2 / 3</span></p><div class="chat-prompts" role="group" aria-label="Choose your dialogue"></div><div class="chat-status" role="status"></div><details class="chat-custom" open><summary>Write your own reply</summary><form class="chat-composer"><label for="chat-question" class="sr-only">Your private message</label><input id="chat-question" maxlength="600" autocomplete="off" placeholder="What would you like to ask?"><button type="submit" aria-label="Send private message">↑</button></form></details><footer class="chat-footer"><span>Fictional character · not shared to Community</span><button type="button" class="chat-back">Back to map ↗</button></footer>'
     const get = <T extends HTMLElement>(
       selector: string,
       type: { new (): T },
@@ -66,8 +105,14 @@ export class CharacterChat {
     this.send = get('button[type="submit"]', HTMLButtonElement)
     this.status = get('.chat-status', HTMLElement)
     this.composer = get('.chat-custom', HTMLDetailsElement)
-    this.history = get('.chat-history', HTMLDetailsElement)
-    this.transcript = get('.chat-transcript', HTMLElement)
+    this.list.addEventListener('scroll', this.onLogScroll, { passive: true })
+    this.logResizeObserver = new ResizeObserver(() => {
+      this.logWidth = this.list.clientWidth
+      this.logHeight = this.list.clientHeight
+      if (this.followBottom && this.dialog.open && !this.destroyed)
+        this.list.scrollTop = this.list.scrollHeight
+    })
+    this.logResizeObserver.observe(this.list)
     get('.chat-close', HTMLButtonElement).addEventListener('click', () => {
       this.dialog.close()
     })
@@ -125,9 +170,9 @@ export class CharacterChat {
     this.cancel()
     this.options.beforeOpen()
     this.profile = profile
+    this.followBottom = true
     this.error = ''
     this.refresh()
-    this.history.open = false
     this.composer.open = true
     this.render()
     if (!this.dialog.open) this.dialog.showModal()
@@ -168,31 +213,13 @@ export class CharacterChat {
       : undefined
   }
   private choices(): DialogueChoice[] {
-    if (this.currentThread()?.freeText) return []
-    if (this.options.getContext().polo)
-      return [
-        {
-          kind: 'say',
-          topic: 'park',
-          label: 'What matters most to you?',
-          hint: 'Hear their perspective',
-          icon: '💬',
-        },
-        {
-          kind: 'say',
-          topic: 'benefit',
-          label: 'Who benefits from this idea?',
-          hint: 'Explore who gains and loses',
-          icon: '🤝',
-        },
-        {
-          kind: 'say',
-          topic: 'other',
-          label: 'What are we missing?',
-          hint: 'Ask about the trade-offs',
-          icon: '🔎',
-        },
-      ]
+    if (this.options.getContext().polo && this.profile)
+      return dialogueChoices(
+        this.profile.id,
+        this.currentThread()?.topic,
+        this.options.getContext(),
+        this.currentThread()?.lines,
+      )
     if (this.profile?.id === 'operator')
       return [
         {
@@ -230,51 +257,54 @@ export class CharacterChat {
       current = this.currentThread()
     if (!profile || !current) return
     this.title.textContent = profile.name
-    this.avatar.textContent = profile.icon
+    setCommunityAvatar(this.avatar, profile.id, profile.icon)
     this.dialog.dataset['voice'] = profile.id
-    this.dialog.classList.toggle('is-free-chat', current.freeText)
-    this.promptList.hidden = current.freeText
+    this.composer.open = true
+    const choices = this.choices()
+    this.promptList.hidden = choices.length === 0
     const prompt = this.dialog.querySelector<HTMLElement>('.dialogue-prompt')
-    if (prompt) prompt.hidden = current.freeText
-    if (current.freeText) this.composer.open = true
-    this.list.replaceChildren()
-    this.transcript.replaceChildren()
+    if (prompt) prompt.hidden = choices.length === 0
+    if (this.renderedProfile !== profile.id) {
+      this.list.replaceChildren()
+      this.renderedLines.clear()
+      this.renderedProfile = profile.id
+    }
+    const ids = new Set(current.lines.map((line) => line.id))
+    for (const [id, cached] of this.renderedLines) {
+      if (!ids.has(id)) {
+        cached.element.remove()
+        this.renderedLines.delete(id)
+      }
+    }
     const latestAssistant = current.lines.findLastIndex(
       (line) => line.speaker !== 'planner',
     )
-    const latestUser = current.lines.findLastIndex(
-      (line) => line.speaker === 'planner' && line.kind !== 'update',
-    )
-    const latestNotice = current.lines.findLastIndex(
-      (line) => line.kind === 'update',
-    )
-    const visible = new Set([
-      latestAssistant,
-      latestUser > latestNotice ? latestUser : -1,
-      latestNotice,
-    ])
-    for (const [index, line] of current.lines.entries()) {
+    for (const line of current.lines) {
+      const cached = this.renderedLines.get(line.id)
+      if (cached?.text === line.text) continue
       const role =
         line.kind === 'update'
           ? 'notice'
           : line.speaker === 'planner'
             ? 'user'
             : 'assistant'
-      const element = document.createElement('p')
-      element.className = 'chat-message ' + role
-      element.textContent = line.text
-      element.setAttribute(
-        'aria-label',
-        (role === 'notice'
+      const speaker =
+        role === 'notice'
           ? 'Plan update'
           : role === 'user'
             ? 'You'
-            : profile.name) +
-          ': ' +
-          line.text,
-      )
-      if (current.freeText || visible.has(index)) this.list.append(element)
-      else this.transcript.append(element)
+            : profile.name
+      const element = pagedUiText(line.text, 'chat-message ' + role, {
+        page: this.textPages.get(line.id) ?? 0,
+        label: speaker + ' message pages',
+        onPageChange: (page) => {
+          this.textPages.set(line.id, page)
+        },
+      })
+      element.setAttribute('aria-label', speaker)
+      cached?.element.replaceWith(element)
+      if (element.parentElement !== this.list) this.list.append(element)
+      this.renderedLines.set(line.id, { text: line.text, element })
     }
     const source = current.lines[latestAssistant]?.source
     this.subtitle.textContent =
@@ -282,11 +312,12 @@ export class CharacterChat {
       (source === 'live'
         ? 'Gemini live'
         : source === 'demo'
-          ? 'Demo reply'
+          ? this.options.getContext().polo
+            ? 'Authored scenario'
+            : 'Demo reply'
           : 'Scenario greeting')
-    this.history.hidden = current.freeText || !this.transcript.childElementCount
     this.promptList.replaceChildren()
-    this.choices().forEach((choice, index) => {
+    choices.forEach((choice, index) => {
       const button = document.createElement('button')
       button.type = 'button'
       button.className = 'dialogue-choice ' + choice.kind
@@ -309,14 +340,33 @@ export class CharacterChat {
       button.append(icon, copy, key)
       this.promptList.append(button)
     })
-    this.status.textContent =
-      this.error || (this.pending ? profile.name + ' is replying…' : '')
+    this.status.replaceChildren(
+      pagedUiText(
+        this.error || (this.pending ? profile.name + ' is replying…' : ''),
+      ),
+    )
     this.input.value = current.draft
     this.input.disabled = Boolean(this.pending)
     this.send.disabled = Boolean(this.pending) || !current.draft.trim()
     requestAnimationFrame(() => {
-      if (this.list.isConnected) this.list.scrollTop = this.list.scrollHeight
+      if (this.list.isConnected && this.followBottom) {
+        this.logWidth = this.list.clientWidth
+        this.logHeight = this.list.clientHeight
+        this.list.scrollTop = this.list.scrollHeight
+      }
     })
+  }
+  private readonly onLogScroll = (): void => {
+    // A responsive layout can emit scroll before ResizeObserver runs. Keep the
+    // previous reading intent until that observer has handled the new viewport.
+    if (
+      this.list.clientWidth !== this.logWidth ||
+      this.list.clientHeight !== this.logHeight
+    )
+      return
+    this.followBottom =
+      this.list.scrollHeight - this.list.clientHeight - this.list.scrollTop <=
+      32
   }
   private choose(index: number): void {
     if (this.pending) return
@@ -333,6 +383,7 @@ export class CharacterChat {
     const message = value.trim().slice(0, 600)
     if (!current || !profile || !message || this.pending || this.destroyed)
       return
+    this.followBottom = true
     if (topic === undefined) this.options.session.useFreeText(current)
     const history = this.options.session.history(current)
     const lineId = this.options.session.append(current, [
@@ -349,17 +400,25 @@ export class CharacterChat {
     this.error = ''
     this.render()
     try {
-      const reply = await this.options.client.exchange(
-        {
-          mode: 'private',
-          target: profile.id,
-          plan: this.options.getPlan(),
-          history,
-          message,
-        },
-        this.options.getContext(),
-        pending.controller.signal,
-      )
+      const request = {
+        mode: 'private' as const,
+        target: profile.id,
+        plan: this.options.getPlan(),
+        history,
+        message,
+      }
+      const context = this.options.getContext()
+      const authored =
+        topic !== undefined
+          ? authoredPrivateCommunityReply(request, context)
+          : undefined
+      const reply =
+        authored ??
+        (await this.options.client.exchange(
+          request,
+          context,
+          pending.controller.signal,
+        ))
       if (!this.isCurrent(pending)) return
       this.options.session.append(
         current,
@@ -379,7 +438,7 @@ export class CharacterChat {
         this.pending = undefined
         this.render()
         if (this.dialog.open) {
-          if (this.composer.open) this.input.focus()
+          if (topic === undefined) this.input.focus()
           else
             this.promptList.querySelector<HTMLButtonElement>('button')?.focus()
         }
@@ -409,11 +468,17 @@ export class CharacterChat {
   reset(): void {
     this.close()
     this.profile = undefined
+    this.textPages.clear()
+    this.renderedLines.clear()
+    this.renderedProfile = undefined
+    this.followBottom = true
     this.error = ''
   }
   destroy(): void {
     this.destroyed = true
     this.reset()
+    this.logResizeObserver.disconnect()
+    this.list.removeEventListener('scroll', this.onLogScroll)
     this.dialog.remove()
   }
 }

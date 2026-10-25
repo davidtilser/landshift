@@ -1,6 +1,7 @@
 import type { LngLat } from '../geometry.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
 import { poloCoordinate, POLO_LAYOUT } from './scene-geometry.ts'
+import { poloGeometryScale } from './size.ts'
 
 // DataSF centerlines 11995000 (MLK Jr Drive) and 9007000 (Middle West Drive),
 // in entrance-to-field order, following the user's marked approach.
@@ -42,8 +43,9 @@ export function accessDistance(a: LngLat, b: LngLat): number {
 
 /** Route the final link around the campus footprint to its south-side gate. */
 export function poloAccessConnector(state: PoloSceneState): LngLat[] {
-  const w = POLO_LAYOUT.pad.width / 2 + 20
-  const h = POLO_LAYOUT.pad.depth / 2 + 20
+  const scale = poloGeometryScale(state)
+  const w = (POLO_LAYOUT.pad.width * scale) / 2 + 20
+  const h = (POLO_LAYOUT.pad.depth * scale) / 2 + 20
   const angle = (state.bearing * Math.PI) / 180
   const east =
     (POLO_ACCESS_FIELD_ENTRY[0] - state.center[0]) *
@@ -91,7 +93,7 @@ export function poloAccessConnector(state: PoloSceneState): LngLat[] {
       .filter((point) => travel(point) > 0.01 && travel(point) < length)
       .sort((a, b) => travel(a) - travel(b)),
     [0, -h],
-    [0, -43],
+    [0, -43 * scale],
   ]
   const end = POLO_ACCESS_ROAD.at(-1)
   if (!end) throw new Error('Missing access-road endpoint')

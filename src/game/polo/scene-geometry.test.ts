@@ -8,8 +8,31 @@ import {
 } from './scene-geometry.ts'
 import { INITIAL_POLO_STATE, POLO_CENTER, POLO_PROPOSALS } from './model.ts'
 import { POLO_BASELINE } from './baseline.ts'
+import { poloGeometryScale, poloSizedPhase } from './size.ts'
 
 describe('schematic Polo scene boundaries', () => {
+  it('keeps selected hectare boundaries, visible roofs and model areas consistent', () => {
+    for (const areaHa of [2, 2.5, 4, 5.5, 6]) {
+      const state = { ...INITIAL_POLO_STATE, areaHa }
+      const scale = poloGeometryScale(state)
+      const width = POLO_LAYOUT.pad.width * scale
+      const depth = POLO_LAYOUT.pad.depth * scale
+      expect(width * depth).toBeCloseTo(areaHa * 10_000)
+      for (const phase of POLO_BASELINE.phases) {
+        const areas = poloSurfaceAreas(phase.id, areaHa)
+        expect(
+          Object.values(areas).reduce((sum, area) => sum + area, 0),
+        ).toBeCloseTo(areaHa * 10_000)
+        expect(areas).toEqual(poloSizedPhase(state, phase.id).data.areasM2)
+      }
+      const west = poloCoordinate(-160, 0, state.center, 90, scale)
+      const east = poloCoordinate(160, 0, state.center, 90, scale)
+      expect((west[1] - east[1]) * 111320).toBeCloseTo(width)
+      expect(poloCoordinate(0, 0, state.center, 90, scale)).toEqual(
+        state.center,
+      )
+    }
+  })
   it('matches the research land and roof areas without claiming a surveyed polygon', () => {
     expect(POLO_LAYOUT.pad.width * POLO_LAYOUT.pad.depth).toBe(40000)
     expect(
