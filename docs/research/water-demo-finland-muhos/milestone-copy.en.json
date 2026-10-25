@@ -1,0 +1,129 @@
+{
+  "shared": {
+    "title": "Muhos: what happens to water when forest land becomes a data-centre site?",
+    "opening": "Real project setting and dated official evidence; an educational reconstruction, not a finding of criminal guilt or a prediction of completed construction.",
+    "default_view": "Open at M0 with a schematic forest/peatland setting, project boundary and nearby Oulujoki. Show a short change animation, one water card and one wider-system connection at each step. The optional rainfall replay starts off. Persistent labels distinguish reported events, planning estimates, teaching examples and unknowns.",
+    "navigation": "Continue, Back, direct M0–M6 timeline selection, orbit/zoom/reset camera, replay/skip animation, optional rainfall and evidence details. No mandatory task, quiz or new planning editor. Restore complete states on jumps; never accumulate impacts on replay. At M6, the older TVE1 calculation is optional historical planning detail; it never becomes an active operating forecast.",
+    "pause_handling": "At M2 show the current work-pause status. Continuing to M3–M6 opens a clearly labelled conditional future, not a claim that permits exist or work may resume. Essential protective/monitoring work during the pause is distinct from further development.",
+    "rainfall_rule": "Rainfall arrows are qualitative route illustrations. Gross rain volume is not measured runoff, treatment overflow or water entering the river. No rain replay at M1; no winter simulation. Do not animate the whole river changing colour or fish dying.",
+    "optional_questions": [
+      {
+        "question": "Did Google have no permissions at all?",
+        "answer": "The documented dispute concerns EIA sequencing and, at Muhos, a water-permit requirement for drainage. Some notifications and municipal processes existed. The October authority record and police referral do not establish a criminal conviction.",
+        "source_ids": ["F03", "F04", "F05", "F08"]
+      },
+      {
+        "question": "Will homes lose water?",
+        "answer": "No household shortage is established. The 2025 river-water option describes a dedicated river intake because local waterworks and aquifer capacity are insufficient for its cooling requirement. This is not evidence of an existing residential supply cut.",
+        "source_ids": ["F02"]
+      },
+      {
+        "question": "Will air cooling remove the construction impacts?",
+        "answer": "Changing heat rejection does not reverse forest removal, ditching or exposed-soil runoff. The EIA air-cooling alternative needs its own confirmed operational water budget; it must not inherit the water-cooling upper estimate.",
+        "source_ids": ["F02", "F05"]
+      },
+      {
+        "question": "Can we stop monitoring when development pauses?",
+        "answer": "A pause does not automatically stop rainfall, drainage or oxidation of disturbed material. Necessary protective work and monitoring have a different purpose from continued construction.",
+        "source_ids": ["F05"]
+      }
+    ]
+  },
+  "cards": [
+    {
+      "id": "M0",
+      "title": "The project sits in a river catchment.",
+      "default_scene": "Schematic pre-clearance forest/peatland setting; show a 571 ha planning boundary, Oulujoki and a separate weather-reference label. Do not label all land intact forest.",
+      "what_changes": "Reconstruct the starting setting, before the reported clearance.",
+      "why": "Water pathways connect land, ditches, streams and the river.",
+      "wider_implication": "This setting already has hydrological connections; changing vegetation and drainage can affect water beyond the boundary.",
+      "primary_metrics": ["facts.project_area_ha"],
+      "source_ids": ["F01", "F02"],
+      "evidence_status": "reconstructed_baseline",
+      "limits": "The packet supplies no surveyed boundary, intact-forest classification or pre-work runoff measurement."
+    },
+    {
+      "id": "M1",
+      "title": "About 330 hectares were reported cleared.",
+      "default_scene": "Remove trees within an authored area-calibrated mask; label its shape schematic. Leave ground-cover removal for the next step.",
+      "what_changes": "Show the company-reported clearance extent, not a guessed tree count.",
+      "why": "Removing canopy changes interception and vegetation water use; subsequent ground disturbance is a separate intervention.",
+      "wider_implication": "Area removed is a documented scope figure; the change in litres of runoff from felling alone is unquantified.",
+      "primary_metrics": ["facts.reported_cleared_area_ha"],
+      "source_ids": ["F06", "F02"],
+      "evidence_status": "reported_event",
+      "limits": "330 ha is approximate and is not interchangeable with the 571 ha envelope. No canopy-only runoff coefficient is assigned."
+    },
+    {
+      "id": "M2",
+      "title": "Ditches connect disturbed land to Oulujoki.",
+      "default_scene": "Reveal schematic ditches, sediment-control structures and an arrow to Oulujoki. Show the current pause note. In optional summer rain, use local-pathway cues rather than whole-river pollution.",
+      "what_changes": "Authority documents describe 8.9 km of proposed new ditches, largely already built, and 275 ha in VA1+VA2.",
+      "why": "Drainage and excavation can expose sulfide-bearing material to oxygen and create acidic, metal-bearing runoff; heavy rain and snowmelt matter.",
+      "wider_implication": "Water protection and monitoring remain necessary while development is paused. This is a more specific local water issue than cooling demand alone.",
+      "primary_metrics": [
+        "facts.new_ditch_length_km",
+        "facts.drainage_va1_va2_ha",
+        "rain.gross_on_va1_va2_m3"
+      ],
+      "source_ids": ["F05"],
+      "evidence_status": "authority_documented_current_context",
+      "limits": "Gross rain is not discharge. Exact ditch geometry, individual stripped/compacted areas, pH, metal concentrations and pollution extent are not quantified by this packet."
+    },
+    {
+      "id": "M3",
+      "title": "A future ground-preparation step still needs water protection.",
+      "default_scene": "Display Conditional future. Animate compaction only schematically on an already disturbed working patch; keep monitoring and treatment icons.",
+      "what_changes": "A teaching continuation after the documented pause, not a claim that all compaction has happened.",
+      "why": "More activity can disturb surfaces and drainage; the site-specific chemistry is not captured by a generic curve number.",
+      "wider_implication": "A construction pause and rainfall protection are separate processes; protective work is not automatic authorization to restart development.",
+      "primary_metrics": [],
+      "source_ids": ["F03", "F05"],
+      "evidence_status": "conditional_future",
+      "limits": "No additional disturbed area, compaction runoff increment or construction-water quantity is invented."
+    },
+    {
+      "id": "M4",
+      "title": "Nine halls are a proposal, not the current landscape.",
+      "default_scene": "Display Conditional future. Add nine schematic hall blocks following the EIA layout reference, with controlled soil/washwater handling.",
+      "what_changes": "Represent the proposed buildings and supporting works.",
+      "why": "Sealed surfaces and construction materials create water-management needs.",
+      "wider_implication": "The river connection remains relevant during building works; treatment and monitoring must follow an actual design.",
+      "primary_metrics": ["facts.planned_halls"],
+      "source_ids": ["F01", "F02", "F05"],
+      "evidence_status": "conditional_future",
+      "limits": "Hall footprints, sealed percentage, concrete quantities, workdays and total construction water are not established; none is silently scaled from SF."
+    },
+    {
+      "id": "M5",
+      "title": "Opening is conditional on the assessed design.",
+      "default_scene": "Display Conditional future. Show completed schematic buildings and generic treatment/monitoring structures; no invented tank size, approval checkmark or proven treatment efficiency.",
+      "what_changes": "Explain readiness for a future opening without implying it has occurred.",
+      "why": "A proposed water-management structure does not prove that acidity, sediment and exceptional flows are controlled.",
+      "wider_implication": "The programme and October authority response have different dates and roles; later assessment and permissions must determine the implementable design.",
+      "primary_metrics": [],
+      "source_ids": ["F02", "F05"],
+      "evidence_status": "conditional_future",
+      "limits": "No commissioning water, storage capacity, release rate or compliant final design is provided."
+    },
+    {
+      "id": "M6",
+      "title": "Air cooling is reported; final water demand is unverified.",
+      "default_scene": "Display Conditional future and Air cooling: reported intent. Show the TVE2 closed-loop/air-cooler schematic as an illustrative planning option, not a certified final design. An optional Historical water-cooling alternative panel shows TVE1; only that panel animates river intake and return.",
+      "what_changes": "Explain reported air-cooling intent and the limits of the available primary planning documents.",
+      "why": "The river-water option needs a separate intake/treatment solution; air cooling has a different and unquantified water budget here.",
+      "wider_implication": "A normalized TVE1 example splits 1,000 L of pumped cooling water into 700 L evaporation and 300 L return to the river. It does not split the whole process-plus-domestic estimate.",
+      "primary_metrics": [],
+      "source_ids": ["F02", "F14"],
+      "evidence_status": "conditional_planning_alternatives",
+      "limits": "20 million m³/year is a preliminary maximum total requirement, not chosen technology, cooling-only use or observed operation. No household shortage, river-level change, thermal plume or IT-normalized efficiency is calculated. Kaleva reports intended air cooling; this packet has no verified final design or quantified TVE2 annual water budget.",
+      "detail_metrics": [
+        "operation.preliminary_maximum_total_m3_year",
+        "operation.even_day_equivalent_m3_day",
+        "operation.normalized_cooling_makeup_l",
+        "operation.normalized_cooling_evaporation_l",
+        "operation.normalized_cooling_return_l"
+      ]
+    }
+  ]
+}

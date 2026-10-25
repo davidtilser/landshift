@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "scenario_id": "fi-muhos-water-v1",
+  "locale": "en",
+  "as_of": "2026-10-24",
+  "status": "fact_led_educational_case_with_explicit_future_unknowns",
+  "location": {
+    "label": "Google/Tuike Finland Muhos — Leppiniemi/Pyhänsivu, Finland",
+    "geometry": "Use EIA Figure 3-1, PDF page 28 / printed page 27, as the layout reference. The 571 ha planning envelope is not a measured forest or exact clearance polygon supplied by this packet.",
+    "baseline": "Forested and peatland project setting; not every hectare is established as intact forest.",
+    "site_point_wgs84": null
+  },
+  "inputs": {
+    "project_area_ha": {
+      "value": 571,
+      "unit": "ha",
+      "kind": "developer_planning_parameter",
+      "source_ids": ["F01", "F02"],
+      "note": "Planning envelope; not cleared or sealed area."
+    },
+    "reported_cleared_area_ha": {
+      "value": 330,
+      "unit": "ha",
+      "kind": "reported_company_statement",
+      "source_ids": ["F06"],
+      "note": "Approximate clearance confirmed by a company spokesperson in Yle reporting; not our GIS measurement or a tree count."
+    },
+    "planned_halls": {
+      "value": 9,
+      "unit": "buildings",
+      "kind": "developer_planning_parameter",
+      "source_ids": ["F01", "F02"],
+      "note": "Planned count; no verified footprint, floor area or IT capacity."
+    },
+    "drainage_va1_va2_ha": {
+      "value": 275,
+      "unit": "ha",
+      "kind": "authority_documented_parameter",
+      "source_ids": ["F05"],
+      "note": "Combined VA1 and VA2 only. Not the whole catchment, clearance or project envelope. VA3 area is not supplied in the cited document."
+    },
+    "new_ditch_length_km": {
+      "value": 8.9,
+      "unit": "km",
+      "kind": "authority_documented_parameter",
+      "source_ids": ["F05"],
+      "note": "Proposed new ditches described as largely already built, not a survey proving the whole 8.9 km was completed."
+    },
+    "preliminary_maximum_total_water_need_m3_year": {
+      "value": 20000000,
+      "unit": "m³/year",
+      "kind": "developer_preliminary_upper_estimate",
+      "source_ids": ["F02"],
+      "note": "2025 programme estimate including process and domestic water. Not measured use, net evaporation or the final selected air-cooling demand."
+    },
+    "water_cooling_evaporation_fraction": {
+      "value": 0.7,
+      "unit": "fraction of pumped cooling water",
+      "kind": "developer_planning_parameter",
+      "source_ids": ["F02"],
+      "note": "TVE1 only, fraction of river-pumped cooling water. Never apply it to total process plus domestic water."
+    },
+    "water_cooling_return_fraction": {
+      "value": 0.3,
+      "unit": "fraction of pumped cooling water",
+      "kind": "developer_planning_parameter",
+      "source_ids": ["F02"],
+      "note": "TVE1 return to Oulujoki, subject to suitable treatment and design. Do not use the SF sanitary blowdown route."
+    },
+    "illustrative_cooling_makeup_l": {
+      "value": 1000,
+      "unit": "L",
+      "kind": "teaching_normalisation",
+      "source_ids": [],
+      "note": "An accounting example, not a daily plant demand or currently operating equipment."
+    },
+    "year_days_for_equivalent": {
+      "value": 365,
+      "unit": "days",
+      "kind": "teaching_normalisation",
+      "source_ids": [],
+      "note": "Converts an annual upper estimate into an even-day equivalent, not peak or actual daily demand."
+    }
+  },
+  "event": {
+    "raw_file": "raw/fmi-oulu-108040-2026-08.xml",
+    "station_id": "108040",
+    "station_name": "Oulu Kaukovainio",
+    "record_timestamp": "2026-08-16T00:00:00Z",
+    "selection": "Largest positive daily depth in the frozen August 2026 regional station query: a selected strong summer-rain example, with no assigned return period.",
+    "surface_assumption": "Thawed-surface rainfall illustration only. Snowmelt and frozen-ground runoff require different modelling.",
+    "source_ids": ["F10", "F11", "F12"]
+  },
+  "current_state": {
+    "project_status": "preparatory_work_paused_reported_by_company",
+    "current_pause_source_ids": ["F03", "F04", "F05"],
+    "police_investigation_requested": true,
+    "water_management_plan_requested_by": "2026-11-05",
+    "eia_completion_confirmed": false,
+    "criminal_conviction_established_by_sources": false
+  },
+  "operation": {
+    "default_display": "Conditional planning futures, not an operating Google campus or a confirmed final technology.",
+    "selected_actual_technology": null,
+    "air_option": "TVE2: air coolers and chillers, with two closed loops in the 2025 programme; no verified annual site-water quantity.",
+    "river_option": "TVE1: river-fed evaporative cooling; use the 70/30 split only on an explicitly normalized cooling example.",
+    "actual_annual_supply_m3": null,
+    "actual_cooling_makeup_m3": null,
+    "actual_return_m3": null,
+    "actual_evaporation_m3": null,
+    "municipal_cooling_capacity": "The EIA programme says the local waterworks and aquifer cannot deliver the cooling requirement for the river-water option. It describes a separate intake/treatment solution, not household supply cuts.",
+    "source_ids": ["F02"],
+    "reported_intent": "Kaleva reports intended air cooling. Final selected design and annual water demand have not been verified in primary material obtained for this packet.",
+    "reported_intent_source_ids": ["F14"]
+  },
+  "unknowns": {
+    "actual_stripped_area_ha": null,
+    "final_roof_area_ha": null,
+    "final_sealed_area_ha": null,
+    "construction_water_total_m3": null,
+    "generated_event_runoff_m3": null,
+    "post_treatment_event_discharge_m3": null,
+    "site_pH": null,
+    "river_pH": null,
+    "metal_load_kg": null,
+    "site_spare_potable_capacity_m3_day": null,
+    "households_without_water": null,
+    "river_level_change_m": null
+  },
+  "boundaries": [
+    "The 571 ha, 330 ha and 275 ha figures have different scopes; do not add or subtract them to invent land-cover or catchment partitions.",
+    "The weather replay yields gross precipitation volumes only. No SF/SJ curve number, runoff coefficient or soil group is transferred to peat, fine-grained soil, black shale or winter conditions.",
+    "Future construction, opening and operation are conditional. The present case does not establish completed buildings or operating water use.",
+    "No numerical pollution, flooding, fish mortality, wolf displacement, household shortage or infrastructure expansion is predicted.",
+    "No SF cooling intensity, CoC 4 or sanitary discharge route is imported. TVE1 normalized fractions do not apply to the 20 million m³ process-plus-domestic figure."
+  ]
+}

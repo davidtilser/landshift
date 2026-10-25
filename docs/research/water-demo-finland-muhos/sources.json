@@ -1,0 +1,113 @@
+{
+  "retrieved_local_date": "2026-10-24",
+  "sources": [
+    {
+      "id": "F01",
+      "title": "Muhos EIA project register",
+      "url": "https://www.ymparisto.fi/fi/osallistu-ja-vaikuta/ymparistovaikutusten-arviointi/palvelinkeskus-muhos",
+      "use_and_limits": "Authority register, updated 17 September 2026: 571 ha, nine planned halls, pending EIA and TVE1/TVE2 alternatives. Not an approved final design."
+    },
+    {
+      "id": "F02",
+      "title": "Tuike/Sweco Muhos EIA programme, 16 September 2025",
+      "url": "https://www.ymparisto.fi/sites/default/files/documents/Muhoksen%20palvelinkeskuksen%20arviointiohjelma.pdf",
+      "use_and_limits": "Primary developer programme, 16 September 2025. PDF pp.28–32 / printed pp.27–31: layout, cooling, supply and drainage. Printed p.28: TVE1 approximately 70% evaporation and 30% return of pumped cooling water. Printed p.29: preliminary maximum total requirement about 20 million m³/year, process plus domestic; local waterworks/aquifer cannot provide that cooling supply. Printed pp.30–31: return treatment, temperature and rainfall context. Preliminary design estimates, not operation measurements."
+    },
+    {
+      "id": "F03",
+      "title": "LVV notice to suspend preparatory works, 6 October 2026",
+      "url": "https://www.sttinfo.fi/tiedote/72390663/lupa-ja-valvontavirasto-kehottaa-tuike-finland-oyta-keskeyttamaan-muhoksen-ja-kajaanin-datakeskushankkeiden-valmistelutoimet?lang=fi&publisherId=69821631",
+      "use_and_limits": "Primary regulator notice: stop environment-altering preparatory works pending EIA completion, immediately and no later than 23 October 2026. A notice with possible enforcement, not a criminal conviction or permanent project ban."
+    },
+    {
+      "id": "F04",
+      "title": "LVV update, 22 October 2026",
+      "url": "https://www.sttinfo.fi/tiedote/72435808/lupa-ja-valvontavirasto-vaatii-tuike-finland-oylta-toimenpiteita?lang=fi&publisherId=69821631",
+      "use_and_limits": "Primary regulator update: company reported work stopped; detailed water-management plan requested by 5 November; police investigation requested. Investigation does not establish criminal guilt."
+    },
+    {
+      "id": "F05",
+      "title": "LVV detailed water-management response, 22 October 2026",
+      "url": "https://www.sttinfo.fi/files/69821631/72435808/532934/fi",
+      "use_and_limits": "Primary eight-page PDF. Printed p.4: 8.9 km of ditches, largely built; VA1+VA2 total 275 ha; receiving water Oulujoki. Printed p.5: reported monitoring indicates acidification, sulfide/black-shale risks and limits of lime-only controls. Printed p.6: local outfall concerns, smaller effects after river mixing. Printed pp.3–4: heavy rain, snowmelt and independent monitoring. No numerical pH or metal load is provided."
+    },
+    {
+      "id": "F06",
+      "title": "Yle: Google response and clearance areas, 8 October 2026",
+      "url": "https://yle.fi/a/74-20250109",
+      "use_and_limits": "Yle reporting quotes a Google spokesperson confirming approximately 330 ha cleared in Muhos and under 200 ha in Kajaani. Reported company estimate, not our satellite measurement or tree census."
+    },
+    {
+      "id": "F07",
+      "title": "Google Muhos project page, September 2026 update",
+      "url": "https://www.datacenters.google/locations/muhos/",
+      "use_and_limits": "Company project identity and position. The September 2026 compliance statement predates October regulatory action. Combined land acquisition of 2,100 ha covers Muhos and Kajaani, not the Muhos project or clearance alone."
+    },
+    {
+      "id": "F08",
+      "title": "City of Kajaani clarification, 22 October 2026",
+      "url": "https://kdce.fi/city-of-kajaani-clarifies-the-progress-of-googles-data-center-project-in-kajaani/",
+      "use_and_limits": "Primary municipal explanation for Kajaani: forest-use declarations and no landscape-work permit required at logging time; no building permit granted. Do not transfer it to Muhos or treat it as resolving EIA obligations."
+    },
+    {
+      "id": "F09",
+      "title": "Yle: Hamina habitat clearance, 20 October 2026",
+      "url": "https://yle.fi/a/74-20252425",
+      "use_and_limits": "A separate incident reported by Yle: about 1.3 ha of flying-squirrel habitat cleared without permission during 2018–2019 Hamina expansion. Do not merge it with Muhos in 2026."
+    },
+    {
+      "id": "F10",
+      "title": "FMI Oulu Kaukovainio daily observations, August 2026",
+      "url": "https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::observations::weather::daily::multipointcoverage&fmisid=108040&starttime=2026-08-01T00:00:00Z&endtime=2026-08-31T00:00:00Z&parameters=rrday,tday,snow",
+      "use_and_limits": "Primary meteorological data. FMISID 108040, Oulu Kaukovainio, 64.99685 / 25.52233. Record timestamp 16 August 2026: rrday 40.0 mm and tday 16.0°C. Offsite regional reference, not an on-project gauge. Read field order from XML; negative/missing values are not silently zeroed. No annual runoff inferred."
+    },
+    {
+      "id": "F11",
+      "title": "FMI WFS open-data manual",
+      "url": "https://en.ilmatieteenlaitos.fi/open-data-manual-fmi-wfs-services",
+      "use_and_limits": "Primary API documentation and licence links; retain FMI attribution. A place=Muhos query resolved to Oulu Kaukovainio, so explicit station ID is retained. Queries for older Muhos stations did not provide usable recent records."
+    },
+    {
+      "id": "F12",
+      "title": "FMI guidance to observations",
+      "url": "https://en.ilmatieteenlaitos.fi/guidance-to-observations",
+      "use_and_limits": "Provider guidance for observation aggregation and special values. The replay uses a positive numeric rainfall depth and a separate thawed-surface assumption; it does not reconstruct historical storm timing or winter hydrology."
+    },
+    {
+      "id": "F13",
+      "title": "ELY opinion on the Muhos EIA programme, 28 November 2025",
+      "url": "https://www.ymparisto.fi/sites/default/files/documents/Yhteysviranomaisen%20lausunto%20Muhoksen%20palvelinkeskuksen%20arviointiohjelmasta.pdf",
+      "use_and_limits": "Primary authority opinion on the scope of assessment. An opinion on a programme is not completed EIA or permission to construct."
+    },
+    {
+      "id": "F14",
+      "title": "Kaleva: air cooling reported as intended for the Finnish sites",
+      "url": "https://www.kaleva.fi/googlen-datakeskukset-on-tarkoitus-jaahdyttaa-ilma/13668890",
+      "use_and_limits": "Reporting retrieved 24 October 2026 says air cooling is intended for Muhos and Kajaani as well as Vaala. Reporting of intent, not an independently verified final design or water budget. Technical descriptions and numerical reference values in this packet still come from the primary EIA; the older river-water alternative must not be presented as confirmed current design."
+    }
+  ],
+  "raw_files": [
+    {
+      "path": "raw/fmi-oulu-108040-2026-08.xml",
+      "source_id": "F10",
+      "sha256": "6eed87a1e265e80e80199af71fc70f0d264607253c9160e9bc9abeccec3d22cf"
+    },
+    {
+      "path": "raw/lvv-water-2026-10-22.pdf",
+      "source_id": "F05",
+      "sha256": "b741fb14ba34625c5d0eee5f624d09abcc451259b25e9d90431b66ad760fd363"
+    }
+  ],
+  "reference_document_hashes": [
+    {
+      "source_id": "F02",
+      "sha256": "a8ea632480eb9a1937d9dd06e084d5748698811d8899816c5e1bdcc03d0991cd",
+      "note": "Inspected primary PDF; large document not bundled. See source URL and page locators."
+    },
+    {
+      "source_id": "F13",
+      "sha256": "4e88fe25f3c26b572796cf40170179ec11590393b49166e949210eb01ed700f0",
+      "note": "Inspected primary PDF; large document not bundled. See source URL and page locators."
+    }
+  ]
+}

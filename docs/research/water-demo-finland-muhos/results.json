@@ -1,0 +1,54 @@
+{
+  "scenario_id": "fi-muhos-water-v1",
+  "as_of": "2026-10-24",
+  "weather": {
+    "station_id": "108040",
+    "station_name": "Oulu Kaukovainio",
+    "timestamp": "2026-08-16T00:00:00Z",
+    "latitude": 64.99685,
+    "longitude": 25.52233,
+    "rrday": 40.0,
+    "tday": 16.0,
+    "unit": "mm daily precipitation; degC daily mean temperature",
+    "note": "Offsite FMI observation timestamp, not site rainfall or an exact storm-time window. Other missing/special values are not zero-filled."
+  },
+  "facts": {
+    "project_area_ha": 571,
+    "reported_cleared_area_ha": 330,
+    "planned_halls": 9,
+    "drainage_va1_va2_ha": 275,
+    "new_ditch_length_km": 8.9
+  },
+  "rain": {
+    "depth_mm": 40.0,
+    "gross_on_reported_cleared_area_m3": 132000.0,
+    "gross_on_va1_va2_m3": 110000.0,
+    "generated_runoff_m3": null,
+    "river_discharge_m3": null,
+    "note": "Two distinct spatial reference calculations; do not add them. Gross precipitation is not runoff."
+  },
+  "operation": {
+    "preliminary_maximum_total_m3_year": 20000000,
+    "even_day_equivalent_m3_day": 54794.520547945205,
+    "normalized_cooling_makeup_l": 1000,
+    "normalized_cooling_evaporation_l": 700.0,
+    "normalized_cooling_return_l": 300.0,
+    "actual_use_m3_year": null,
+    "selected_actual_technology": null,
+    "note": "Upper total-water planning reference and normalized TVE1 cooling illustration are separate; no 70/30 split is applied to the total requirement."
+  },
+  "unknowns": {
+    "actual_stripped_area_ha": null,
+    "final_roof_area_ha": null,
+    "final_sealed_area_ha": null,
+    "construction_water_total_m3": null,
+    "generated_event_runoff_m3": null,
+    "post_treatment_event_discharge_m3": null,
+    "site_pH": null,
+    "river_pH": null,
+    "metal_load_kg": null,
+    "site_spare_potable_capacity_m3_day": null,
+    "households_without_water": null,
+    "river_level_change_m": null
+  }
+}
