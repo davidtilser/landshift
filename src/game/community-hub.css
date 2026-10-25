@@ -231,6 +231,35 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+.community-post.is-yours .community-post-body {
+  --ls-role-ink: var(--ls-role-selected-label);
+  padding: 10px 12px;
+  border: 1px solid var(--ls-source-wordmark-mid);
+  border-radius: 14px;
+  border-top-left-radius: 4px;
+  background: var(--ls-source-wordmark-top);
+  color: var(--ls-role-ink);
+}
+.community-post.is-yours .community-source {
+  font-weight: 700;
+}
+.community-post.is-reply-to-you .community-post-body {
+  padding-left: 10px;
+  border-left: 3px solid var(--ls-source-wordmark-mid);
+}
+.community-reply-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--ls-source-wordmark-top);
+  color: var(--ls-role-selected-label);
+  font-weight: 700;
+}
+.is-reply-to-you .community-reply-context {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .proposal-post .community-post-text {
   font-size: 15px;
   color: var(--ls-role-ink);

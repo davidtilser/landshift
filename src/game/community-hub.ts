@@ -315,10 +315,18 @@ export class CommunityHub {
         this.timeline.append(update)
         continue
       }
+      const parent = lines.find((item) => item.id === line.replyTo)
+      const ownPost = line.speaker === 'planner' && line.source === 'planner'
+      const replyToYou =
+        line.speaker !== 'planner' &&
+        parent?.speaker === 'planner' &&
+        parent.source === 'planner'
       const post = node(
         'article',
         'community-post' + (index === 0 ? ' proposal-post' : ''),
       )
+      post.classList.toggle('is-yours', ownPost)
+      post.classList.toggle('is-reply-to-you', replyToYou)
       post.id = 'community-post-' + String(line.id)
       post.tabIndex = -1
       const avatar =
@@ -359,9 +367,12 @@ export class CommunityHub {
           : line.source === 'scenario'
             ? 'Conversation starter'
             : line.source === 'planner'
-              ? 'Your public reply'
-              : 'Reply',
+              ? 'Your post'
+              : replyToYou
+                ? 'Reply to you'
+                : 'Reply',
       )
+      if (replyToYou) source.classList.add('community-reply-badge')
       source.title =
         line.source === 'live'
           ? 'AI-assisted reply'
@@ -370,14 +381,25 @@ export class CommunityHub {
             : ''
       body.append(head, source)
       if (line.replyTo !== undefined && line.replyTo !== lines[0]?.id) {
-        const parent = lines.find((item) => item.id === line.replyTo)
         const quote = action(
-          parent ? '↳ Replying to ' + this.label(parent) : '↳ Earlier post',
+          replyToYou
+            ? '↳ Your post: ' + parent.text.replace(/\s+/g, ' ')
+            : parent
+              ? '↳ Replying to ' + this.label(parent)
+              : '↳ Earlier post',
           'parent',
           String(line.replyTo),
         )
         quote.classList.add('community-reply-context')
-        if (parent) quote.title = 'View original post'
+        if (parent) {
+          quote.title = parent.text
+          quote.setAttribute(
+            'aria-label',
+            'View ' +
+              (replyToYou ? 'your post: ' : 'original post: ') +
+              parent.text,
+          )
+        }
         body.append(quote)
       }
       body.append(messageUiText(line.text, 'community-post-text'))
