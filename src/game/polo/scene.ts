@@ -66,8 +66,10 @@ import { poloOpinions } from './opinions.ts'
 import { poloGeometryScale } from './size.ts'
 import { usAcres } from './us-units.ts'
 import { PoloOpinionBubbles } from './opinion-bubbles.ts'
-import { poloPlacementValid } from './placement.ts'
+import { PoloOpinionReveal } from './opinion-reveal.ts'
+import { poloConstructionStarted, poloPlacementValid } from './placement.ts'
 import { PoloAccessScene } from './access-scene.ts'
+import { POLO_ACCESS_FIELD_ENTRY, POLO_ACCESS_ROAD } from './access.ts'
 import {
   activePoloProposal,
   pointOnPath,
@@ -108,6 +110,7 @@ const PALETTE = {
 export class PoloScene {
   readonly viewer: CesiumWidget
   private environmentalLayer: EnvironmentalLayer | null = null
+  private protestActive = false
   private readonly source = new CustomDataSource('polo-guided-demo')
   private readonly aerial: ImageryLayer
   private readonly callbacks: SceneCallbacks
@@ -128,6 +131,7 @@ export class PoloScene {
   private overview = true
   private readonly removePostRender: () => void
   private readonly opinionBubbles: PoloOpinionBubbles
+  private readonly opinionReveal = new PoloOpinionReveal()
   private readonly opinionAnchors = new Map<
     CommunityId,
     CallbackPositionProperty
@@ -289,6 +293,8 @@ export class PoloScene {
     this.placementConfirm.className = 'polo-placement-confirm'
     this.placementConfirm.dataset['poloAction'] = 'confirm-location'
     this.placementConfirm.textContent = '✓ Confirm location'
+    this.placementConfirm.setAttribute('aria-keyshortcuts', 'Enter')
+    this.placementConfirm.title = 'Confirm location (Enter)'
     this.placementConfirm.hidden = true
     this.placementControls.append(this.placementHandle, this.placementConfirm)
     viewer.container.append(this.placementControls)
@@ -885,10 +891,8 @@ export class PoloScene {
     const reactions = poloReactions(this.state)
     const groups = ['neighbor', 'student', 'nature'] as const
     const colors = ['#ce7755', '#698fa7', '#728c56'] as const
-    const turnout = (): number =>
-      poloProtestTurnout(this.state, this.transition.progress)
-    for (let index = 0; index < reactions.turnout; index++) {
-      const first = this.source.entities.values.length
+    const turnout = poloProtestTurnout(this.state, this.protestActive)
+    for (let index = 0; index < turnout; index++) {
       const group = groups[index % groups.length] ?? 'neighbor'
       const position = this.person(
         0,
@@ -899,9 +903,9 @@ export class PoloScene {
         true,
         0,
         true,
-        (activity) => poloProtesterPosition(index, activity, turnout()),
+        (activity) => poloProtesterPosition(index, activity),
       )
-      if (index === 3 || index === 8) {
+      if (index % 20 === 3) {
         const sign = this.label(
           0,
           -92,
@@ -921,7 +925,6 @@ export class PoloScene {
           )
         }
       }
-      this.revealGroup(first, () => turnout() > index + 0.05)
     }
   }
   private fieldActivity(): void {
@@ -1147,7 +1150,6 @@ export class PoloScene {
   private campus(): void {
     // All horizontal construction geometry follows the selected site area.
     if (this.state.phase === 'M1') {
-      this.fieldPlayers(true)
       this.workSurface(() => this.transition.turfRemoved, PALETTE.soil, 0.7)
       this.workSurface(() => this.transition.grading, '#b69a70', 0.88)
       this.workSurface(
@@ -1728,6 +1730,13 @@ export class PoloScene {
   }
   private community(): void {
     const reactions = poloReactions(this.state)
+    if (!poloConstructionStarted(this.state)) {
+      this.opinionAnchors.clear()
+      this.opinionBubbles.update([])
+      this.opinionBubbles.element.hidden = true
+      this.protestCrowd()
+      return
+    }
     const bubbles: {
       id: CommunityId
       x: number
@@ -1750,12 +1759,15 @@ export class PoloScene {
       { id: 'operator', x: 180, y: 35, color: '#647f70' },
     ]
     this.opinionAnchors.clear()
+    this.opinionBubbles.setVisibleCount(
+      this.opinionReveal.count(performance.now()),
+    )
     this.opinionBubbles.update(poloOpinions(this.state))
     this.opinionBubbles.element.hidden =
       this.overview || this.environmentalLayer !== null
     for (const [index, bubble] of bubbles.entries()) {
-      const reaction = reactions.voices[bubble.id]
-      const protesting = reaction.sign !== null
+      const protesting =
+        !this.state.confirmed && reactions.voices[bubble.id].sign !== null
       const position = this.person(
         bubble.x,
         bubble.y,
@@ -1768,7 +1780,6 @@ export class PoloScene {
       )
       this.opinionAnchors.set(bubble.id, position(protesting ? 6 : 12))
     }
-    this.protestCrowd()
   }
   private rebuild(): void {
     this.source.entities.removeAll()
@@ -1785,6 +1796,14 @@ export class PoloScene {
       this.viewer.scene.requestRender()
       return
     }
+    // During the conversation keep the real field visible, without a synthetic
+    // turf slab, pitch markings, construction traffic or other works.
+    if (!poloConstructionStarted(this.state)) {
+      this.community()
+      if (this.state.rain) this.rain()
+      this.viewer.scene.requestRender()
+      return
+    }
     const phase = this.state.phase
     this.box(
       0,
@@ -1795,40 +1814,14 @@ export class PoloScene {
       0.65,
       PALETTE.grass,
     )
-    if (phase === 'M0') {
-      this.path(
-        [
-          [-95, -40, 1],
-          [95, -40, 1],
-          [95, 40, 1],
-          [-95, 40, 1],
-          [-95, -40, 1],
-        ],
-        '#ebefdc',
-        2,
-        false,
-        true,
-      )
-      this.path(
-        [
-          [0, -40, 1],
-          [0, 40, 1],
-        ],
-        '#ebefdc',
-        2,
-        false,
-        true,
-      )
-      this.fieldPlayers()
-      this.label(65, 48, 4, 'Today · shared sports turf', '#69834c')
-    } else this.campus()
+    this.campus()
     if (phase === 'M5') {
       const ready = this.source.entities.values.length
       this.label(
         0,
         48,
         25,
-        'Ready · equipment tested, computing not yet running',
+        'Commissioning · equipment tested, computing not yet running',
         '#6b826f',
       )
       this.revealGroup(ready, () => this.transition.complete)
@@ -1843,6 +1836,12 @@ export class PoloScene {
     this.community()
     this.environmentalOverlay()
     this.viewer.scene.requestRender()
+  }
+
+  setProtestActive(active: boolean): void {
+    if (this.destroyed || this.protestActive === active) return
+    this.protestActive = active
+    this.rebuild()
   }
 
   /** Separate explanatory overlays; routes are schematic, never utility records. */
@@ -2086,7 +2085,10 @@ export class PoloScene {
       const wasPlaying = this.baselinePlaying
       this.updateTransition(now)
       this.access.update(now)
-      if (!this.reducedMotion.matches || wasPlaying)
+      const opinionsChanged = this.opinionBubbles.setVisibleCount(
+        this.opinionReveal.count(now),
+      )
+      if (!this.reducedMotion.matches || wasPlaying || opinionsChanged)
         this.viewer.scene.requestRender()
     }
     this.animation = requestAnimationFrame(this.animate)
@@ -2133,6 +2135,8 @@ export class PoloScene {
       : { ...state, center: [...state.center], phase: 'M0', proposal: null }
     this.access.setState(this.state)
     const now = performance.now()
+    this.opinionReveal.setState(this.state, now)
+    this.opinionBubbles.setVisibleCount(this.opinionReveal.count(now))
     if (phaseChanged) {
       const forward =
         this.state.confirmed &&
@@ -2216,22 +2220,64 @@ export class PoloScene {
     this.viewer.scene.requestRender()
   }
 
-  flyToPlacement(arrived: () => void): void {
+  flyToPlacement(arrived: () => void, duration = 3.2): void {
     if (this.destroyed) return
-    this.focus('site', 3.2, () => {
+    this.viewer.camera.cancelFlight()
+    this.focus('site', duration, () => {
       if (this.destroyed) return
       this.overview = false
       this.source.show = true
       this.placementEdited = true
-      this.opinionBubbles.element.hidden = this.environmentalLayer !== null
+      this.opinionBubbles.element.hidden =
+        !poloConstructionStarted(this.state) || this.environmentalLayer !== null
       const controls = this.viewer.scene.screenSpaceCameraController
       controls.enableInputs = true
       controls.maximumZoomDistance = 6500
       arrived()
       this.positionPlacementHandle()
-      this.placementConfirm.focus({ preventScroll: true })
+      if (!this.state.confirmed)
+        this.placementConfirm.focus({ preventScroll: true })
       this.viewer.scene.requestRender()
     })
+  }
+
+  /** Include the near service-road approach without pulling back to the whole route. */
+  focusFoundations(duration = 1.2): void {
+    if (this.destroyed) return
+    const approach = BoundingSphere.fromPoints(
+      [...POLO_ACCESS_ROAD.slice(-5), POLO_ACCESS_FIELD_ENTRY].map(
+        (coordinate) =>
+          Cartesian3.fromDegrees(
+            ...coordinate,
+            sampleElevation(this.grid, ...coordinate),
+          ),
+      ),
+    )
+    const bounds = BoundingSphere.union(
+      approach,
+      new BoundingSphere(
+        this.point(0, 0, 15),
+        205 * poloGeometryScale(this.state),
+      ),
+    )
+    // Shift the framing west so the card leaves the worksite and approach visible.
+    const center = Cartographic.fromCartesian(bounds.center)
+    bounds.center = Cartesian3.fromRadians(
+      center.longitude - 95 / (6378137 * Math.cos(center.latitude)),
+      center.latitude,
+      center.height,
+    )
+    const offset = new HeadingPitchRange(
+      CesiumMath.toRadians(-24),
+      CesiumMath.toRadians(-48),
+      Math.max(850, bounds.radius * 2.8),
+    )
+    this.viewer.camera.cancelFlight()
+    if (duration === 0 || this.reducedMotion.matches) {
+      this.viewer.camera.viewBoundingSphere(bounds, offset)
+      this.viewer.camera.lookAtTransform(Matrix4.IDENTITY)
+    } else this.viewer.camera.flyToBoundingSphere(bounds, { offset, duration })
+    this.viewer.scene.requestRender()
   }
 
   focus(

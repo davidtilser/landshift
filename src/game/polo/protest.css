@@ -46,12 +46,6 @@
   display: block;
   font-size: 18px;
 }
-.polo-protest-person span {
-  display: block;
-  margin-top: 3px;
-  color: #786387;
-  font-size: 13px;
-}
 .polo-protest-invitation h2,
 .polo-protest-dialog h2 {
   margin: 24px 0 18px;
@@ -61,11 +55,11 @@
   line-height: 1.15;
   letter-spacing: -0.7px;
 }
-.polo-protest-invitation .polo-protest-notice {
-  margin: 0 0 20px;
-  color: #6f5b7e;
-  font-size: 18px;
+.polo-protest-invitation h2 {
+  font-size: 22px;
+  font-weight: 650;
   line-height: 1.4;
+  letter-spacing: 0;
 }
 .polo-protest-invitation button,
 .polo-protest-dialog button {
@@ -101,33 +95,37 @@
   flex-wrap: wrap;
   gap: 10px;
 }
-.polo-protest-dialog-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+.polo-protest-dialog h2 {
+  margin-top: 0;
 }
-.polo-protest-dialog-header .polo-protest-skip {
-  flex-shrink: 0;
-  padding: 8px 10px;
-  font-size: 13px;
+.polo-protest-speaker {
+  margin-bottom: 16px;
+}
+.polo-protest-dialog > .polo-protest-skip:not([hidden]) {
+  display: block;
+  margin: 16px auto 0;
 }
 .polo-protest-reply {
+  position: relative;
   padding: 20px;
   border-radius: 22px;
   background: #eee0ff;
+}
+.polo-protest-reply::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 22px;
+  width: 20px;
+  height: 20px;
+  background: inherit;
+  transform: rotate(45deg);
 }
 .polo-protest-dialog .polo-protest-answer {
   margin: 0;
   color: #291a39;
   font-size: 22px;
   font-weight: 650;
-  line-height: 1.4;
-}
-.polo-protest-dialog .polo-protest-detail {
-  margin: 16px 0 0;
-  color: #6f5b80;
-  font-size: 17px;
   line-height: 1.4;
 }
 .polo-protest-navigation {
@@ -143,17 +141,6 @@
 .polo-protest-progress {
   color: #7c648d;
   font-size: 13px;
-}
-.polo-protest-dialog .polo-protest-disclosure,
-.polo-protest-dialog .polo-protest-escape {
-  margin: 18px 0 0;
-  color: #746080;
-  font-size: 13px;
-  line-height: 1.4;
-}
-.polo-protest-dialog .polo-protest-escape {
-  margin-top: 8px;
-  font-size: 12px;
 }
 #game[data-polo-protest-pending='true']
   :is(
@@ -183,7 +170,6 @@
     border-radius: 25px;
   }
   .polo-protest-dialog h2 {
-    margin-top: 20px;
     font-size: 25px;
   }
   .polo-protest-person img {
@@ -194,23 +180,11 @@
   .polo-protest-person strong {
     font-size: 16px;
   }
-  .polo-protest-person span {
-    font-size: 12px;
-  }
-  .polo-protest-dialog-header {
-    flex-wrap: wrap;
-  }
-  .polo-protest-dialog-header .polo-protest-skip {
-    margin-left: auto;
-  }
   .polo-protest-reply {
     padding: 16px;
   }
   .polo-protest-dialog .polo-protest-answer {
     font-size: 20px;
-  }
-  .polo-protest-dialog .polo-protest-detail {
-    font-size: 16px;
   }
   .polo-protest-navigation {
     gap: 8px;

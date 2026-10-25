@@ -15,7 +15,7 @@ import { setupPoloProjectIntro } from './project-setup.ts'
 import { setupPoloMapShortcuts } from './map-shortcuts.ts'
 import {
   lockPoloForProtest,
-  poloConstructionAfterProtest,
+  poloExploreAfterProtest,
   setupPoloProtest,
 } from './protest.ts'
 import { poloDisplayPhase } from './display.ts'
@@ -32,13 +32,14 @@ import {
   nudgePoloPlacement,
   poloPhaseAt,
   poloPlacementValid,
+  poloConstructionStarted,
 } from './placement.ts'
 
 const PHASE_LABELS: Record<PoloPhase, string> = {
   M0: 'Today',
   M1: 'Foundations',
   M4: 'Structure',
-  M5: 'Ready',
+  M5: 'Commissioning',
   M6: 'Operating',
 }
 const PHASE_COPY: Record<PoloPhase, { summary: string; tradeoff: string }> = {
@@ -141,6 +142,7 @@ export async function startPoloDemo(): Promise<void> {
         <button type="button" data-polo-action="access">Access route</button>
         <button type="button" data-polo-action="connection">Follow the idea</button>
         <button type="button" data-polo-action="park">Whole park</button>
+        <button type="button" data-polo-action="quick-today" title="Temporary testing shortcut">Today ↗</button>
         <span></span>
         <button type="button" data-polo-action="zoom-in" aria-label="Zoom in">＋</button>
         <button type="button" data-polo-action="zoom-out" aria-label="Zoom out">−</button>
@@ -156,8 +158,6 @@ export async function startPoloDemo(): Promise<void> {
         </nav>
       </header>
 
-      <div class="polo-scene-label"><span class="polo-live-dot"></span><span id="polo-scene-label">REAL PLACE · FICTIONAL PROJECT</span></div>
-      <p class="polo-access-note" id="polo-access-note" aria-live="polite"></p>
       <nav class="polo-people" aria-label="Private community chats"></nav>
       <section class="polo-deck" aria-label="Polo Fields story and proposals">
         <div class="polo-guide"><img src="/avatars/maya.png" alt="" width="56" height="56"><div><strong>Your place. Your perspective.</strong><span>Explore one change at a time.</span></div></div>
@@ -181,7 +181,6 @@ export async function startPoloDemo(): Promise<void> {
         <div class="polo-deck-bottom"><button type="button" data-polo-action="back" class="polo-back">← Back</button><button type="button" data-polo-action="next" class="polo-next" id="polo-next">Continue →</button></div>
       </section>
       <nav class="polo-timeline" aria-label="Story milestones"></nav>
-      <div class="polo-map-help"><strong>Drag campus · ← / → rotate</strong><span>·</span> WASD map · I / O zoom <button type="button" data-polo-action="skip">Skip animation</button></div>
       <div id="cesium-credits"></div>
       <div class="polo-toast" id="polo-toast" role="status" hidden></div>
       <div class="polo-loading" id="polo-loading"><span>◉</span><h2>Your city. Your choices.</h2><p>Opening San Francisco…</p></div>
@@ -193,10 +192,16 @@ export async function startPoloDemo(): Promise<void> {
     center: [...INITIAL_POLO_STATE.center],
   }
   let scene: PoloScene | undefined
-  const intro = setupPoloProjectIntro(root, (areaHa, arrived) => {
-    setState({ ...state, areaHa })
-    scene?.flyToPlacement(arrived)
-  })
+  const intro = setupPoloProjectIntro(
+    root,
+    (areaHa, arrived) => {
+      setState({ ...state, areaHa })
+      scene?.flyToPlacement(arrived)
+    },
+    (areaHa) => {
+      quickViewToday(areaHa)
+    },
+  )
   const shortcuts = setupPoloMapShortcuts(
     root,
     (inward) => {
@@ -223,7 +228,8 @@ export async function startPoloDemo(): Promise<void> {
   )
   const protest = setupPoloProtest(root, (progress) => {
     if (disposed || !state.confirmed || state.phase !== 'M0') return
-    setState(poloConstructionAfterProtest(state, progress))
+    scene?.setProtestActive(false)
+    setState(poloExploreAfterProtest(state, progress))
     scene?.focus('site')
     get('.polo-deck', HTMLElement).classList.add('is-revealing')
     get('#polo-title', HTMLHeadingElement).focus({ preventScroll: true })
@@ -326,13 +332,46 @@ export async function startPoloDemo(): Promise<void> {
     scene?.setEnvironmentalLayer(null)
     protest.begin()
     setState(lockPoloForProtest(state))
+    scene?.setProtestActive(true)
     scene?.focusProtest()
+  }
+  // Temporary shortcuts keep repeated Today testing one click away.
+  function quickViewToday(areaHa = state.areaHa): void {
+    if (disposed || !scene) return
+    intro.dismiss()
+    protest.reset()
+    scene.setProtestActive(false)
+    scene.cancelPlacementDrag()
+    scene.setEnvironmentalLayer(null)
+    if (get('.polo-studio', HTMLElement).classList.contains('community-open'))
+      root.querySelector<HTMLButtonElement>('.community-launch')?.click()
+    for (const dialog of root.querySelectorAll<HTMLDialogElement>(
+      'dialog[open]',
+    ))
+      dialog.close()
+    clearTimeout(toastTimer)
+    get('#polo-toast', HTMLDivElement).hidden = true
+    get('.polo-deck', HTMLElement).classList.remove('is-revealing')
+    setState({
+      ...INITIAL_POLO_STATE,
+      areaHa,
+      center: [...state.center],
+      bearing: state.bearing,
+      confirmed: true,
+      phase: 'M0',
+    })
+    education.resetToday()
+    scene.skip()
+    scene.flyToPlacement(() => {
+      get('#polo-title', HTMLHeadingElement).focus({ preventScroll: true })
+    }, 0)
   }
   function setPhase(phase: PoloPhase): void {
     if (!state.confirmed || protest.pending()) return
     const previous = POLO_PHASES.indexOf(state.phase)
     const next = POLO_PHASES.indexOf(phase)
     setState(poloPhaseAt(state, phase))
+    if (phase === 'M1') scene?.focusFoundations()
     if (next < previous)
       message('Earlier snapshot · compare how the place changed.')
     else if (next > previous + 1)
@@ -346,6 +385,7 @@ export async function startPoloDemo(): Promise<void> {
     const proposal = state.proposal ? PROPOSAL_COPY[state.proposal] : undefined
     root.dataset['poloPhase'] = state.phase
     root.dataset['poloConfirmed'] = String(state.confirmed)
+    get('.polo-people', HTMLElement).hidden = !poloConstructionStarted(state)
     root.dataset['poloBearing'] = String(state.bearing)
     get('#polo-bearing', HTMLOutputElement).value =
       `${state.bearing.toFixed(0)}°`
@@ -371,19 +411,16 @@ export async function startPoloDemo(): Promise<void> {
         : PHASE_COPY[state.phase].summary
     get('.polo-deck', HTMLElement).hidden = !state.confirmed
     get('.polo-guide strong', HTMLElement).textContent =
-      state.phase === 'M1'
-        ? 'Your proposed impact.'
-        : 'Your place. Your perspective.'
+      state.phase === 'M0'
+        ? 'Learn more about this place.'
+        : state.phase === 'M1'
+          ? 'Your proposed impact.'
+          : 'Your place. Your perspective.'
     get('.polo-guide span', HTMLSpanElement).textContent =
       `Explore your ${usAcres(state.areaHa * 10_000)} teaching model.`
     get('#polo-placement', HTMLDivElement).hidden = state.confirmed
     get('.polo-rotation', HTMLDivElement).hidden = state.confirmed
     get('#polo-rotation-divider', HTMLSpanElement).hidden = state.confirmed
-    get('.polo-map-help > strong', HTMLElement).textContent = protest.pending()
-      ? 'Location locked · hear the field users'
-      : state.confirmed
-        ? 'Location locked · reset to move'
-        : 'Drag campus · ← / → rotate'
     get('.polo-timeline', HTMLElement).hidden = !state.confirmed
     const replay = root.querySelector<HTMLButtonElement>(
       '[data-polo-action="replay"]',
@@ -587,24 +624,11 @@ export async function startPoloDemo(): Promise<void> {
           POLO_PHASES.indexOf(phaseId) < POLO_PHASES.indexOf(state.phase),
       )
     }
-    get('#polo-scene-label', HTMLSpanElement).textContent = !state.confirmed
-      ? ''
-      : proposed
-        ? 'ILLUSTRATIVE CONNECTION · VISUAL CONCEPT'
-        : 'REAL PLACE · FICTIONAL PROJECT'
-    get('#polo-access-note', HTMLParagraphElement).hidden = !state.confirmed
     get('[data-polo-action="access"]', HTMLButtonElement).hidden =
       !state.confirmed
-    get('#polo-access-note', HTMLParagraphElement).textContent =
-      !state.confirmed
-        ? 'Proposed access · solid: existing road · dashed: campus link'
-        : state.phase === 'M0'
-          ? 'Proposed access · future traffic preview'
-          : state.phase === 'M5' || state.phase === 'M6'
-            ? 'Proposed access · illustrative service & car traffic'
-            : 'Proposed access · illustrative construction traffic'
     renderMotion()
     experience.sync()
+    education.sync()
   }
 
   const timeline = get('.polo-timeline', HTMLElement)
@@ -760,8 +784,12 @@ export async function startPoloDemo(): Promise<void> {
       case 'next':
         if (state.confirmed) setPhase(POLO_PHASES[index + 1] ?? 'M0')
         break
+      case 'quick-today':
+        quickViewToday()
+        break
       case 'reset':
         protest.reset()
+        scene?.setProtestActive(false)
         get('.polo-deck', HTMLElement).classList.remove('is-revealing')
         scene?.cancelPlacementDrag()
         scene?.setEnvironmentalLayer(null)

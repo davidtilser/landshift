@@ -3,6 +3,7 @@ import { ENVIRONMENTAL_LAYERS, poloImpact, poloSupport } from './impact.ts'
 import type { EnvironmentalLayer } from './impact.ts'
 import type { PoloSceneState } from './model.ts'
 import type { PoloScene } from './scene.ts'
+import { poloConstructionStarted } from './placement.ts'
 
 function node<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -21,6 +22,7 @@ export function setupPoloExperience(
   const studio = root.querySelector('.polo-studio') ?? root
   const panel = node('aside')
   panel.className = 'polo-impact-tools'
+  panel.hidden = true
   panel.setAttribute('aria-label', 'Environmental layers and impact')
   const status = node('p')
   status.className = 'polo-support'
@@ -38,6 +40,7 @@ export function setupPoloExperience(
     button.dataset['environmentLayer'] = value
     button.setAttribute('aria-pressed', 'false')
     button.addEventListener('click', () => {
+      if (!poloConstructionStarted(getState())) return
       layer = layer === value ? null : value
       getScene()?.setEnvironmentalLayer(layer)
       sync()
@@ -116,6 +119,7 @@ export function setupPoloExperience(
     }
   })
   results.addEventListener('click', () => {
+    if (!poloConstructionStarted(getState())) return
     page = 0
     renderResult()
     dialog.showModal()
@@ -133,12 +137,18 @@ export function setupPoloExperience(
   })
   function sync(): void {
     const state = getState()
+    panel.hidden = !poloConstructionStarted(state)
     layer = getScene()?.getEnvironmentalLayer() ?? null
     status.textContent = `Support ${String(poloSupport(state))}/100 · game index`
     status.title = 'Authored scenario points. Not a poll or public consent.'
-    if (!state.confirmed) {
+    if (!poloConstructionStarted(state)) {
       visited = new Set()
       pendingCompletion = false
+      layerGroup.open = false
+      if (layer !== null) {
+        getScene()?.setEnvironmentalLayer(null)
+        layer = null
+      }
       if (dialog.open) dialog.close()
     }
     for (const button of layerButtons.querySelectorAll('button'))

@@ -33,7 +33,7 @@ const PHASE_NAMES: Record<PoloPhase, string> = {
   M0: 'Today',
   M1: 'Foundations',
   M4: 'Structure',
-  M5: 'Ready',
+  M5: 'Commissioning',
   M6: 'Operating',
 }
 const format = usNumber

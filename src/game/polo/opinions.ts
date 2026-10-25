@@ -1,6 +1,7 @@
 import type { CommunityId } from '../../shared/community-contract.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
 import { poloReactions } from './reactions.ts'
+import { poloConstructionStarted } from './placement.ts'
 
 export interface PoloOpinion {
   id: CommunityId
@@ -20,6 +21,7 @@ const IDEAS: Record<PoloPhase, string> = {
 
 /** Fictional conversation invitations, not votes or measured public opinion. */
 export function poloOpinions(state: PoloSceneState): PoloOpinion[] {
+  if (!poloConstructionStarted(state)) return []
   const concern: PoloOpinion = {
     id: 'neighbor',
     name: 'Maya',

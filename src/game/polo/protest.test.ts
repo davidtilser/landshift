@@ -2,7 +2,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { DEFAULT_CHOICES } from '../consequences.ts'
 import { plannerStateSchema } from '../../shared/community-contract.ts'
 import { INITIAL_POLO_STATE } from './model.ts'
-import { nudgePoloPlacement, poloPhaseAt } from './placement.ts'
+import {
+  nudgePoloPlacement,
+  poloPhaseAt,
+  poloConstructionStarted,
+} from './placement.ts'
 import { poloReactions, poloProtestTurnout } from './reactions.ts'
 import { poloTransitionFrame } from './transitions.ts'
 import {
@@ -10,7 +14,7 @@ import {
   PoloProtestFlow,
   POLO_PROTEST_STEPS,
   lockPoloForProtest,
-  poloConstructionAfterProtest,
+  poloExploreAfterProtest,
   poloProtestTransition,
 } from './protest.ts'
 import type { PoloProtestProgress } from './protest.ts'
@@ -22,7 +26,7 @@ function invitation(): PoloProtestProgress {
   )
 }
 
-describe('confirm, hear the protest, then construct', () => {
+describe('confirm, hear the protest, then explore Today', () => {
   it('locks placement at Today with a visible rally and no construction', () => {
     const chosen = {
       ...INITIAL_POLO_STATE,
@@ -43,7 +47,8 @@ describe('confirm, hear the protest, then construct', () => {
     expect(locked.center).not.toBe(chosen.center)
     expect(chosen).toEqual(before)
     expect(poloReactions(locked).turnout).toBeGreaterThan(0)
-    expect(poloProtestTurnout(locked, 0)).toBeGreaterThan(0)
+    expect(poloProtestTurnout(locked)).toBe(100)
+    expect(poloConstructionStarted(locked)).toBe(false)
     expect(
       Object.values(poloReactions(locked).voices).some(
         (voice) => voice.sign !== null,
@@ -69,12 +74,14 @@ describe('confirm, hear the protest, then construct', () => {
     expect(progress.stage).toBe('gathering')
     for (const event of ['next', 'talk', 'skip'] as const)
       expect(poloProtestTransition(progress, event)).toBe(progress)
-    expect(() => poloConstructionAfterProtest(locked, progress)).toThrow(
+    expect(() => poloExploreAfterProtest(locked, progress)).toThrow(
       'Hear or skip',
     )
     progress = poloProtestTransition(progress, 'crowd-ready')
     expect(progress.stage).toBe('invitation')
-    expect(() => poloConstructionAfterProtest(locked, progress)).toThrow(
+    expect(poloProtestTurnout(locked)).toBe(100)
+    expect(poloConstructionStarted(locked)).toBe(false)
+    expect(() => poloExploreAfterProtest(locked, progress)).toThrow(
       'Hear or skip',
     )
     progress = poloProtestTransition(progress, 'talk')
@@ -84,24 +91,26 @@ describe('confirm, hear the protest, then construct', () => {
         step,
         outcome: null,
       })
-      expect(() => poloConstructionAfterProtest(locked, progress)).toThrow(
+      expect(poloProtestTurnout(locked)).toBe(100)
+      expect(poloConstructionStarted(locked)).toBe(false)
+      expect(() => poloExploreAfterProtest(locked, progress)).toThrow(
         'Hear or skip',
       )
       progress = poloProtestTransition(progress, 'next')
     }
     expect(progress).toMatchObject({ stage: 'finished', outcome: 'heard' })
-    const construction = poloConstructionAfterProtest(locked, progress)
-    expect(construction).toMatchObject({
+    const today = poloExploreAfterProtest(locked, progress)
+    expect(poloProtestTurnout(today, false)).toBe(0)
+    expect(poloConstructionStarted(today)).toBe(false)
+    expect(today).toMatchObject({
       confirmed: true,
-      phase: 'M1',
+      phase: 'M0',
       areaHa: locked.areaHa,
       center: locked.center,
       bearing: locked.bearing,
     })
-    expect(
-      poloTransitionFrame(construction.phase, 4).foundation,
-    ).toBeGreaterThan(0)
-    expect(poloPhaseAt(construction, 'M4').phase).toBe('M4')
+    expect(poloTransitionFrame(today.phase, 60).foundation).toBe(0)
+    expect(poloConstructionStarted(poloPhaseAt(today, 'M1'))).toBe(true)
   })
 
   it('supports an explicit skip from the invitation or conversation without claiming consent', () => {
@@ -112,7 +121,13 @@ describe('confirm, hear the protest, then construct', () => {
     ]) {
       const skipped = poloProtestTransition(progress, 'skip')
       expect(skipped).toMatchObject({ stage: 'finished', outcome: 'skipped' })
-      expect(poloConstructionAfterProtest(locked, skipped).phase).toBe('M1')
+      expect(poloExploreAfterProtest(locked, skipped).phase).toBe('M0')
+      expect(
+        poloProtestTurnout(poloExploreAfterProtest(locked, skipped), false),
+      ).toBe(0)
+      expect(
+        poloConstructionStarted(poloExploreAfterProtest(locked, skipped)),
+      ).toBe(false)
       expect(poloProtestTransition(skipped, 'skip')).toBe(skipped)
       expect(poloProtestTransition(skipped, 'next')).toBe(skipped)
     }
@@ -134,10 +149,7 @@ describe('confirm, hear the protest, then construct', () => {
     expect(poloProtestTransition(progress, 'crowd-ready')).toBe(progress)
     expect(poloProtestTransition(progress, 'next')).toBe(progress)
     expect(() =>
-      poloConstructionAfterProtest(
-        lockPoloForProtest(INITIAL_POLO_STATE),
-        progress,
-      ),
+      poloExploreAfterProtest(lockPoloForProtest(INITIAL_POLO_STATE), progress),
     ).toThrow('Hear or skip')
     expect(poloProtestTransition(progress, 'confirm').stage).toBe('gathering')
   })
@@ -201,21 +213,18 @@ describe('confirm, hear the protest, then construct', () => {
     flow.dispatch('talk')
     expect(current).toMatchObject({ stage: 'conversation', step: 1 })
     expect(() =>
-      poloConstructionAfterProtest(
-        lockPoloForProtest(INITIAL_POLO_STATE),
-        current,
-      ),
+      poloExploreAfterProtest(lockPoloForProtest(INITIAL_POLO_STATE), current),
     ).toThrow('Hear or skip')
   })
 
   it('keeps every argument short and names the site conflict despite efficiency', () => {
     expect(POLO_PROTEST_STEPS).toHaveLength(5)
     for (const step of POLO_PROTEST_STEPS)
-      for (const copy of Object.values(step))
-        expect(Array.from(copy).length).toBeLessThanOrEqual(70)
-    const text = POLO_PROTEST_STEPS.map(
-      (step) => step.answer + ' ' + step.detail,
-    ).join(' ')
+      for (const [field, copy] of Object.entries(step))
+        expect(Array.from(copy).length).toBeLessThanOrEqual(
+          field === 'answer' ? 140 : 70,
+        )
+    const text = POLO_PROTEST_STEPS.map((step) => step.answer).join(' ')
     expect(text).toContain('shared public space')
     expect(text).toContain('living turf')
     expect(text).toContain('water and electricity')

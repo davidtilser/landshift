@@ -309,7 +309,7 @@ export function poloDialogueReply(
         : scene.phase === 'M4'
           ? 'In Structure, the frame and roof occupy part of the field.'
           : scene.phase === 'M5'
-            ? 'In Ready, equipment is fitted but the campus is not operating.'
+            ? 'In Commissioning, equipment is fitted; computing is still off.'
             : 'In Operating, computing needs cooling and electricity.'
   if (CONTINUATION.test(question.trim())) {
     const further: Record<PoloDialogueTopic, string> = {

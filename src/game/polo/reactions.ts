@@ -2,7 +2,6 @@ import type {
   CommunityId,
   CommunityMood,
 } from '../../shared/community-contract.ts'
-import { POLO_PHASES } from './model.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
 import { poloSupport } from './impact.ts'
 
@@ -222,38 +221,23 @@ export function poloReactions(state: PoloSceneState): PhaseReaction {
   }
 }
 
-/** Join progressively during physical work; replay and comparison jumps never add people. */
+/** Authored crowd of 100, present only for the pre-construction conversation. */
 export function poloProtestTurnout(
   state: PoloSceneState,
-  progress: number,
+  active = true,
 ): number {
-  if (!state.confirmed || state.phase === 'M0')
-    return PHASE_REACTIONS.M0.turnout
-  const phaseIndex = POLO_PHASES.indexOf(state.phase)
-  const before = PHASE_REACTIONS[POLO_PHASES[phaseIndex - 1] ?? 'M0'].turnout
-  const after = poloReactions(state).turnout
-  if (state.phase === 'M6' && state.preview && state.proposal) return after
-  const fraction = Number.isFinite(progress)
-    ? Math.max(0, Math.min(1, progress))
-    : 0
-  return before + (after - before) * fraction
+  return active && state.confirmed && state.phase === 'M0' ? 100 : 0
 }
 
-/** Field-anchored, peaceful rally along the track; nobody marches through the machinery. */
+/** Peaceful rally spread across the original field, independent of campus size. */
 export function poloProtesterPosition(
   index: number,
   elapsed: number,
-  turnout: number,
 ): [number, number] {
-  const joined = Math.max(0, Math.min(1, turnout - index))
   const row = Math.floor(index / 10)
-  const destination = -80 + (index % 10) * 26
-  const entrance = index % 2 ? 180 : -180
   return [
-    entrance +
-      (destination - entrance) * joined +
-      Math.sin(elapsed * 0.8 + index) * 2,
-    -92 - row * 12 + Math.cos(elapsed * 0.7 + index) * 1.5,
+    -108 + (index % 10) * 24 + Math.sin(elapsed * 0.8 + index) * 2,
+    -54 + row * 12 + Math.cos(elapsed * 0.7 + index) * 1.5,
   ]
 }
 

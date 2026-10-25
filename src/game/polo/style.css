@@ -108,42 +108,6 @@
   padding-left: 7px;
   padding-right: 7px;
 }
-.polo-scene-label {
-  position: absolute;
-  z-index: 2;
-  top: 164px;
-  left: 22px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 750;
-  letter-spacing: 1px;
-  text-shadow: 0 1px 8px #201233;
-}
-.polo-live-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #b6ed0d;
-  box-shadow: 0 0 0 4px #d9e7a71c;
-}
-.polo-access-note {
-  position: absolute;
-  z-index: 2;
-  top: 186px;
-  left: 22px;
-  max-width: calc(100vw - 44px);
-  margin: 0;
-  padding: 6px 9px;
-  border-radius: 8px;
-  background: #38205beb;
-  color: #ffffff;
-  font-size: 13px;
-  pointer-events: none;
-}
 .polo-people {
   position: absolute;
   z-index: 3;
@@ -161,6 +125,9 @@
   padding: 0 6px;
   color: #6f5f81;
   font-size: 12px;
+}
+.polo-people[hidden] {
+  display: none;
 }
 .polo-person {
   display: grid;
@@ -569,38 +536,6 @@
   color: #5e1eaf;
   background: #ebe0fb;
 }
-.polo-map-help {
-  position: absolute;
-  z-index: 2;
-  bottom: 158px;
-  right: 20px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: #ffffff;
-  font-size: 12px;
-  text-shadow: 0 1px 5px #28103d;
-}
-.polo-map-help > span {
-  opacity: 0.5;
-}
-.polo-map-help > strong {
-  font-size: 13px;
-  font-weight: 600;
-  padding: 4px 7px;
-  border-radius: 7px;
-  background: #39166ae6;
-}
-.polo-map-help button {
-  color: inherit;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font-size: inherit;
-  text-shadow: inherit;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
 .polo-toast {
   position: absolute;
   z-index: 12;
@@ -696,8 +631,7 @@
   text-underline-offset: 3px;
 }
 .polo-studio.community-open .polo-deck,
-.polo-studio.community-open .polo-people,
-.polo-studio.community-open .polo-map-help {
+.polo-studio.community-open .polo-people {
   display: none;
 }
 .polo-studio.community-open .polo-timeline {
@@ -794,18 +728,6 @@
     min-width: 24px;
     font-size: 12px;
   }
-  .polo-scene-label {
-    top: 140px;
-    left: 12px;
-    font-size: 12px;
-    max-width: 180px;
-  }
-  .polo-access-note {
-    top: 214px;
-    left: 12px;
-    max-width: calc(100vw - 24px);
-    font-size: 12px;
-  }
   .polo-people {
     right: 10px;
     top: 166px;
@@ -861,9 +783,6 @@
     bottom: 21px;
     min-height: 53px;
     padding: 6px;
-  }
-  .polo-map-help {
-    display: none;
   }
   .polo-studio.community-open .polo-timeline {
     display: none;
@@ -1032,10 +951,6 @@
   }
   .polo-rotation {
     flex-shrink: 0;
-  }
-  .polo-access-note {
-    max-width: calc(100vw - 24px);
-    font-size: 12px;
   }
   .polo-proposals {
     grid-template-columns: 1fr;
@@ -1221,10 +1136,6 @@
   .polo-people {
     top: 208px;
   }
-  .polo-scene-label,
-  .polo-access-note {
-    display: none;
-  }
 }
 .polo-education-value {
   margin: 16px 0 12px;
@@ -1243,7 +1154,6 @@
 /* Placement keeps its action on the map; planning starts after confirmation. */
 .polo-deck[hidden],
 #game[data-polo-confirmed='false'] .polo-deck,
-#game[data-polo-confirmed='false'] .polo-scene-label,
 #game[data-polo-confirming='true'] .polo-deck,
 #game[data-polo-confirming='true'] .polo-timeline {
   display: none;

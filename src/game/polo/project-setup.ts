@@ -23,7 +23,8 @@ export const POLO_LOCATION_CHOICES = [
 export function setupPoloProjectIntro(
   root: HTMLElement,
   startFlight: (areaHa: number, arrived: () => void) => void,
-): { open: () => void; destroy: () => void } {
+  quickView: (areaHa: number) => void,
+): { open: () => void; dismiss: () => void; destroy: () => void } {
   const dialog = document.createElement('dialog')
   dialog.className = 'polo-project-setup'
   dialog.setAttribute('aria-labelledby', 'polo-setup-title')
@@ -36,6 +37,7 @@ export function setupPoloProjectIntro(
       <label for="polo-setup-location">Location</label>
       <select id="polo-setup-location" name="location"></select>
       <button type="submit">Explore this location →</button>
+      <button type="button" class="polo-setup-quick-view" title="Temporary testing shortcut">Quick view: Today ↗</button>
     </form>
   `
   const form = dialog.querySelector('form')
@@ -86,6 +88,21 @@ export function setupPoloProjectIntro(
   const studio = root.querySelector('.polo-studio') ?? root
   studio.append(city, status, dialog)
   let disposed = false
+  let flightVersion = 0
+  const dismiss = (): void => {
+    flightVersion++
+    dialog.close()
+    status.hidden = true
+    root.dataset['poloSetup'] = 'placement'
+  }
+  dialog
+    .querySelector('.polo-setup-quick-view')
+    ?.addEventListener('click', () => {
+      if (disposed || location.value !== POLO_SCENARIO_ID) return
+      const areaHa = Number(size.value)
+      dismiss()
+      quickView(areaHa)
+    })
   dialog.addEventListener('cancel', (event) => {
     event.preventDefault()
   })
@@ -96,8 +113,9 @@ export function setupPoloProjectIntro(
     root.dataset['poloSetup'] = 'flying'
     dialog.close()
     status.hidden = false
+    const version = ++flightVersion
     startFlight(Number(size.value), () => {
-      if (disposed) return
+      if (disposed || version !== flightVersion) return
       status.hidden = true
       root.dataset['poloSetup'] = 'placement'
     })
@@ -105,6 +123,7 @@ export function setupPoloProjectIntro(
   return {
     open: () => {
       if (disposed) return
+      flightVersion++
       root.dataset['poloSetup'] = 'intro'
       status.hidden = true
       size.value = String(POLO_DEFAULT_AREA_HA)
@@ -112,6 +131,7 @@ export function setupPoloProjectIntro(
       if (!dialog.open) dialog.showModal()
       location.focus()
     },
+    dismiss,
     destroy: () => {
       disposed = true
       dialog.close()

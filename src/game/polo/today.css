@@ -1,0 +1,75 @@
+#game[data-polo-phase='M0']
+  :is(
+    .polo-deck-head,
+    #polo-summary,
+    #polo-metrics,
+    #polo-experiment,
+    #polo-details,
+    .polo-guide span
+  ) {
+  display: none;
+}
+#game[data-polo-phase='M0'] .polo-topic-buttons {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+#game[data-polo-phase='M0'] .polo-topic-buttons button {
+  min-height: 68px;
+  font-size: 12px;
+}
+#game[data-polo-phase='M0'] .polo-topic-buttons [aria-selected='true'] {
+  background: #7226e8;
+  border-color: #7226e8;
+  color: #fff;
+}
+.polo-topic-buttons button:focus-visible {
+  outline: 3px solid #7629ec;
+  outline-offset: 3px;
+}
+.polo-topic-buttons > button[hidden],
+.polo-today-panel[hidden] {
+  display: none;
+}
+.polo-today-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  border-top: 1px solid #e8def3;
+  padding-top: 16px;
+}
+.polo-today-metrics .polo-metric {
+  margin: 0;
+}
+.polo-today-copy,
+.polo-today-details p {
+  color: #655274;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.polo-today-copy {
+  margin: 16px 0;
+}
+.polo-today-details {
+  margin: 16px 0 0;
+  font-size: 14px;
+  color: #655274;
+}
+.polo-today-details summary {
+  cursor: pointer;
+  min-height: 30px;
+}
+.polo-today-sources {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+}
+.polo-today-sources span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #7226e8;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.polo-today-panel .polo-rain-button {
+  margin-top: 12px;
+}

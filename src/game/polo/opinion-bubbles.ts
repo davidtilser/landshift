@@ -5,6 +5,7 @@ import type { PoloOpinion } from './opinions.ts'
 export class PoloOpinionBubbles {
   readonly element = document.createElement('div')
   private cards: { id: CommunityId; element: HTMLButtonElement }[] = []
+  private visibleCount = 0
   private readonly open: (id: CommunityId) => void
 
   constructor(container: Element, open: (id: CommunityId) => void) {
@@ -20,9 +21,10 @@ export class PoloOpinionBubbles {
 
   update(opinions: PoloOpinion[]): void {
     this.element.replaceChildren()
-    this.cards = opinions.slice(0, 2).map((opinion) => {
+    this.cards = opinions.slice(0, 2).map((opinion, index) => {
       const card = document.createElement('button')
       card.type = 'button'
+      card.hidden = index >= this.visibleCount
       card.className = 'polo-opinion'
       card.dataset['tone'] = opinion.tone
       card.dataset['person'] = opinion.id
@@ -55,6 +57,14 @@ export class PoloOpinionBubbles {
     })
   }
 
+  setVisibleCount(count: number): boolean {
+    if (this.visibleCount === count) return false
+    this.visibleCount = count
+    for (const [index, card] of this.cards.entries())
+      card.element.hidden = index >= count
+    return true
+  }
+
   position(
     project: (id: CommunityId) => { x: number; y: number } | undefined,
   ): void {
@@ -72,13 +82,18 @@ export class PoloOpinionBubbles {
     const origin = this.element.getBoundingClientRect()
     const rowLeft = deck ? deck.right - origin.left + 16 : 20
     const rowRight = tools ? tools.left - origin.left - 16 : width - 20
+    const visibleCards = this.cards.slice(0, this.visibleCount)
     const rowWidth =
-      this.cards.reduce((sum, card) => sum + card.element.offsetWidth, 0) +
-      Math.max(0, this.cards.length - 1) * 16
+      visibleCards.reduce((sum, card) => sum + card.element.offsetWidth, 0) +
+      Math.max(0, visibleCards.length - 1) * 16
     const useTopRow =
       !mobile && !!deck?.height && rowRight - rowLeft >= rowWidth
     let previous: { left: number; top: number; height: number } | undefined
     for (const [index, card] of this.cards.entries()) {
+      if (index >= this.visibleCount) {
+        card.element.hidden = true
+        continue
+      }
       const point = project(card.id)
       card.element.hidden = !mobile && !point
       if (mobile || !point) continue
