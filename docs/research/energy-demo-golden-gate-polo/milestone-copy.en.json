@@ -1,0 +1,304 @@
+{
+  "locale": "en",
+  "shared": {
+    "default_view": "Open at M0. Show each change and its short energy/wider-context card automatically; advancing remains user-controlled.",
+    "navigation": [
+      "Continue",
+      "Back",
+      "Select milestone",
+      "Orbit/zoom/reset",
+      "Replay/skip animation",
+      "Open evidence",
+      "Choose an optional contextual question"
+    ],
+    "replay_policy": "Load target scene/data; never accumulate fuel or energy on replay. Do not change the water packet. No new compulsory task or score.",
+    "rainfall": "Existing water replay remains independent and cannot recalculate annual electricity.",
+    "heatwave": "Contextual question only; no numerical weather control or annualized stress-event forecast.",
+    "optional_questions": [
+      {
+        "question": "Does 10 MW mean the whole building?",
+        "answer": "No. It is the authored average IT demand. With PUE 1.20, the modelled annual-average facility demand is 12 MW. Peak demand and connection rating remain unknown.",
+        "source_ids": ["W01", "E01"]
+      },
+      {
+        "question": "Is all the extra electricity used for cooling?",
+        "answer": "No. The non-IT budget also includes power-conversion losses and other supporting systems. PUE alone cannot separate cooling.",
+        "source_ids": ["E01", "E03"]
+      },
+      {
+        "question": "Will nearby homes lose electricity?",
+        "answer": "This packet cannot determine that. A service assessment needs peak loads, network topology, available capacity and protection requirements; an annual energy budget cannot predict household outages.",
+        "source_ids": ["E04", "E06"]
+      },
+      {
+        "question": "Do we need a new substation?",
+        "answer": "That is not established. Service assessment may identify cables, transformers or other reinforcement. The schematic illustrates that possibility without selecting a real route, upgrade or construction impact.",
+        "source_ids": ["E04", "E06"]
+      },
+      {
+        "question": "Would clean electricity remove the need to assess the grid?",
+        "answer": "No. SF has different electricity procurement and delivery arrangements. The physical connection still needs assessment; this campus has no confirmed supply contract or network capacity allocation.",
+        "source_ids": ["E04", "E05", "E06"]
+      },
+      {
+        "question": "What happens in hot weather or drought?",
+        "answer": "Hot weather can increase regional cooling demand. The campus response depends on its actual equipment and controls. No heatwave electricity or drought-water multiplier is applied; annual averages are not stress-event predictions.",
+        "source_ids": ["E03", "E07"]
+      },
+      {
+        "question": "Could we save water with another cooling system?",
+        "answer": "Potentially. The energy consequence depends on technology and conditions. No matched SF alternative has been established here, so the demo explains the choice without displaying invented water or electricity savings.",
+        "source_ids": ["E03"]
+      }
+    ]
+  },
+  "metric_definitions": {
+    "site_area_m2": {
+      "unit": "m²",
+      "display_unit": "ha",
+      "display_multiplier": 0.0001,
+      "time_basis": "site footprint",
+      "evidence_label": "Inherited authored area"
+    },
+    "stage.selected_diesel_l": {
+      "unit": "L diesel",
+      "display_unit": "L diesel",
+      "display_multiplier": 1,
+      "time_basis": "selected inventory during this work stage",
+      "evidence_label": "Illustrative selected machinery allowance"
+    },
+    "stage.selected_electricity_kwh": {
+      "unit": "kWh",
+      "display_unit": "MWh",
+      "display_multiplier": 0.001,
+      "time_basis": "selected inventory during this work stage",
+      "evidence_label": "Authored selected electrical allowance"
+    },
+    "stage.workdays": {
+      "unit": "workdays",
+      "display_unit": "workdays",
+      "display_multiplier": 1,
+      "time_basis": "authored stage programme",
+      "evidence_label": "Inherited authored schedule"
+    },
+    "operation.average_facility_mw": {
+      "unit": "MW",
+      "display_unit": "MW",
+      "display_multiplier": 1,
+      "time_basis": "annual average, not peak",
+      "evidence_label": "Derived with transferred design PUE"
+    },
+    "operation.facility_electricity_mwh_year": {
+      "unit": "MWh/year",
+      "display_unit": "GWh/year",
+      "display_multiplier": 0.001,
+      "time_basis": "first full 365-day normal operating year",
+      "evidence_label": "Derived with transferred design PUE"
+    },
+    "operation.non_it_electricity_mwh_year": {
+      "unit": "MWh/year",
+      "display_unit": "GWh/year",
+      "display_multiplier": 0.001,
+      "time_basis": "same operating year; all supporting systems",
+      "evidence_label": "Derived overhead, not cooling alone"
+    },
+    "operation.it_electricity_mwh_year": {
+      "unit": "MWh/year",
+      "display_unit": "GWh/year",
+      "display_multiplier": 0.001,
+      "time_basis": "first full 365-day operating year",
+      "evidence_label": "Derived from authored average IT demand"
+    },
+    "operation.non_it_share_of_facility_percent": {
+      "unit": "%",
+      "display_unit": "%",
+      "display_multiplier": 1,
+      "time_basis": "share of same-year facility electricity",
+      "evidence_label": "Derived share, not a cooling share"
+    },
+    "operation.cooling_makeup_m3_year": {
+      "unit": "m³/year",
+      "display_unit": "m³/year",
+      "display_multiplier": 1,
+      "time_basis": "cooling make-up during same operating year",
+      "evidence_label": "Inherited water-intensity assumption"
+    },
+    "operation.cooling_makeup_m3_average_day": {
+      "unit": "m³/day",
+      "display_unit": "m³/day",
+      "display_multiplier": 1,
+      "time_basis": "annual-average day, not peak",
+      "evidence_label": "Inherited water-intensity assumption"
+    }
+  },
+  "cards": [
+    {
+      "id": "M0",
+      "title": "Today — an existing sports field",
+      "animation": "Show the same managed turf, tracks and perimeter trees as the water scene. Keep the campus inactive.",
+      "what_changed": "The selected 4 ha is currently modelled as managed sports turf.",
+      "why": "Mowing, irrigation and existing facilities can use energy before any campus is built.",
+      "meaning": "The campus electricity budget must not be described as the measured net increase over today.",
+      "uncertainty": "Current park electricity, maintenance fuel and the exact electrical connection are not established.",
+      "visible_assumptions": [
+        "4 ha authored subset; no trees removed.",
+        "Unknown maintenance energy is not zero."
+      ],
+      "primary_metrics": ["site_area_m2"],
+      "detail_metrics": [],
+      "source_ids": ["W01", "E04", "E05"],
+      "wider_context": {
+        "default_explanation": "Nearby homes and park facilities already use electricity. Their individual feeders are not mapped here.",
+        "animation_instructions": "Reveal a neutral city-network schematic and small existing-user icons; no verified wires drawn on the map.",
+        "status_note": "Regional context; existing local topology unknown.",
+        "source_ids": ["W01", "E04", "E05"]
+      }
+    },
+    {
+      "id": "M1",
+      "title": "Site preparation — remove turf",
+      "animation": "Animate one generic tractor stripping sod on the existing 3.2 ha work area.",
+      "what_changed": "Machinery begins consuming fuel during turf removal.",
+      "why": "An engine needs fuel while working and idling; machine hours matter as well as land area.",
+      "meaning": "This is a selected work-stage fuel allowance, separate from future server electricity.",
+      "uncertainty": "The fleet, five-litre hourly rate and operating hours are teaching assumptions, not observed park works.",
+      "visible_assumptions": [
+        "1 tractor × 6 engine-on hours/day × 10 workdays.",
+        "5 L/hour authored average including idling."
+      ],
+      "primary_metrics": ["stage.selected_diesel_l"],
+      "detail_metrics": ["stage.workdays"],
+      "source_ids": ["W01"],
+      "wider_context": {
+        "default_explanation": "Fuel is supplied to the work site; offsite fuel transport and production are outside this inventory.",
+        "animation_instructions": "Show a small fuel-delivery symbol beside the machine; no neighbourhood electricity draw is inferred.",
+        "status_note": "Selected on-site fuel only.",
+        "source_ids": ["W01"]
+      }
+    },
+    {
+      "id": "M2",
+      "title": "Site preparation — grade the ground",
+      "animation": "Animate two schematic excavators on the already stripped area.",
+      "what_changed": "Earthmoving adds another selected fuel allowance.",
+      "why": "The demo multiplies machine count, engine-on hours and hourly fuel use.",
+      "meaning": "The quantity illustrates an equipment inventory; it does not establish fuel per hectare for every development.",
+      "uncertainty": "One manufacturer example anchors the rate, but grade volumes, productivity and the actual compliant fleet are unvalidated.",
+      "visible_assumptions": [
+        "2 machines × 6 engine-on hours/day × 30 workdays.",
+        "12 L/hour transferred illustrative rate; not a California equipment specification."
+      ],
+      "primary_metrics": ["stage.selected_diesel_l"],
+      "detail_metrics": ["stage.workdays"],
+      "source_ids": ["W01", "E08"],
+      "wider_context": {
+        "default_explanation": "Earthmoving fuel is a different energy pathway from the electrical network serving homes.",
+        "animation_instructions": "Keep the fuel symbol active; do not drain the city-grid illustration when diesel equipment runs.",
+        "status_note": "No household-supply effect modelled.",
+        "source_ids": ["W01", "E08"]
+      }
+    },
+    {
+      "id": "M3",
+      "title": "Site preparation — compact the ground",
+      "animation": "Animate a generic roller on the same 3.2 ha; do not remove more turf.",
+      "what_changed": "Compaction consumes fuel without changing the selected future IT demand.",
+      "why": "Construction activity and eventual server use have different drivers.",
+      "meaning": "Another work-stage inventory is added; no permanent operating-power penalty follows from roller passes.",
+      "uncertainty": "Roller consumption and hours are authored. Soil-water and compaction quality are not predicted by this energy allowance.",
+      "visible_assumptions": [
+        "1 roller × 6 engine-on hours/day × 15 workdays.",
+        "10 L/hour authored average including idling."
+      ],
+      "primary_metrics": ["stage.selected_diesel_l"],
+      "detail_metrics": ["stage.workdays"],
+      "source_ids": ["W01", "E06"],
+      "wider_context": {
+        "default_explanation": "The fuel budget grows during works while the permanent electricity connection remains unassessed.",
+        "animation_instructions": "Replay the roller and fuel icon; show a neutral pending-assessment label on the future connection.",
+        "status_note": "Connection and spare capacity not assessed.",
+        "source_ids": ["W01", "E06"]
+      }
+    },
+    {
+      "id": "M4",
+      "title": "Construction — temporary electricity and handling",
+      "animation": "Build the inherited 1.2 ha roof blocks; show a schematic temporary cable and generic materials loader.",
+      "what_changed": "Selected building work uses both electricity and diesel.",
+      "why": "Tools, welfare and selected lifting need electricity; a loader uses fuel for on-site handling.",
+      "meaning": "A temporary supply is distinct from the long-term campus connection. Both need appropriate arrangements.",
+      "uncertainty": "The selected allowances omit other plant, transport, material manufacturing and offsite utility construction.",
+      "visible_assumptions": [
+        "160 authored workdays.",
+        "30 kW average × 8 hours/day; loader 10 L/hour × 4 hours/day.",
+        "Temporary grid supply is a scenario assumption."
+      ],
+      "primary_metrics": [
+        "stage.selected_electricity_kwh",
+        "stage.selected_diesel_l"
+      ],
+      "detail_metrics": ["stage.workdays"],
+      "source_ids": ["W01", "E04", "E06"],
+      "wider_context": {
+        "default_explanation": "If connection works are required, cables or other infrastructure could extend the project effects beyond the campus. Their extent is unknown.",
+        "animation_instructions": "Show a generic temporary connection and an optional dashed works corridor marked Location and need not established; never excavate a real street by default.",
+        "status_note": "No cable route, reinforcement or neighbourhood disruption predicted.",
+        "source_ids": ["W01", "E04", "E06"]
+      }
+    },
+    {
+      "id": "M5",
+      "title": "Opening — commission the equipment",
+      "animation": "Reveal schematic switchgear and cooling equipment; pulse only the selected grid-testing pathway.",
+      "what_changed": "Selected electrical tests occur before the operating year.",
+      "why": "A short commissioning programme does not mean the campus has already used a full year of electricity.",
+      "meaning": "The testing budget is one-time and separate from normal operation. Standby tests require their own fuel inventory.",
+      "uncertainty": "The 500 kW grid test allowance is authored; complete acceptance tests and generator fuel remain unknown.",
+      "visible_assumptions": [
+        "500 kW aggregate average × 4 hours/day × 10 workdays.",
+        "Support draw is already inside the allowance; no extra PUE applied."
+      ],
+      "primary_metrics": ["stage.selected_electricity_kwh"],
+      "detail_metrics": ["stage.workdays"],
+      "source_ids": ["W01", "E04", "E06"],
+      "wider_context": {
+        "default_explanation": "A real opening would depend on agreed service and electrical readiness. The demo timeline does not establish approval or energization.",
+        "animation_instructions": "Reveal a schematic permanent connection with an Illustrative future label; keep nearby-home lights steady.",
+        "status_note": "Illustrative future; actual service and capacity unassessed.",
+        "source_ids": ["W01", "E04", "E06"]
+      }
+    },
+    {
+      "id": "M6",
+      "title": "Operation — servers and supporting systems",
+      "animation": "Start schematic servers. Split incoming electricity into IT and supporting systems; show inherited cooling make-up and blowdown beside it.",
+      "what_changed": "The campus now has a full-year normal-operation electrical budget.",
+      "why": "IT uses electricity; cooling, electrical losses and other supporting systems add to the facility budget.",
+      "meaning": "At the selected PUE, supporting systems add 20% to IT electricity and make up one-sixth of facility electricity. This is not a cooling-only measurement.",
+      "uncertainty": "The transferred PUE is a design-based teaching assumption. Peak demand, local headroom and actual Polo performance are unknown.",
+      "visible_assumptions": [
+        "10 MW average IT; no further utilization multiplier.",
+        "Annual electrical PUE 1.20; 365 days.",
+        "Cooling make-up 1.25 L/kWh IT; annual averages, not hot-day peaks."
+      ],
+      "primary_metrics": [
+        "operation.average_facility_mw",
+        "operation.facility_electricity_mwh_year",
+        "operation.non_it_electricity_mwh_year"
+      ],
+      "detail_metrics": [
+        "operation.it_electricity_mwh_year",
+        "operation.non_it_share_of_facility_percent",
+        "operation.cooling_makeup_m3_year",
+        "operation.cooling_makeup_m3_average_day"
+      ],
+      "source_ids": ["W01", "E01", "E03", "E04", "E05", "E06"],
+      "wider_context": {
+        "default_explanation": "A new continuous demand must be assessed alongside other users. Electricity procurement and network delivery are different; annual averages cannot prove spare capacity or household shortages.",
+        "animation_instructions": "Show campus and nearby-user branches from an explicitly schematic shared network. Flows are explanatory, not load-flow results; do not dim homes or show a reserve gauge.",
+        "status_note": "Network capacity and household effects not assessed.",
+        "source_ids": ["W01", "E01", "E03", "E04", "E05", "E06"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "scenario_id": "sf-polo-turf-energy-v1",
+  "locale": "en",
+  "as_of": "2026-10-24",
+  "status": "closed_educational_scenario_not_site_prediction",
+  "inherits": {
+    "scenario_id": "sf-polo-turf-water-v1",
+    "snapshot": "raw/inherited-water-scenario.json",
+    "results_snapshot": "raw/inherited-water-results.json",
+    "source_ids": ["W01"]
+  },
+  "location": {
+    "label": "Golden Gate Park Polo Fields — authored 4 ha managed-turf subset",
+    "geometry_status": "Same schematic subset as water packet; no surveyed polygon or validated electrical layout.",
+    "network_topology_verified": false,
+    "source_ids": ["W01"]
+  },
+  "inputs": {
+    "site_area_m2": {
+      "value": 40000,
+      "unit": "m²",
+      "kind": "scenario_assumption",
+      "source_ids": ["W01"],
+      "note": "Authored site area inherited unchanged; not building floor area."
+    },
+    "roof_area_m2": {
+      "value": 12000,
+      "unit": "m²",
+      "kind": "scenario_assumption",
+      "source_ids": ["W01"],
+      "note": "Authored roof footprint inherited unchanged."
+    },
+    "average_it_load_mw": {
+      "value": 10,
+      "unit": "MW IT average",
+      "kind": "scenario_assumption",
+      "source_ids": ["W01"],
+      "note": "Already an average. No additional utilization factor."
+    },
+    "operation_days": {
+      "value": 365,
+      "unit": "days/year",
+      "kind": "scenario_assumption",
+      "source_ids": ["W01"],
+      "note": "First full non-leap year, no ramp-up."
+    },
+    "annual_site_electricity_pue": {
+      "value": 1.2,
+      "unit": "ratio",
+      "kind": "transferred_design_benchmark_assumption",
+      "source_ids": ["E01"],
+      "note": "Transferred SJ04 design average used as an authored annual site-electricity ratio. Original uses design loads/weather; not measured SF performance or a peak factor."
+    },
+    "cooling_makeup_l_per_kwh_it": {
+      "value": 1.25,
+      "unit": "L/kWh IT",
+      "kind": "scenario_assumption",
+      "source_ids": ["W01", "E01"],
+      "note": "Inherited cooling make-up intensity. Supply includes blowdown; not evaporative consumption or the LBNL site-WUE boundary."
+    }
+  },
+  "cooling": {
+    "technology": "closed_internal_loop_with_indirect_evaporative_fluid_coolers",
+    "source_ids": ["W01", "E01"],
+    "comparison": {
+      "status": "not_quantified",
+      "alternative_pue": null,
+      "alternative_makeup_l_per_kwh_it": null,
+      "reason": "No matched SF design/weather pair established. Explain alternatives qualitatively; do not promise a fixed water-saving electricity penalty."
+    }
+  },
+  "electrical_boundary": {
+    "normal_operation": "Site electrical energy at the campus service boundary, including IT and supporting systems. Entire modelled normal-operation electricity supplied from the grid; no solar/battery/generator supply credits.",
+    "construction": "Selected on-site diesel and assumed grid-electricity allowances only. No embodied energy or complete lifecycle total.",
+    "non_it": "Cooling plus electrical losses and other support systems. Cooling-only split unknown.",
+    "source_ids": ["E01", "E02"]
+  },
+  "grid_context": {
+    "status": "not_assessed_for_fictional_campus",
+    "eligible_service_context": "City-owned-property development must apply for Hetch Hetchy Power according to SFPUC; approval and service route are not established.",
+    "distribution_context": "SFPUC describes Hetch Hetchy service points involving PG&E distribution. CleanPowerSF is a separate procurement/delivery example for city customers, not the assumed campus tariff.",
+    "source_ids": ["E04", "E05", "E06"]
+  },
+  "stages": [
+    {
+      "id": "M0",
+      "workdays": null,
+      "diesel": [],
+      "electricity": [],
+      "inventory_status": "Existing park inventory unknown; campus not present."
+    },
+    {
+      "id": "M1",
+      "workdays": 10,
+      "diesel": [
+        {
+          "label": "Generic turf-stripping tractor",
+          "count": 1,
+          "hours_per_machine_workday": 6,
+          "fuel_l_per_machine_hour": 5,
+          "kind": "scenario_assumption",
+          "source_ids": [],
+          "note": "Authored average rate and fleet, including idling within the six engine-on hours. Not a manufacturer value or productivity estimate."
+        }
+      ],
+      "electricity": [],
+      "inventory_status": "Selected tractor fuel only; other site energy unknown."
+    },
+    {
+      "id": "M2",
+      "workdays": 30,
+      "diesel": [
+        {
+          "label": "Generic earthmoving excavators",
+          "count": 2,
+          "hours_per_machine_workday": 6,
+          "fuel_l_per_machine_hour": 12,
+          "kind": "scenario_assumption",
+          "source_ids": ["E08"],
+          "note": "Authored fleet and hours. Rate uses the midpoint of one manufacturer earthmoving example; actual grade volumes, machine class and productivity are unvalidated."
+        }
+      ],
+      "electricity": [],
+      "inventory_status": "Selected excavator fuel only; hauling, water trucks and other plant excluded."
+    },
+    {
+      "id": "M3",
+      "workdays": 15,
+      "diesel": [
+        {
+          "label": "Generic compaction roller",
+          "count": 1,
+          "hours_per_machine_workday": 6,
+          "fuel_l_per_machine_hour": 10,
+          "kind": "scenario_assumption",
+          "source_ids": [],
+          "note": "Authored fleet, average rate and engine-on hours including idling. No measured roller fuel or geotechnical production model."
+        }
+      ],
+      "electricity": [],
+      "inventory_status": "Selected roller fuel only; other energy unknown."
+    },
+    {
+      "id": "M4",
+      "workdays": 160,
+      "diesel": [
+        {
+          "label": "Generic on-site materials loader",
+          "count": 1,
+          "hours_per_machine_workday": 4,
+          "fuel_l_per_machine_hour": 10,
+          "kind": "scenario_assumption",
+          "source_ids": [],
+          "note": "Authored average rate, fleet and engine-on hours including idling. Selected on-site handling only."
+        }
+      ],
+      "electricity": [
+        {
+          "label": "Temporary tools, welfare and selected lifting allowance",
+          "average_kw": 30,
+          "hours_per_workday": 8,
+          "kind": "scenario_assumption",
+          "source_ids": [],
+          "note": "Authored average electrical draw; not rated crane power. Hypothetical grid supply, not a confirmed temporary connection."
+        }
+      ],
+      "inventory_status": "Selected loader and temporary-electricity allowances; not all construction activities."
+    },
+    {
+      "id": "M5",
+      "workdays": 10,
+      "diesel": [],
+      "electricity": [
+        {
+          "label": "Selected commissioning grid tests",
+          "average_kw": 500,
+          "hours_per_workday": 4,
+          "kind": "scenario_assumption",
+          "source_ids": [],
+          "note": "Authored aggregate average grid test draw, including its support loads. Partial tests over ten days, not a full-capacity IT test, acceptance protocol or application of annual PUE."
+        }
+      ],
+      "inventory_status": "Selected grid tests only. Generator-test fuel, further load-bank testing and unlisted commissioning energy unknown."
+    },
+    {
+      "id": "M6",
+      "workdays": null,
+      "diesel": [],
+      "electricity": [],
+      "inventory_status": "Separate full-year normal-operation electrical budget; standby-test and outage fuel unknown."
+    }
+  ],
+  "unknowns": {
+    "existing_park_electricity_kwh_year": null,
+    "existing_park_fuel_l_year": null,
+    "net_electricity_change_kwh_year": null,
+    "peak_it_mw": null,
+    "peak_facility_mw": null,
+    "service_voltage_kv": null,
+    "available_network_headroom_mw": null,
+    "required_grid_upgrade_mw": null,
+    "connection_lead_time_months": null,
+    "named_feeder_or_substation": null,
+    "construction_full_energy_total_kwh": null,
+    "commissioning_generator_fuel_l": null,
+    "operating_standby_fuel_l_year": null,
+    "cooling_only_electricity_mwh_year": null,
+    "household_outage_effect": null,
+    "heatwave_power_increment_mw": null
+  },
+  "exclusions": [
+    "Upstream material/server energy",
+    "Offsite transport and worker commuting",
+    "Unlisted construction machinery and pumping",
+    "Generator-test/outage fuel quantities",
+    "Grid emissions and upstream water",
+    "Tariffs and monetary costs",
+    "Solar/storage and heat-reuse sizing",
+    "Hourly thermal and network simulation"
+  ]
+}

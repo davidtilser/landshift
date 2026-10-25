@@ -1,0 +1,143 @@
+{
+  "retrieved_on": "2026-10-24",
+  "sources": [
+    {
+      "id": "W01",
+      "title": "Inherited authored SF Polo Fields water scenario",
+      "url": "../water-demo-golden-gate-polo/README.md",
+      "locator": "scenario.json: inputs and stages; results.json: operation",
+      "use_and_limits": "Our own teaching scenario, not a development application. The energy packet inherits its area, average IT demand, cooling concept, water factor and schedule. Frozen copies allow offline reproduction."
+    },
+    {
+      "id": "E01",
+      "title": "Microsoft SJ04 fourth revised project description, July 2025",
+      "url": "https://efiling.energy.ca.gov/GetDocument.aspx?DocumentContentId=101543&tn=264764",
+      "locator": "Printed pp.7–9 / PDF pp.8–10 cooling and PUE; printed p.20 / PDF p.21 water; printed p.13 / PDF p.14 electrical supply",
+      "use_and_limits": "Developer design estimate: average PUE 1.20 and peak 1.27. We transfer 1.20 as an authored annual electrical energy ratio, not measured Polo performance. Original load/design weather assumptions differ. Source includes hybrid closed-circuit evaporative cooling; actual SF fit and service are unassessed. Do not transfer its capacity, peak PUE, substation or recycled-water connection."
+    },
+    {
+      "id": "E02",
+      "title": "EPA ENERGY STAR technical reference for data centers, August 2018",
+      "url": "https://www.energystar.gov/sites/default/files/tools/Data_Center_August_2018_EN_508.pdf",
+      "locator": "Printed p.9 / PDF p.9, example calculation",
+      "use_and_limits": "Distinguishes site and source energy. Its mixed-fuel source-energy scoring example is not the chosen site-electricity PUE model. No ENERGY STAR score is calculated."
+    },
+    {
+      "id": "E03",
+      "title": "LBNL 2024 United States Data Center Energy Usage Report",
+      "url": "https://eta-publications.lbl.gov/sites/default/files/2024-12/lbnl-2024-united-states-data-center-energy-usage-report.pdf?stream=top",
+      "locator": "Printed pp.43–47 / PDF pp.43–47",
+      "use_and_limits": "Cooling, climate, setpoints and operation affect PUE and water performance. National simulations do not supply a matched pair of validated Polo cooling designs. No national forecast or water-consumption factor is transferred."
+    },
+    {
+      "id": "E04",
+      "title": "SFPUC Hetch Hetchy Power for Developers",
+      "url": "https://www.sfpuc.gov/hetch-hetchy-power",
+      "locator": "Eligibility; How It Works; Hetch Hetchy Power Service Points and PG&E Distribution Grid",
+      "use_and_limits": "City-owned-property development is required to apply; SFPUC evaluates service options and infrastructure. Describes service points involving PG&E distribution. Application is not confirmed service or spare capacity for this fictional campus. Replaces an older URL that now returns 404."
+    },
+    {
+      "id": "E05",
+      "title": "SFPUC CleanPowerSF frequently asked questions",
+      "url": "https://cleanpowersf.org/faq",
+      "locator": "Does CleanPowerSF replace PG&E?",
+      "use_and_limits": "CleanPowerSF procures electricity while PG&E delivers and maintains lines for its customers. Regional example explaining procurement versus delivery; do not assign this programme or a feeder to the campus."
+    },
+    {
+      "id": "E06",
+      "title": "California ISO large loads",
+      "url": "https://www.caiso.com/generation-transmission/load/large-loads",
+      "locator": "Interconnection studies and cost recovery; technical requirements",
+      "use_and_limits": "Local utility tariffs govern retail-load interconnection; CAISO accounts for large loads in broader planning. Does not establish Polo spare capacity, upgrade size, lead time or household outages."
+    },
+    {
+      "id": "E07",
+      "title": "California Energy Commission summer reliability",
+      "url": "https://www.energy.ca.gov/data-reports/california-energy-planning-library/reliability/summer-reliability",
+      "locator": "Opening explanation of temperature and air-conditioning demand",
+      "use_and_limits": "Supports shared regional hot-weather demand context. No numerical Polo heatwave or drought multiplier and no shortage prediction."
+    },
+    {
+      "id": "E08",
+      "title": "Caterpillar 320D3 GC features and benefits",
+      "url": "https://s7d2.scene7.com/is/content/Caterpillar/CM20231103-119fd-8ac71",
+      "locator": "PDF p.1 fuel use; p.4 engine notes",
+      "use_and_limits": "Manufacturer earthmoving example states typical 11–13 L/hour; midpoint 12 is an illustrative grading-rate anchor. The brochure describes a noncertified-emission engine. This is not a machine procurement proposal, California-compliance claim or validated Polo fuel rate. Other machinery rates remain wholly authored."
+    },
+    {
+      "id": "E09",
+      "title": "LBNL United States Data Center Energy Usage Report 2025 Update landing page",
+      "url": "https://datacenters.lbl.gov/publications/united-states-data-center-energy-2025",
+      "locator": "Publication date June 2026 and abstract",
+      "use_and_limits": "Current report overview checked; national forecasts are not inputs. Full report was not obtained, so its detailed numerical parameters are not used."
+    }
+  ],
+  "raw_files": [
+    {
+      "path": "raw/sj04-2025-project-description.pdf",
+      "source_id": "E01",
+      "sha256": "563f388083b5531f22c3bfcfdd182212e3452fae97a1888d3d8ce5467bbbc182",
+      "kind": "verbatim_public_source_snapshot"
+    },
+    {
+      "path": "raw/epa-pue.pdf",
+      "source_id": "E02",
+      "sha256": "4248aabd7e9e52267b69eb92e3dcd62fa810969b7bc7601c68ccd21f1ede89af",
+      "kind": "verbatim_public_source_snapshot"
+    },
+    {
+      "path": "raw/lbnl-2024.pdf",
+      "source_id": "E03",
+      "sha256": "791f95feb348b406f0817bca11a65a9147883ade988c7426ebc4e28bfe35a3c5",
+      "kind": "verbatim_public_source_snapshot"
+    },
+    {
+      "path": "raw/sfpuc-developers.html",
+      "source_id": "E04",
+      "sha256": "7f326561f080c1822866b0e800d8395150cf1e79cfbbd5229afa19c55a7e6d85",
+      "kind": "verbatim_public_source_snapshot"
+    },
+    {
+      "path": "raw/cleanpowersf-faq.html",
+      "source_id": "E05",
+      "sha256": "91d1164ac4a9c11a45f0b901d6dd2235d8cb6c6a376372b17e478368759ef535",
+      "kind": "verbatim_public_source_snapshot"
+    },
+    {
+      "path": "raw/caiso-large-loads.html",
+      "source_id": "E06",
+      "sha256": "960d557403027d36751092d3bc2289b330521651e1b4ff7b09807df8917344b1",
+      "kind": "verbatim_public_source_snapshot"
+    },
+    {
+      "path": "raw/cec-summer.html",
+      "source_id": "E07",
+      "sha256": "e1f5451b0a2a73295bdcb05def890a8f14cdd341b26c87811ab30f4c97d7ac2b",
+      "kind": "verbatim_public_source_snapshot"
+    },
+    {
+      "path": "raw/cat-320d3-gc.pdf",
+      "source_id": "E08",
+      "sha256": "254192e0c21128909fe6ee2cef06631884ff9f6085d182e95e9448c05bb599db",
+      "kind": "verbatim_public_source_snapshot"
+    },
+    {
+      "path": "raw/lbnl-2025-update.html",
+      "source_id": "E09",
+      "sha256": "3c863a85a60206ac737702f30c5bb4abf657b8f7590a8508802fe772ea57f526",
+      "kind": "verbatim_public_source_snapshot"
+    },
+    {
+      "path": "raw/inherited-water-scenario.json",
+      "source_id": "W01",
+      "sha256": "b903e28a0265fa78ceb3ad98cdc2863dc317faf74f6b72b1e35d934bf905ba3d",
+      "kind": "verbatim_authored_scenario_snapshot"
+    },
+    {
+      "path": "raw/inherited-water-results.json",
+      "source_id": "W01",
+      "sha256": "87cbc29531d5c167aa740445b7bfa16776e16662e4ea8043f252b70a7f111105",
+      "kind": "verbatim_authored_scenario_snapshot"
+    }
+  ]
+}
