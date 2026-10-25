@@ -6,6 +6,8 @@ import type { PoloTodayTab } from './today.ts'
 import { poloUsText } from './us-units.ts'
 import './today.css'
 import { poloPlanningText } from './planning-copy.ts'
+import { poloFoundationsSteps } from './foundations-reader.ts'
+import { movePoloReader } from './reader-navigation.ts'
 
 /** Inline topic tabs share one reader across the entire walkthrough. */
 export function setupPoloEducation(
@@ -15,6 +17,7 @@ export function setupPoloEducation(
 ): {
   open: (topic: PoloTopic) => void
   resetToday: () => void
+  move: (direction: -1 | 1) => void
   sync: () => void
   destroy: () => void
 } {
@@ -38,6 +41,7 @@ export function setupPoloEducation(
   }
   let activeTab: PoloTodayTab = 'general'
   let renderedKey = ''
+  let readerStep = 0
   let previousPhase = getState().phase
   const panel = document.createElement('div')
   panel.className = 'polo-today-panel'
@@ -51,20 +55,44 @@ export function setupPoloEducation(
     item.textContent = poloPlanningText(text)
     return item
   }
+  const appendStory = (host: HTMLElement, copy: string): void => {
+    const guide = document.createElement('div')
+    guide.className = 'polo-chapter-story'
+    const avatar = document.createElement('img')
+    avatar.src = '/avatars/maya.png'
+    avatar.alt = 'Maya'
+    avatar.width = avatar.height = 48
+    guide.append(avatar, paragraph(copy, 'polo-chapter-speech'))
+    host.append(guide)
+  }
+  const readerLengths = (
+    state: PoloSceneState,
+  ): Record<PoloTodayTab, number> => ({
+    general: Math.max(1, poloFoundationsSteps(state, 'general').length),
+    water: Math.max(1, poloFoundationsSteps(state, 'water').length),
+    electricity: Math.max(1, poloFoundationsSteps(state, 'electricity').length),
+    land: Math.max(1, poloFoundationsSteps(state, 'land').length),
+  })
   const render = (): void => {
     const state = getState()
     if (state.phase !== previousPhase) {
       previousPhase = state.phase
-      onTopic(
-        state.phase === 'M0' || activeTab === 'general' ? null : activeTab,
-      )
+      activeTab = 'general'
+      readerStep = 0
+      onTopic(null)
     }
     const restoreRainFocus =
       panel.contains(document.activeElement) &&
       document.activeElement instanceof HTMLButtonElement &&
       document.activeElement.dataset['poloAction'] === 'rain'
-    const key = `${state.phase}/${String(state.preview)}/${state.proposal ?? ''}/${activeTab}`
+    const steps = state.confirmed ? poloFoundationsSteps(state, activeTab) : []
+    readerStep = Math.min(readerStep, Math.max(0, steps.length - 1))
+    const step = steps[readerStep]
+    const key = `${state.phase}/${String(state.preview)}/${state.proposal ?? ''}/${activeTab}/${String(readerStep)}`
     const sameCard = key === renderedKey
+    const storyOnly = step?.kind === 'story'
+    if (step) deck.setAttribute('data-polo-reader', step.kind)
+    else deck.removeAttribute('data-polo-reader')
     const infoOpen =
       sameCard &&
       panel.querySelector<HTMLDetailsElement>('.polo-today-details')?.open ===
@@ -81,56 +109,67 @@ export function setupPoloEducation(
     panel.setAttribute('aria-labelledby', `polo-tab-${activeTab}`)
     panel.replaceChildren()
     const card = poloChapterCard(state, activeTab)
-    if (state.phase === 'M1') {
-      if (deck.firstElementChild !== topics) deck.prepend(topics)
-    } else if (topics.nextElementSibling !== panel) {
-      deck.insertBefore(topics, panel)
-    }
-    if (card.copy) {
-      if (state.phase === 'M1') {
-        const guide = document.createElement('div')
-        guide.className = 'polo-foundations-story'
-        const avatar = document.createElement('img')
-        avatar.src = '/avatars/maya.png'
-        avatar.alt = 'Maya'
-        avatar.width = avatar.height = 48
-        guide.append(avatar, paragraph(card.copy, 'polo-foundations-speech'))
-        panel.append(guide)
-      } else {
-        panel.append(paragraph(card.copy, 'polo-today-copy'))
-      }
-    }
-    if (card.metrics.length) {
-      const metrics = document.createElement('div')
-      metrics.className = 'polo-today-metrics'
-      for (const metric of card.metrics) {
-        const item = document.createElement('div')
-        item.className = 'polo-metric'
+    if (deck.firstElementChild !== topics) deck.prepend(topics)
+    if (step) {
+      const progress = paragraph(
+        `${labels[activeTab]} · ${String(readerStep + 1)} / ${String(steps.length)}`,
+        'polo-reader-progress',
+      )
+      progress.tabIndex = -1
+      progress.setAttribute(
+        'aria-label',
+        `${labels[activeTab]}, step ${String(readerStep + 1)} of ${String(steps.length)}: ${step.title}`,
+      )
+      panel.append(progress)
+      const content = document.createElement('div')
+      content.className = 'polo-reader-content'
+      if (storyOnly) appendStory(content, step.copy)
+      else {
+        const number = document.createElement('div')
+        number.className = 'polo-reader-number'
         const value = document.createElement('strong')
-        value.textContent = poloPlanningText(metric.value)
+        value.textContent = poloPlanningText(step.value ?? '')
         const label = document.createElement('span')
-        label.textContent = poloPlanningText(metric.label)
-        item.append(value, label)
-        if (metric.note) {
-          const note = document.createElement('small')
-          note.textContent = poloPlanningText(metric.note)
-          item.append(note)
-        }
-        metrics.append(item)
+        label.textContent = poloPlanningText(step.label ?? step.title)
+        number.append(value, label)
+        content.append(number, paragraph(step.copy, 'polo-reader-explanation'))
       }
-      panel.append(metrics)
+      panel.append(content)
+    } else {
+      if (card.copy) appendStory(panel, card.copy)
+      if (card.metrics.length) {
+        const metrics = document.createElement('div')
+        metrics.className = 'polo-today-metrics'
+        for (const metric of card.metrics) {
+          const item = document.createElement('div')
+          item.className = 'polo-metric'
+          const value = document.createElement('strong')
+          value.textContent = poloPlanningText(metric.value)
+          const label = document.createElement('span')
+          label.textContent = poloPlanningText(metric.label)
+          item.append(value, label)
+          if (metric.note) {
+            const note = document.createElement('small')
+            note.textContent = poloPlanningText(metric.note)
+            item.append(note)
+          }
+          metrics.append(item)
+        }
+        panel.append(metrics)
+      }
+      if (card.comparison) {
+        const comparison = document.createElement('div')
+        comparison.className = 'polo-story-comparison'
+        const value = document.createElement('strong')
+        value.textContent = poloPlanningText(card.comparison.value)
+        const label = document.createElement('span')
+        label.textContent = poloPlanningText(card.comparison.label)
+        comparison.append(value, label)
+        panel.append(comparison)
+      }
     }
-    if (card.comparison) {
-      const comparison = document.createElement('div')
-      comparison.className = 'polo-story-comparison'
-      const value = document.createElement('strong')
-      value.textContent = poloPlanningText(card.comparison.value)
-      const label = document.createElement('span')
-      label.textContent = poloPlanningText(card.comparison.label)
-      comparison.append(value, label)
-      panel.append(comparison)
-    }
-    if (card.rain) {
+    let readerRain: HTMLDetailsElement | undefined
+    if (card.rain && !storyOnly) {
       const rain = document.createElement('details')
       rain.className = 'polo-rain-story'
       rain.open = rainOpen
@@ -150,7 +189,8 @@ export function setupPoloEducation(
       replay.textContent = state.rain ? '☂ Stop rain' : '☂ Replay the same rain'
       replay.setAttribute('aria-pressed', String(state.rain))
       rain.append(replay)
-      panel.append(rain)
+      if (step) readerRain = rain
+      else panel.append(rain)
     }
     const details = document.createElement('details')
     details.className = 'polo-today-details'
@@ -160,6 +200,7 @@ export function setupPoloEducation(
       card.detailsTitle ?? 'More info & data sources',
     )
     details.append(summary)
+    if (readerRain) details.append(readerRain)
     for (const text of [...card.details, ...(card.rain?.details ?? [])])
       details.append(paragraph(text))
     const sources = document.createElement('div')
@@ -206,7 +247,38 @@ export function setupPoloEducation(
       }
       details.append(research)
     }
-    panel.append(details)
+    if (!storyOnly) panel.append(details)
+    const lengths = readerLengths(state)
+    const position = { tab: activeTab, step: readerStep }
+    const before = movePoloReader(position, -1, lengths)
+    const after = movePoloReader(position, 1, lengths)
+    const first = before.tab === activeTab && before.step === readerStep
+    const last = after.tab === activeTab && after.step === readerStep
+    const back = deck.querySelector<HTMLButtonElement>(
+      '[data-polo-action="back"]',
+    )
+    const next = deck.querySelector<HTMLButtonElement>('#polo-next')
+    const locked = root.dataset['poloProtestPending'] === 'true'
+    if (back) {
+      back.hidden = !state.confirmed
+      back.disabled = locked || !state.confirmed || first
+      back.textContent = '← Back'
+    }
+    if (next) {
+      next.textContent = state.confirmed ? 'Next →' : 'Continue →'
+      next.disabled = locked || (state.confirmed && last)
+    }
+    if (state.confirmed && last) {
+      const ending = paragraph(
+        step
+          ? 'End of Foundations. Choose another phase below.'
+          : 'Choose another phase below.',
+        'polo-reader-end',
+      )
+      const content = panel.querySelector('.polo-reader-content')
+      if (content) content.append(ending)
+      else panel.append(ending)
+    }
     if (sameCard && restoreRainFocus)
       panel
         .querySelector<HTMLButtonElement>('[data-polo-action="rain"]')
@@ -214,8 +286,28 @@ export function setupPoloEducation(
   }
   const select = (tab: PoloTodayTab): void => {
     activeTab = tab
+    readerStep = 0
     onTopic(getState().phase === 'M0' || tab === 'general' ? null : tab)
     render()
+  }
+  const move = (direction: -1 | 1): void => {
+    const state = getState()
+    if (!state.confirmed) return
+    const position = movePoloReader(
+      { tab: activeTab, step: readerStep },
+      direction,
+      readerLengths(state),
+    )
+    activeTab = position.tab
+    readerStep = position.step
+    onTopic(state.phase === 'M0' || activeTab === 'general' ? null : activeTab)
+    render()
+    panel
+      .querySelector<HTMLElement>('.polo-reader-progress')
+      ?.focus({ preventScroll: true })
+    if (!panel.querySelector('.polo-reader-progress'))
+      panel.focus({ preventScroll: true })
+    deck.scrollTo({ top: 0 })
   }
   for (const topic of POLO_TODAY_TABS) {
     const button = document.createElement('button')
@@ -255,11 +347,13 @@ export function setupPoloEducation(
   render()
   return {
     open: select,
+    move,
     resetToday: () => {
       select('general')
     },
     sync: render,
     destroy: () => {
+      deck.removeAttribute('data-polo-reader')
       topics.remove()
       panel.remove()
     },

@@ -48,7 +48,7 @@ export function setupPoloLearning(
     panel.hidden = caption.hidden = true
     delete root.dataset['poloLearning']
     root
-      .querySelector<HTMLButtonElement>('#polo-next')
+      .querySelector<HTMLButtonElement>('#polo-learning-open')
       ?.focus({ preventScroll: true })
   }
   function render(): void {

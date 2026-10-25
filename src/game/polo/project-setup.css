@@ -16,28 +16,38 @@
 }
 .polo-setup-guide {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #634281;
-  font-size: 16px;
-  font-weight: 650;
+  align-items: flex-start;
+  gap: 13px;
+  margin-bottom: 24px;
 }
 .polo-setup-guide img {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
   border-radius: 50%;
+  background: #eee3fc;
 }
-.polo-project-setup h1 {
-  margin: 22px 0 12px;
-  color: #241832;
-  font-size: clamp(32px, 4vw, 44px);
-  font-weight: 780;
-  line-height: 1.08;
-  letter-spacing: -1.5px;
+.polo-setup-guide h1 {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  padding: 13px 15px;
+  border-radius: 0 18px 18px;
+  background: #eee5fc;
+  color: #55416b;
+  font-size: 22px;
+  font-weight: 650;
+  line-height: 1.35;
+  letter-spacing: -0.3px;
 }
-.polo-project-setup p {
-  margin: 0 0 26px;
-  color: #766483;
-  font-size: 20px;
-  line-height: 1.4;
+.polo-setup-guide h1::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -8px;
+  border-top: 9px solid #eee5fc;
+  border-left: 8px solid transparent;
 }
 .polo-project-setup label {
   display: block;
@@ -231,7 +241,6 @@
     .polo-deck,
     .polo-timeline,
     .polo-map-help,
-    .polo-impact-tools,
     .polo-opinions,
     .polo-placement-controls
   ) {
@@ -247,9 +256,6 @@
   .polo-project-setup {
     padding: 24px;
     border-radius: 26px;
-  }
-  .polo-project-setup h1 {
-    font-size: 36px;
   }
   .polo-city-label {
     left: 20px;

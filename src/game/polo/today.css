@@ -45,15 +45,11 @@
 .polo-today-metrics .polo-metric {
   margin: 0;
 }
-.polo-today-copy,
 .polo-today-details p,
 .polo-rain-story p {
   color: #655274;
   font-size: 15px;
   line-height: 1.5;
-}
-.polo-today-copy {
-  margin: 0 0 16px;
 }
 .polo-story-comparison {
   display: flex;
@@ -106,32 +102,29 @@
 
 #game[data-polo-confirmed='true'] .polo-deck-head {
   float: right;
-  margin-top: 19px;
+  margin-top: 8px;
 }
 #game[data-polo-confirmed='true'] .polo-deck-head > span {
   display: none;
 }
 
-/* Foundations is the layout trial before extending it to other chapters. */
-#game[data-polo-phase='M1'] .polo-guide {
+/* Shared chapter layout: tabs, heading, guide speech and supporting figures. */
+#game[data-polo-confirmed='true'] .polo-guide {
   display: none;
 }
-#game[data-polo-phase='M1'] .polo-topic-buttons {
+#game[data-polo-confirmed='true'] .polo-topic-buttons {
   margin: 0 0 18px;
 }
-#game[data-polo-phase='M1'] .polo-deck-head {
-  margin-top: 8px;
-}
-#game[data-polo-phase='M1'] .polo-deck h1 {
+#game[data-polo-confirmed='true'] .polo-deck h1 {
   margin-top: 0;
 }
-.polo-foundations-story {
+.polo-chapter-story {
   display: flex;
   align-items: flex-start;
   gap: 13px;
   margin: 0 0 18px;
 }
-.polo-foundations-story img {
+.polo-chapter-story img {
   flex: 0 0 48px;
   width: 48px;
   height: 48px;
@@ -139,7 +132,7 @@
   border-radius: 50%;
   background: #eee3fc;
 }
-.polo-foundations-speech {
+.polo-chapter-speech {
   position: relative;
   margin: 0;
   padding: 13px 15px;
@@ -150,7 +143,7 @@
   font-weight: 400;
   line-height: 1.5;
 }
-.polo-foundations-speech::before {
+.polo-chapter-speech::before {
   content: '';
   position: absolute;
   top: 0;
@@ -159,8 +152,94 @@
   border-left: 8px solid transparent;
 }
 
-/* Trial the larger disclosure and chapter navigation in Foundations only. */
-#game[data-polo-phase='M1'] .polo-today-details > summary {
+/* Foundations trials the same step reader across all four topics. */
+.polo-deck[data-polo-reader] {
+  scroll-padding-block: 100px 80px;
+}
+.polo-deck[data-polo-reader] > .polo-topic-buttons {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  padding-block: 3px;
+  background: #ffffff;
+  box-shadow:
+    0 -20px 0 #ffffff,
+    0 8px 12px #ffffff;
+}
+.polo-reader-progress {
+  margin: 0 0 16px;
+  color: #79658b;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.polo-reader-progress:focus {
+  outline: none;
+}
+.polo-reader-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 310px;
+}
+[data-polo-reader='story'] .polo-chapter-story {
+  margin-bottom: 0;
+}
+[data-polo-reader='story'] .polo-chapter-speech {
+  min-width: 0;
+  font-size: 30px;
+  line-height: 1.25;
+  letter-spacing: -0.6px;
+  padding: 17px;
+  overflow-wrap: anywhere;
+}
+.polo-reader-number {
+  padding: 18px;
+  border: 1px solid #e4d4f7;
+  border-radius: 15px;
+  background: #faf7ff;
+  color: #6024a1;
+}
+.polo-reader-number strong {
+  display: block;
+  font-size: 40px;
+  font-weight: 750;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.polo-reader-number span {
+  display: block;
+  margin-top: 8px;
+  color: #655274;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.polo-reader-explanation {
+  margin: 18px 0;
+  color: #55416b;
+  font-size: 18px;
+  line-height: 1.5;
+}
+.polo-reader-end {
+  margin: 14px 0 0;
+  color: #79658b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.polo-deck[data-polo-reader] > .polo-deck-bottom {
+  z-index: 3;
+}
+.polo-deck[data-polo-reader] .polo-next:disabled {
+  background: #eee7f6;
+  color: #806c95;
+  box-shadow: none;
+  cursor: default;
+}
+
+/* Shared disclosure and milestone navigation across all five chapters. */
+#game[data-polo-confirmed='true'] .polo-today-details > summary {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -172,12 +251,12 @@
   text-align: center;
   list-style: none;
 }
-#game[data-polo-phase='M1']
+#game[data-polo-confirmed='true']
   .polo-today-details
   > summary::-webkit-details-marker {
   display: none;
 }
-#game[data-polo-phase='M1'] .polo-today-details > summary::after {
+#game[data-polo-confirmed='true'] .polo-today-details > summary::after {
   content: '+';
   display: grid;
   place-items: center;
@@ -191,66 +270,72 @@
   font-weight: 400;
   line-height: 1;
 }
-#game[data-polo-phase='M1'] .polo-today-details[open] > summary::after {
+#game[data-polo-confirmed='true'] .polo-today-details[open] > summary::after {
   content: '−';
 }
-#game[data-polo-phase='M1'] .polo-today-details > summary:focus-visible {
+#game[data-polo-confirmed='true'] .polo-today-details > summary:focus-visible {
   outline: 3px solid #7629ec;
   outline-offset: 3px;
   border-radius: 8px;
 }
-#game[data-polo-phase='M1'] .polo-timeline {
+#game[data-polo-confirmed='true'] .polo-timeline {
   width: min(744px, calc(100vw - 40px));
   min-height: 70px;
   padding: 10px;
   gap: 4px;
   border-radius: 23px;
 }
-#game[data-polo-phase='M1'] .polo-stop {
+#game[data-polo-confirmed='true'] .polo-stop {
   gap: 5px;
   border-radius: 13px;
   font-size: 14.4px;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
-#game[data-polo-phase='M1'] .polo-stop-dot {
+#game[data-polo-confirmed='true'] .polo-stop-dot {
   width: 22px;
   height: 22px;
   flex-shrink: 0;
   font-size: 14.4px;
 }
-#game[data-polo-phase='M1'] .polo-deck {
+#game[data-polo-confirmed='true'] .polo-deck {
   bottom: 111px;
   max-height: calc(100dvh - 304px);
 }
-#game[data-polo-phase='M1'] .polo-studio.community-open .polo-timeline {
+#game[data-polo-confirmed='true'] .polo-studio.community-open .polo-timeline {
   width: min(744px, calc(100vw - 480px));
 }
 @media (max-width: 1100px) {
-  #game[data-polo-phase='M1'] .polo-deck {
+  #game[data-polo-confirmed='true'] .polo-deck {
     max-height: calc(100dvh - 272px);
   }
 }
 @media (max-height: 760px) and (min-width: 701px) {
-  #game[data-polo-phase='M1'] .polo-deck {
+  #game[data-polo-confirmed='true'] .polo-deck {
     max-height: calc(100dvh - 277px);
+  }
+  .polo-reader-content {
+    min-height: 250px;
   }
 }
 @media (max-width: 700px) {
-  #game[data-polo-phase='M1'] .polo-timeline {
+  #game[data-polo-confirmed='true'] .polo-timeline {
     width: calc(100vw - 20px);
     min-height: 78px;
     padding: 8px 6px;
   }
-  #game[data-polo-phase='M1'] .polo-stop {
+  #game[data-polo-confirmed='true'] .polo-stop {
     gap: 4px;
     padding: 2px;
     font-size: clamp(12px, 2.5vw, 14.4px);
     line-height: 1.1;
   }
-  #game[data-polo-phase='M1'] .polo-deck {
+  #game[data-polo-confirmed='true'] .polo-deck {
     bottom: 113px;
-    /* Talk and the compact support row end near 310px; leave a 20px gap. */
-    max-height: min(470px, calc(100dvh - 443px));
+    /* Leave room above the story for the Talk card and a 20px gap. */
+    max-height: min(470px, calc(100dvh - 358px));
+  }
+  .polo-reader-content {
+    min-height: clamp(180px, calc(100dvh - 420px), 310px);
   }
 }

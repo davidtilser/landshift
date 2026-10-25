@@ -1,5 +1,7 @@
 # UI, environmental layers and community feedback
 
+Current UI update: the Support / Explore map layers / Your impact panel and the impact reader have been removed from all five Polo chapters. Topic tabs still select environmental overlays. The implementation notes and authored Support model below describe the earlier iteration; that model remains in source, without a visible Support panel.
+
 ## Implementation order and ownership
 
 This iteration extends the existing Polo Fields walkthrough. The five chapters,
@@ -41,9 +43,8 @@ the smaller independently testable changes. No framework or dependency was added
 - `impact.ts` compares the original plan and current view at the **same chapter,
   placement and baseline operating case**. Public turf lost also identifies Today
   as its reference. Resource savings for visual proposals remain unquantified.
-- `experience.ts` provides a five-step impact reader. It appears after the
-  operating transition and the first application of each proposal; it can also be
-  opened manually. Reset clears the feedback history and overlay.
+- The former five-step impact reader and its `experience.ts` integration have
+  been removed. The remaining responsive More menu styles live in `more-menu.css`.
 - Mobile sources and reset controls are available in the More menu.
   The main camera strip sits inside the top navbar and scrolls horizontally;
   dialogs retain native keyboard
