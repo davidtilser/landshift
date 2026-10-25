@@ -47,6 +47,8 @@ describe('place, confirm, then follow the Polo story', () => {
       confirmPoloPlacement(INITIAL_POLO_STATE),
       'M6',
     )
+    // Arrival reveals the original operating campus before exploring a concept.
+    expect(operating.preview).toBe(false)
     const moved = movePoloCampus(
       operating,
       nudgePoloPlacement(POLO_CENTER, 100, 70),

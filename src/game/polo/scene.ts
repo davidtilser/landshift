@@ -2,6 +2,7 @@ import './placement.css'
 import {
   CallbackPositionProperty,
   CallbackProperty,
+  ColorMaterialProperty,
   CameraEventType,
   Cesium3DTileset,
   CesiumWidget,
@@ -49,8 +50,11 @@ import {
 import type { CampusDrag } from '../placement.ts'
 import { createLocalTerrain, sampleElevation } from '../terrain.ts'
 import type { ElevationGrid } from '../terrain.ts'
-import { INITIAL_POLO_STATE, POLO_CENTER } from './model.ts'
-import type { PoloSceneState } from './model.ts'
+import { INITIAL_POLO_STATE, POLO_CENTER, POLO_PHASES } from './model.ts'
+import type { PoloPhase, PoloSceneState } from './model.ts'
+import { poloTransitionFrame } from './transitions.ts'
+import type { PoloTransitionFrame } from './transitions.ts'
+import { segmentReveal, workPass } from './scene-animation.ts'
 import { poloPlacementValid } from './placement.ts'
 import {
   activePoloProposal,
@@ -67,6 +71,12 @@ interface SceneCallbacks {
   communityRequested: (id: CommunityId) => void
   positionRequested: (center: LngLat) => boolean
   rotationRequested: (bearing: number) => boolean
+  transitionChanged: (status: {
+    phase: PoloPhase
+    progress: number
+    playing: boolean
+    caption: string
+  }) => void
 }
 const PALETTE = {
   grass: '#8fab62',
@@ -124,6 +134,12 @@ export class PoloScene {
   private ground: number
   private fieldGround: number
   private startAt = performance.now()
+  private phaseStartedAt = performance.now()
+  private baselinePlaying = false
+  private transition: PoloTransitionFrame = poloTransitionFrame('M0', 0, false)
+  private transitionStatus = ''
+  private settleAt = Number.NEGATIVE_INFINITY
+  private readonly visibilityUpdates: (() => void)[] = []
   private animation = 0
   private renderedAt = 0
   private destroyed = false
@@ -443,11 +459,75 @@ export class PoloScene {
       this.ground + z,
     )
   }
-  private campusOrientation(): Quaternion {
+  private campusOrientation(extraHeading = 0): Quaternion {
     return FixedFrameTransforms.headingPitchRollQuaternion(
       this.point(0, 0, 0),
-      new HeadingPitchRoll(CesiumMath.toRadians(this.state.bearing), 0, 0),
+      new HeadingPitchRoll(
+        CesiumMath.toRadians(this.state.bearing + extraHeading),
+        0,
+        0,
+      ),
     )
+  }
+  private surfaceMaterial(css: string): ColorMaterialProperty {
+    const color = Color.fromCssColorString(css)
+    return new ColorMaterialProperty(
+      new CallbackProperty(
+        () =>
+          this.reducedMotion.matches
+            ? color
+            : color.withAlpha(
+                color.alpha *
+                  Math.min(
+                    1,
+                    Math.max(0.25, (performance.now() - this.settleAt) / 450),
+                  ),
+              ),
+        false,
+      ),
+    )
+  }
+  private revealBox(
+    x: number,
+    y: number,
+    z: number,
+    width: number,
+    depth: number,
+    height: number,
+    css: string,
+    fraction: () => number,
+    axis: 'height' | 'width' = 'height',
+  ): Entity {
+    const entity = this.box(x, y, z, width, depth, height, css)
+    entity.position = new CallbackPositionProperty(() => {
+      const part = Math.max(0, Math.min(1, fraction()))
+      return this.point(
+        axis === 'width' ? x - width / 2 + (width * part) / 2 : x,
+        y,
+        z + (axis === 'height' ? height * part : height) / 2,
+      )
+    }, false)
+    if (entity.box) {
+      entity.box.show = new CallbackProperty(() => fraction() > 0.001, false)
+      entity.box.dimensions = new CallbackProperty(
+        () =>
+          new Cartesian3(
+            axis === 'width' ? Math.max(0.02, width * fraction()) : width,
+            depth,
+            axis === 'height' ? Math.max(0.02, height * fraction()) : height,
+          ),
+        false,
+      )
+    }
+    return entity
+  }
+  private revealGroup(first: number, shown: () => boolean): void {
+    const entities = this.source.entities.values.slice(first)
+    const update = (): void => {
+      for (const entity of entities) entity.show = shown()
+    }
+    update()
+    this.visibilityUpdates.push(update)
   }
   private fieldPoint(x: number, y: number, z = 0): Cartesian3 {
     return Cartesian3.fromDegrees(...poloCoordinate(x, y), this.fieldGround + z)
@@ -479,7 +559,7 @@ export class PoloScene {
         : {}),
       box: {
         dimensions: new Cartesian3(width, depth, height),
-        material: Color.fromCssColorString(css),
+        material: this.surfaceMaterial(css),
         shadows: ShadowMode.ENABLED,
       },
     })
@@ -507,7 +587,7 @@ export class PoloScene {
         topRadius: radius,
         bottomRadius: radius,
         slices: 12,
-        material: Color.fromCssColorString(css),
+        material: this.surfaceMaterial(css),
         numberOfVerticalLines: 0,
         shadows: ShadowMode.ENABLED,
       },
@@ -773,7 +853,34 @@ export class PoloScene {
       },
     })
   }
-  private machinery(x: number, y: number, roller: boolean): void {
+  private workSurface(fraction: () => number, css: string, z: number): void {
+    for (let lane = 0; lane < 8; lane++) {
+      const part = (): number => segmentReveal(fraction(), lane, 8)
+      const tile = this.box(0, -43.75 + lane * 12.5, z, 320, 12.5, 0.16, css)
+      tile.position = new CallbackPositionProperty(
+        () =>
+          this.point(
+            lane % 2 === 0 ? -160 + 160 * part() : 160 - 160 * part(),
+            -43.75 + lane * 12.5,
+            z + 0.08,
+          ),
+        false,
+      )
+      if (tile.box) {
+        tile.box.show = new CallbackProperty(() => part() > 0.001, false)
+        tile.box.dimensions = new CallbackProperty(
+          () => new Cartesian3(Math.max(0.02, 320 * part()), 12.5, 0.16),
+          false,
+        )
+      }
+    }
+  }
+  private machinery(
+    x: number,
+    y: number,
+    roller: boolean,
+    travel?: () => { x: number; y: number; heading: number; shown: boolean },
+  ): void {
     const firstEntity = this.source.entities.values.length
     this.box(x, y, 1, 13, 7, 4, '#edb852')
     this.box(x - 3, y, 5, 5, 5, 4, '#4e655b')
@@ -786,118 +893,275 @@ export class PoloScene {
     for (const entity of this.source.entities.values.slice(firstEntity)) {
       const local = this.localAnchors.get(entity)
       if (!local) continue
-      entity.position = new CallbackPositionProperty(
-        () =>
-          this.point(
-            local[0] + Math.sin(this.elapsed() * 0.4) * 22,
-            local[1],
-            local[2],
-          ),
+      entity.position = new CallbackPositionProperty(() => {
+        const move = travel?.() ?? {
+          x: x + Math.sin(this.elapsed() * 0.4) * 22,
+          y,
+          heading: 0,
+          shown: true,
+        }
+        const angle = (move.heading * Math.PI) / 180,
+          dx = local[0] - x,
+          dy = local[1] - y
+        return this.point(
+          move.x + dx * Math.cos(angle) + dy * Math.sin(angle),
+          move.y - dx * Math.sin(angle) + dy * Math.cos(angle),
+          local[2],
+        )
+      }, false)
+      entity.orientation = new CallbackProperty(
+        () => this.campusOrientation(travel?.().heading ?? 0),
         false,
       )
     }
+    if (travel) this.revealGroup(firstEntity, () => travel().shown)
   }
 
   private campus(): void {
-    const building = this.state.phase === 'M4'
-    // Only the central 32,000 m² work band changes; the outer 8,000 m² stays original turf.
-    // Construction has 12,000 m² roof and 20,000 m² bare soil. At opening the same
-    // band becomes 12,000 m² roof, 16,000 m² hardstanding and 4,000 m² new landscape.
+    // Baseline target areas remain 4 ha: retained original turf is never covered.
     this.box(
       0,
       0,
-      0.7,
+      1.06,
       POLO_LAYOUT.workBand.width,
       POLO_LAYOUT.workBand.depth,
-      0.2,
-      building ? PALETTE.soil : '#a6b87c',
+      0.16,
+      PALETTE.compacted,
     )
-    if (!building)
-      this.box(
-        0,
-        0,
-        0.95,
-        POLO_LAYOUT.developedBand.width,
-        POLO_LAYOUT.developedBand.depth,
-        0.2,
-        PALETTE.concrete,
-      )
+    let foundationIndex = 0,
+      columnIndex = 0,
+      roofIndex = 0,
+      wallIndex = 0,
+      beamIndex = 0,
+      equipmentIndex = 0
     for (const hall of POLO_LAYOUT.halls) {
       const { x, y, width, depth } = hall
-      if (building) {
-        this.box(x, y, 1, width, depth, 3, '#c4d0c0')
-        for (const dx of [-46, -15, 15, 46])
-          for (const dy of [-26, 26])
-            this.box(x + dx, y + dy, 4, 1.8, 1.8, 14, '#e5e6d8')
-        this.box(x, y, 17.8, width, depth, 0.4, '#d6decf')
-        this.path(
-          [
-            [x - 49, y - 29, 18],
-            [x + 49, y - 29, 18],
-            [x + 49, y + 29, 18],
-            [x - 49, y + 29, 18],
-            [x - 49, y - 29, 18],
-          ],
-          '#cad7c5',
-          4,
+      for (let bay = 0; bay < 10; bay++) {
+        const index = foundationIndex++
+        this.revealBox(
+          x - 45 + bay * 10,
+          y,
+          0.95,
+          10,
+          depth,
+          3,
+          '#c4d0c0',
+          () => segmentReveal(this.transition.foundation, index, 20),
+          'width',
         )
-      } else {
-        this.box(x, y, 1, width, depth, 17, PALETTE.dark)
-        this.box(x, y, 18, width, depth, 0.8, PALETTE.white)
+      }
+      for (const dx of [-46, -15, 15, 46])
+        for (const dy of [-26, 26]) {
+          const index = columnIndex++
+          this.revealBox(x + dx, y + dy, 3.95, 1.8, 1.8, 14, '#e5e6d8', () =>
+            segmentReveal(Math.min(1, this.transition.frame / 0.75), index, 16),
+          )
+        }
+      for (const dy of [-26, 26]) {
+        const index = beamIndex++
+        this.revealBox(
+          x,
+          y + dy,
+          16.6,
+          width - 4,
+          1.6,
+          1.2,
+          '#d6dfd0',
+          () => segmentReveal((this.transition.frame - 0.75) / 0.25, index, 4),
+          'width',
+        )
+      }
+      for (let bay = 0; bay < 10; bay++) {
+        const index = roofIndex++,
+          part = (): number => segmentReveal(this.transition.roof, index, 20)
+        const panel = this.revealBox(
+          x - 45 + bay * 10,
+          y,
+          17.8,
+          10,
+          depth,
+          0.4,
+          '#d6decf',
+          part,
+        )
+        panel.position = new CallbackPositionProperty(
+          () => this.point(x - 45 + bay * 10, y, 18 + (1 - part()) * 18),
+          false,
+        )
+      }
+      for (const face of [-1, 1])
         for (let bay = 0; bay < 8; bay++) {
-          this.box(x - 43 + bay * 12, y - 30.3, 5, 8, 0.5, 8.5, '#8caeb0')
-          this.box(x - 43 + bay * 12, y - 30.7, 12.5, 8, 0.5, 0.9, '#acd9d5')
+          const index = wallIndex++,
+            part = (): number =>
+              segmentReveal(this.transition.cladding, index, 48)
+          this.revealBox(
+            x - 43.75 + bay * 12.5,
+            y + face * 30,
+            3.95,
+            12.5,
+            0.6,
+            14,
+            PALETTE.dark,
+            part,
+          )
+          if (face === -1) {
+            const first = this.source.entities.values.length
+            this.box(
+              x - 43.75 + bay * 12.5,
+              y - 30.4,
+              5,
+              8,
+              0.5,
+              8.5,
+              '#8caeb0',
+            )
+            this.box(
+              x - 43.75 + bay * 12.5,
+              y - 30.7,
+              13.5,
+              8,
+              0.5,
+              0.9,
+              '#acd9d5',
+            )
+            this.revealGroup(first, () => part() > 0.8)
+          }
         }
-        for (let cooler = 0; cooler < 4; cooler++) {
-          this.box(x - 35 + cooler * 23, 23, 18.8, 13, 10, 3, '#a8b8aa')
-          this.cylinder(x - 35 + cooler * 23, 23, 22, 3.5, 0.6, '#58756e')
+      for (const side of [-1, 1])
+        for (let bay = 0; bay < 4; bay++) {
+          const index = wallIndex++
+          this.revealBox(
+            x + side * 50,
+            y - 22.5 + bay * 15,
+            3.95,
+            0.6,
+            15,
+            14,
+            PALETTE.dark,
+            () => segmentReveal(this.transition.cladding, index, 48),
+          )
         }
+      for (let cooler = 0; cooler < 4; cooler++) {
+        const index = equipmentIndex++,
+          first = this.source.entities.values.length
+        this.box(x - 35 + cooler * 23, 23, 18.8, 13, 10, 3, '#a8b8aa')
+        this.cylinder(x - 35 + cooler * 23, 23, 22, 3.5, 0.6, '#58756e')
+        this.revealGroup(
+          first,
+          () => segmentReveal(this.transition.commissioning, index, 8) > 0.15,
+        )
       }
     }
-    if (!building) {
-      this.box(0, -36, 1, 24, 10, 5, '#e4e7d9')
-      this.path(
-        [
-          [-155, -43, 1.3],
-          [150, -43, 1.3],
-        ],
-        '#eeebce',
-        2,
-        true,
+    // The 28,000 m² developed band includes 12,000 m² roofs; its exposed hardstanding is 16,000 m².
+    for (let tile = 0; tile < 16; tile++)
+      this.revealBox(
+        -150 + tile * 20,
+        0,
+        1.24,
+        20,
+        POLO_LAYOUT.developedBand.depth,
+        0.18,
+        PALETTE.concrete,
+        () => segmentReveal(this.transition.hardstanding, tile, 16),
+        'width',
       )
-    }
-    if (building) {
-      this.box(-133, 32, 1, 5, 5, 52, '#dcaf45')
-      this.box(-101, 32, 48, 86, 3, 3, '#f0c95b')
-      this.path(
-        [
-          [-75, 32, 49],
-          [-75, 32, 22],
-        ],
-        '#625e42',
-        2,
-      )
+    for (const side of [-1, 1])
+      for (let tile = 0; tile < 16; tile++) {
+        const index = (side === -1 ? 0 : 16) + tile,
+          part = (): number =>
+            segmentReveal(this.transition.landscaping, index, 32)
+        this.revealBox(
+          -150 + tile * 20,
+          side * 46.875,
+          1.24,
+          20,
+          6.25,
+          0.2,
+          '#a6b87c',
+          part,
+          'width',
+        )
+        if (tile % 2 === 0) {
+          const first = this.source.entities.values.length
+          this.source.entities.add({
+            position: new CallbackPositionProperty(
+              () => this.point(-150 + tile * 20, side * 46.875, 1.8),
+              false,
+            ),
+            ellipsoid: {
+              radii: new CallbackProperty(
+                () =>
+                  new Cartesian3(
+                    Math.max(0.02, 1.8 * part()),
+                    Math.max(0.02, 1.4 * part()),
+                    Math.max(0.02, 0.8 * part()),
+                  ),
+                false,
+              ),
+              material: this.surfaceMaterial('#829b58'),
+              stackPartitions: 6,
+              slicePartitions: 6,
+            },
+          })
+          this.revealGroup(first, () => part() > 0.02)
+        }
+      }
+    const gate = this.source.entities.values.length
+    this.box(0, -36, 1, 24, 10, 5, '#e4e7d9')
+    this.path(
+      [
+        [-155, -43, 1.3],
+        [150, -43, 1.3],
+      ],
+      '#eeebce',
+      2,
+      true,
+    )
+    this.revealGroup(gate, () => this.transition.commissioning > 0.6)
+    const services = this.source.entities.values.length
+    this.box(-175, -65, 0, 14, 10, 11, '#8d9c90')
+    this.cylinder(133, -23, 1, 8, 13, '#a1c2c1')
+    this.revealGroup(services, () => this.transition.commissioning > 0.7)
+    if (this.state.phase === 'M4' || this.state.phase === 'M5') {
+      const first = this.source.entities.values.length
+      this.box(0, 0, 1, 5, 5, 52, '#dcaf45')
+      this.box(0, 0, 49, 230, 3, 3, '#f0c95b')
+      const hook = (): LocalPoint => {
+        const progress = Math.min(19.999, this.transition.roof * 20)
+        const index = Math.floor(progress),
+          hall =
+            POLO_LAYOUT.halls[Math.min(1, Math.floor(index / 10))] ??
+            POLO_LAYOUT.halls[0]
+        const part = segmentReveal(this.transition.roof, index, 20)
+        return [hall.x - 45 + (index % 10) * 10, 0, 18 + (1 - part) * 18]
+      }
       this.source.entities.add({
-        position: new CallbackPositionProperty(
-          () => this.point(-75, 32, 17 + (Math.sin(this.elapsed()) + 1) * 7),
-          false,
-        ),
-        orientation: new CallbackProperty(
-          () => this.campusOrientation(),
-          false,
-        ),
-        box: {
-          dimensions: new Cartesian3(11, 9, 3),
-          material: Color.fromCssColorString('#d8ded3'),
+        polyline: {
+          positions: new CallbackProperty(() => {
+            const point = hook()
+            return [this.point(point[0], point[1], 50), this.point(...point)]
+          }, false),
+          width: 2,
+          arcType: ArcType.NONE,
+          material: Color.fromCssColorString('#655f43'),
         },
       })
-      this.machinery(95, -48, false)
-      this.label(15, -12, 31, 'Building the campus', '#76603b')
+      this.revealGroup(
+        first,
+        () => this.state.phase === 'M4' || this.transition.cladding < 0.9,
+      )
+      this.machinery(0, 0, false, () => ({
+        x: 95 + 180 * this.transition.commissioning,
+        y: -44,
+        heading: 0,
+        shown:
+          this.state.phase === 'M4' || this.transition.commissioning < 0.95,
+      }))
     }
   }
   private operation(): void {
     const selected = activePoloProposal(this.state)
-    this.box(-175, -65, 0, 14, 10, 11, '#8d9c90')
+    let first = this.source.entities.values.length
     const power: LocalPoint[] = [
       [-175, -65, 13],
       [-148, -65, 13],
@@ -908,6 +1172,8 @@ export class PoloScene {
     this.path(power, PALETTE.power, 4)
     this.flow(power, PALETTE.power, 5, 0.12)
     if (!selected) this.label(-184, -65, 19, 'Electricity → servers', '#807039')
+    this.revealGroup(first, () => this.transition.operation > 0.02)
+    first = this.source.entities.values.length
     const cooling: LocalPoint[] = [
       [65, 0, 21],
       [65, 23, 25],
@@ -921,7 +1187,8 @@ export class PoloScene {
     ]
     this.path(cooling, PALETTE.water, 4)
     this.flow(cooling, PALETTE.water, 4, 0.15)
-    this.cylinder(133, -23, 1, 8, 13, '#a1c2c1')
+    this.revealGroup(first, () => this.transition.operation > 0.25)
+    first = this.source.entities.values.length
     const rejection: LocalPoint[] = [
       [133, -23, 14],
       [133, -23, 27],
@@ -948,7 +1215,9 @@ export class PoloScene {
         undefined,
         new Cartesian2(-85, -35),
       )
+    this.revealGroup(first, () => this.transition.operation > 0.5)
     if (selected !== 'recycled_water') {
+      first = this.source.entities.values.length
       const makeup: LocalPoint[] = [
         [177, -70, 2.5],
         [150, -70, 2.5],
@@ -959,8 +1228,13 @@ export class PoloScene {
       this.flow(makeup, PALETTE.water, 3, 0.14)
       if (!selected)
         this.label(183, -76, 6, 'Cooling water · schematic supply', '#4a8190')
+      this.revealGroup(first, () => this.transition.operation > 0.7)
     }
-    if (!selected) this.label(0, 22, 28, 'Computing continues', '#426b60')
+    if (!selected) {
+      first = this.source.entities.values.length
+      this.label(0, 22, 28, 'Computing continues', '#426b60')
+      this.revealGroup(first, () => this.transition.operation > 0.75)
+    }
   }
   private heatReuse(): void {
     const enabled = this.state.recipientAvailable
@@ -1275,6 +1549,7 @@ export class PoloScene {
     this.source.entities.removeAll()
     this.draggableEntities.clear()
     this.localAnchors.clear()
+    this.visibilityUpdates.length = 0
     this.placementHandle.hidden = false
     if (!this.state.confirmed) {
       this.placementScene()
@@ -1294,16 +1569,6 @@ export class PoloScene {
       0.65,
       PALETTE.grass,
     )
-    if (phase === 'M2' || phase === 'M3')
-      this.box(
-        0,
-        0,
-        0.7,
-        POLO_LAYOUT.workBand.width,
-        POLO_LAYOUT.workBand.depth,
-        0.15,
-        phase === 'M2' ? PALETTE.soil : PALETTE.compacted,
-      )
     if (phase === 'M0') {
       this.path(
         [
@@ -1341,64 +1606,71 @@ export class PoloScene {
         )
       this.label(65, 48, 4, 'Today · shared sports turf', '#69834c')
     } else if (phase === 'M1') {
-      const stripped = this.box(
-        0,
-        0,
-        0.7,
-        POLO_LAYOUT.workBand.width,
-        POLO_LAYOUT.workBand.depth,
-        0.15,
-        PALETTE.soil,
-      )
-      const span = (): number =>
-        Math.max(
-          0.1,
-          Math.min(1, this.elapsed() / 3.5) * POLO_LAYOUT.workBand.width,
+      this.workSurface(() => this.transition.turfRemoved, PALETTE.soil, 0.7)
+      this.machinery(0, 0, false, () => ({
+        ...workPass(this.transition.turfRemoved),
+        shown: true,
+      }))
+      for (let roll = 0; roll < 8; roll++) {
+        const first = this.source.entities.values.length
+        this.cylinder(-145 + roll * 8, 44, 1, 3, 4, '#75864e')
+        this.revealGroup(
+          first,
+          () => this.transition.turfRemoved > (roll + 0.6) / 8,
         )
-      stripped.position = new CallbackPositionProperty(
-        () =>
-          this.point(-POLO_LAYOUT.workBand.width / 2 + span() / 2, 0, 0.775),
-        false,
-      )
-      if (stripped.box)
-        stripped.box.dimensions = new CallbackProperty(
-          () => new Cartesian3(span(), POLO_LAYOUT.workBand.depth, 0.15),
-          false,
-        )
-      for (let row = 0; row < 6; row++)
-        this.box(-82, -48 + row * 19, 1, 150, 1, 0.15, '#947452')
-      this.machinery(-8, -20, false)
-      for (let roll = 0; roll < 5; roll++)
-        this.cylinder(-140 + roll * 9, 44, 1, 3, 4, '#75864e')
-      this.label(80, 40, 8, 'Grass lifted · the field’s use changes', '#8a7554')
+      }
     } else if (phase === 'M2') {
-      for (let strip = 0; strip < 6; strip++)
-        this.box(
-          -132 + strip * 53,
-          0,
-          0.8,
-          52,
-          POLO_LAYOUT.workBand.depth,
-          0.2 + (strip % 2) * 0.8,
-          strip % 2 ? '#b79666' : '#a18359',
-        )
-      this.machinery(45, -15, false)
-      this.label(45, 43, 12, 'Grading · moving and levelling soil', '#8d7756')
+      this.box(0, 0, 0.7, 320, 100, 0.16, PALETTE.soil)
+      this.workSurface(() => this.transition.grading, '#b69a70', 0.88)
+      this.machinery(0, 0, false, () => ({
+        ...workPass(this.transition.grading),
+        shown: true,
+      }))
+      const first = this.source.entities.values.length
+      for (let puff = 0; puff < 5; puff++)
+        this.source.entities.add({
+          position: new CallbackPositionProperty(() => {
+            const vehicle = workPass(this.transition.grading)
+            return this.point(
+              vehicle.x - 5 - puff * 2,
+              vehicle.y + (puff % 2 ? 2 : -2),
+              3 + ((this.elapsed() + puff) % 2),
+            )
+          }, false),
+          ellipsoid: {
+            radii: new Cartesian3(3 + puff * 0.5, 2, 1.8),
+            material: Color.fromCssColorString('#c6b08a').withAlpha(0.13),
+            stackPartitions: 6,
+            slicePartitions: 6,
+          },
+        })
+      this.revealGroup(
+        first,
+        () => this.baselinePlaying && !this.transition.complete,
+      )
     } else if (phase === 'M3') {
-      for (let strip = 0; strip < 8; strip++)
-        this.box(
-          -141 + strip * 40,
-          0,
-          0.88,
-          1.8,
-          POLO_LAYOUT.workBand.depth - 2,
-          0.1,
-          '#a38e6d',
+      this.box(0, 0, 0.88, 320, 100, 0.16, '#b69a70')
+      this.workSurface(
+        () => this.transition.compaction,
+        PALETTE.compacted,
+        1.06,
+      )
+      this.machinery(0, 0, true, () => ({
+        ...workPass(this.transition.compaction),
+        shown: true,
+      }))
+      for (let lane = 0; lane < 8; lane++) {
+        const first = this.source.entities.values.length
+        this.box(0, -43.75 + lane * 12.5 - 2, 1.23, 318, 0.7, 0.03, '#a48d6d')
+        this.box(0, -43.75 + lane * 12.5 + 2, 1.23, 318, 0.7, 0.03, '#a48d6d')
+        this.revealGroup(
+          first,
+          () => this.transition.compaction > (lane + 0.98) / 8,
         )
-      this.machinery(-20, -12, true)
-      this.label(15, 43, 12, 'Compacted soil · less room for water', '#8a785c')
+      }
     } else this.campus()
-    if (phase === 'M5')
+    if (phase === 'M5') {
+      const ready = this.source.entities.values.length
       this.label(
         0,
         48,
@@ -1406,6 +1678,8 @@ export class PoloScene {
         'Opening · equipment ready, computing not yet running',
         '#6b826f',
       )
+      this.revealGroup(ready, () => this.transition.complete)
+    }
     if (phase === 'M6') this.operation()
     const proposal = activePoloProposal(this.state)
     if (proposal === 'heat_reuse_neighbors') this.heatReuse()
@@ -1417,15 +1691,44 @@ export class PoloScene {
     this.viewer.scene.requestRender()
   }
 
+  private publishTransition(): void {
+    const progress = Math.round(this.transition.progress * 100) / 100
+    const playing = this.baselinePlaying && !this.transition.complete
+    const key = [
+      this.state.phase,
+      progress,
+      playing,
+      this.transition.caption,
+    ].join('|')
+    if (key === this.transitionStatus) return
+    this.transitionStatus = key
+    this.callbacks.transitionChanged({
+      phase: this.state.phase,
+      progress,
+      playing,
+      caption: this.transition.caption,
+    })
+  }
+  private updateTransition(now: number): void {
+    if (this.baselinePlaying) {
+      this.transition = poloTransitionFrame(
+        this.state.phase,
+        (now - this.phaseStartedAt) / 1000,
+        !this.reducedMotion.matches,
+      )
+      if (this.transition.complete) this.baselinePlaying = false
+    }
+    for (const update of this.visibilityUpdates) update()
+    this.publishTransition()
+  }
   private readonly animate = (now: number): void => {
     if (this.destroyed) return
-    if (
-      !document.hidden &&
-      !this.reducedMotion.matches &&
-      now - this.renderedAt > 40
-    ) {
+    if (!document.hidden && now - this.renderedAt > 50) {
       this.renderedAt = now
-      this.viewer.scene.requestRender()
+      const wasPlaying = this.baselinePlaying
+      this.updateTransition(now)
+      if (!this.reducedMotion.matches || wasPlaying)
+        this.viewer.scene.requestRender()
     }
     this.animation = requestAnimationFrame(this.animate)
   }
@@ -1447,31 +1750,78 @@ export class PoloScene {
   }
   setState(state: PoloSceneState): void {
     if (this.destroyed) return
-    const newAnimation =
-      this.state.phase !== state.phase ||
-      this.state.proposal !== state.proposal ||
-      this.state.preview !== state.preview ||
-      this.state.rain !== state.rain ||
-      this.state.recipientAvailable !== state.recipientAvailable ||
-      this.state.confirmed !== state.confirmed
+    const previous = this.state
+    const phaseChanged =
+      previous.phase !== state.phase || previous.confirmed !== state.confirmed
+    const sceneChanged =
+      phaseChanged ||
+      previous.proposal !== state.proposal ||
+      previous.preview !== state.preview ||
+      previous.rain !== state.rain ||
+      previous.recipientAvailable !== state.recipientAvailable
     this.state = state.confirmed
       ? { ...state, center: [...state.center] }
       : { ...state, center: [...state.center], phase: 'M0', proposal: null }
+    const now = performance.now()
+    if (phaseChanged) {
+      const forward =
+        previous.confirmed &&
+        this.state.confirmed &&
+        POLO_PHASES.indexOf(this.state.phase) ===
+          POLO_PHASES.indexOf(previous.phase) + 1
+      this.baselinePlaying =
+        forward &&
+        !this.reducedMotion.matches &&
+        !activePoloProposal(this.state)
+      this.phaseStartedAt = now
+      this.transition = poloTransitionFrame(
+        this.state.phase,
+        0,
+        this.baselinePlaying,
+      )
+      this.settleAt =
+        !forward && this.state.confirmed && !this.reducedMotion.matches
+          ? now
+          : Number.NEGATIVE_INFINITY
+    }
+    // Opening a concept settles operation; later proposal/rain replays cannot rebuild the baseline story.
+    if (activePoloProposal(this.state)) {
+      this.baselinePlaying = false
+      this.transition = poloTransitionFrame(this.state.phase, 0, false)
+    }
     if (!this.drag) this.ground = this.siteGround(this.state.center)
-    if (newAnimation) this.startAt = performance.now()
-    if (!newAnimation) {
+    if (sceneChanged) this.startAt = now
+    if (!sceneChanged) {
       this.positionPlacementHandle()
       this.viewer.scene.requestRender()
       return
     }
+    this.updateTransition(now)
     this.rebuild()
+    this.publishTransition()
   }
   replay(): void {
-    this.startAt = performance.now()
+    const now = performance.now()
+    this.startAt = now
+    if (!activePoloProposal(this.state) && this.state.confirmed) {
+      this.phaseStartedAt = now
+      this.baselinePlaying =
+        this.state.phase !== 'M0' && !this.reducedMotion.matches
+      this.transition = poloTransitionFrame(
+        this.state.phase,
+        0,
+        this.baselinePlaying,
+      )
+      this.settleAt = Number.NEGATIVE_INFINITY
+    }
+    this.updateTransition(now)
     this.viewer.scene.requestRender()
   }
   skip(): void {
     this.startAt = performance.now() - 6000
+    this.baselinePlaying = false
+    this.transition = poloTransitionFrame(this.state.phase, 0, false)
+    this.updateTransition(performance.now())
     this.viewer.scene.requestRender()
   }
   focus(view: 'site' | 'connection' | 'park', duration = 1.2): void {

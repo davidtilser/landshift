@@ -128,6 +128,7 @@ export async function startPoloDemo(): Promise<void> {
         <div class="polo-deck-head"><span id="polo-kicker"></span><button type="button" data-polo-action="replay" class="polo-replay">↻ Replay</button></div>
         <h1 id="polo-title"></h1>
         <p class="polo-summary" id="polo-summary"></p>
+        <div class="polo-motion" id="polo-motion" hidden><div class="polo-motion-heading"><span id="polo-motion-caption" role="status"></span><button type="button" data-polo-action="skip">Skip ↗</button></div><div class="polo-motion-track" id="polo-motion-track" role="progressbar" aria-label="Phase animation" aria-valuemin="0" aria-valuemax="100"><span id="polo-motion-fill"></span></div><small>Time-compressed illustration</small></div>
         <div class="polo-placement" id="polo-placement" role="group" aria-label="Adjust the campus location">
           <p>Put it on the field, then confirm. You can move it again later.</p>
           <div class="polo-nudges"><button type="button" data-polo-action="nudge-west" aria-label="Move campus west 5 metres">←</button><button type="button" data-polo-action="nudge-north" aria-label="Move campus north 5 metres">↑</button><span>Nudge</span><button type="button" data-polo-action="nudge-south" aria-label="Move campus south 5 metres">↓</button><button type="button" data-polo-action="nudge-east" aria-label="Move campus east 5 metres">→</button></div>
@@ -138,7 +139,7 @@ export async function startPoloDemo(): Promise<void> {
           <button type="button" data-polo-action="proposed">With this idea</button>
         </div>
         <div class="polo-concept" id="polo-concept" hidden></div>
-        <div class="polo-metrics" id="polo-metrics"></div>
+        <p class="polo-endpoint-label" id="polo-endpoint-label" hidden>After this step</p><div class="polo-metrics" id="polo-metrics"></div>
         <div class="polo-experiment" id="polo-experiment"></div>
         <details class="polo-details" id="polo-details"><summary>What’s behind this?</summary><div id="polo-detail-copy"></div></details>
         <div class="polo-deck-bottom"><button type="button" data-polo-action="back" class="polo-back">← Back</button><button type="button" data-polo-action="edit-location" class="polo-back" hidden>Move campus</button><button type="button" data-polo-action="next" class="polo-next" id="polo-next">Confirm location →</button></div>
@@ -162,7 +163,39 @@ export async function startPoloDemo(): Promise<void> {
   let online = false
   let connecting = false
   let disposed = false
+  let motion: {
+    phase: PoloPhase
+    progress: number
+    playing: boolean
+    caption: string
+  } = { phase: 'M0', progress: 1, playing: false, caption: '' }
   const isDisposed = (): boolean => disposed
+
+  function renderMotion(): void {
+    const active =
+      state.confirmed &&
+      motion.phase === state.phase &&
+      motion.playing &&
+      !(state.proposal && state.preview)
+    get('#polo-motion', HTMLDivElement).hidden = !active
+    const caption = get('#polo-motion-caption', HTMLSpanElement)
+    if (caption.textContent !== motion.caption)
+      caption.textContent = motion.caption
+    const progress = Math.round(Math.max(0, Math.min(1, motion.progress)) * 100)
+    get('#polo-motion-track', HTMLDivElement).setAttribute(
+      'aria-valuenow',
+      String(progress),
+    )
+    get('#polo-motion-fill', HTMLSpanElement).style.width =
+      String(progress) + '%'
+    get('#polo-endpoint-label', HTMLParagraphElement).hidden = !active
+    root.dataset['poloAnimating'] = String(active)
+    for (const stop of root.querySelectorAll<HTMLButtonElement>('[data-phase]'))
+      stop.classList.toggle(
+        'is-playing',
+        active && stop.dataset['phase'] === state.phase,
+      )
+  }
 
   function message(text: string): void {
     if (disposed) return
@@ -204,7 +237,13 @@ export async function startPoloDemo(): Promise<void> {
   }
   function setPhase(phase: PoloPhase): void {
     if (!state.confirmed) return
+    const previous = POLO_PHASES.indexOf(state.phase)
+    const next = POLO_PHASES.indexOf(phase)
     setState(poloPhaseAt(state, phase))
+    if (next < previous)
+      message('Earlier snapshot · compare how the place changed.')
+    else if (next > previous + 1)
+      message('Jumped ahead. Replay shows this step being done.')
     if (phase === 'M6') scene?.focus('connection')
   }
   function render(): void {
@@ -244,10 +283,10 @@ export async function startPoloDemo(): Promise<void> {
       '[data-polo-action="replay"]',
     )
     if (replay) replay.hidden = !state.confirmed
-    const skip = root.querySelector<HTMLButtonElement>(
+    for (const skip of root.querySelectorAll<HTMLButtonElement>(
       '[data-polo-action="skip"]',
-    )
-    if (skip) skip.hidden = !state.confirmed
+    ))
+      skip.hidden = !state.confirmed
     const cases = get('#polo-proposals', HTMLDivElement)
     cases.hidden = !inOperation
     cases.replaceChildren()
@@ -414,6 +453,7 @@ export async function startPoloDemo(): Promise<void> {
       : proposed
         ? 'ILLUSTRATIVE CONNECTION · VISUAL CONCEPT'
         : 'REAL PLACE · FICTIONAL PROJECT'
+    renderMotion()
   }
 
   const timeline = get('.polo-timeline', HTMLElement)
@@ -679,6 +719,11 @@ export async function startPoloDemo(): Promise<void> {
     if (isDisposed()) return
     scene = new PoloScene(pack, grid, {
       message,
+      transitionChanged: (status) => {
+        if (disposed) return
+        motion = status
+        renderMotion()
+      },
       onlineChanged: (status) => {
         if (disposed) return
         online = status === 'online'
