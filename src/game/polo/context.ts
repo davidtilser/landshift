@@ -6,7 +6,11 @@ import { POLO_DEFAULT_AREA_HA } from './model.ts'
 import { POLO_PROPOSAL_NAMES } from './model.ts'
 import type { PoloSceneState } from './model.ts'
 import { poloImprovementSummary } from './interventions.ts'
-import { activePoloLearnings, poloProposalActive } from './learnings.ts'
+import {
+  activePoloLearnings,
+  activeCustomPoloLearnings,
+  poloProposalActive,
+} from './learnings.ts'
 
 const mechanisms = {
   heat_reuse_neighbors:
@@ -37,25 +41,32 @@ export function poloDiscussionContext(
       : null
   const improvements = poloImprovementSummary(state)
   const learned = activePoloLearnings(state)
-  const combined = learned.length
-    ? 'Same-location design comparison: these choices are assumed planned from the start, not retrofits to an already built campus. ' +
-      learned
-        .map(
-          (item) =>
-            item.title + ': ' + item.action + ' Trade-off: ' + item.tradeoff,
-        )
-        .join(' ') +
-      (poloProposalActive(state, 'heat_reuse_neighbors')
-        ? ' ' + mechanisms.heat_reuse_neighbors
-        : '') +
-      (poloProposalActive(state, 'recycled_water')
-        ? ' ' + mechanisms.recycled_water
-        : '') +
-      (poloProposalActive(state, 'green_roof')
-        ? ' ' + mechanisms.green_roof
-        : '') +
-      ' Water, electricity, material use, heat delivery and combined savings are not recalculated. The campus stays in the same location; the public playing field remains lost.'
-    : ''
+  const custom = activeCustomPoloLearnings(state)
+  const combined =
+    learned.length || custom.length
+      ? 'Same-location design comparison: these choices are assumed planned from the start, not retrofits to an already built campus. ' +
+        learned
+          .map(
+            (item) =>
+              item.title + ': ' + item.action + ' Trade-off: ' + item.tradeoff,
+          )
+          .join(' ') +
+        (custom.length
+          ? ' Player-supplied custom proposals (not implemented or verified): ' +
+            JSON.stringify(custom.map((item) => item.text)) +
+            '. Discuss their possible benefits and trade-offs as ideas; do not claim any new map change, saving or agreement.'
+          : '') +
+        (poloProposalActive(state, 'heat_reuse_neighbors')
+          ? ' ' + mechanisms.heat_reuse_neighbors
+          : '') +
+        (poloProposalActive(state, 'recycled_water')
+          ? ' ' + mechanisms.recycled_water
+          : '') +
+        (poloProposalActive(state, 'green_roof')
+          ? ' ' + mechanisms.green_roof
+          : '') +
+        ' Water, electricity, material use, heat delivery and combined savings are not recalculated. The campus stays in the same location; the public playing field remains lost.'
+      : ''
   return {
     choices: { ...DEFAULT_CHOICES },
     year: 0,
@@ -79,11 +90,15 @@ export function poloDiscussionContext(
         (state.areaHa === POLO_DEFAULT_AREA_HA
           ? ''
           : ' Quantities use an area-proportional teaching assumption relative to the frozen reference. Rain depth and work duration stay fixed. This is not a site capacity assessment.'),
-      proposal: learned.length
-        ? learned.map((item) => item.title).join(' + ')
-        : concept
-          ? POLO_PROPOSAL_NAMES[concept]
-          : null,
+      proposal:
+        learned.length || custom.length
+          ? [
+              ...learned.map((item) => item.title),
+              ...(custom.length ? ['Custom ideas proposed by the player'] : []),
+            ].join(' + ')
+          : concept
+            ? POLO_PROPOSAL_NAMES[concept]
+            : null,
       mechanism:
         (!state.confirmed
           ? 'The player is positioning and rotating a ghost campus. No location is confirmed and nothing is built. Walking people still use the field; discuss what matters to them before confirming the plan.'
@@ -101,7 +116,11 @@ export function poloDiscussionContext(
             ' Resource use is not recalculated. Foundation changes still require structural assessment. The public playing field remains lost.'
           : ''),
       baseline:
-        !state.confirmed || concept || improvements || learned.length
+        !state.confirmed ||
+        concept ||
+        improvements ||
+        learned.length ||
+        custom.length
           ? null
           : phase.metrics.map((metric) => ({ ...metric })),
     },

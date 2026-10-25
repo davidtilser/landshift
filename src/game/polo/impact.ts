@@ -3,7 +3,7 @@ import { POLO_DEFAULT_AREA_HA } from './model.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
 import { usAcres } from './us-units.ts'
 import { activePoloImprovements } from './interventions.ts'
-import { activePoloLearnings } from './learnings.ts'
+import { activePoloLearnings, activeCustomPoloLearnings } from './learnings.ts'
 import { poloWaterStory, poloElectricityStory } from './resource-story.ts'
 
 export type EnvironmentalLayer = 'water' | 'electricity' | 'land' | 'heat'
@@ -48,7 +48,8 @@ export interface ImpactCard {
 /** Compare the same phase and footprint. Unknown proposal savings stay unknown. */
 export function poloImpact(state: PoloSceneState): ImpactCard[] {
   const learned = activePoloLearnings(state)
-  if (learned.length)
+  const custom = activeCustomPoloLearnings(state)
+  if (learned.length || custom.length)
     return [
       ...learned.map((item) => ({
         title: item.title,
@@ -57,6 +58,13 @@ export function poloImpact(state: PoloSceneState): ImpactCard[] {
         detail: item.tradeoff,
         evidence:
           'Same site, planned from the start. Benefits need assessment.',
+      })),
+      ...custom.map((item) => ({
+        title: item.text,
+        baseline: 'Original design',
+        current: 'Proposed · not mapped',
+        detail: 'Benefits, trade-offs and feasibility need assessment.',
+        evidence: 'Your custom idea.',
       })),
       {
         title: 'Public playing space',

@@ -16,7 +16,11 @@ import { setupPoloEducation } from './education-ui.ts'
 import { setupPoloProjectIntro } from './project-setup.ts'
 import { setupPoloMapShortcuts } from './map-shortcuts.ts'
 import { setupPoloLearning } from './learning-ui.ts'
-import { activePoloLearnings } from './learnings.ts'
+import {
+  activePoloLearnings,
+  activeCustomPoloLearnings,
+  hasActivePoloLearningPlan,
+} from './learnings.ts'
 import { activePoloImprovements } from './interventions.ts'
 import { POLO_TALK_PEOPLE, setupPoloTalkPicker } from './talk-picker.ts'
 import {
@@ -406,11 +410,13 @@ export async function startPoloDemo(): Promise<void> {
     const inOperation = state.confirmed && state.phase === 'M6'
     const proposed = inOperation && state.proposal !== null && state.preview
     const revised = activePoloLearnings(state)
+    const custom = activeCustomPoloLearnings(state)
+    const revisedPlan = hasActivePoloLearningPlan(state)
     const improved = activePoloImprovements(state).length > 0
     const proposal = state.proposal ? PROPOSAL_COPY[state.proposal] : undefined
     root.dataset['poloPhase'] = state.phase
     root.dataset['poloConfirmed'] = String(state.confirmed)
-    root.dataset['poloRevised'] = String(revised.length > 0)
+    root.dataset['poloRevised'] = String(revisedPlan)
     renderPeople()
     root.dataset['poloBearing'] = String(state.bearing)
     get('#polo-bearing', HTMLOutputElement).value =
@@ -427,8 +433,10 @@ export async function startPoloDemo(): Promise<void> {
     title.hidden = !state.confirmed
     title.textContent = !state.confirmed
       ? ''
-      : revised.length
-        ? 'Your improved plan'
+      : revisedPlan
+        ? revised.length
+          ? 'Your improved plan'
+          : 'Your proposed plan'
         : proposed && proposal
           ? proposal.hook
           : phase.title
@@ -493,14 +501,19 @@ export async function startPoloDemo(): Promise<void> {
       .querySelector('[data-polo-action="proposed"]')
       ?.setAttribute('aria-pressed', String(state.preview))
     const concept = get('#polo-concept', HTMLDivElement)
-    concept.hidden = !proposed && revised.length === 0
+    concept.hidden = !proposed && !revisedPlan
     concept.replaceChildren()
-    if (revised.length)
+    if (revisedPlan)
       concept.append(
         element(
           'p',
           '',
-          revised.map((item) => item.icon + ' ' + item.title).join(' · '),
+          [
+            ...revised.map((item) => item.icon + ' ' + item.title),
+            ...(custom.length
+              ? ['✎ ' + String(custom.length) + ' custom ideas proposed']
+              : []),
+          ].join(' · '),
         ),
         element(
           'small',
@@ -520,8 +533,7 @@ export async function startPoloDemo(): Promise<void> {
     }
     const metrics = get('#polo-metrics', HTMLDivElement)
     metrics.replaceChildren()
-    metrics.hidden =
-      proposed || !state.confirmed || improved || revised.length > 0
+    metrics.hidden = proposed || !state.confirmed || improved || revisedPlan
     if (!proposed && state.confirmed && !improved)
       for (const metric of phase.metrics.slice(0, 3)) {
         const item = element('button', 'polo-metric')

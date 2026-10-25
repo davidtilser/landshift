@@ -2216,6 +2216,8 @@ export class PoloScene {
       JSON.stringify(previous.improvements) !==
         JSON.stringify(state.improvements) ||
       JSON.stringify(previous.learnings) !== JSON.stringify(state.learnings) ||
+      JSON.stringify(previous.customLearnings) !==
+        JSON.stringify(state.customLearnings) ||
       previous.areaHa !== state.areaHa ||
       previous.proposal !== state.proposal ||
       previous.preview !== state.preview ||

@@ -75,6 +75,16 @@
   border-color: #a6d731;
   color: #293900;
 }
+.polo-learning > button.is-primary {
+  position: sticky;
+  bottom: 0;
+  box-shadow: 0 -6px 14px #fcf9ff;
+}
+.polo-learning > button.is-primary:disabled {
+  opacity: 1;
+  background: #edf3d7;
+  color: #829468;
+}
 .polo-learning-heading button {
   min-height: 30px;
   padding: 3px 10px;
@@ -155,6 +165,57 @@
   display: flex;
   gap: 8px;
   margin-top: 14px;
+}
+.polo-custom-learning-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 7px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px dashed #bba0d7;
+  border-radius: 14px;
+  background: #f4eefb;
+}
+.polo-custom-learning-form label {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  font-weight: 700;
+}
+.polo-custom-learning-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  resize: vertical;
+  border: 1px solid #d9c8eb;
+  border-radius: 10px;
+  padding: 9px;
+  background: white;
+  color: #351c4c;
+  font: inherit;
+  font-size: 13px;
+}
+.polo-custom-learning-form small {
+  grid-column: 1 / -1;
+}
+.polo-custom-learning-form textarea:focus-visible {
+  outline: 2px solid #7d39d4;
+  outline-offset: 2px;
+}
+.polo-custom-learning {
+  display: flex;
+  gap: 5px;
+}
+.polo-custom-learning > button:first-child {
+  flex: 1;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.polo-custom-learning > button[aria-pressed='true'] {
+  border-color: #9a70cf;
+  background: #eee2fc;
+}
+.polo-learning-change strong {
+  overflow-wrap: anywhere;
 }
 .polo-learning-footer > button {
   flex: 1;

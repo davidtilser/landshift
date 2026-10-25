@@ -6,6 +6,8 @@ import {
   POLO_MIN_AREA_HA,
   POLO_MAX_AREA_HA,
   POLO_AREA_STEP_HA,
+  POLO_CUSTOM_LEARNING_LIMIT,
+  POLO_CUSTOM_LEARNING_LENGTH,
 } from '../game/polo/model.ts'
 import { poloPlacementValid } from '../game/polo/placement.ts'
 
@@ -63,6 +65,16 @@ export const poloSceneStateSchema = z.object({
   preview: z.boolean(),
   recipientAvailable: z.boolean(),
   rain: z.boolean(),
+  customLearnings: z
+    .array(
+      z.object({
+        id: z.string().trim().min(1).max(64),
+        text: z.string().trim().min(1).max(POLO_CUSTOM_LEARNING_LENGTH),
+        selected: z.boolean(),
+      }),
+    )
+    .max(POLO_CUSTOM_LEARNING_LIMIT)
+    .optional(),
   learnings: z
     .object({
       soil: z.boolean().optional(),
