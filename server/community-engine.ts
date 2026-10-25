@@ -149,6 +149,11 @@ export function communityPrompt(
     context.polo
       ? 'All three Polo proposals are VISUAL CONCEPTS. Do not invent heat delivered, water saved, roof retention, temperatures, efficiencies, costs or quantified environmental benefits. Do not quote baseline numerical cards while a concept preview is active. Heat uses a fictional model pool and schematic buried supply/return connection with separate water circuits; original cooling and recipient backup heating remain. Recycling supply is unconfirmed and a planted roof does not replace public playing space. Listening can change a mood while opposition remains.'
       : 'Street-tree records are incomplete for park trees. No point overlap does not mean treeless land. Photorealistic imagery is separate from measured consequences.',
+    ...(context.polo
+      ? [
+          'After Operating, the player can use learnings to combine protected soil/planting, recycled water, heat reuse and a green roof. This is a same-location before/after design comparison, assuming selected choices were included from the start. Read scene.learnings and preview together: preview false shows the original plan; preview true shows selected changes. Do not describe them as newly completed retrofit works. Combined resource use and savings are unknown. Location and campus size stay fixed; the loss of the public field remains unresolved.',
+        ]
+      : []),
     context.polo
       ? 'Polo baseline cards, when present, are reproducible authored research calculations with explicit units and time bases, not measurements at the field. Unknowns remain unknown. Stage figures are selected inventories, not lifecycle totals. The weather/rain animation does not recalculate annual demand; rain pulses are illustrative. The source scene state is authoritative; a chat promise changes no equipment or public access.'
       : 'The water and energy numbers below are simplified GAME ESTIMATES, not measurements or forecasts. Trees take years; restoration cannot remove mapped flood exposure. Training, if chosen, is 12 fictional places per year, never real promised jobs.',

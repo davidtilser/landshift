@@ -63,6 +63,14 @@ export const poloSceneStateSchema = z.object({
   preview: z.boolean(),
   recipientAvailable: z.boolean(),
   rain: z.boolean(),
+  learnings: z
+    .object({
+      soil: z.boolean().optional(),
+      water: z.boolean().optional(),
+      heat: z.boolean().optional(),
+      roof: z.boolean().optional(),
+    })
+    .optional(),
   improvements: z
     .object({
       soil: z.boolean().optional(),

@@ -74,6 +74,7 @@ import { POLO_ACCESS_FIELD_ENTRY, POLO_ACCESS_ROAD } from './access.ts'
 import { PoloInterventionScene } from './intervention-scene.ts'
 import type { InterventionPreview } from './interventions.ts'
 import { activePoloImprovements } from './interventions.ts'
+import { activePoloLearnings, poloProposalActive } from './learnings.ts'
 import {
   activePoloProposal,
   pointOnPath,
@@ -710,13 +711,25 @@ export class PoloScene {
     fieldAnchored = false,
   ): Entity {
     const community = id?.startsWith('polo-community-') ?? false
+    const comparison = activePoloLearnings(this.state).length > 0 && !community
+    const shortText = text.startsWith('Planted roof')
+      ? 'Green roof'
+      : text.startsWith('PROPOSED POOL')
+        ? 'Heat → proposed pool'
+        : text.startsWith('Proposed recycled supply')
+          ? 'Recycled supply'
+          : text === 'Protected soil + planting'
+            ? text
+            : null
+    const visible = !comparison || shortText !== null
     return this.source.entities.add({
       ...(id ? { id } : {}),
       position: fieldAnchored
         ? this.fieldPoint(x, y, z)
         : new CallbackPositionProperty(() => this.point(x, y, z), false),
       label: {
-        text,
+        show: visible,
+        text: comparison ? (shortText ?? '') : text,
         font: '600 15px sans-serif',
         fillColor: Color.fromCssColorString('#fffef1'),
         showBackground: true,
@@ -735,6 +748,7 @@ export class PoloScene {
         scale: community ? 1 : 0.85,
       },
       point: {
+        show: visible,
         pixelSize: 5,
         color: Color.fromCssColorString(css),
         disableDepthTestDistance: Infinity,
@@ -1473,7 +1487,7 @@ export class PoloScene {
     const cooling: LocalPoint[] = [
       [65, 0, 21],
       [65, 23, 25],
-      ...(selected === 'heat_reuse_neighbors'
+      ...(poloProposalActive(this.state, 'heat_reuse_neighbors')
         ? ([
             [125, 23, 16],
             [149, 0, 6],
@@ -1493,18 +1507,19 @@ export class PoloScene {
     this.flow(
       rejection,
       PALETTE.heat,
-      selected === 'heat_reuse_neighbors' && this.state.recipientAvailable
+      poloProposalActive(this.state, 'heat_reuse_neighbors') &&
+        this.state.recipientAvailable
         ? 2
         : 5,
       0.12,
       1.6,
     )
-    if (selected !== 'green_roof')
+    if (!poloProposalActive(this.state, 'green_roof'))
       this.label(
         133,
         -23,
         36,
-        selected === 'recycled_water'
+        poloProposalActive(this.state, 'recycled_water')
           ? 'Cooling + blowdown remain'
           : 'Original cooling',
         '#93634c',
@@ -1512,7 +1527,7 @@ export class PoloScene {
         new Cartesian2(-85, -35),
       )
     this.revealGroup(first, () => this.transition.operation > 0.5)
-    if (selected !== 'recycled_water') {
+    if (!poloProposalActive(this.state, 'recycled_water')) {
       first = this.source.entities.values.length
       const makeup: LocalPoint[] = [
         [177, -70, 2.5],
@@ -1627,20 +1642,20 @@ export class PoloScene {
     if (enabled) this.flow(addedPower, PALETTE.power, 4, 0.13, 1.2)
   }
   private recycledWater(): void {
-    this.cylinder(222, 30, 1, 19, 17, '#ab8dbe')
-    this.cylinder(222, 30, 18.2, 19.5, 1.3, '#d4c2df')
+    this.cylinder(222, -110, 1, 19, 17, '#ab8dbe')
+    this.cylinder(222, -110, 18.2, 19.5, 1.3, '#d4c2df')
     this.label(
       228,
-      59,
+      -139,
       25,
-      'MODEL RECYCLED SOURCE\nDelivery + quality not verified',
+      'Proposed recycled supply\nDelivery + quality need checking',
       '#846d9d',
     )
     this.box(181, -7, 1, 17, 20, 10, '#c7b8d4')
     this.label(183, -20, 16, 'Treatment + checks', '#846d9d')
     const delivery: LocalPoint[] = [
-      [222, 30, 4],
-      [181, 30, 4],
+      [222, -110, 4],
+      [181, -110, 4],
       [181, -7, 5],
       [133, -7, 5],
       [133, -23, 6],
@@ -1860,10 +1875,11 @@ export class PoloScene {
       this.revealGroup(ready, () => this.transition.complete)
     }
     if (phase === 'M6') this.operation()
-    const proposal = activePoloProposal(this.state)
-    if (proposal === 'heat_reuse_neighbors') this.heatReuse()
-    else if (proposal === 'recycled_water') this.recycledWater()
-    else if (proposal === 'green_roof') this.greenRoof()
+    if (poloProposalActive(this.state, 'heat_reuse_neighbors')) this.heatReuse()
+    if (poloProposalActive(this.state, 'recycled_water')) this.recycledWater()
+    if (poloProposalActive(this.state, 'green_roof')) this.greenRoof()
+    if (activePoloLearnings(this.state).some((item) => item.id === 'soil'))
+      this.label(-90, 44, 12, 'Protected soil + planting', '#688d4f')
     if (this.state.rain) this.rain()
     this.fieldActivity()
     this.community()
@@ -1894,12 +1910,12 @@ export class PoloScene {
       if (entity.label) entity.label.show = new ConstantProperty(false)
     const operating = this.state.confirmed && this.state.phase === 'M6'
     if (layer === 'water') {
-      const recycled = activePoloProposal(this.state) === 'recycled_water'
+      const recycled = poloProposalActive(this.state, 'recycled_water')
       const supply: LocalPoint[] = recycled
         ? [
-            [330, 30, -3],
-            [222, 30, -3],
-            [181, 30, -3],
+            [330, -110, -3],
+            [222, -110, -3],
+            [181, -110, -3],
             [181, -7, -3],
             [133, -7, -3],
             [133, -23, 6],
@@ -1975,7 +1991,7 @@ export class PoloScene {
         '#52773a',
       )
     } else {
-      const active = activePoloProposal(this.state) === 'heat_reuse_neighbors'
+      const active = poloProposalActive(this.state, 'heat_reuse_neighbors')
       if (!active) {
         this.label(
           210,
@@ -2170,6 +2186,7 @@ export class PoloScene {
       phaseChanged ||
       JSON.stringify(previous.improvements) !==
         JSON.stringify(state.improvements) ||
+      JSON.stringify(previous.learnings) !== JSON.stringify(state.learnings) ||
       previous.areaHa !== state.areaHa ||
       previous.proposal !== state.proposal ||
       previous.preview !== state.preview ||
@@ -2376,7 +2393,7 @@ export class PoloScene {
   }
 
   focus(
-    view: 'site' | 'connection' | 'park' | 'access',
+    view: 'site' | 'connection' | 'park' | 'access' | 'comparison',
     duration = 1.2,
     complete?: () => void,
   ): void {
@@ -2416,7 +2433,8 @@ export class PoloScene {
     const target = this.point(
       connection
         ? 100
-        : view === 'site' && this.viewer.canvas.clientWidth > 700
+        : (view === 'site' || view === 'comparison') &&
+            this.viewer.canvas.clientWidth > 700
           ? -70
           : 0,
       view === 'park' ? -130 : -35,
@@ -2428,7 +2446,8 @@ export class PoloScene {
       // A 30% tighter site view emphasizes buildings; concept views keep room for pipes.
       view === 'park'
         ? 2400
-        : (connection ? 710 : 760 / 1.3) * poloGeometryScale(this.state),
+        : (view === 'comparison' ? 800 : connection ? 710 : 760 / 1.3) *
+            poloGeometryScale(this.state),
     )
     if (duration === 0 || this.reducedMotion.matches) {
       this.viewer.camera.viewBoundingSphere(

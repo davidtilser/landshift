@@ -95,7 +95,7 @@ const GENERAL_COPY = {
   M1: 'The grass gives way to a work site, and foundations mark out the future building. Water and temporary power are needed before a single server starts.',
   M4: 'Steel and roofs rise from the foundations. Construction still needs temporary resources; the everyday demands of computing come later.',
   M5: 'The campus is complete, but its systems need filling, flushing and testing. These are one-time preparations before everyday operation.',
-  M6: 'The campus now runs around the clock. Explore how computing changes water and electricity demand, then try the three ideas below.',
+  M6: 'The campus now runs around the clock. Explore its water and electricity needs, then use what you learned to improve the plan.',
 } as const
 const GENERAL_STATUS = {
   M1: 'Foundations set',

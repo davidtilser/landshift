@@ -1,5 +1,6 @@
 import { POLO_PHASES } from './model.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
+import { activePoloLearnings } from './learnings.ts'
 
 export type InterventionId = 'soil' | 'foundation' | 'grounds'
 export interface Intervention {
@@ -78,9 +79,11 @@ export function nextPoloIntervention(
 }
 export function activePoloImprovements(state: PoloSceneState): Intervention[] {
   if (!state.confirmed) return []
+  const planted = activePoloLearnings(state).some((item) => item.id === 'soil')
   return POLO_INTERVENTIONS.filter(
     (item) =>
-      state.improvements?.[item.id] &&
+      (state.improvements?.[item.id] ||
+        (planted && (item.id === 'soil' || item.id === 'grounds'))) &&
       POLO_PHASES.indexOf(state.phase) >= POLO_PHASES.indexOf(item.phase),
   )
 }

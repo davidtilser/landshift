@@ -15,7 +15,8 @@ import { setupPoloEducation } from './education-ui.ts'
 import { setupPoloExperience } from './experience.ts'
 import { setupPoloProjectIntro } from './project-setup.ts'
 import { setupPoloMapShortcuts } from './map-shortcuts.ts'
-import { setupPoloInterventions } from './intervention-ui.ts'
+import { setupPoloLearning } from './learning-ui.ts'
+import { activePoloLearnings } from './learnings.ts'
 import { activePoloImprovements } from './interventions.ts'
 import { POLO_TALK_PEOPLE, setupPoloTalkPicker } from './talk-picker.ts'
 import {
@@ -197,15 +198,15 @@ export async function startPoloDemo(): Promise<void> {
     center: [...INITIAL_POLO_STATE.center],
   }
   let scene: PoloScene | undefined
-  const interventions = setupPoloInterventions(
+  const learning = setupPoloLearning(
     root,
-    () => scene,
-    (id) => {
-      setState({
-        ...state,
-        improvements: { ...state.improvements, [id]: true },
-      })
+    () => state,
+    (next) => {
+      scene?.setEnvironmentalLayer(null)
+      setState(next)
+      scene?.skip()
     },
+    () => scene?.focus('comparison'),
   )
   const intro = setupPoloProjectIntro(
     root,
@@ -288,6 +289,8 @@ export async function startPoloDemo(): Promise<void> {
       String(progress) + '%'
     get('#polo-endpoint-label', HTMLParagraphElement).hidden = !active
     root.dataset['poloAnimating'] = String(active)
+    get('#polo-next', HTMLButtonElement).disabled =
+      active && state.phase === 'M6'
     for (const stop of root.querySelectorAll<HTMLButtonElement>('[data-phase]'))
       stop.classList.toggle(
         'is-playing',
@@ -407,10 +410,12 @@ export async function startPoloDemo(): Promise<void> {
     const phase = poloDisplayPhase(state)
     const inOperation = state.confirmed && state.phase === 'M6'
     const proposed = inOperation && state.proposal !== null && state.preview
+    const revised = activePoloLearnings(state)
     const improved = activePoloImprovements(state).length > 0
     const proposal = state.proposal ? PROPOSAL_COPY[state.proposal] : undefined
     root.dataset['poloPhase'] = state.phase
     root.dataset['poloConfirmed'] = String(state.confirmed)
+    root.dataset['poloRevised'] = String(revised.length > 0)
     renderPeople()
     root.dataset['poloBearing'] = String(state.bearing)
     get('#polo-bearing', HTMLOutputElement).value =
@@ -427,9 +432,11 @@ export async function startPoloDemo(): Promise<void> {
     title.hidden = !state.confirmed
     title.textContent = !state.confirmed
       ? ''
-      : proposed && proposal
-        ? proposal.hook
-        : phase.title
+      : revised.length
+        ? 'Your improved plan'
+        : proposed && proposal
+          ? proposal.hook
+          : phase.title
     get('#polo-summary', HTMLParagraphElement).textContent = !state.confirmed
       ? 'Drag to place. Use ← / → to rotate. Then confirm.'
       : proposed && proposal
@@ -457,7 +464,7 @@ export async function startPoloDemo(): Promise<void> {
     ))
       skip.hidden = !state.confirmed || protest.pending()
     const cases = get('#polo-proposals', HTMLDivElement)
-    cases.hidden = !inOperation
+    cases.hidden = true
     cases.replaceChildren()
     if (inOperation)
       for (const id of POLO_PROPOSALS) {
@@ -479,7 +486,7 @@ export async function startPoloDemo(): Promise<void> {
         cases.append(choice)
       }
     const compare = get('#polo-compare', HTMLDivElement)
-    compare.hidden = !inOperation
+    compare.hidden = true
     const baseline = compare.querySelector<HTMLButtonElement>(
       '[data-polo-action="baseline"]',
     )
@@ -491,8 +498,21 @@ export async function startPoloDemo(): Promise<void> {
       .querySelector('[data-polo-action="proposed"]')
       ?.setAttribute('aria-pressed', String(state.preview))
     const concept = get('#polo-concept', HTMLDivElement)
-    concept.hidden = !proposed
+    concept.hidden = !proposed && revised.length === 0
     concept.replaceChildren()
+    if (revised.length)
+      concept.append(
+        element(
+          'p',
+          '',
+          revised.map((item) => item.icon + ' ' + item.title).join(' · '),
+        ),
+        element(
+          'small',
+          '',
+          'Planned from the start at the same site. Savings need assessment; the playing field is still lost.',
+        ),
+      )
     if (proposed && proposal) {
       concept.append(
         element(
@@ -505,7 +525,8 @@ export async function startPoloDemo(): Promise<void> {
     }
     const metrics = get('#polo-metrics', HTMLDivElement)
     metrics.replaceChildren()
-    metrics.hidden = proposed || !state.confirmed || improved
+    metrics.hidden =
+      proposed || !state.confirmed || improved || revised.length > 0
     if (!proposed && state.confirmed && !improved)
       for (const metric of phase.metrics.slice(0, 3)) {
         const item = element('button', 'polo-metric')
@@ -645,7 +666,7 @@ export async function startPoloDemo(): Promise<void> {
       previous.hidden = !state.confirmed || state.phase === 'M0'
     }
     get('#polo-next', HTMLButtonElement).textContent = inOperation
-      ? 'Back to today ↺'
+      ? 'Use what you learned →'
       : state.confirmed
         ? 'Next phase →'
         : 'Continue →'
@@ -667,7 +688,7 @@ export async function startPoloDemo(): Promise<void> {
     get('[data-polo-action="access"]', HTMLButtonElement).hidden =
       !state.confirmed
     renderMotion()
-    interventions.refresh()
+    learning.sync()
     experience.sync()
     education.sync()
   }
@@ -803,13 +824,13 @@ export async function startPoloDemo(): Promise<void> {
         confirmLocation()
         break
       case 'next':
-        if (state.confirmed) setPhase(POLO_PHASES[index + 1] ?? 'M0')
+        if (state.confirmed && state.phase === 'M6') learning.open()
+        else if (state.confirmed) setPhase(POLO_PHASES[index + 1] ?? 'M0')
         break
       case 'quick-today':
         quickViewToday()
         break
       case 'reset':
-        interventions.reset()
         protest.reset()
         scene?.setProtestActive(false)
         get('.polo-deck', HTMLElement).classList.remove('is-revealing')
@@ -876,7 +897,6 @@ export async function startPoloDemo(): Promise<void> {
         break
       case 'replay':
         if (!state.confirmed || protest.pending()) return
-        interventions.replay(state.phase)
         scene?.replay()
         break
       case 'skip':
@@ -926,7 +946,7 @@ export async function startPoloDemo(): Promise<void> {
       shortcuts.destroy()
       intro.destroy()
       protest.destroy()
-      interventions.destroy()
+      learning.destroy()
       talkPicker.destroy()
       community?.destroy()
       scene?.destroy()
@@ -943,7 +963,6 @@ export async function startPoloDemo(): Promise<void> {
         if (disposed) return
         motion = status
         renderMotion()
-        interventions.observe(state, status)
       },
       onlineChanged: (status) => {
         if (disposed) return

@@ -4,6 +4,7 @@ import type {
 } from '../../shared/community-contract.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
 import { activePoloImprovements } from './interventions.ts'
+import { activePoloLearnings } from './learnings.ts'
 import { poloSupport } from './impact.ts'
 
 export interface PoloReaction {
@@ -224,6 +225,42 @@ function basePoloReactions(state: PoloSceneState): PhaseReaction {
 
 export function poloReactions(state: PoloSceneState): PhaseReaction {
   const base = basePoloReactions(state)
+  const learned = activePoloLearnings(state)
+  if (learned.length) {
+    const green = learned.some((item) => item.id === 'soil')
+    const roof = learned.some((item) => item.id === 'roof')
+    return {
+      ...base,
+      voices: {
+        neighbor: {
+          ...base.voices.neighbor,
+          text: green
+            ? 'The planted path helps. Our playing field is still gone.'
+            : 'I see the changes. We still lost a place we shared.',
+          mood: 'concerned',
+        },
+        nature: {
+          ...base.voices.nature,
+          text: green
+            ? 'Protecting soil and planting helps. Who will care for it?'
+            : roof
+              ? 'Plants on the roof help. Living ground still matters.'
+              : 'Water and heat choices help us think. Soil still matters.',
+          mood: green || roof ? 'hopeful' : 'concerned',
+        },
+        student: {
+          ...base.voices.student,
+          text: 'A better campus still leaves our team without this field.',
+          mood: 'concerned',
+        },
+        operator: {
+          ...base.voices.operator,
+          text: 'Planning these ideas together helps. We still need to test each connection.',
+          mood: 'hopeful',
+        },
+      },
+    }
+  }
   const applied = activePoloImprovements(state)
   if (!applied.length) return base
   const voices = { ...base.voices }

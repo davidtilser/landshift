@@ -11,6 +11,7 @@ import type { DiscussionTopic } from './discussion.ts'
 import { initialCommunityMoodBreakdown } from './community-mood.ts'
 import { POLO_PROPOSAL_NAMES } from './polo/model.ts'
 import { poloImprovementSummary } from './polo/interventions.ts'
+import { activePoloLearnings, selectedPoloLearnings } from './polo/learnings.ts'
 import { conversationReaction } from './community-reactions.ts'
 import type {
   ConversationReactions,
@@ -64,6 +65,16 @@ function planUpdate(
         ? POLO_PROPOSAL_NAMES[next.polo.proposal] + ' · proposed option'
         : 'Original arrangement'
     const improvements = poloImprovementSummary(next.polo)
+    const learned = activePoloLearnings(next.polo)
+    if (selectedPoloLearnings(next.polo).length && next.polo.phase === 'M6') {
+      changes.push(
+        learned.length
+          ? 'Improved plan, same site, planned from the start: ' +
+              learned.map((item) => item.title).join(', ') +
+              '. Savings are not quantified; the public field is still lost.'
+          : 'Comparing the original plan at the same site. Selected improvements are hidden in this view.',
+      )
+    }
     changes.push(
       `Polo Fields ${next.polo.phase} · ${improvements ? 'Plan improvements' : view}.`,
     )

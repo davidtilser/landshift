@@ -7,6 +7,7 @@ import type { DiscussionTopic } from '../discussion.ts'
 import type { PoloDiscussionFacts } from './context.ts'
 import { poloImprovementSummary } from './interventions.ts'
 import { poloReactions } from './reactions.ts'
+import { activePoloLearnings } from './learnings.ts'
 
 export type PoloDialogueTopic =
   | 'priority'
@@ -292,6 +293,26 @@ export function poloDialogueReply(
   history: readonly ConversationLine[] = [],
 ): { text: string; topic: DiscussionTopic } {
   const id = poloDialogueTopic(question, history)
+  const learned = activePoloLearnings(facts.scene)
+  if (learned.length && id) {
+    const target =
+      id === 'water' || id === 'recycled'
+        ? 'water'
+        : id === 'heat'
+          ? 'heat'
+          : id === 'rain' || id === 'care'
+            ? 'roof'
+            : 'soil'
+    const item = learned.find((entry) => entry.id === target) ?? learned[0]
+    return {
+      text:
+        poloReactions(facts.scene).voices[voice].text +
+        '\n\n' +
+        (item ? item.action + ' ' + item.tradeoff : '') +
+        '\n\nSavings are not quantified.',
+      topic: NODES[id].topic,
+    }
+  }
   const improvements = poloImprovementSummary(facts.scene)
   if (improvements) {
     const resourceQuestion =
