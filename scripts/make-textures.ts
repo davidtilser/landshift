@@ -569,7 +569,7 @@ const WIDE_BAY_FILES: RegionFiles = {
 
 async function makeRegionDay(
   bounds: Bounds,
-  files: RegionFiles,
+  files: Pick<RegionFiles, 'label' | 'dayFile' | 'maxDayEdge'>,
 ): Promise<void> {
   if (bounds.south < 0 || bounds.north > 90) {
     throw new Error(
@@ -1310,9 +1310,40 @@ async function makeLocalePacks(): Promise<void> {
   }
 }
 
+// Union of the Bay and Los Angeles locale texture bounds, so both UV windows sit inside this image.
+const CALIFORNIA_PLATE_BOUNDS: Bounds = {
+  west: -124.46666666666667,
+  south: 32.53333333333333,
+  east: -116.6,
+  north: 39.666666666666664,
+}
+const CALIFORNIA_PLATE_FILE = 'california-day.webp'
+const CALIFORNIA_PLATE_WIDTH = 1888
+const CALIFORNIA_PLATE_HEIGHT = 1712
+
+async function makeCaliforniaPlate(): Promise<void> {
+  await makeRegionDay(CALIFORNIA_PLATE_BOUNDS, {
+    label: 'California',
+    dayFile: CALIFORNIA_PLATE_FILE,
+    maxDayEdge: LOCALE_DAY_EDGE,
+  })
+  const meta = await sharp(join(outputDir, CALIFORNIA_PLATE_FILE)).metadata()
+  if (
+    meta.width !== CALIFORNIA_PLATE_WIDTH ||
+    meta.height !== CALIFORNIA_PLATE_HEIGHT
+  ) {
+    throw new Error(
+      `${CALIFORNIA_PLATE_FILE} is ${String(meta.width)}x${String(meta.height)}, expected ${String(CALIFORNIA_PLATE_WIDTH)}x${String(CALIFORNIA_PLATE_HEIGHT)}`,
+    )
+  }
+}
+
 await mkdir(cacheDir, { recursive: true })
 await mkdir(outputDir, { recursive: true })
-if (process.argv.includes('--locales')) {
+if (process.argv.includes('--california-plate')) {
+  console.log('node scripts/make-textures.ts --california-plate')
+  await makeCaliforniaPlate()
+} else if (process.argv.includes('--locales')) {
   console.log('node scripts/make-textures.ts --locales')
   await makeLocalePacks()
 } else {

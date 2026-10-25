@@ -56,9 +56,9 @@ export interface LandingGlobe {
   /** `false` disables drag-rotate and pill clicks. Zoom stays off until a focused region turns it on. */
   setInteractive(enabled: boolean): void
   /**
-   * `sf-bay-area`, `los-angeles-basin`, and `new-york-city` show that locale's tight image and outline.
-   * The California cluster preloads the wide image with no outline. Any other id, including `null`,
-   * hides the locale packs and outlines.
+   * `sf-bay-area` and `los-angeles-basin` show that city's outline on the shared California plate.
+   * `new-york-city` shows its own image and outline. The California cluster shows no locale imagery.
+   * Any other id, including `null`, hides the locale packs and outlines.
    */
   focusRegion(regionId: string | null): void
   /** Scenario pins for the locale view. An empty list removes them. */

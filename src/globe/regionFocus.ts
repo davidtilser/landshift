@@ -15,7 +15,7 @@ import {
 import { createTerrainBorder } from './regionBorder.ts'
 import type { TerrainBorder } from './regionBorder.ts'
 import { createTerrainPatch } from './regionPatch.ts'
-import type { PatchBounds, TerrainPatch } from './regionPatch.ts'
+import type { DayUvRect, PatchBounds, TerrainPatch } from './regionPatch.ts'
 
 const SF_BAY_AREA = 'sf-bay-area'
 const LOS_ANGELES_BASIN = 'los-angeles-basin'
@@ -28,73 +28,73 @@ const FADE_SPAN = 0.35
 const MIN_FOCUS_ALTITUDE = 100_000 / EARTH_RADIUS_M
 // Matches the cloud shell's outward displacement so the near plane stays in front of the puffs.
 const CLOUD_OUTER_RADII = CLOUD_RADIUS_RATIO + 0.005
-const LOCALE_PATCH_RENDER_ORDER = 1
+interface FileDay {
+  kind: 'file'
+  url: string
+}
 
-interface PackSource {
+interface PlateDay {
+  kind: 'plate'
+}
+
+interface LocaleSource {
   label: string
   packUrl: string
-  dayUrl: string
   heightUrl: string
   normalUrl: string
-  /** SF Bay and Los Angeles stay over the wide California image. New York City hides it. */
-  keepWide: boolean
+  day: FileDay | PlateDay
 }
 
 function assetUrl(path: string): string {
   return `${import.meta.env.BASE_URL}${path}`
 }
 
-function packSource(
+function localeSource(
   label: string,
   regionFile: string,
-  dayFile: string,
   heightFile: string,
   normalFile: string,
-  keepWide: boolean,
-): PackSource {
+  day: FileDay | PlateDay,
+): LocaleSource {
   return {
     label,
     packUrl: assetUrl(`regions/${regionFile}`),
-    dayUrl: assetUrl(`textures/${dayFile}`),
     heightUrl: assetUrl(`textures/${heightFile}`),
     normalUrl: assetUrl(`textures/${normalFile}`),
-    keepWide,
+    day,
   }
 }
 
-const WIDE_SOURCE = packSource(
-  'California',
-  'sf-bay-area.geojson',
-  'sf-bay-area-day.webp',
-  'sf-bay-area-height.png',
-  'sf-bay-area-normal.webp',
-  true,
-)
+const PLATE_DAY_URL = assetUrl('textures/california-day.webp')
+// Union of the Bay and Los Angeles locale texture bounds.
+const PLATE_BOUNDS: PatchBounds = {
+  west: -124.46666666666667,
+  south: 32.53333333333333,
+  east: -116.6,
+  north: 39.666666666666664,
+}
 
-const LOCALE_SOURCES: Readonly<Record<string, PackSource>> = {
-  [SF_BAY_AREA]: packSource(
+const LOCALE_SOURCES: Readonly<Record<string, LocaleSource>> = {
+  [SF_BAY_AREA]: localeSource(
     'SF Bay Area',
     'sf-bay-area-locale.geojson',
-    'sf-bay-area-locale-day.webp',
     'sf-bay-area-locale-height.png',
     'sf-bay-area-locale-normal.webp',
-    true,
+    { kind: 'plate' },
   ),
-  [LOS_ANGELES_BASIN]: packSource(
+  [LOS_ANGELES_BASIN]: localeSource(
     'Los Angeles Basin',
     'los-angeles-basin.geojson',
-    'los-angeles-basin-day.webp',
     'los-angeles-basin-height.png',
     'los-angeles-basin-normal.webp',
-    true,
+    { kind: 'plate' },
   ),
-  [NEW_YORK_CITY]: packSource(
+  [NEW_YORK_CITY]: localeSource(
     'New York City',
     'new-york-city.geojson',
-    'new-york-city-day.webp',
     'new-york-city-height.png',
     'new-york-city-normal.webp',
-    false,
+    { kind: 'file', url: assetUrl('textures/new-york-city-day.webp') },
   ),
 }
 
@@ -109,7 +109,7 @@ export interface RegionFocusOptions {
 
 export interface RegionFocus {
   focusRegion(regionId: string | null): void
-  /** Fetches the wide California pack. Imagery on, outline off, zoom off. */
+  /** Hides locale imagery and disables zoom. Does not upload a day texture. */
   preload(): void
   dispose(): void
 }
@@ -223,22 +223,37 @@ function yieldToPaint(): Promise<void> {
   })
 }
 
-async function loadPackTextures(
-  source: PackSource,
-): Promise<[Texture, Texture, Texture]> {
-  const [day, height, normal] = await Promise.all([
-    loadImageTexture(source.dayUrl, SRGBColorSpace),
-    loadImageTexture(source.heightUrl, NoColorSpace),
-    loadImageTexture(source.normalUrl, NoColorSpace),
-  ])
-  day.anisotropy = 8
-  day.needsUpdate = true
-  for (const texture of [height, normal]) {
-    texture.generateMipmaps = false
-    texture.minFilter = LinearFilter
-    texture.magFilter = LinearFilter
+function configureDay(texture: Texture): Texture {
+  texture.anisotropy = 8
+  texture.needsUpdate = true
+  return texture
+}
+
+function configureRelief(texture: Texture): Texture {
+  texture.generateMipmaps = false
+  texture.minFilter = LinearFilter
+  texture.magFilter = LinearFilter
+  return texture
+}
+
+function plateWindow(bounds: PatchBounds): DayUvRect {
+  const lngSpan = PLATE_BOUNDS.east - PLATE_BOUNDS.west
+  const latSpan = PLATE_BOUNDS.north - PLATE_BOUNDS.south
+  const u0 = (bounds.west - PLATE_BOUNDS.west) / lngSpan
+  const u1 = (bounds.east - PLATE_BOUNDS.west) / lngSpan
+  const v0 = (PLATE_BOUNDS.north - bounds.north) / latSpan
+  const v1 = (PLATE_BOUNDS.north - bounds.south) / latSpan
+  if (
+    u0 < -1e-4 ||
+    v0 < -1e-4 ||
+    u1 > 1 + 1e-4 ||
+    v1 > 1 + 1e-4 ||
+    !(u1 > u0) ||
+    !(v1 > v0)
+  ) {
+    throw new Error('locale bounds fall outside the California day plate')
   }
-  return [day, height, normal]
+  return { u0, v0, u1, v1 }
 }
 
 function releasePack(loaded: LoadedPack): void {
@@ -261,10 +276,9 @@ export function createRegionFocus({
   const restingNear = camera instanceof PerspectiveCamera ? camera.near : 5
   let frame = 0
   let generation = 0
-  let wideOn = false
   let activeLocale: string | null = null
-  let widePack: LoadedPack | undefined
-  let wideLoading: Promise<void> | undefined
+  let plateDay: Texture | undefined
+  let plateLoading: Promise<Texture | undefined> | undefined
   const localePacks = new Map<string, LoadedPack>()
   const localeLoading = new Map<string, Promise<void>>()
 
@@ -308,11 +322,8 @@ export function createRegionFocus({
     const altitude = distance / globeRadius - 1
     const opacity = focusOpacity(altitude)
     const coversView = altitude <= FOCUS_ALTITUDE + 0.005
-    if (wideOn || activeLocale !== null) {
+    if (activeLocale !== null) {
       fitNearPlane(distance)
-    }
-    if (widePack !== undefined) {
-      widePack.patch.setOpacity(wideOn ? opacity : 0, wideOn && coversView)
     }
     for (const [id, loaded] of localePacks) {
       const on = id === activeLocale
@@ -337,43 +348,44 @@ export function createRegionFocus({
     }
   }
 
-  const loadWide = async (token: number): Promise<void> => {
-    const response = await fetch(WIDE_SOURCE.packUrl)
-    if (!response.ok) {
-      throw new Error(
-        `California wide pack responded ${String(response.status)}`,
-      )
+  const ensurePlate = (): Promise<Texture | undefined> => {
+    if (plateDay !== undefined) return Promise.resolve(plateDay)
+    if (plateLoading !== undefined) return plateLoading
+    const token = generation
+    const pending = loadImageTexture(PLATE_DAY_URL, SRGBColorSpace)
+      .then((day) => {
+        if (token !== generation) {
+          day.dispose()
+          return undefined
+        }
+        plateDay = configureDay(day)
+        return plateDay
+      })
+      .finally(() => {
+        if (plateLoading === pending) plateLoading = undefined
+      })
+    plateLoading = pending
+    return pending
+  }
+
+  const loadDay = (source: LocaleSource): Promise<Texture | undefined> => {
+    switch (source.day.kind) {
+      case 'plate':
+        return ensurePlate()
+      case 'file':
+        return loadImageTexture(source.day.url, SRGBColorSpace).then(
+          configureDay,
+        )
+      default: {
+        const unexpected: never = source.day
+        return unexpected
+      }
     }
-    const file: unknown = await response.json()
-    const parsed = readPack(file, WIDE_SOURCE.label)
-    const [day, height, normal] = await loadPackTextures(WIDE_SOURCE)
-    await yieldToPaint()
-    const loaded: LoadedPack = {
-      patch: createTerrainPatch(
-        day,
-        height,
-        normal,
-        parsed.bounds,
-        globeRadius,
-        displacementScale,
-        displacementBias,
-      ),
-      border: null,
-      textures: [day, height, normal],
-    }
-    if (token !== generation) {
-      releasePack(loaded)
-      return
-    }
-    loaded.patch.setOpacity(0, false)
-    scene.add(loaded.patch.mesh)
-    widePack = loaded
-    syncFrame(camera)
   }
 
   const loadLocale = async (
     regionId: string,
-    source: PackSource,
+    source: LocaleSource,
     token: number,
   ): Promise<void> => {
     const response = await fetch(source.packUrl)
@@ -384,8 +396,26 @@ export function createRegionFocus({
     }
     const file: unknown = await response.json()
     const parsed = readPack(file, source.label)
-    const [day, height, normal] = await loadPackTextures(source)
+    const dayUvRect =
+      source.day.kind === 'plate' ? plateWindow(parsed.bounds) : undefined
+    const [day, height, normal] = await Promise.all([
+      loadDay(source),
+      loadImageTexture(source.heightUrl, NoColorSpace).then(configureRelief),
+      loadImageTexture(source.normalUrl, NoColorSpace).then(configureRelief),
+    ])
+    if (day === undefined || token !== generation) {
+      if (source.day.kind === 'file' && day !== undefined) day.dispose()
+      height.dispose()
+      normal.dispose()
+      return
+    }
     await yieldToPaint()
+    if (token !== generation) {
+      if (source.day.kind === 'file') day.dispose()
+      height.dispose()
+      normal.dispose()
+      return
+    }
     const border = createTerrainBorder(
       parsed.lines,
       height,
@@ -402,13 +432,13 @@ export function createRegionFocus({
       globeRadius,
       displacementScale,
       displacementBias,
+      dayUvRect,
     )
-    // Draws after the wide mesh so the tight crop stays on top where they overlap.
-    patch.mesh.renderOrder = LOCALE_PATCH_RENDER_ORDER
     const loaded: LoadedPack = {
       patch,
       border,
-      textures: [day, height, normal],
+      textures:
+        source.day.kind === 'file' ? [day, height, normal] : [height, normal],
     }
     if (token !== generation) {
       releasePack(loaded)
@@ -420,17 +450,6 @@ export function createRegionFocus({
     scene.add(border.mesh)
     localePacks.set(regionId, loaded)
     syncFrame(camera)
-  }
-
-  const ensureWide = (): Promise<void> => {
-    if (widePack !== undefined) return Promise.resolve()
-    if (wideLoading !== undefined) return wideLoading
-    const token = generation
-    const pending = loadWide(token).finally(() => {
-      if (wideLoading === pending) wideLoading = undefined
-    })
-    wideLoading = pending
-    return pending
   }
 
   const ensureLocale = (regionId: string): Promise<void> => {
@@ -455,71 +474,47 @@ export function createRegionFocus({
 
   return {
     preload() {
-      wideOn = true
       activeLocale = null
       disableZoom()
       hideLocales()
-      startFrame()
-      syncFrame(camera)
-      const token = generation
-      void ensureWide().catch((error: unknown) => {
-        reportFailure('California wide', error)
-        if (token !== generation) return
-        wideOn = false
-        widePack?.patch.setOpacity(0, false)
-        if (activeLocale === null) stopFrame()
-      })
+      stopFrame()
     },
     focusRegion(regionId) {
       const source = regionId === null ? undefined : LOCALE_SOURCES[regionId]
       if (source !== undefined && regionId !== null) {
-        wideOn = source.keepWide
         activeLocale = regionId
         enableZoom()
-        if (!source.keepWide) {
-          widePack?.patch.setOpacity(0, false)
-        }
         startFrame()
         syncFrame(camera)
         const token = generation
-        if (source.keepWide) {
-          void ensureWide().catch((error: unknown) => {
-            reportFailure('California wide', error)
-            if (token !== generation) return
-            wideOn = false
-            widePack?.patch.setOpacity(0, false)
-          })
-        }
         void ensureLocale(regionId).catch((error: unknown) => {
           reportFailure(source.label, error)
           if (token !== generation || activeLocale !== regionId) return
           activeLocale = null
           disableZoom()
-          if (!wideOn) stopFrame()
+          stopFrame()
           syncFrame(camera)
         })
         return
       }
       activeLocale = null
-      wideOn = false
       disableZoom()
       stopFrame()
       hideLocales()
-      widePack?.patch.setOpacity(0, false)
     },
     dispose() {
       generation += 1
-      wideOn = false
       activeLocale = null
       stopFrame()
-      if (widePack !== undefined) {
-        releasePack(widePack)
-        widePack = undefined
-      }
       for (const loaded of localePacks.values()) {
         releasePack(loaded)
       }
       localePacks.clear()
+      plateLoading = undefined
+      if (plateDay !== undefined) {
+        plateDay.dispose()
+        plateDay = undefined
+      }
       disableZoom()
     },
   }

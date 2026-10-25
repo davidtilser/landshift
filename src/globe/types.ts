@@ -41,10 +41,10 @@ export interface GlobeHandle {
   /** The only way to re-enable auto-rotate after `flyTo`; user interaction still pauses it for 5 s after release. */
   setAutoRotate(enabled: boolean): void
   /**
-   * `sf-bay-area`, `los-angeles-basin`, and `new-york-city` load that locale pack, fade its tight
-   * image in at the focus altitude, draw its outline, and enable zoom. The California cluster
-   * preloads the wide California image with no outline and no zoom. Any other id, including `null`,
-   * hides the locale packs and outlines and disables zoom.
+   * `sf-bay-area` and `los-angeles-basin` share one California day plate, fade that locale's
+   * window in at the focus altitude, draw its outline, and enable zoom. `new-york-city` does the
+   * same with its own day image. The California cluster hides locale imagery and leaves zoom off.
+   * Any other id, including `null`, hides the locale packs and outlines and disables zoom.
    */
   focusRegion(regionId: string | null): void
   /** Stops rendering and cloud drift until `resume`. */

@@ -5,6 +5,7 @@ import {
   MeshPhongMaterial,
   Uint32BufferAttribute,
   Vector3,
+  Vector4,
 } from 'three'
 import type { Texture } from 'three'
 import { polarToCartesian } from './polar.ts'
@@ -18,10 +19,38 @@ export interface PatchBounds {
   north: number
 }
 
+/** Day-texture window. `v0` is the north edge because the plate's first row is north. */
+export interface DayUvRect {
+  u0: number
+  v0: number
+  u1: number
+  v1: number
+}
+
 export interface TerrainPatch {
   mesh: Mesh
   setOpacity(opacity: number, coversView: boolean): void
   dispose(): void
+}
+
+function bindDayUvRect(material: MeshPhongMaterial, rect: DayUvRect): void {
+  const u0 = rect.u0
+  const v0 = rect.v0
+  const spanU = rect.u1 - rect.u0
+  const spanV = rect.v1 - rect.v0
+  // Height and normal keep the mesh UVs. Only the shared day plate reads this window.
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms['dayUvRect'] = { value: new Vector4(u0, v0, spanU, spanV) }
+    shader.vertexShader = shader.vertexShader
+      .replace(
+        '#include <uv_pars_vertex>',
+        '#include <uv_pars_vertex>\nuniform vec4 dayUvRect;',
+      )
+      .replace(
+        '#include <uv_vertex>',
+        '#include <uv_vertex>\nvMapUv = dayUvRect.xy + vMapUv * dayUvRect.zw;',
+      )
+  }
 }
 
 function textureSize(texture: Texture): { width: number; height: number } {
@@ -49,6 +78,7 @@ export function createTerrainPatch(
   globeRadius: number,
   displacementScale: number,
   displacementBias: number,
+  dayUvRect?: DayUvRect,
 ): TerrainPatch {
   const { width, height: rows } = textureSize(height)
   const lngSpan = bounds.east - bounds.west
@@ -114,6 +144,9 @@ export function createTerrainPatch(
     polygonOffsetFactor: -1,
     polygonOffsetUnits: -1,
   })
+  if (dayUvRect !== undefined) {
+    bindDayUvRect(material, dayUvRect)
+  }
   const mesh = new Mesh(geometry, material)
   mesh.renderOrder = PATCH_RENDER_ORDER
   mesh.frustumCulled = true
