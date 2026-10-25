@@ -370,12 +370,20 @@ describe('server-side community generation', () => {
       .object({
         replyTo: z.object({ speaker: z.string(), text: z.string() }),
         history: z.array(z.object({ speaker: z.string(), text: z.string() })),
+        latestPlannerMessage: z.string(),
       })
       .parse(JSON.parse(content))
     expect(payload.replyTo).toEqual(replyTo)
     expect(payload.history).toEqual([replyTo])
+    expect(payload.latestPlannerMessage).toBe(targeted.message)
     expect(communityPrompt(targeted, context)).toContain(
       'one ongoing public thread',
     )
+    expect(communityPrompt(targeted, context)).toContain(
+      'All three turns are direct replies to latestPlannerMessage',
+    )
+    expect(
+      communityPrompt({ ...targeted, message: '' }, context),
+    ).not.toContain('PLAYER INTERVENTION:')
   })
 })

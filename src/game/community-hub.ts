@@ -26,6 +26,7 @@ interface HubOptions {
   tryIdea: (target: DialogueTarget) => void
   beforeOpen: () => void
   reactionsChanged?: (reactions: ConversationReactions) => void
+  contributionCompleted?: (id: CommunityId | 'public') => void
 }
 interface Pending {
   controller: AbortController
@@ -515,13 +516,18 @@ export class CommunityHub {
             [{ ...line, source: response.source }],
             replyTo,
           )
-          replyTo = added[0]?.id ?? replyTo
+          // Keep every answer to an intervention attached to the player's post.
+          // Autonomous exchanges still form a conversation between characters.
+          if (!message) replyTo = added[0]?.id ?? replyTo
           pending.delivered = true
           this.render(true)
         },
       )
       if (!complete || !this.isCurrent(pending)) return false
-      if (message) this.selectedReply = undefined
+      if (message) {
+        this.selectedReply = undefined
+        if (pending.delivered) this.options.contributionCompleted?.('public')
+      }
       return true
     } catch (error) {
       if (!this.isCurrent(pending)) return false

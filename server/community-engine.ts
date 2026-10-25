@@ -160,6 +160,11 @@ export function communityPrompt(
     request.mode === 'private'
       ? `PRIVATE: produce exactly one message from ${request.target}. This conversation is confidential within the game; do not introduce private messages into a public discussion.`
       : `PUBLIC: produce exactly three turns from ${publicSpeakers(request).join(', ')}, in that order. Use each speaker ID as its JSON property name; write that character's own text inside it. Each later line must explicitly respond to something the previous speaker said, not give an unrelated statement. Include a real trade-off or a question to another character. The designer should explain computing needs and a possible compromise, while respecting cultural and habitat concerns. Address the planner's intervention when present. Do not force agreement or import private history. Pause after these turns.`,
+    ...(request.mode === 'discussion' && request.message.trim()
+      ? [
+          'PLAYER INTERVENTION: All three turns are direct replies to latestPlannerMessage. The first speaker must answer the player’s actual question or proposal before introducing another concern. Each other speaker must also address a specific point in that message from their own perspective, while acknowledging the previous speaker. Earlier history and replyTo provide background, never replace the latest player message as the subject. Do not continue an unrelated discussion or merely repeat opening objections. If the message is unclear, ask the player a short clarifying question. Do not claim a proposed change has already happened.',
+        ]
+      : []),
     'Profiles: ' +
       JSON.stringify(
         profiles

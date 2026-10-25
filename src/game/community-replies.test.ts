@@ -11,6 +11,7 @@ import type {
   CommunityRequest,
   CommunityResponse,
 } from '../shared/community-contract.ts'
+import { communityResponseSchema } from '../shared/community-contract.ts'
 import { CommunitySession } from './community-session.ts'
 import type { CommunityReply } from '../shared/community-contract.ts'
 
@@ -192,6 +193,46 @@ describe('Polo private reply routing', () => {
     expect(followup.messages[0]?.text).toContain('Delivery stops')
     expect(followup.messages[0]?.text).not.toBe(response.messages[0]?.text)
     expect(fetch).toHaveBeenCalledTimes(2)
+  })
+  it('answers a public intervention in distinct voices instead of repeating opening posts', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve(Response.json({ configured: false, model: 'offline' })),
+      ),
+    )
+    const client = new CommunityClient()
+    const response = await client.exchange(
+      {
+        ...request,
+        mode: 'discussion',
+        message: 'What if nobody needs the heat?',
+        replyTo: { speaker: 'student', text: 'We need space to play.' },
+      },
+      context,
+      new AbortController().signal,
+    )
+    expect(communityResponseSchema.safeParse(response).success).toBe(true)
+    expect(response.messages.map((line) => line.speaker)).toEqual([
+      'student',
+      'operator',
+      'neighbor',
+    ])
+    expect(
+      response.messages.every((line) => line.text.includes('Delivery stops')),
+    ).toBe(true)
+    expect(new Set(response.messages.map((line) => line.text)).size).toBe(3)
+    const followup = await client.exchange(
+      { ...request, mode: 'discussion', message: 'Could we use another site?' },
+      context,
+      new AbortController().signal,
+    )
+    expect(
+      followup.messages.every((line) =>
+        /another site|different site/.test(line.text),
+      ),
+    ).toBe(true)
+    expect(followup.messages[0]?.text).not.toBe(response.messages[0]?.text)
   })
   it('preserves the configured live path and its full conversation context', async () => {
     const live = {

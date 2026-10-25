@@ -1,12 +1,27 @@
-.polo-learning {
+.polo-learning-workspace {
   position: absolute;
   z-index: 8;
   top: 96px;
   bottom: 111px;
   left: 20px;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 12px;
   width: min(460px, calc(100% - 40px));
+  pointer-events: none;
+}
+.polo-learning-workspace:not([data-mode='summary']) {
+  width: min(892px, calc(100% - 40px));
+  grid-template-columns: minmax(0, 400px) minmax(0, 480px);
+}
+.polo-learning {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  pointer-events: auto;
   padding: 20px;
   overflow: hidden;
   background: var(--ls-role-surface);
@@ -16,8 +31,8 @@
   box-shadow: 0 15px 50px rgb(0 0 0 / 0.28);
   backdrop-filter: blur(14px);
 }
-.polo-learning[hidden],
-.polo-learning-map-label[hidden] {
+.polo-learning-workspace[hidden],
+.polo-learning[hidden] {
   display: none;
 }
 .polo-learning-heading {
@@ -209,17 +224,6 @@ html.ls-system-dark .polo-learning button.is-primary:disabled {
   font-size: 16px;
   font-weight: 450;
 }
-.polo-learning-views {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin: 0 0 16px;
-}
-.polo-learning-views button[aria-pressed='true'] {
-  background: var(--ls-role-action);
-  color: var(--ls-role-action-label);
-  border-color: color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
-}
 .polo-learning-changes {
   display: grid;
   gap: 10px;
@@ -313,29 +317,10 @@ html.ls-system-dark .polo-learning button.is-primary:disabled {
   padding: 0;
   font-size: 24px;
 }
-.polo-learning-map-label {
-  position: absolute;
-  z-index: 6;
-  bottom: 36px;
-  left: 62%;
-  transform: translateX(-50%);
-  padding: 12px 20px;
-  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
-  border-radius: 16px;
-  background: var(--ls-role-surface);
-  backdrop-filter: blur(10px);
-  color: var(--ls-role-ink);
-  font-size: 16px;
-  font-weight: 750;
-  pointer-events: none;
-}
-.polo-learning-map-label[data-view='improved'] {
-  background: var(--ls-role-raised);
-}
 #game[data-polo-learning] :is(.polo-deck, .polo-timeline) {
   visibility: hidden;
 }
-.community-open :is(.polo-learning, .polo-learning-map-label) {
+.community-open .polo-learning-workspace {
   visibility: hidden;
 }
 #game[data-polo-revised='true']
@@ -343,11 +328,21 @@ html.ls-system-dark .polo-learning button.is-primary:disabled {
   display: none;
 }
 @media (max-width: 700px) {
-  .polo-learning {
+  .polo-learning-workspace {
     top: 126px;
     bottom: 113px;
     left: 10px;
     width: calc(100% - 20px);
+  }
+  .polo-learning-workspace:not([data-mode='summary']) {
+    width: calc(100% - 20px);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(230px, 0.8fr) minmax(320px, 1.2fr);
+    overflow-y: auto;
+    pointer-events: auto;
+    scrollbar-width: thin;
+  }
+  .polo-learning {
     padding: 14px;
   }
   .polo-learning h2 {
@@ -358,11 +353,5 @@ html.ls-system-dark .polo-learning button.is-primary:disabled {
   }
   #game[data-polo-learning] .polo-people {
     visibility: hidden;
-  }
-  .polo-learning-map-label {
-    bottom: 28px;
-    left: 50%;
-    width: max-content;
-    max-width: calc(100% - 24px);
   }
 }

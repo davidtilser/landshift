@@ -8,6 +8,17 @@ import type {
 
 export const POLO_LEARNINGS = [
   {
+    id: 'heat',
+    icon: '♨',
+    title: 'Put waste heat to work',
+    lesson: 'Computing produces heat that could help others.',
+    action: 'Connect a separate heat loop to a proposed pool.',
+    tradeoff: 'Needs a heat user, pipes and power. Backup cooling stays.',
+    before: 'Heat rejected outside',
+    after: 'Heat link to a proposed pool',
+    color: '#e79e52',
+  },
+  {
     id: 'soil',
     icon: '🌱',
     title: 'Protect soil and add planting',
@@ -28,17 +39,6 @@ export const POLO_LEARNINGS = [
     before: 'Original water supply',
     after: 'Recycled supply + treatment',
     color: '#bc8ae4',
-  },
-  {
-    id: 'heat',
-    icon: '♨',
-    title: 'Put waste heat to work',
-    lesson: 'Computing produces heat that could help others.',
-    action: 'Connect a separate heat loop to a proposed pool.',
-    tradeoff: 'Needs a heat user, pipes and power. Backup cooling stays.',
-    before: 'Heat rejected outside',
-    after: 'Heat link to a proposed pool',
-    color: '#e79e52',
   },
   {
     id: 'roof',

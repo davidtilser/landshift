@@ -1,0 +1,96 @@
+.polo-heat-comparison {
+  margin-top: 18px;
+}
+.polo-learning .polo-heat-comparison p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--ls-role-muted);
+}
+.polo-heat-comparison-rows {
+  display: grid;
+  gap: 10px;
+}
+.polo-heat-comparison-row {
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
+  border-radius: 14px;
+  background: var(--ls-role-raised);
+}
+.polo-heat-comparison-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 10px;
+  margin-bottom: 8px;
+}
+.polo-heat-comparison h4 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.25;
+}
+.polo-heat-comparison-outcome {
+  padding: 4px 7px;
+  border-radius: 6px;
+  background: var(--ls-role-inset);
+  color: var(--ls-role-ink);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.25;
+}
+.polo-heat-comparison-row[data-outcome='better'] .polo-heat-comparison-outcome {
+  background: #e5f2d9;
+  color: #315919;
+}
+.polo-heat-comparison-row[data-outcome='worse'] .polo-heat-comparison-outcome {
+  background: #ffe3d7;
+  color: #873718;
+}
+.polo-heat-comparison dt {
+  margin-bottom: 5px;
+  color: var(--ls-role-muted);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+.polo-heat-comparison dd {
+  margin: 0;
+  color: var(--ls-role-ink);
+  font-size: 16px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.polo-heat-comparison-reference {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
+  border-radius: 14px;
+  background: var(--ls-role-inset);
+}
+.polo-learning .polo-heat-comparison-reference p {
+  margin: 0;
+}
+.polo-heat-comparison-figures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+.polo-heat-comparison-figures > div {
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in srgb, var(--ls-role-ink) 20%, transparent);
+}
+.polo-heat-comparison-figures dd {
+  font-size: 24px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+.polo-heat-comparison-figures dd > span {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 450;
+}
