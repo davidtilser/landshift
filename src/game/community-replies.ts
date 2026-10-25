@@ -1,4 +1,5 @@
 import { poloDialogueReply } from './polo/dialogue.ts'
+import { communityProfiles, demoExchange } from './community-profiles.ts'
 import type { DiscussionContext } from './discussion.ts'
 import type {
   CommunityRequest,
@@ -60,6 +61,34 @@ export function authoredPrivateCommunityReply(
   )
   return {
     messages: [{ speaker: request.target, text: reply.text }],
+    source: 'demo',
+    model: 'Prepared conversation',
+  }
+}
+
+/** A player's public post gets answers to their words, not another automatic round. */
+export function authoredPublicCommunityReply(
+  request: CommunityRequest,
+  context: DiscussionContext,
+): CommunityResponse | undefined {
+  const facts = context.polo
+  if (!facts || request.mode !== 'discussion' || !request.message.trim())
+    return undefined
+  const speakers = demoExchange(context, request.target, true).messages
+  const profiles = communityProfiles(context)
+  return {
+    messages: speakers.map(({ speaker }) => {
+      const answer = poloDialogueReply(
+        speaker,
+        request.message,
+        facts,
+        request.history,
+      ).text.split('\n\n')[0]
+      const question = profiles.find(
+        (profile) => profile.id === speaker,
+      )?.question
+      return { speaker, text: [answer, question].filter(Boolean).join(' ') }
+    }),
     source: 'demo',
     model: 'Prepared conversation',
   }

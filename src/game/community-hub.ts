@@ -515,7 +515,9 @@ export class CommunityHub {
             [{ ...line, source: response.source }],
             replyTo,
           )
-          replyTo = added[0]?.id ?? replyTo
+          // Keep every answer to an intervention attached to the player's post.
+          // Autonomous exchanges still form a conversation between characters.
+          if (!message) replyTo = added[0]?.id ?? replyTo
           pending.delivered = true
           this.render(true)
         },

@@ -10,7 +10,10 @@ import type {
 import type { DiscussionContext } from './discussion.ts'
 import { scriptedDiscussion } from './discussion.ts'
 import { communityVoices } from './community.ts'
-import { authoredPrivateCommunityReply } from './community-replies.ts'
+import {
+  authoredPrivateCommunityReply,
+  authoredPublicCommunityReply,
+} from './community-replies.ts'
 import { demoExchange } from './community-profiles.ts'
 
 export class CommunityClient {
@@ -44,6 +47,8 @@ export class CommunityClient {
         const authored = authoredPrivateCommunityReply(request, context)
         if (authored) return authored
       }
+      const publicReply = authoredPublicCommunityReply(request, context)
+      if (publicReply) return publicReply
       if (context.polo)
         return {
           ...demoExchange(
