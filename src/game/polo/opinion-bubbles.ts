@@ -77,16 +77,13 @@ export class PoloOpinionBubbles {
     const height = this.element.clientHeight
     const mobile = width <= 700
     const studio = this.element.closest('.polo-studio')
-    const tools = studio
-      ?.querySelector('.polo-impact-tools')
-      ?.getBoundingClientRect()
     const deck = studio?.querySelector('.polo-deck')?.getBoundingClientRect()
     const placement = studio
       ?.querySelector('.polo-placement-controls')
       ?.getBoundingClientRect()
     const origin = this.element.getBoundingClientRect()
     const rowLeft = deck ? deck.right - origin.left + 16 : 20
-    const rowRight = tools ? tools.left - origin.left - 16 : width - 20
+    const rowRight = width - 20
     const visibleCards = this.cards.slice(0, this.visibleCount)
     const rowWidth =
       visibleCards.reduce((sum, card) => sum + card.element.offsetWidth, 0) +
@@ -121,11 +118,6 @@ export class PoloOpinionBubbles {
         140,
         Math.min(height - cardHeight - 160, point.y - cardHeight - 24),
       )
-      if (tools && top < tools.bottom - origin.top + 16)
-        left = Math.max(
-          20,
-          Math.min(left, tools.left - origin.left - cardWidth - 16),
-        )
       if (deck?.height && left < deck.right - origin.left + 16)
         top = Math.max(
           100,

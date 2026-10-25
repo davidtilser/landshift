@@ -62,9 +62,6 @@
   border-radius: 50%;
   background: #eadeff;
 }
-#game[data-polo-confirmed='true'] .polo-impact-tools {
-  top: 216px;
-}
 .polo-talk-picker {
   box-sizing: border-box;
   width: min(510px, calc(100vw - 24px));
@@ -179,53 +176,8 @@
     right: 10px;
     width: 264px;
   }
-  #game[data-polo-confirmed='true'] .polo-impact-tools {
-    top: 246px;
-  }
   .polo-talk-picker {
     margin: auto;
     padding: 20px;
   }
-}
-@media (min-width: 641px) and (max-width: 700px) {
-  #game[data-polo-confirmed='true'] .polo-impact-tools {
-    left: 12px;
-    right: 12px;
-    width: auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 12px;
-  }
-  #game[data-polo-confirmed='true'] .polo-support {
-    margin: 0;
-    flex: 1;
-    font-size: 12px;
-  }
-  #game[data-polo-confirmed='true'] .polo-impact-tools details {
-    position: relative;
-  }
-  #game[data-polo-confirmed='true'] .polo-impact-tools details[open] {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    width: 240px;
-    padding: 16px;
-    border-radius: 18px;
-    background: #faf8ff;
-  }
-  #game[data-polo-confirmed='true'] .polo-impact-tools .polo-impact-open {
-    width: auto;
-    margin: 0;
-    padding: 10px;
-    font-size: 13px;
-  }
-  #game[data-polo-confirmed='true'] .polo-impact-tools summary {
-    font-size: 13px;
-    min-height: 0;
-  }
-}
-
-#game[data-polo-confirmed='true'] .polo-impact-tools[hidden] {
-  display: none;
 }

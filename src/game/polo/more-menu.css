@@ -1,0 +1,59 @@
+.polo-more {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.polo-more-toggle,
+.polo-menu-label {
+  display: none;
+}
+@media (max-width: 700px) {
+  #game[data-polo-menu-open='true'] .polo-topbar {
+    z-index: 20;
+  }
+  .polo-topbar .top-actions {
+    min-width: 0;
+    margin-left: auto;
+  }
+  .polo-more-toggle {
+    display: block;
+    min-height: 44px;
+    border: 1px solid #e2d9ec;
+    border-radius: 12px;
+    background: #f3eaff;
+    color: #52239a;
+    font: 650 14px system-ui;
+    padding: 8px 12px;
+  }
+  .polo-more {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    width: 220px;
+    padding: 12px;
+    border-radius: 20px;
+    background: #faf7ff;
+    box-shadow: 0 12px 40px #20142f40;
+    z-index: 12;
+  }
+  #game[data-polo-menu-open='true'] .polo-more {
+    display: grid;
+    gap: 8px;
+  }
+  .polo-menu-label {
+    display: inline;
+  }
+  .polo-more .polo-location-link {
+    display: block;
+    max-width: none;
+    text-align: center;
+    font-size: 15px;
+    padding: 12px;
+  }
+  .polo-more .polo-small-button {
+    width: 100%;
+    min-height: 44px;
+    font-size: 15px;
+  }
+}

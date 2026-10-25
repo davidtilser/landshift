@@ -30,9 +30,7 @@ export function setupPoloProjectIntro(
   dialog.setAttribute('aria-labelledby', 'polo-setup-title')
   dialog.innerHTML = `
     <form>
-      <div class="polo-setup-guide"><img src="/avatars/maya.png" alt="" width="48" height="48"><span>Your city. Your choices.</span></div>
-      <h1 id="polo-setup-title">Let’s build a data center.</h1>
-      <p>Choose a size and a place.</p>
+      <div class="polo-setup-guide"><img src="/avatars/maya.png" alt="" width="48" height="48"><h1 id="polo-setup-title">Let’s build a data center.</h1></div>
       <div class="polo-setup-size"><label for="polo-setup-size">Campus size</label><div><output id="polo-setup-size-value" for="polo-setup-size"></output><span>acres</span></div><input id="polo-setup-size" name="size" type="range"><div class="polo-size-limits"><span></span><span></span></div></div>
       <label for="polo-setup-location">Location</label>
       <select id="polo-setup-location" name="location"></select>

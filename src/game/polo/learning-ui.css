@@ -177,14 +177,26 @@
 .polo-learning-map-label[data-view='improved'] {
   background: #d8f59be8;
 }
-#game[data-polo-learning] :is(.polo-deck, .polo-timeline, .polo-impact-tools) {
+#game[data-polo-learning] :is(.polo-deck, .polo-timeline) {
   visibility: hidden;
 }
 .community-open :is(.polo-learning, .polo-learning-map-label) {
   visibility: hidden;
 }
-#game[data-polo-revised='true'] :is(.polo-topic-buttons, .polo-today-panel) {
+#game[data-polo-revised='true']
+  :is(.polo-topic-buttons, .polo-today-panel, .polo-deck-bottom) {
   display: none;
+}
+.polo-learning-launcher {
+  width: 100%;
+  margin-top: 16px;
+}
+.polo-learning-launcher[hidden] {
+  display: none;
+}
+.polo-learning-launcher:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 @media (max-width: 700px) {
   .polo-learning {

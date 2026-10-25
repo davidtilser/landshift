@@ -7,6 +7,7 @@ import {
   CameraEventType,
   Cesium3DTileset,
   CesiumWidget,
+  ClassificationType,
   CustomDataSource,
   Entity,
   IonResource,
@@ -36,6 +37,7 @@ import {
   JulianDate,
   Math as CesiumMath,
   Matrix4,
+  PolygonHierarchy,
   Rectangle,
 } from '@cesium/core'
 import type { ImageryLayer } from '@cesium/engine'
@@ -985,6 +987,33 @@ export class PoloScene {
         true,
       )
   }
+  private todaySite(): void {
+    const halfWidth = POLO_LAYOUT.pad.width / 2
+    const halfDepth = POLO_LAYOUT.pad.depth / 2
+    const corners: readonly (readonly [number, number])[] = [
+      [-halfWidth, -halfDepth],
+      [halfWidth, -halfDepth],
+      [halfWidth, halfDepth],
+      [-halfWidth, halfDepth],
+    ]
+    const positions = corners.map(([x, y]) => this.point(x, y))
+    // Drape the selected footprint over both local terrain and streamed tiles.
+    this.source.entities.add({
+      polygon: {
+        hierarchy: new PolygonHierarchy(positions),
+        material: Color.fromCssColorString('#b3d86a').withAlpha(0.2),
+        classificationType: ClassificationType.BOTH,
+        shadows: ShadowMode.DISABLED,
+      },
+      polyline: {
+        positions: [...positions, this.point(-halfWidth, -halfDepth)],
+        clampToGround: true,
+        width: 2,
+        material: Color.fromCssColorString('#deedb6').withAlpha(0.8),
+        classificationType: ClassificationType.BOTH,
+      },
+    })
+  }
   private placementScene(): void {
     this.box(
       0,
@@ -1844,9 +1873,9 @@ export class PoloScene {
       this.viewer.scene.requestRender()
       return
     }
-    // During the conversation keep the real field visible, without a synthetic
-    // turf slab, pitch markings, construction traffic or other works.
+    // Keep the real field visible beneath a light selected-site overlay.
     if (!poloConstructionStarted(this.state)) {
+      this.todaySite()
       this.community()
       if (this.state.rain) this.rain()
       this.viewer.scene.requestRender()

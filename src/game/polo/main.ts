@@ -3,6 +3,7 @@ import '../style.css'
 import './style.css'
 import './motion-overlay.css'
 import './private-chat.css'
+import './more-menu.css'
 import { loadDataPack } from '../data.ts'
 import { loadElevationGrid } from '../terrain.ts'
 import type { LngLat } from '../geometry.ts'
@@ -12,7 +13,6 @@ import { POLO_BASELINE } from './baseline.ts'
 import { renderPoloCopySteps } from './copy-steps.ts'
 import type { PoloCopyEntry } from './copy-steps.ts'
 import { setupPoloEducation } from './education-ui.ts'
-import { setupPoloExperience } from './experience.ts'
 import { setupPoloProjectIntro } from './project-setup.ts'
 import { setupPoloMapShortcuts } from './map-shortcuts.ts'
 import { setupPoloLearning } from './learning-ui.ts'
@@ -184,6 +184,7 @@ export async function startPoloDemo(): Promise<void> {
         <p class="polo-endpoint-label" id="polo-endpoint-label" hidden>After this step</p><div class="polo-metrics" id="polo-metrics"></div>
         <div class="polo-experiment" id="polo-experiment"></div>
         <details class="polo-details" id="polo-details"><summary>What’s behind this?</summary><div id="polo-detail-copy"></div></details>
+        <button type="button" data-polo-action="learning" class="polo-next polo-learning-launcher" id="polo-learning-open" hidden>Use what you learned →</button>
         <div class="polo-deck-bottom"><button type="button" data-polo-action="back" class="polo-back">← Back</button><button type="button" data-polo-action="next" class="polo-next" id="polo-next">Continue →</button></div>
       </section>
       <nav class="polo-timeline" aria-label="Story milestones"></nav>
@@ -232,16 +233,10 @@ export async function startPoloDemo(): Promise<void> {
     () => state,
     (topic) => {
       scene?.setEnvironmentalLayer(topic)
-      experience.sync()
     },
   )
   // Keep animation controls on the map so playback never changes card height.
   get('.polo-studio', HTMLElement).append(get('#polo-motion', HTMLDivElement))
-  const experience = setupPoloExperience(
-    root,
-    () => state,
-    () => scene,
-  )
   const protest = setupPoloProtest(root, (progress) => {
     if (disposed || !state.confirmed || state.phase !== 'M0') return
     scene?.setProtestActive(false)
@@ -289,7 +284,7 @@ export async function startPoloDemo(): Promise<void> {
       String(progress) + '%'
     get('#polo-endpoint-label', HTMLParagraphElement).hidden = !active
     root.dataset['poloAnimating'] = String(active)
-    get('#polo-next', HTMLButtonElement).disabled =
+    get('#polo-learning-open', HTMLButtonElement).disabled =
       active && state.phase === 'M6'
     for (const stop of root.querySelectorAll<HTMLButtonElement>('[data-phase]'))
       stop.classList.toggle(
@@ -658,18 +653,9 @@ export async function startPoloDemo(): Promise<void> {
     }
     renderPoloCopySteps(detail, detailEntries, 'Explanation steps')
     get('#polo-details', HTMLDetailsElement).open = false
-    const previous = root.querySelector<HTMLButtonElement>(
-      '[data-polo-action="back"]',
-    )
-    if (previous) {
-      previous.disabled = state.phase === 'M0'
-      previous.hidden = !state.confirmed || state.phase === 'M0'
-    }
-    get('#polo-next', HTMLButtonElement).textContent = inOperation
-      ? 'Use what you learned →'
-      : state.confirmed
-        ? 'Next phase →'
-        : 'Continue →'
+    get('#polo-learning-open', HTMLButtonElement).hidden = !inOperation
+    get('[data-polo-action="quick-today"]', HTMLButtonElement).hidden =
+      state.confirmed
     for (const item of root.querySelectorAll<HTMLButtonElement>(
       '[data-phase]',
     )) {
@@ -689,7 +675,6 @@ export async function startPoloDemo(): Promise<void> {
       !state.confirmed
     renderMotion()
     learning.sync()
-    experience.sync()
     education.sync()
   }
 
@@ -801,7 +786,6 @@ export async function startPoloDemo(): Promise<void> {
     }
     root.dataset['poloMenuOpen'] = 'false'
     menuToggle.setAttribute('aria-expanded', 'false')
-    const index = POLO_PHASES.indexOf(state.phase)
     switch (control.dataset['poloAction']) {
       case 'person': {
         const person = people.find(
@@ -818,14 +802,16 @@ export async function startPoloDemo(): Promise<void> {
         break
       }
       case 'back':
-        setPhase(POLO_PHASES[Math.max(0, index - 1)] ?? 'M0')
+        education.move(-1)
         break
       case 'confirm-location':
         confirmLocation()
         break
       case 'next':
-        if (state.confirmed && state.phase === 'M6') learning.open()
-        else if (state.confirmed) setPhase(POLO_PHASES[index + 1] ?? 'M0')
+        education.move(1)
+        break
+      case 'learning':
+        learning.open()
         break
       case 'quick-today':
         quickViewToday()
@@ -942,7 +928,6 @@ export async function startPoloDemo(): Promise<void> {
       clearTimeout(toastTimer)
       clearTimeout(placementSyncTimer)
       education.destroy()
-      experience.destroy()
       shortcuts.destroy()
       intro.destroy()
       protest.destroy()

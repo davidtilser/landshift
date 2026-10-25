@@ -24,7 +24,7 @@ The [selected-case brief](docs/research/change-catalog-golden-gate-polo/README.m
 
 ### 1. P0 — Align concept feedback with its evidence
 
-**Current gap:** recycled water adds four Support points and a green roof adds three without a calculated benefit. The impact modal also exposes baseline numbers inside concept views, despite the brief's requirement to hide numerical panels there.
+**Current gap:** the retained model gives recycled water four Support points and a green roof three without a calculated benefit. The Support panel and impact modal have since been removed from every Polo chapter; the underlying model still needs evidence alignment before any future presentation.
 
 **Work:** provide qualitative feedback for these concepts and align their numerical visibility with the selected-case brief. Remove the impression that a concept has earned support through a quantified environmental improvement.
 
@@ -35,7 +35,7 @@ The [selected-case brief](docs/research/change-catalog-golden-gate-polo/README.m
 - No displayed support improvement implies a calculated benefit that does not exist.
 - Returning to Original plan restores its appropriate baseline cards.
 
-**Starting points:** [impact.ts](src/game/polo/impact.ts), [experience.ts](src/game/polo/experience.ts), [concept visibility rules](docs/research/change-catalog-golden-gate-polo/README.md#data-visibility-when-switching).
+**Starting points:** [impact.ts](src/game/polo/impact.ts), [concept visibility rules](docs/research/change-catalog-golden-gate-polo/README.md#data-visibility-when-switching).
 
 ### 2. P0 — Integrate the completed heat results
 
