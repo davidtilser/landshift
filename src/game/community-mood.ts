@@ -21,6 +21,17 @@ export const MOOD_PRESENTATION: Record<
 export function initialCommunityMoodBreakdown(
   profiles: CommunityProfile[],
 ): CommunityMoodBreakdown {
+  const angry = profiles.filter(
+    (profile) => profile.initialMood.mood === 'angry',
+  ).length
+  if (angry)
+    return {
+      angry: 25 + Math.min(3, angry) * 10,
+      concerned: 60 - Math.min(3, angry) * 10,
+      neutral: 10,
+      hopeful: 5,
+      reason: 'Protesters want the loss of shared space to be heard.',
+    }
   const worried = profiles.filter(
     (profile) => profile.initialMood.mood === 'concerned',
   ).length
