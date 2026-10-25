@@ -238,6 +238,11 @@
   flex: 0 0 auto;
   margin-top: 8px;
 }
+.polo-deck[data-polo-reader] .polo-next.is-chapter-end {
+  font-size: 14px;
+  line-height: 1.25;
+  white-space: normal;
+}
 .polo-deck[data-polo-reader] .polo-next:disabled {
   background: var(--ls-role-surface);
   color: var(--ls-role-muted);

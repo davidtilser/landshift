@@ -1,4 +1,6 @@
 import type { PoloTopic } from './education.ts'
+import { PHASE_NAMES } from './education.ts'
+import { POLO_PHASES } from './model.ts'
 import type { PoloSceneState } from './model.ts'
 import { POLO_BASELINE } from './baseline.ts'
 import { poloChapterCard, POLO_TODAY_TABS } from './today.ts'
@@ -309,10 +311,22 @@ export function setupPoloEducation(
       next.removeAttribute('title')
       next.textContent = state.confirmed ? 'Next →' : 'Continue →'
       next.disabled = locked || (state.confirmed && last)
+      next.dataset['poloAction'] = 'next'
+      delete next.dataset['phase']
+      next.classList.remove('is-chapter-end')
     }
     if (state.confirmed && last && next) {
-      next.textContent = 'Chapter complete'
-      next.title = 'Choose another phase below.'
+      const following = POLO_PHASES[POLO_PHASES.indexOf(state.phase) + 1]
+      next.disabled = locked
+      next.classList.add('is-chapter-end')
+      if (following) {
+        next.textContent = `Chapter complete. Open ${PHASE_NAMES[following]}.`
+        next.dataset['poloAction'] = 'phase'
+        next.dataset['phase'] = following
+      } else {
+        next.textContent = 'Chapter complete. Go to Summary.'
+        next.dataset['poloAction'] = 'summary'
+      }
     }
     if (sameCard && restoreRainFocus)
       (sourceDialog.open ? sourceBody : panel)

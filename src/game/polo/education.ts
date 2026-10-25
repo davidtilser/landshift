@@ -30,7 +30,7 @@ const TOPIC_NAMES: Record<PoloTopic, string> = {
   electricity: 'Electricity',
   land: 'Land & people',
 }
-const PHASE_NAMES: Record<PoloPhase, string> = {
+export const PHASE_NAMES: Record<PoloPhase, string> = {
   M0: 'Today',
   M1: 'Foundations',
   M4: 'Structure',
