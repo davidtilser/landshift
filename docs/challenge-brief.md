@@ -2,7 +2,7 @@
 
 **Source:** Notion hackpack page, “Engaging Youth in Sustainable Land-Use Decisions”; user-provided text export received on 24 October 2026.
 
-This document preserves the supplied challenge brief. Notion callout markup and exported table line breaks have been normalized for Markdown. LandShift’s chosen San José datacentre scenario and proposed experience are documented separately in [the product proposal](san-jose-datacentre-experience.md).
+This document preserves the supplied challenge brief. Notion callout markup and exported table line breaks have been normalized for Markdown. LandShift's primary experience is the [San Francisco Polo Fields demo](polo-demo.md), with [Muhos, Finland](research/water-demo-finland-muhos/README.md) retained as an alternative water-data scenario.
 
 ## 1. What is the problem, and why is it important now?
 

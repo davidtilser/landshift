@@ -1,6 +1,6 @@
 # Consequence sandbox
 
-The game combines local Golden Gate Park or San José geography with authored teaching rules. It is an operational design sandbox with cooling, planting and restoration choices; the narrower site-preparation presentation in [the experience proposal](san-jose-datacentre-experience.md) remains a separate demo direction.
+The original game sandbox combines local Golden Gate Park or San José geography with authored teaching rules for cooling, planting and restoration choices. The current primary experience is the separate [San Francisco Polo Fields demo](polo-demo.md). [Muhos, Finland](research/water-demo-finland-muhos/README.md) remains an alternative water-data scenario.
 
 The default **Heroes’ Grove** scenario places the concept over the WWI memorial boulder's documented NPS point. It is explicitly hypothetical. A memorial steward, nature volunteer and park visitor are fictional roles, not representations of named people or actual groups. The full park and its surroundings are prepared in the local pack; see [data sources and limitations](../data/README.md#golden-gate-park-golden-gate-park).
 
