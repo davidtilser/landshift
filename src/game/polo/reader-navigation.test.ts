@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { movePoloReader } from './reader-navigation.ts'
 import type { PoloReaderPosition } from './reader-navigation.ts'
+import { poloChapterSteps } from './chapter-reader.ts'
+import { INITIAL_POLO_STATE, POLO_PHASES } from './model.ts'
 
 const lengths = { general: 3, water: 2, electricity: 3, land: 3 }
 
@@ -40,17 +42,34 @@ describe('chapter reader navigation', () => {
     expect(last).toEqual({ tab: 'land', step: 2 })
   })
 
-  it('uses the same topic navigation for chapters with single-screen cards', () => {
-    const single = { general: 1, water: 1, electricity: 1, land: 1 }
-    expect(movePoloReader({ tab: 'water', step: 0 }, 1, single)).toEqual({
-      tab: 'electricity',
-      step: 0,
-    })
-    expect(movePoloReader({ tab: 'electricity', step: 0 }, -1, single)).toEqual(
-      {
-        tab: 'water',
-        step: 0,
-      },
-    )
+  it('traverses the actual step counts in each chapter and stops before changing phase', () => {
+    for (const phase of POLO_PHASES) {
+      const state = {
+        ...INITIAL_POLO_STATE,
+        confirmed: true,
+        preview: false,
+        phase,
+      }
+      const counts = {
+        general: poloChapterSteps(state, 'general').length,
+        water: poloChapterSteps(state, 'water').length,
+        electricity: poloChapterSteps(state, 'electricity').length,
+        land: poloChapterSteps(state, 'land').length,
+      }
+      const total = Object.values(counts).reduce((sum, count) => sum + count, 0)
+      let position: PoloReaderPosition = { tab: 'general', step: 0 }
+      const visited = new Set<string>(['general/0'])
+      for (let index = 1; index < total; index++) {
+        position = movePoloReader(position, 1, counts)
+        visited.add(`${position.tab}/${String(position.step)}`)
+      }
+      expect(visited.size).toBe(total)
+      expect(position).toEqual({ tab: 'land', step: counts.land - 1 })
+      expect(movePoloReader(position, 1, counts)).toEqual(position)
+      for (let index = 1; index < total; index++)
+        position = movePoloReader(position, -1, counts)
+      expect(position).toEqual({ tab: 'general', step: 0 })
+      expect(state.phase).toBe(phase)
+    }
   })
 })

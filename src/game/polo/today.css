@@ -152,7 +152,7 @@
   border-left: 8px solid transparent;
 }
 
-/* Foundations trials the same step reader across all four topics. */
+/* All five chapters use the same step reader across all four topics. */
 .polo-deck[data-polo-reader] {
   scroll-padding-block: 100px 80px;
 }
