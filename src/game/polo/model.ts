@@ -3,6 +3,10 @@ import type { LngLat } from '../geometry.ts'
 export { POLO_SCENARIO_ID } from '../../shared/scenarios.ts'
 // Local OSM place point, used only to position an explicitly schematic campus.
 export const POLO_CENTER: LngLat = [-122.49275743961334, 37.76817893476351]
+export const POLO_DEFAULT_AREA_HA = 4
+export const POLO_MIN_AREA_HA = 2
+export const POLO_MAX_AREA_HA = 6
+export const POLO_AREA_STEP_HA = 0.5
 // Stable IDs preserve the original research references. M1 is now a visual
 // foundations checkpoint; M2/M3 remain research snapshots, not story stops.
 export const POLO_PHASES = ['M0', 'M1', 'M4', 'M5', 'M6'] as const
@@ -24,6 +28,7 @@ export const POLO_PROPOSALS = [
 ] as const
 export type PoloProposal = (typeof POLO_PROPOSALS)[number]
 export interface PoloSceneState {
+  areaHa: number
   center: LngLat
   bearing: number
   confirmed: boolean
@@ -34,6 +39,7 @@ export interface PoloSceneState {
   rain: boolean
 }
 export const INITIAL_POLO_STATE: PoloSceneState = {
+  areaHa: POLO_DEFAULT_AREA_HA,
   center: [...POLO_CENTER],
   bearing: 0,
   confirmed: false,

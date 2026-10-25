@@ -1,5 +1,12 @@
 import { z } from 'zod'
-import { POLO_PHASES, POLO_PROPOSALS } from '../game/polo/model.ts'
+import {
+  POLO_PHASES,
+  POLO_PROPOSALS,
+  POLO_DEFAULT_AREA_HA,
+  POLO_MIN_AREA_HA,
+  POLO_MAX_AREA_HA,
+  POLO_AREA_STEP_HA,
+} from '../game/polo/model.ts'
 import { poloPlacementValid } from '../game/polo/placement.ts'
 
 export const DEFAULT_COMMUNITY_MODEL = 'google/gemini-2.5-flash-lite'
@@ -37,6 +44,12 @@ export type CommunityMoodBreakdown = z.infer<
   typeof communityMoodBreakdownSchema
 >
 export const poloSceneStateSchema = z.object({
+  areaHa: z
+    .number()
+    .min(POLO_MIN_AREA_HA)
+    .max(POLO_MAX_AREA_HA)
+    .multipleOf(POLO_AREA_STEP_HA)
+    .default(POLO_DEFAULT_AREA_HA),
   center: z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]),
   bearing: z.number().min(0).max(360),
   confirmed: z.boolean(),

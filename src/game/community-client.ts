@@ -10,6 +10,7 @@ import type {
 import type { DiscussionContext } from './discussion.ts'
 import { scriptedDiscussion } from './discussion.ts'
 import { communityVoices } from './community.ts'
+import { authoredPrivateCommunityReply } from './community-replies.ts'
 import { demoExchange } from './community-profiles.ts'
 
 export class CommunityClient {
@@ -39,6 +40,10 @@ export class CommunityClient {
     await this.status(signal)
     if (signal.aborted) throw new DOMException('Canceled', 'AbortError')
     if (!this.configured) {
+      if (request.mode === 'private') {
+        const authored = authoredPrivateCommunityReply(request, context)
+        if (authored) return authored
+      }
       if (context.polo)
         return {
           ...demoExchange(

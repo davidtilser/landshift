@@ -1,5 +1,6 @@
 import './community-hub.css'
-import { CharacterChat } from './character-chat.ts'
+import { pagedUiText } from './ui-text.ts'
+import { CharacterChat, setCommunityAvatar } from './character-chat.ts'
 import { CommunityClient } from './community-client.ts'
 import { CommunityAutoplay } from './community-autoplay.ts'
 import { revealCommunityReplies } from './community-replies.ts'
@@ -63,7 +64,7 @@ export class CommunityHub {
   private readonly root = node('aside', 'community-hub')
   private readonly launcher = action('◎ Community', 'open')
   private readonly timeline = node('div', 'community-timeline')
-  private readonly status = node('p', 'community-status')
+  private readonly status = node('div', 'community-status')
   private readonly engine = node('span', 'community-engine', 'Connecting…')
   private readonly moodList = node('div', 'community-moods')
   private readonly composer = node('div', 'community-compose-area')
@@ -73,6 +74,7 @@ export class CommunityHub {
   private planKey = ''
   private error = ''
   private destroyed = false
+  private readonly textPages = new Map<string, number>()
 
   constructor(options: HubOptions) {
     this.options = options
@@ -91,7 +93,10 @@ export class CommunityHub {
     const context = node('div', 'community-context')
     context.append(node('span', '', 'One shared discussion'), this.engine)
     this.moodList.setAttribute('role', 'group')
-    this.moodList.setAttribute('aria-label', 'Simulated community mood')
+    this.moodList.setAttribute(
+      'aria-label',
+      'Fictional crowd emotions, separate from Support out of 100',
+    )
     this.timeline.setAttribute('role', 'log')
     this.timeline.setAttribute('aria-label', 'Public community thread')
     this.timeline.setAttribute('aria-live', 'polite')
@@ -230,8 +235,8 @@ export class CommunityHub {
     if (mood) {
       const heading = node('div', 'community-mood-heading')
       heading.append(
-        node('strong', '', 'Community mood'),
-        node('span', '', 'Game simulation'),
+        node('strong', '', 'Crowd emotions'),
+        node('span', '', 'Fictional mix'),
       )
       const bar = node('div', 'community-mood-bar'),
         values = node('div', 'community-mood-values')
@@ -261,14 +266,28 @@ export class CommunityHub {
         bar.append(segment)
         values.append(badge)
       }
-      const reason = node('p', 'community-mood-reason', mood.reason)
+      const reason = this.pagedText(
+        mood.reason,
+        'community-mood-reason',
+        'mood:' + mood.reason,
+      )
       reason.title =
         'Fictional crowd reaction, not a real poll or approval rating.'
-      this.moodList.append(heading, bar, values, reason)
+      this.moodList.append(
+        heading,
+        bar,
+        values,
+        node(
+          'p',
+          'community-mood-note',
+          'Emotion mix, separate from Support /100.',
+        ),
+        reason,
+      )
     }
   }
   private updateStatus(): void {
-    this.status.textContent =
+    const text =
       this.error ||
       (this.pending
         ? 'The community is replying…'
@@ -277,7 +296,8 @@ export class CommunityHub {
           ? 'Your turn.'
           : this.autoplay.active
             ? 'The conversation continues…'
-            : 'The community is listening. Add your perspective below.')
+            : 'The community is listening. Add your voice.')
+    this.status.replaceChildren(this.pagedText(text, '', 'status:' + text))
   }
   private restartDiscussion(immediate: boolean): void {
     if (this.destroyed || this.root.hidden) return
@@ -302,7 +322,7 @@ export class CommunityHub {
         update.tabIndex = -1
         update.append(
           node('span', '', '↻ Plan update'),
-          node('p', '', line.text),
+          this.pagedText(line.text, '', String(line.id)),
         )
         this.timeline.append(update)
         continue
@@ -318,6 +338,11 @@ export class CommunityHub {
           ? node('span', 'community-avatar planner', '🧭')
           : action(this.profile(line.speaker).icon, 'private', line.speaker)
       avatar.classList.add('community-avatar')
+      setCommunityAvatar(
+        avatar,
+        line.speaker,
+        line.speaker === 'planner' ? '🧭' : this.profile(line.speaker).icon,
+      )
       if (line.speaker !== 'planner') {
         avatar.classList.add(this.profile(line.speaker).color)
         avatar.setAttribute(
@@ -360,10 +385,12 @@ export class CommunityHub {
           String(line.replyTo),
         )
         quote.classList.add('community-reply-context')
-        if (parent) quote.title = parent.text
+        if (parent) quote.title = 'View original post'
         body.append(quote)
       }
-      body.append(node('p', 'community-post-text', line.text))
+      body.append(
+        this.pagedText(line.text, 'community-post-text', String(line.id)),
+      )
       const actions = node('div', 'community-post-actions')
       const reply = action('↩ Reply', 'reply', String(line.id))
       reply.setAttribute('aria-label', 'Reply to ' + this.label(line))
@@ -381,6 +408,17 @@ export class CommunityHub {
         this.timeline.scrollTop = scrollToEnd
           ? this.timeline.scrollHeight
           : scroll
+    })
+  }
+  private pagedText(text: string, className: string, key: string): HTMLElement {
+    return pagedUiText(text, className, {
+      page: this.textPages.get(key) ?? 0,
+      onPageChange: (page) => {
+        this.textPages.set(key, page)
+        this.autoplay.stop()
+        if (this.pending?.message === '') this.cancel()
+        if (!key.startsWith('status:')) this.updateStatus()
+      },
     })
   }
   private renderComposer(): void {
@@ -595,6 +633,7 @@ export class CommunityHub {
     this.cancel()
     this.privateChat.reset()
     this.session.reset()
+    this.textPages.clear()
     this.planKey = ''
     this.selectedReply = undefined
     this.error = ''

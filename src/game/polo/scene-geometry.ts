@@ -1,5 +1,5 @@
 import type { LngLat } from '../geometry.ts'
-import { POLO_CENTER } from './model.ts'
+import { POLO_CENTER, POLO_DEFAULT_AREA_HA } from './model.ts'
 import type { PoloPhase, PoloProposal, PoloSceneState } from './model.ts'
 
 export const POLO_LAYOUT = {
@@ -14,7 +14,10 @@ export const POLO_LAYOUT = {
 } as const
 
 /** Complete target surface states; work never consumes the retained original turf bands. */
-export function poloSurfaceAreas(phase: PoloPhase): {
+export function poloSurfaceAreas(
+  phase: PoloPhase,
+  areaHa = POLO_DEFAULT_AREA_HA,
+): {
   turf: number
   stripped_not_graded: number
   bare_graded: number
@@ -51,7 +54,15 @@ export function poloSurfaceAreas(phase: PoloPhase): {
     areas.other_impervious = developed - roofs
     areas.landscape = work - developed
   }
-  return areas
+  const ratio = areaHa / POLO_DEFAULT_AREA_HA
+  return {
+    turf: areas.turf * ratio,
+    stripped_not_graded: areas.stripped_not_graded * ratio,
+    bare_graded: areas.bare_graded * ratio,
+    roof: areas.roof * ratio,
+    other_impervious: areas.other_impervious * ratio,
+    landscape: areas.landscape * ratio,
+  }
 }
 
 export function poloCoordinate(
@@ -59,10 +70,11 @@ export function poloCoordinate(
   y: number,
   center: LngLat = POLO_CENTER,
   bearing = 0,
+  scale = 1,
 ): LngLat {
   const radians = (bearing * Math.PI) / 180
-  const east = x * Math.cos(radians) + y * Math.sin(radians)
-  const north = -x * Math.sin(radians) + y * Math.cos(radians)
+  const east = (x * Math.cos(radians) + y * Math.sin(radians)) * scale
+  const north = (-x * Math.sin(radians) + y * Math.cos(radians)) * scale
   return [
     center[0] + east / (111320 * Math.cos((center[1] * Math.PI) / 180)),
     center[1] + north / 111320,

@@ -127,3 +127,20 @@ describe('place, confirm, then follow the Polo story', () => {
     ).toBe(true)
   })
 })
+
+describe('selected campus size survives story navigation', () => {
+  it('preserves the selected size through confirmation and every chapter', () => {
+    for (const areaHa of [2, 3.5, 6]) {
+      const placed = { ...INITIAL_POLO_STATE, areaHa }
+      const confirmed = confirmPoloPlacement(placed)
+      expect(confirmed.areaHa).toBe(areaHa)
+      for (const phase of POLO_PHASES)
+        expect(poloPhaseAt(confirmed, phase).areaHa).toBe(areaHa)
+    }
+  })
+  it('rejects an invalid selected size before confirmation', () => {
+    expect(() =>
+      confirmPoloPlacement({ ...INITIAL_POLO_STATE, areaHa: 2.1 }),
+    ).toThrow('valid campus area')
+  })
+})

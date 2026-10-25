@@ -1,6 +1,8 @@
 import { DEFAULT_CHOICES } from '../consequences.ts'
 import type { DiscussionContext } from '../discussion.ts'
-import { POLO_BASELINE } from './baseline.ts'
+import { poloDisplayPhase } from './display.ts'
+import { usAcres } from './us-units.ts'
+import { POLO_DEFAULT_AREA_HA } from './model.ts'
 import { POLO_PROPOSAL_NAMES } from './model.ts'
 import type { PoloSceneState } from './model.ts'
 
@@ -26,8 +28,7 @@ export interface PoloDiscussionFacts {
 export function poloDiscussionContext(
   state: PoloSceneState,
 ): DiscussionContext {
-  const phase = POLO_BASELINE.phases.find((item) => item.id === state.phase)
-  if (!phase) throw new Error('Unknown Polo Fields phase')
+  const phase = poloDisplayPhase(state)
   const concept =
     state.confirmed && state.phase === 'M6' && state.preview
       ? state.proposal
@@ -51,7 +52,10 @@ export function poloDiscussionContext(
         ? phase.title
         : 'Choose a location · unconfirmed preview',
       setting:
-        'Polo Fields, Golden Gate Park: a fictional 4 ha managed-turf subset, schematic placement, not a surveyed polygon or actual application. The scenario excludes surrounding trees and the running/cycling tracks. It is separate from Heroes’ Grove and involves no memorial replacement. Existing use of the public sports field matters.',
+        `Polo Fields, Golden Gate Park: a fictional ${usAcres(state.areaHa * 10_000)} managed-turf subset, schematic placement, not a surveyed polygon or actual application. The scenario excludes surrounding trees and the running/cycling tracks. It is separate from Heroes’ Grove and involves no memorial replacement. Existing use of the public sports field matters.` +
+        (state.areaHa === POLO_DEFAULT_AREA_HA
+          ? ''
+          : ' Quantities use an area-proportional teaching assumption relative to the frozen reference. Rain depth and work duration stay fixed. This is not a site capacity assessment.'),
       proposal: concept ? POLO_PROPOSAL_NAMES[concept] : null,
       mechanism: !state.confirmed
         ? 'The player is positioning and rotating a ghost campus. No location is confirmed and nothing is built. Walking people still use the field; discuss what matters to them before confirming the plan.'

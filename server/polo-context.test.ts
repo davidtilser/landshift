@@ -44,10 +44,14 @@ describe('Polo community server grounding', () => {
       polo: { ...state, preview: false },
     })
     expect(
-      context.polo?.baseline?.some((metric) => metric.value.includes('300')),
+      context.polo?.baseline?.some((metric) =>
+        metric.value.includes('80k US gal/day'),
+      ),
     ).toBe(true)
     expect(
-      context.polo?.baseline?.some((metric) => metric.value.includes('105.12')),
+      context.polo?.baseline?.some((metric) =>
+        metric.value.includes('105 GWh/year'),
+      ),
     ).toBe(true)
   })
   it('grounds private replies in the character’s current phase reaction', async () => {
@@ -67,5 +71,22 @@ describe('Polo community server grounding', () => {
     )
     expect(prompt).toContain('Servers get a home. What about our team?')
     expect(prompt).toContain('"mood":"angry"')
+  })
+})
+
+describe('selected campus size reaches the server facts', () => {
+  it('uses the selected-area teaching inventory in original comparison', async () => {
+    const state = request.plan.polo
+    if (!state) throw new Error('Missing test scene')
+    const context = await communityContext({
+      ...request.plan,
+      polo: { ...state, areaHa: 6, preview: false },
+    })
+    expect(context.polo?.setting).toContain('fictional 15 acres')
+    expect(context.polo?.baseline?.map((metric) => metric.value)).toEqual([
+      '18 MW',
+      '158 GWh/year',
+      '120k US gal/day',
+    ])
   })
 })

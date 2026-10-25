@@ -1,4 +1,10 @@
-import type { CommunityReply } from '../shared/community-contract.ts'
+import { poloDialogueReply } from './polo/dialogue.ts'
+import type { DiscussionContext } from './discussion.ts'
+import type {
+  CommunityRequest,
+  CommunityResponse,
+  CommunityReply,
+} from '../shared/community-contract.ts'
 
 function pause(milliseconds: number, signal: AbortSignal): Promise<void> {
   return new Promise((resolve) => {
@@ -26,4 +32,23 @@ export async function revealCommunityReplies(
     append(message)
   }
   return true
+}
+
+/** Guided Polo turns and the offline fallback share one question-aware branch. */
+export function authoredPrivateCommunityReply(
+  request: Pick<CommunityRequest, 'target' | 'message' | 'history'>,
+  context: DiscussionContext,
+): CommunityResponse | undefined {
+  if (!context.polo) return undefined
+  const reply = poloDialogueReply(
+    request.target,
+    request.message,
+    context.polo,
+    request.history,
+  )
+  return {
+    messages: [{ speaker: request.target, text: reply.text }],
+    source: 'demo',
+    model: 'Authored scenario',
+  }
 }

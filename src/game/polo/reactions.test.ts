@@ -15,13 +15,12 @@ import {
 const confirmed: PoloSceneState = { ...INITIAL_POLO_STATE, confirmed: true }
 
 describe('fictional Polo phase reactions', () => {
-  it('keeps initial field users peaceful and gives each voice a different concern at every phase', () => {
-    expect(poloReactions(INITIAL_POLO_STATE).turnout).toBe(0)
+  it('shows opposition from announcement and distinct concerns at every phase', () => {
+    expect(poloReactions(INITIAL_POLO_STATE).turnout).toBe(8)
     for (const reaction of Object.values(
       poloReactions(INITIAL_POLO_STATE).voices,
     )) {
-      expect(reaction.sign).toBeNull()
-      expect(reaction.mood).not.toBe('angry')
+      expect(reaction.text.length).toBeLessThanOrEqual(70)
     }
     for (const id of ['neighbor', 'nature', 'student', 'operator'] as const) {
       const lines = POLO_PHASES.map(
@@ -39,7 +38,7 @@ describe('fictional Polo phase reactions', () => {
     }
   })
   it('grows the rally during each stage without adding duplicate people on replay', () => {
-    let previous = 0
+    let previous = 8
     for (const phase of POLO_PHASES.slice(1)) {
       const scene = { ...confirmed, phase }
       expect(poloProtestTurnout(scene, 0)).toBe(previous)
@@ -53,10 +52,10 @@ describe('fictional Polo phase reactions', () => {
     expect(previous).toBe(20)
     expect(
       poloProtestTurnout({ ...confirmed, confirmed: false, phase: 'M4' }, 1),
-    ).toBe(0)
+    ).toBe(8)
     expect(
       poloReactions({ ...confirmed, confirmed: false, phase: 'M4' }).turnout,
-    ).toBe(0)
+    ).toBe(8)
   })
   it('keeps gathering routes outside the work band and people anchored to the field', () => {
     for (let index = 0; index < 20; index++) {
@@ -85,7 +84,8 @@ describe('fictional Polo phase reactions', () => {
         preview: true,
       }
       const concept = poloReactions(scene)
-      expect(concept.turnout).toBe(baseline.turnout)
+      expect(concept.turnout).toBeLessThan(baseline.turnout)
+      expect(concept.turnout).toBeGreaterThanOrEqual(17)
       expect(concept.voices.neighbor.sign).not.toBeNull()
       expect(concept.voices.neighbor.mood).toBe('angry')
       expect(concept.voices.neighbor.text).not.toBe(

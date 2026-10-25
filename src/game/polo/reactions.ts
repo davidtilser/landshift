@@ -4,6 +4,7 @@ import type {
 } from '../../shared/community-contract.ts'
 import { POLO_PHASES } from './model.ts'
 import type { PoloPhase, PoloSceneState } from './model.ts'
+import { poloSupport } from './impact.ts'
 
 export interface PoloReaction {
   text: string
@@ -23,12 +24,27 @@ const voice = (
 /** Authored fictional reactions, not real residents' positions or crowd estimates. */
 const PHASE_REACTIONS: Record<PoloPhase, PhaseReaction> = {
   M0: {
-    turnout: 0,
+    turnout: 8,
     voices: {
-      neighbor: voice('This is where we meet.', 'neutral'),
-      nature: voice('There’s living soil under this grass.', 'neutral'),
-      student: voice('Our team plays here!', 'hopeful'),
-      operator: voice('What should we protect before building?', 'neutral'),
+      neighbor: voice(
+        'A data center here? Keep our park public.',
+        'angry',
+        'Keep parks public',
+      ),
+      nature: voice(
+        'This proposal puts living soil at risk.',
+        'concerned',
+        'Soil is alive',
+      ),
+      student: voice(
+        'Our team plays here. Hear us before building.',
+        'concerned',
+        'Let us play',
+      ),
+      operator: voice(
+        'A proposal is not permission. We need to listen.',
+        'concerned',
+      ),
     },
   },
   M1: {
@@ -36,7 +52,7 @@ const PHASE_REACTIONS: Record<PoloPhase, PhaseReaction> = {
     voices: {
       neighbor: voice(
         'Wait—the shared field is disappearing!',
-        'concerned',
+        'angry',
         'Save our field',
       ),
       nature: voice(
@@ -198,7 +214,12 @@ export function poloReactions(state: PoloSceneState): PhaseReaction {
               'Roof planting needs structure, drainage and care.',
             ),
           }
-  return { ...baseline, voices }
+  const gain = poloSupport(state) - poloSupport({ ...state, preview: false })
+  return {
+    ...baseline,
+    turnout: baseline.turnout - Math.floor(gain / 2),
+    voices,
+  }
 }
 
 /** Join progressively during physical work; replay and comparison jumps never add people. */
@@ -206,10 +227,12 @@ export function poloProtestTurnout(
   state: PoloSceneState,
   progress: number,
 ): number {
-  if (!state.confirmed || state.phase === 'M0') return 0
+  if (!state.confirmed || state.phase === 'M0')
+    return PHASE_REACTIONS.M0.turnout
   const phaseIndex = POLO_PHASES.indexOf(state.phase)
   const before = PHASE_REACTIONS[POLO_PHASES[phaseIndex - 1] ?? 'M0'].turnout
-  const after = PHASE_REACTIONS[state.phase].turnout
+  const after = poloReactions(state).turnout
+  if (state.phase === 'M6' && state.preview && state.proposal) return after
   const fraction = Number.isFinite(progress)
     ? Math.max(0, Math.min(1, progress))
     : 0

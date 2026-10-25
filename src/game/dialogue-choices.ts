@@ -1,5 +1,10 @@
+import { poloDialogueChoices } from './polo/dialogue.ts'
+import type {
+  CommunityId,
+  ConversationLine,
+} from '../shared/community-contract.ts'
 import { nextChallenge } from './community.ts'
-import type { MiniChallenge, VoiceId } from './community.ts'
+import type { MiniChallenge } from './community.ts'
 import type { DiscussionContext, DiscussionTopic } from './discussion.ts'
 
 export type DialogueTarget = MiniChallenge['target']
@@ -33,10 +38,12 @@ const tryIdea = (
 
 /** Authored branches invite comparison; selecting a line never buys an upgrade. */
 export function dialogueChoices(
-  voice: VoiceId,
+  voice: CommunityId,
   topic: DiscussionTopic | undefined,
   context: DiscussionContext,
+  history: readonly ConversationLine[] = [],
 ): DialogueChoice[] {
+  if (context.polo) return poloDialogueChoices(voice, context.polo, history)
   switch (topic) {
     case 'heritage':
       return [

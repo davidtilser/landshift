@@ -121,7 +121,7 @@ export class PoloAccessScene {
     }
     this.state = state
     this.source.show = state.confirmed
-    const pose = [...state.center, state.bearing].join('|')
+    const pose = [...state.center, state.bearing, state.areaHa].join('|')
     if (pose !== this.pose) {
       this.pose = pose
       this.samples = sampleAccessRoute([
