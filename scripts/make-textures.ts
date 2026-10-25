@@ -1,5 +1,6 @@
 import { mkdir, readFile, rename, stat, writeFile } from 'node:fs/promises'
 import { basename, join } from 'node:path'
+import { inflateRawSync } from 'node:zlib'
 import sharp from 'sharp'
 import type { OutputInfo } from 'sharp'
 import {
@@ -71,7 +72,21 @@ async function hasContents(path: string, data: Buffer): Promise<boolean> {
   }
 }
 
-async function download(url: string): Promise<string> {
+interface DownloadOptions {
+  timeoutMs?: number
+  /** Census zip is not an image; imagery still has to decode as one. */
+  requireImage?: boolean
+  /** Skip a full pixel decode. A 500 m tile is over a gigabyte uncompressed. */
+  fullDecode?: boolean
+}
+
+async function download(
+  url: string,
+  options: DownloadOptions = {},
+): Promise<string> {
+  const timeoutMs = options.timeoutMs ?? DOWNLOAD_TIMEOUT_MS
+  const requireImage = options.requireImage ?? true
+  const fullDecode = options.fullDecode ?? true
   const path = join(cacheDir, basename(new URL(url).pathname))
   if (await fileExists(path)) {
     console.log(`cached ${path}`)
@@ -79,18 +94,24 @@ async function download(url: string): Promise<string> {
   }
   console.log(`downloading ${url}`)
   const response = await fetch(url, {
-    signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS),
+    signal: AbortSignal.timeout(timeoutMs),
   })
   if (!response.ok) {
     throw new Error(`${url} responded ${String(response.status)}`)
   }
   const contentType = response.headers.get('content-type') ?? ''
-  if (!contentType.startsWith('image/')) {
+  if (requireImage && !contentType.startsWith('image/')) {
     throw new Error(`${url} returned "${contentType}", not an image`)
   }
   const data = Buffer.from(await response.arrayBuffer())
-  // stats() decodes every pixel, so an HTML error page or a truncated body fails here.
-  await sharp(data).stats()
+  if (requireImage) {
+    if (fullDecode) {
+      // stats() decodes every pixel, so an HTML error page or a truncated body fails here.
+      await sharp(data).stats()
+    } else {
+      await sharp(data, { limitInputPixels: false }).metadata()
+    }
+  }
   // Write to a temporary name so an interrupted download is never mistaken for a cached original.
   const partialPath = `${path}.part`
   await writeFile(partialPath, data)
@@ -357,6 +378,693 @@ async function makeCloudsTexture(): Promise<void> {
   )
 }
 
+const SF_BAY_FOCUS = { lat: 37.8, lng: -122.3 }
+const SF_BAY_ALTITUDE = 0.35
+const SF_BAY_FOV_DEGREES = 50
+// Wider than 16:9 so a full-bleed window still hides the patch edge at the focus altitude.
+const SF_BAY_VIEW_ASPECT = 1.9
+const SF_BAY_VIEW_MARGIN = 1.08
+const TILE_EDGE = 21600
+const TILE_PIXELS_PER_DEGREE = TILE_EDGE / 90
+const GEBCO_CELLS_PER_DEGREE = 15
+const DAY_EDGE = 8192
+const TILE_TIMEOUT_MS = 300_000
+const BAY_COUNTY_GEOIDS = new Set([
+  '06001',
+  '06013',
+  '06041',
+  '06055',
+  '06075',
+  '06081',
+  '06085',
+  '06095',
+  '06097',
+])
+const CENSUS_COUNTY_URL =
+  'https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_500k.zip'
+const NORTHERN_TILES = [
+  {
+    west: -180,
+    url: 'https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-topography-bathymetry/june/world.topo.bathy.200406.3x21600x21600.A1.jpg',
+  },
+  {
+    west: -90,
+    url: 'https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-topography-bathymetry/june/world.topo.bathy.200406.3x21600x21600.B1.jpg',
+  },
+] as const
+const REGION_DIR = join(rootDir, 'public', 'regions')
+const OUTLINE_TOLERANCE_DEGREES = 0.004
+
+interface LngLat {
+  lng: number
+  lat: number
+}
+
+interface Bounds {
+  west: number
+  south: number
+  east: number
+  north: number
+}
+
+function viewCornerDegrees(altitude: number, aspect: number): number {
+  const halfFov = (SF_BAY_FOV_DEGREES * Math.PI) / 180 / 2
+  const distance = 1 + altitude
+  const cameraAngle = Math.atan(Math.hypot(aspect, 1) * Math.tan(halfFov))
+  const cosine = Math.cos(cameraAngle)
+  const sine = Math.sin(cameraAngle)
+  const discriminant = distance ** 2 * cosine ** 2 - distance ** 2 + 1
+  if (discriminant < 0) {
+    throw new Error('SF Bay pack view reaches past the horizon')
+  }
+  const t = distance * cosine - Math.sqrt(discriminant)
+  const radial = distance - t * cosine
+  return (Math.atan2(t * sine, radial) * 180) / Math.PI
+}
+
+function packBounds(): Bounds {
+  const radius =
+    viewCornerDegrees(SF_BAY_ALTITUDE, SF_BAY_VIEW_ASPECT) * SF_BAY_VIEW_MARGIN
+  const lat = (SF_BAY_FOCUS.lat * Math.PI) / 180
+  const angular = (radius * Math.PI) / 180
+  const cosLng = (Math.cos(angular) - Math.sin(lat) ** 2) / Math.cos(lat) ** 2
+  if (cosLng <= -1 || cosLng >= 1) {
+    throw new Error('SF Bay pack longitude span is not on the globe')
+  }
+  const lngRadius = (Math.acos(cosLng) * 180) / Math.PI
+  const cell = 1 / GEBCO_CELLS_PER_DEGREE
+  const snapDown = (value: number): number =>
+    Math.floor(value / cell + 1e-8) * cell
+  const snapUp = (value: number): number =>
+    Math.ceil(value / cell - 1e-8) * cell
+  return {
+    west: snapDown(SF_BAY_FOCUS.lng - lngRadius),
+    south: snapDown(SF_BAY_FOCUS.lat - radius),
+    east: snapUp(SF_BAY_FOCUS.lng + lngRadius),
+    north: snapUp(SF_BAY_FOCUS.lat + radius),
+  }
+}
+
+function cropGrid(grid: Grid, bounds: Bounds): Grid {
+  const x0 = Math.round((bounds.west + 180) * GEBCO_CELLS_PER_DEGREE)
+  const x1 = Math.round((bounds.east + 180) * GEBCO_CELLS_PER_DEGREE)
+  const y0 = Math.round((90 - bounds.north) * GEBCO_CELLS_PER_DEGREE)
+  const y1 = Math.round((90 - bounds.south) * GEBCO_CELLS_PER_DEGREE)
+  const width = x1 - x0
+  const height = y1 - y0
+  if (
+    width <= 1 ||
+    height <= 1 ||
+    x0 < 0 ||
+    y0 < 0 ||
+    x1 > grid.width ||
+    y1 > grid.height
+  ) {
+    throw new Error(
+      `SF Bay height crop ${String(x0)},${String(y0)} ${String(width)}x${String(height)} is outside GEBCO`,
+    )
+  }
+  const data = new Float32Array(width * height)
+  for (let y = 0; y < height; y += 1) {
+    const source = (y0 + y) * grid.width + x0
+    data.set(grid.data.subarray(source, source + width), y * width)
+  }
+  return { width, height, data }
+}
+
+function patchNormals(grid: Grid, bounds: Bounds): Float32Array {
+  const { width, height, data } = grid
+  const latSpan = ((bounds.north - bounds.south) * Math.PI) / 180
+  const lngSpan = ((bounds.east - bounds.west) * Math.PI) / 180
+  const radii = Float32Array.from(data, exaggeratedRadii)
+  const northSpacing = latSpan / height
+  const cellLat = (bounds.north - bounds.south) / height
+  const normals = new Float32Array(width * height * 3)
+  for (let y = 0; y < height; y += 1) {
+    const lat = ((bounds.north - (y + 0.5) * cellLat) * Math.PI) / 180
+    const cosLatitude = Math.max(0.2, Math.cos(lat))
+    const eastSpacing = (lngSpan * cosLatitude) / width
+    // Same derivative frame as the global normal, for this crop's UV aspect instead of a full equirectangular sphere.
+    const gradRatio = latSpan / (lngSpan * cosLatitude)
+    const tangentScale = Math.min(1, gradRatio)
+    const bitangentScale = Math.min(1, 1 / gradRatio)
+    const north = Math.max(0, y - 1)
+    const south = Math.min(height - 1, y + 1)
+    for (let x = 0; x < width; x += 1) {
+      const east = Math.min(width - 1, x + 1)
+      const west = Math.max(0, x - 1)
+      const slopeEast =
+        ((radii[y * width + east] ?? 0) - (radii[y * width + west] ?? 0)) /
+        ((east - west) * eastSpacing)
+      const slopeNorth =
+        ((radii[north * width + x] ?? 0) - (radii[south * width + x] ?? 0)) /
+        ((south - north) * northSpacing)
+      const normalX = -slopeEast / tangentScale
+      const normalY = -slopeNorth / bitangentScale
+      const tilt = Math.hypot(normalX, normalY)
+      const z = Math.max(MIN_NORMAL_Z, 1 / Math.hypot(tilt, 1))
+      const xyScale = tilt > 0 ? Math.sqrt(1 - z * z) / tilt : 0
+      normals.set(
+        [normalX * xyScale, normalY * xyScale, z],
+        (y * width + x) * 3,
+      )
+    }
+  }
+  return normals
+}
+
+async function downloadTile(url: string): Promise<string> {
+  try {
+    return await download(url, {
+      timeoutMs: TILE_TIMEOUT_MS,
+      fullDecode: false,
+    })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    throw new Error(`500 m tile ${url} failed: ${message}`, { cause: error })
+  }
+}
+
+async function makeRegionDay(bounds: Bounds): Promise<void> {
+  if (bounds.south < 0 || bounds.north > 90) {
+    throw new Error(
+      `SF Bay pack latitude ${String(bounds.south)} to ${String(bounds.north)} is outside the northern 500 m tiles`,
+    )
+  }
+  const strips: { left: number; width: number; source: string }[] = []
+  let sourceWidth = 0
+  let sourceHeight = 0
+  for (const tile of NORTHERN_TILES) {
+    const overlapWest = Math.max(bounds.west, tile.west)
+    const overlapEast = Math.min(bounds.east, tile.west + 90)
+    if (overlapEast <= overlapWest) {
+      continue
+    }
+    const left = Math.round((overlapWest - tile.west) * TILE_PIXELS_PER_DEGREE)
+    const right = Math.round((overlapEast - tile.west) * TILE_PIXELS_PER_DEGREE)
+    const top = Math.round((90 - bounds.north) * TILE_PIXELS_PER_DEGREE)
+    const bottom = Math.round((90 - bounds.south) * TILE_PIXELS_PER_DEGREE)
+    const width = right - left
+    const height = bottom - top
+    if (
+      left < 0 ||
+      top < 0 ||
+      width <= 0 ||
+      height <= 0 ||
+      left + width > TILE_EDGE ||
+      top + height > TILE_EDGE
+    ) {
+      throw new Error(
+        `500 m crop ${tile.url} ${String(left)},${String(top)} ${String(width)}x${String(height)} is outside the tile`,
+      )
+    }
+    strips.push({ left, width, source: await downloadTile(tile.url) })
+    sourceWidth += width
+    sourceHeight = height
+  }
+  if (strips.length === 0 || sourceHeight <= 0) {
+    throw new Error('500 m tiles do not cover the SF Bay pack')
+  }
+  const scale = Math.min(1, DAY_EDGE / Math.max(sourceWidth, sourceHeight))
+  const outHeight = Math.max(1, Math.round(sourceHeight * scale))
+  const parts: { data: Buffer; width: number; left: number }[] = []
+  let cursor = 0
+  for (const strip of strips) {
+    const outWidth = Math.max(1, Math.round(strip.width * scale))
+    const top = Math.round((90 - bounds.north) * TILE_PIXELS_PER_DEGREE)
+    const { data, info } = await sharp(strip.source, {
+      limitInputPixels: false,
+    })
+      .extract({
+        left: strip.left,
+        top,
+        width: strip.width,
+        height: sourceHeight,
+      })
+      .resize(outWidth, outHeight, { fit: 'fill' })
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true })
+    parts.push({ data, width: info.width, left: cursor })
+    cursor += info.width
+  }
+  const first = parts[0]
+  if (first === undefined) {
+    throw new Error('500 m tiles produced no SF Bay imagery')
+  }
+  await writeOutput(
+    'sf-bay-area-day.webp',
+    await sharp({
+      create: {
+        width: cursor,
+        height: outHeight,
+        channels: 3,
+        background: { r: 0, g: 0, b: 0 },
+      },
+    })
+      .composite(
+        parts.map((part) => ({
+          input: part.data,
+          raw: { width: part.width, height: outHeight, channels: 3 },
+          left: part.left,
+          top: 0,
+        })),
+      )
+      .webp({ quality: DAY_QUALITY, effort: 6 })
+      .toBuffer({ resolveWithObject: true }),
+  )
+}
+
+async function makeRegionRelief(heightsM: Grid, bounds: Bounds): Promise<void> {
+  const grid = cropGrid(heightsM, bounds)
+  const codes = Buffer.from(Uint8Array.from(grid.data, heightCode))
+  const encoded = await sharp(codes, {
+    raw: { width: grid.width, height: grid.height, channels: 1 },
+  })
+    .toColourspace('b-w')
+    .png({ compressionLevel: 9 })
+    .toBuffer({ resolveWithObject: true })
+  const decoded = await sharp(encoded.data).extractChannel(0).raw().toBuffer()
+  if (encoded.info.channels !== 1 || !decoded.equals(codes)) {
+    throw new Error(
+      'sf-bay-area-height.png does not round-trip as 8-bit grayscale',
+    )
+  }
+  await writeOutput('sf-bay-area-height.png', encoded)
+
+  const normals = patchNormals(grid, bounds)
+  const normalEncoded = await sharp(
+    Buffer.from(
+      Uint8Array.from(normals, (value) => Math.round((value + 1) * 127.5)),
+    ),
+    { raw: { width: grid.width, height: grid.height, channels: 3 } },
+  )
+    .webp({
+      nearLossless: true,
+      quality: NORMAL_NEAR_LOSSLESS_QUALITY,
+      effort: 6,
+    })
+    .toBuffer({ resolveWithObject: true })
+  const decodedNormal = await sharp(normalEncoded.data)
+    .removeAlpha()
+    .raw()
+    .toBuffer()
+  let inward = 0
+  for (let texel = 0; texel < grid.width * grid.height; texel += 1) {
+    const z = (decodedNormal[texel * 3 + 2] ?? 0) / 127.5 - 1
+    if (z <= 0) {
+      inward += 1
+    }
+  }
+  if (inward > 0) {
+    throw new Error(
+      `sf-bay-area-normal.webp has ${String(inward)} inward-pointing texels`,
+    )
+  }
+  await writeOutput('sf-bay-area-normal.webp', normalEncoded)
+}
+
+function unzip(data: Buffer): Map<string, Buffer> {
+  const marker = Buffer.from([0x50, 0x4b, 0x05, 0x06])
+  const eocd = data.lastIndexOf(marker)
+  if (eocd < 0) {
+    throw new Error('census boundary zip has no central directory')
+  }
+  const count = data.readUInt16LE(eocd + 10)
+  let offset = data.readUInt32LE(eocd + 16)
+  const files = new Map<string, Buffer>()
+  for (let index = 0; index < count; index += 1) {
+    if (data.readUInt32LE(offset) !== 0x02014b50) {
+      throw new Error('census boundary zip central directory is truncated')
+    }
+    const method = data.readUInt16LE(offset + 10)
+    const compressedSize = data.readUInt32LE(offset + 20)
+    const nameLength = data.readUInt16LE(offset + 28)
+    const extraLength = data.readUInt16LE(offset + 30)
+    const commentLength = data.readUInt16LE(offset + 32)
+    const localOffset = data.readUInt32LE(offset + 42)
+    const name = data
+      .subarray(offset + 46, offset + 46 + nameLength)
+      .toString('utf8')
+    const localNameLength = data.readUInt16LE(localOffset + 26)
+    const localExtraLength = data.readUInt16LE(localOffset + 28)
+    const start = localOffset + 30 + localNameLength + localExtraLength
+    const compressed = data.subarray(start, start + compressedSize)
+    let content: Buffer
+    if (method === 0) {
+      content = Buffer.from(compressed)
+    } else if (method === 8) {
+      content = inflateRawSync(compressed)
+    } else {
+      throw new Error(`${name} is zip method ${String(method)}`)
+    }
+    files.set(name, content)
+    offset += 46 + nameLength + extraLength + commentLength
+  }
+  return files
+}
+
+function zipEntry(files: Map<string, Buffer>, extension: string): Buffer {
+  for (const [name, data] of files) {
+    if (name.endsWith(extension)) {
+      return data
+    }
+  }
+  throw new Error(`census boundary zip has no ${extension} entry`)
+}
+
+interface DbfField {
+  name: string
+  length: number
+}
+
+function readCountyGeoids(dbf: Buffer): string[] {
+  const records = dbf.readUInt32LE(4)
+  const headerBytes = dbf.readUInt16LE(8)
+  const recordBytes = dbf.readUInt16LE(10)
+  const fields: DbfField[] = []
+  let cursor = 32
+  while (cursor < headerBytes - 1) {
+    if (dbf[cursor] === 0x0d) {
+      break
+    }
+    const name = dbf
+      .subarray(cursor, cursor + 11)
+      .toString('latin1')
+      .replaceAll('\0', '')
+    const length = dbf[cursor + 16] ?? 0
+    fields.push({ name, length })
+    cursor += 32
+  }
+  const geoids: string[] = []
+  for (let index = 0; index < records; index += 1) {
+    let fieldOffset = headerBytes + index * recordBytes + 1
+    let state = ''
+    let county = ''
+    let geoid = ''
+    for (const field of fields) {
+      const text = dbf
+        .subarray(fieldOffset, fieldOffset + field.length)
+        .toString('latin1')
+        .trim()
+      if (field.name === 'GEOID') {
+        geoid = text
+      } else if (field.name === 'STATEFP') {
+        state = text
+      } else if (field.name === 'COUNTYFP') {
+        county = text
+      }
+      fieldOffset += field.length
+    }
+    geoids.push(geoid.length > 0 ? geoid : `${state}${county}`)
+  }
+  return geoids
+}
+
+function readPolygons(shp: Buffer): LngLat[][][] {
+  const polygons: LngLat[][][] = []
+  let offset = 100
+  while (offset + 8 <= shp.length) {
+    const contentBytes = shp.readInt32BE(offset + 4) * 2
+    const type = shp.readInt32LE(offset + 8)
+    if (type === 0) {
+      polygons.push([])
+    } else if (type === 5) {
+      let cursor = offset + 12 + 32
+      const numParts = shp.readInt32LE(cursor)
+      const numPoints = shp.readInt32LE(cursor + 4)
+      cursor += 8
+      const parts: number[] = []
+      for (let index = 0; index < numParts; index += 1) {
+        parts.push(shp.readInt32LE(cursor))
+        cursor += 4
+      }
+      const points: LngLat[] = []
+      for (let index = 0; index < numPoints; index += 1) {
+        points.push({
+          lng: shp.readDoubleLE(cursor),
+          lat: shp.readDoubleLE(cursor + 8),
+        })
+        cursor += 16
+      }
+      polygons.push(
+        parts.map((start, index) => {
+          const end = parts[index + 1] ?? numPoints
+          return points.slice(start, end)
+        }),
+      )
+    } else {
+      throw new Error(`census shapefile type ${String(type)} is not a polygon`)
+    }
+    offset += 8 + contentBytes
+  }
+  return polygons
+}
+
+function pointKey(point: LngLat): string {
+  return `${point.lng.toFixed(7)},${point.lat.toFixed(7)}`
+}
+
+function mergeOutlines(rings: readonly (readonly LngLat[])[]): LngLat[][] {
+  const points = new Map<string, LngLat>()
+  const undirected = new Map<string, { from: string; to: string }[]>()
+  for (const ring of rings) {
+    if (ring.length < 2) {
+      continue
+    }
+    const closing = ring[ring.length - 1]
+    const opens =
+      closing !== undefined &&
+      pointKey(closing) === pointKey(ring[0] ?? closing)
+    const limit = opens ? ring.length - 1 : ring.length
+    for (let index = 0; index < limit; index += 1) {
+      const from = ring[index]
+      const to = ring[(index + 1) % ring.length]
+      if (from === undefined || to === undefined) {
+        continue
+      }
+      const fromKey = pointKey(from)
+      const toKey = pointKey(to)
+      if (fromKey === toKey) {
+        continue
+      }
+      points.set(fromKey, from)
+      points.set(toKey, to)
+      const id = fromKey < toKey ? `${fromKey}|${toKey}` : `${toKey}|${fromKey}`
+      const list = undirected.get(id) ?? []
+      list.push({ from: fromKey, to: toKey })
+      undirected.set(id, list)
+    }
+  }
+  const outgoing = new Map<string, string[]>()
+  for (const list of undirected.values()) {
+    if (list.length !== 1) {
+      continue
+    }
+    const edge = list[0]
+    if (edge === undefined) {
+      continue
+    }
+    const next = outgoing.get(edge.from) ?? []
+    next.push(edge.to)
+    outgoing.set(edge.from, next)
+  }
+  const used = new Set<string>()
+  const outlines: LngLat[][] = []
+  for (const start of outgoing.keys()) {
+    if (
+      outgoing
+        .get(start)
+        ?.some((candidate) => !used.has(`${start}>${candidate}`)) !== true
+    ) {
+      continue
+    }
+    const ring: LngLat[] = []
+    let current = start
+    for (let step = 0; step <= outgoing.size; step += 1) {
+      const point = points.get(current)
+      const next = outgoing
+        .get(current)
+        ?.find((candidate) => !used.has(`${current}>${candidate}`))
+      if (point === undefined || next === undefined) {
+        break
+      }
+      ring.push(point)
+      used.add(`${current}>${next}`)
+      if (next === start) {
+        const startPoint = points.get(start)
+        if (startPoint !== undefined) {
+          ring.push(startPoint)
+        }
+        break
+      }
+      current = next
+    }
+    if (ring.length >= 4) {
+      outlines.push(ring)
+    }
+  }
+  return outlines
+}
+
+function segmentDistance(point: LngLat, start: LngLat, end: LngLat): number {
+  const dx = end.lng - start.lng
+  const dy = end.lat - start.lat
+  const length = Math.hypot(dx, dy)
+  if (length === 0) {
+    return Math.hypot(point.lng - start.lng, point.lat - start.lat)
+  }
+  return (
+    Math.abs(
+      dy * point.lng -
+        dx * point.lat +
+        end.lng * start.lat -
+        end.lat * start.lng,
+    ) / length
+  )
+}
+
+function simplifyRing(points: readonly LngLat[], tolerance: number): LngLat[] {
+  const open = points.slice(0, -1)
+  if (open.length < 3) {
+    return [...points]
+  }
+  const keep = new Uint8Array(open.length)
+  keep[0] = 1
+  keep[open.length - 1] = 1
+  const stack: [number, number][] = [[0, open.length - 1]]
+  while (stack.length > 0) {
+    const range = stack.pop()
+    if (range === undefined) {
+      break
+    }
+    const [start, end] = range
+    const from = open[start]
+    const to = open[end]
+    if (from === undefined || to === undefined) {
+      continue
+    }
+    let farthest = start
+    let distance = 0
+    for (let index = start + 1; index < end; index += 1) {
+      const point = open[index]
+      if (point === undefined) {
+        continue
+      }
+      const candidate = segmentDistance(point, from, to)
+      if (candidate > distance) {
+        distance = candidate
+        farthest = index
+      }
+    }
+    if (distance > tolerance && farthest !== start) {
+      keep[farthest] = 1
+      stack.push([start, farthest], [farthest, end])
+    }
+  }
+  const simplified = open.filter((_, index) => keep[index] === 1)
+  const first = simplified[0]
+  if (first === undefined) {
+    return []
+  }
+  return [...simplified, first]
+}
+
+async function makeBayOutline(bounds: Bounds): Promise<void> {
+  const archive = unzip(
+    await readFile(await download(CENSUS_COUNTY_URL, { requireImage: false })),
+  )
+  const geoids = readCountyGeoids(zipEntry(archive, '.dbf'))
+  const polygons = readPolygons(zipEntry(archive, '.shp'))
+  if (geoids.length !== polygons.length) {
+    throw new Error(
+      `census county table has ${String(geoids.length)} rows and ${String(polygons.length)} shapes`,
+    )
+  }
+  const rings: LngLat[][] = []
+  const found = new Set<string>()
+  for (const [index, geoid] of geoids.entries()) {
+    if (!BAY_COUNTY_GEOIDS.has(geoid)) {
+      continue
+    }
+    found.add(geoid)
+    rings.push(...(polygons[index] ?? []))
+  }
+  if (found.size !== BAY_COUNTY_GEOIDS.size) {
+    throw new Error(
+      `census boundary file is missing bay counties: ${[...BAY_COUNTY_GEOIDS].filter((geoid) => !found.has(geoid)).join(', ')}`,
+    )
+  }
+  const merged = mergeOutlines(rings).map((ring) =>
+    simplifyRing(ring, OUTLINE_TOLERANCE_DEGREES),
+  )
+  let west = 180
+  let south = 90
+  let east = -180
+  let north = -90
+  for (const ring of merged) {
+    for (const point of ring) {
+      west = Math.min(west, point.lng)
+      east = Math.max(east, point.lng)
+      south = Math.min(south, point.lat)
+      north = Math.max(north, point.lat)
+    }
+  }
+  if (
+    merged.length === 0 ||
+    south < 36 ||
+    north > 40 ||
+    west < -125 ||
+    east > -120
+  ) {
+    throw new Error(
+      `merged bay outline is empty or out of range (${String(west)},${String(south)})-(${String(east)},${String(north)})`,
+    )
+  }
+  const feature = {
+    type: 'Feature',
+    properties: {
+      id: 'sf-bay-area',
+      west: bounds.west,
+      south: bounds.south,
+      east: bounds.east,
+      north: bounds.north,
+    },
+    geometry: {
+      type: 'MultiLineString',
+      coordinates: merged.map((ring) =>
+        ring.map((point) => [
+          Number(point.lng.toFixed(5)),
+          Number(point.lat.toFixed(5)),
+        ]),
+      ),
+    },
+  }
+  const data = Buffer.from(`${JSON.stringify(feature)}\n`)
+  await mkdir(REGION_DIR, { recursive: true })
+  const path = join(REGION_DIR, 'sf-bay-area.geojson')
+  const unchanged = await hasContents(path, data)
+  if (!unchanged) {
+    const temporaryPath = join(cacheDir, 'sf-bay-area.geojson.tmp')
+    await writeFile(temporaryPath, data)
+    await rename(temporaryPath, path)
+  }
+  console.log(
+    `sf-bay-area.geojson: ${String(merged.length)} lines, ${String(data.length)} bytes, ${unchanged ? 'unchanged' : 'written'}`,
+  )
+}
+
+async function makeSfBayPack(heightsM: Grid): Promise<void> {
+  const bounds = packBounds()
+  console.log(
+    `sf-bay-area pack bounds ${bounds.west.toFixed(4)},${bounds.south.toFixed(4)} ${bounds.east.toFixed(4)},${bounds.north.toFixed(4)}`,
+  )
+  await makeRegionDay(bounds)
+  await makeRegionRelief(heightsM, bounds)
+  await makeBayOutline(bounds)
+}
+
+console.log('npm run textures')
 await mkdir(cacheDir, { recursive: true })
 await mkdir(outputDir, { recursive: true })
 await makeDayTextures()
@@ -364,3 +1072,4 @@ const heightsM = await readHeightsM()
 await makeHeightTexture(heightsM)
 await makeNormalTexture(heightsM)
 await makeCloudsTexture()
+await makeSfBayPack(heightsM)

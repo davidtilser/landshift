@@ -15,6 +15,7 @@ import {
 import type { Object3D, Texture } from 'three'
 import { createCameraController } from './camera.ts'
 import { createCompositor } from './compositor.ts'
+import { attachHeightContours } from './heightContours.ts'
 import { createCloudsLayer } from './layers/clouds.ts'
 import { createMarkerOverlay } from './layers/markers.ts'
 import { createOceanLayer } from './layers/ocean.ts'
@@ -26,6 +27,7 @@ import {
   RADII_PER_HEIGHT_CODE,
   SEA_LEVEL_CODE,
 } from './relief.ts'
+import { createRegionFocus } from './regionFocus.ts'
 import { createStarfield } from './stars.ts'
 import { openingView } from './openingView.ts'
 import type { GlobeHandle } from './types.ts'
@@ -121,6 +123,7 @@ export function createGlobe(container: HTMLElement): GlobeHandle {
     displacementScale: MAX_HEIGHT_CODE * unitsPerCode,
     displacementBias: -SEA_LEVEL_CODE * unitsPerCode,
   })
+  attachHeightContours(reliefMaterial)
   globe
     .globeMaterial(reliefMaterial)
     .backgroundColor('rgba(0,0,0,0)')
@@ -165,6 +168,14 @@ export function createGlobe(container: HTMLElement): GlobeHandle {
   let ocean: GlobeLayer | undefined
 
   const cameraController = createCameraController(globe)
+  const regionFocus = createRegionFocus({
+    scene: globe.scene(),
+    camera,
+    controls,
+    globeRadius,
+    displacementScale: reliefMaterial.displacementScale,
+    displacementBias: reliefMaterial.displacementBias,
+  })
   const markers = createMarkerOverlay({
     container,
     globe,
@@ -172,6 +183,9 @@ export function createGlobe(container: HTMLElement): GlobeHandle {
     controls,
     globeRadius,
     flyTo: (target) => cameraController.flyTo(target),
+    onClusterZoom(memberIds) {
+      if (memberIds.includes('sf-bay-area')) regionFocus.preload()
+    },
   })
 
   const reducedMotion = window.matchMedia(REDUCED_MOTION_QUERY)
@@ -262,6 +276,11 @@ export function createGlobe(container: HTMLElement): GlobeHandle {
         cameraController.setAutoRotate(enabled)
       }
     },
+    focusRegion(regionId) {
+      if (!destroyed) {
+        regionFocus.focusRegion(regionId)
+      }
+    },
     pause() {
       if (destroyed) {
         return
@@ -295,6 +314,7 @@ export function createGlobe(container: HTMLElement): GlobeHandle {
         return
       }
       destroyed = true
+      regionFocus.dispose()
       markers.destroy()
       resizeObserver.disconnect()
       reducedMotion.removeEventListener('change', applyMotionPreferences)

@@ -1,15 +1,14 @@
-const HOME_LATITUDE = 20
 const HOME_ALTITUDE = 2.5
-const AMERICAS = { west: -130, east: -40 }
-const EURASIA = { west: 0, east: 120 }
+/** Center that keeps both American continents inside the overview disc. */
+const AMERICAS = { lat: 10, lng: -90 }
+/** Korean peninsula. The arc stops here instead of crossing the Pacific. */
+const KOREA = { lat: 37, lng: 127 }
 
-function longitudeIn(band: { west: number; east: number }): number {
-  return band.west + Math.random() * (band.east - band.west)
-}
+const along = Math.random()
 
-/** One facing per page load, centered on the Americas or on Eurasia. Idle returns here. */
+/** One facing per page load, anywhere from the Americas eastward to Korea. Idle returns here. */
 export const openingView = {
-  lat: HOME_LATITUDE,
-  lng: longitudeIn(Math.random() < 0.5 ? AMERICAS : EURASIA),
+  lat: AMERICAS.lat + (KOREA.lat - AMERICAS.lat) * along,
+  lng: AMERICAS.lng + (KOREA.lng - AMERICAS.lng) * along,
   altitude: HOME_ALTITUDE,
 }

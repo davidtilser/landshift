@@ -24,6 +24,11 @@ export interface GlobeHandle {
   flyTo(target: LatLngAlt, durationMs?: number): Promise<void>
   /** The only way to re-enable auto-rotate after `flyTo`; user interaction still pauses it for 5 s after release. */
   setAutoRotate(enabled: boolean): void
+  /**
+   * `sf-bay-area` loads that terrain pack, fades it in at the focus altitude, and enables zoom.
+   * Any other id, including `null`, disposes the pack and disables zoom.
+   */
+  focusRegion(regionId: string | null): void
   /** Stops rendering and cloud drift until `resume`. */
   pause(): void
   resume(): void
@@ -35,6 +40,6 @@ export interface GlobeHandle {
   highlightMarker(id: string | null): void
   /** Fires for an enabled pill that is not a cluster. Returns a function that removes `listener`. */
   onMarkerClick(listener: (id: string) => void): () => void
-  /** `false` disables drag-rotate and pill clicks. Zoom stays disabled. */
+  /** `false` disables drag-rotate and pill clicks. Zoom is controlled by `focusRegion`. */
   setInteractive(enabled: boolean): void
 }

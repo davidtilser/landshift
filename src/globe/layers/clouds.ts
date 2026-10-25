@@ -20,6 +20,33 @@ const CLOUD_RELIEF_LOD = Math.log2(CLOUDS_TEXTURE_WIDTH / CLOUD_WIDTH_SEGMENTS)
 /** Fraction of view-facing below which clouds fade out, softening the white rim at the limb. */
 const LIMB_FADE_FACING = 0.35
 const DRIFT_RADIANS_PER_MS = (-0.36 * Math.PI) / 180 / 1000
+/** California's overview still shows clouds. The Bay fly-in is below this and does not. */
+const REGIONAL_CLOUD_ALTITUDE = 0.85
+const MUNICIPAL_CLOUD_ALTITUDE = 0.4
+
+function cloudCoverOpacity(
+  altitude: number,
+  base: number,
+  top: number,
+): number {
+  // Inside the shell the camera would see the back of the cloud surface.
+  const shell =
+    altitude <= base
+      ? 0
+      : altitude >= top
+        ? 1
+        : ((altitude - base) / (top - base)) ** 2 *
+          (3 - 2 * ((altitude - base) / (top - base)))
+  const span = REGIONAL_CLOUD_ALTITUDE - MUNICIPAL_CLOUD_ALTITUDE
+  const municipal =
+    altitude >= REGIONAL_CLOUD_ALTITUDE
+      ? 1
+      : altitude <= MUNICIPAL_CLOUD_ALTITUDE
+        ? 0
+        : (altitude - MUNICIPAL_CLOUD_ALTITUDE) / span
+  const eased = municipal * municipal * (3 - 2 * municipal)
+  return Math.min(shell, eased)
+}
 
 const cloudDisplacementVertex = /* glsl */ `
 #ifdef USE_DISPLACEMENTMAP
@@ -77,9 +104,17 @@ export function createCloudsLayer(): CloudsLayer {
       )
       clouds.renderOrder = RENDER_ORDER.clouds
       clouds.rotation.y = SHELL_ROTATION_Y
-      clouds.onBeforeRender = () => {
+      const cloudIndexCount = clouds.geometry.index?.count ?? 0
+      clouds.onBeforeRender = (_renderer, _scene, renderCamera) => {
         clouds.rotation.y =
           SHELL_ROTATION_Y + DRIFT_RADIANS_PER_MS * elapsedDriftMs()
+        const altitude = renderCamera.position.length() / globeRadius - 1
+        const base = CLOUD_RADIUS_RATIO - 1
+        const top = base + CLOUD_RELIEF_RADII
+        const cover = cloudCoverOpacity(altitude, base, top)
+        material.opacity = cover
+        // A zero draw range skips the cloud triangles once the view is municipal.
+        clouds.geometry.setDrawRange(0, cover === 0 ? 0 : cloudIndexCount)
       }
       parent.add(clouds)
       mesh = clouds

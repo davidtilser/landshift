@@ -16,6 +16,13 @@ export const credits: readonly Credit[] = [
     license: 'Public domain (NASA)',
   },
   {
+    id: 'nasa-blue-marble-500m',
+    label: 'Blue Marble Next Generation 500 m tiles (June 2004)',
+    holder: 'NASA Earth Observatory',
+    url: 'https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-topography-bathymetry/june/world.topo.bathy.200406.3x21600x21600.A1.jpg',
+    license: 'Public domain (NASA)',
+  },
+  {
     id: 'nasa-gebco-topography',
     label: 'Topography (GEBCO_08)',
     holder:
@@ -37,6 +44,13 @@ export const credits: readonly Credit[] = [
     holder: 'NASA Goddard Space Flight Center',
     url: 'https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57747/cloud_combined_8192.tif',
     license: 'Public domain (NASA)',
+  },
+  {
+    id: 'census-cartographic-counties',
+    label: 'Cartographic Boundary Files, counties, 1:500,000 (2024)',
+    holder: 'U.S. Census Bureau',
+    url: 'https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_500k.zip',
+    license: 'Public domain',
   },
   {
     id: 'globe-gl',
