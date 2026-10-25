@@ -18,6 +18,9 @@ import { setupPoloEducation } from './education-ui.ts'
 import { setupPoloProjectIntro } from './project-setup.ts'
 import { setupPoloMapShortcuts } from './map-shortcuts.ts'
 import { setupPoloLearning } from './learning-ui.ts'
+import { setupPoloVolunteer } from './volunteer-ui.ts'
+import { PoloVolunteerPoints } from './volunteer-points.ts'
+import type { PoloVolunteerAction } from './volunteer-points.ts'
 import {
   activePoloLearnings,
   activeCustomPoloLearnings,
@@ -207,6 +210,15 @@ export async function startPoloDemo(): Promise<void> {
     center: [...INITIAL_POLO_STATE.center],
   }
   let scene: PoloScene | undefined
+  const volunteerPoints = new PoloVolunteerPoints()
+  const volunteer = setupPoloVolunteer(
+    root,
+    get('.polo-topbar .top-actions', HTMLElement),
+    () => volunteerPoints,
+  )
+  function earnVolunteer(kind: PoloVolunteerAction, actionId: string): void {
+    if (volunteerPoints.award(kind, actionId).awarded) volunteer.sync()
+  }
   const learning = setupPoloLearning(
     root,
     () => state,
@@ -216,6 +228,9 @@ export async function startPoloDemo(): Promise<void> {
       scene?.skip()
     },
     () => scene?.focus('comparison'),
+    () => {
+      earnVolunteer('proposal', 'improved-plan')
+    },
   )
   const intro = setupPoloProjectIntro(
     root,
@@ -241,6 +256,9 @@ export async function startPoloDemo(): Promise<void> {
     () => state,
     (topic) => {
       scene?.setEnvironmentalLayer(topic)
+    },
+    (phase) => {
+      earnVolunteer('milestone', phase)
     },
   )
   // Keep animation controls on the map so playback never changes card height.
@@ -969,6 +987,7 @@ export async function startPoloDemo(): Promise<void> {
       intro.destroy()
       protest.destroy()
       learning.destroy()
+      volunteer.destroy()
       talkPicker.destroy()
       community?.destroy()
       scene?.destroy()
@@ -1011,6 +1030,9 @@ export async function startPoloDemo(): Promise<void> {
       reactionsChanged: (reactions) => {
         talkPicker.setReactions(reactions)
         scene?.setConversationReactions(reactions)
+      },
+      contributionCompleted: (id) => {
+        earnVolunteer('conversation', id)
       },
     })
     talkPicker.attachChatFocus()

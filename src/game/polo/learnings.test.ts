@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { INITIAL_POLO_STATE, POLO_LEARNING_IDS, POLO_PHASES } from './model.ts'
 import type { PoloSceneState, PoloLearnings } from './model.ts'
 import {
+  POLO_LEARNINGS,
   activePoloLearnings,
   activeCustomPoloLearnings,
   selectedCustomPoloLearnings,
@@ -106,7 +107,9 @@ describe('learn, redesign and compare at the same site', () => {
       expect(operating).toEqual(before)
       expect(improved.proposal).toBeNull()
       expect(activePoloLearnings(improved).map((item) => item.id)).toEqual(
-        POLO_LEARNING_IDS.filter((id) => choices[id]),
+        POLO_LEARNINGS.filter((item) => choices[item.id]).map(
+          (item) => item.id,
+        ),
       )
       expect(poloProposalActive(improved, 'heat_reuse_neighbors')).toBe(
         Boolean(choices.heat),

@@ -14,6 +14,7 @@ interface Options {
   focus: () => void
   beforeOpen: () => void
   reactionsChanged: (reactions: ConversationReactions) => void
+  contributionCompleted?: (id: CommunityId | 'public') => void
 }
 
 export class PoloCommunity {
@@ -35,6 +36,9 @@ export class PoloCommunity {
       },
       beforeOpen: options.beforeOpen,
       reactionsChanged: options.reactionsChanged,
+      ...(options.contributionCompleted
+        ? { contributionCompleted: options.contributionCompleted }
+        : {}),
     })
     this.sync()
   }

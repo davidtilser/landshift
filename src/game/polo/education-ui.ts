@@ -14,6 +14,7 @@ export function setupPoloEducation(
   root: HTMLElement,
   getState: () => PoloSceneState,
   onTopic: (topic: PoloTopic | null) => void,
+  onChapterComplete?: (phase: PoloSceneState['phase']) => void,
 ): {
   open: (topic: PoloTopic) => void
   resetToday: () => void
@@ -337,6 +338,13 @@ export function setupPoloEducation(
     readerStep = position.step
     onTopic(state.phase === 'M0' || activeTab === 'general' ? null : activeTab)
     render()
+    if (
+      direction === 1 &&
+      activeTab === 'land' &&
+      readerStep === readerLengths(state).land - 1 &&
+      root.dataset['poloProtestPending'] !== 'true'
+    )
+      onChapterComplete?.(state.phase)
     panel
       .querySelector<HTMLElement>('.polo-reader-progress')
       ?.focus({ preventScroll: true })

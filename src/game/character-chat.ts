@@ -47,6 +47,7 @@ interface ChatOptions {
   getPlan: () => PlannerState
   tryIdea: (target: DialogueTarget) => void
   beforeOpen: () => void
+  contributionCompleted?: (id: CommunityId | 'public') => void
   client: CommunityClient
   session: CommunitySession
 }
@@ -417,11 +418,15 @@ export class CharacterChat {
         pending.controller.signal,
       )
       if (!this.isCurrent(pending)) return
-      this.options.session.append(
+      const delivered = this.options.session.append(
         current,
         reply.messages.map((line) => ({ ...line, source: reply.source })),
       )
       current.topic = topic
+      if (
+        delivered.some((line) => line.speaker !== 'planner' && line.text.trim())
+      )
+        this.options.contributionCompleted?.(profile.id)
     } catch (error) {
       if (!this.isCurrent(pending)) return
       if (lineId !== undefined) this.options.session.remove(current, lineId)

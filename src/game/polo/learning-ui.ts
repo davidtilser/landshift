@@ -15,32 +15,53 @@ import type {
   PoloCustomLearning,
 } from './model.ts'
 import { appendPoloSummary } from './summary-ui.ts'
-import {
-  POLO_LEARNING_IMPACTS,
-  POLO_HEAT_IMPACT_EXAMPLE,
-} from './learning-impact.ts'
+import { appendPoloLearningChoiceContent } from './learning-choice.ts'
+import { appendPoloHeatComparison } from './heat-comparison.ts'
+import { setupPoloMapComparison } from './map-comparison-ui.ts'
 
 export function setupPoloLearning(
   root: HTMLElement,
   getState: () => PoloSceneState,
   change: (state: PoloSceneState) => void,
   focus: () => void,
+  onProposalApplied?: () => void,
 ): { openSummary(): void; dismiss(): void; sync(): void; destroy(): void } {
-  const host = root.querySelector('.polo-studio') ?? root
+  const host = root.querySelector<HTMLElement>('.polo-studio') ?? root
+  const workspace = document.createElement('div')
+  workspace.className = 'polo-learning-workspace'
+  workspace.hidden = true
+  const summaryPanel = document.createElement('aside')
+  summaryPanel.className = 'polo-learning is-summary'
+  summaryPanel.setAttribute('aria-label', 'Project summary')
   const panel = document.createElement('aside')
-  panel.className = 'polo-learning'
+  panel.className = 'polo-learning polo-learning-proposal'
   panel.hidden = true
-  panel.setAttribute('aria-label', 'Use what you learned')
-  const caption = document.createElement('div')
-  caption.className = 'polo-learning-map-label'
-  caption.hidden = true
-  caption.setAttribute('role', 'status')
-  host.append(panel, caption)
-  let mode: 'summary' | 'choose' | 'compare' = 'summary'
+  panel.setAttribute('aria-label', 'Propose changes')
+  workspace.append(summaryPanel, panel)
+  host.append(workspace)
+  let mode: 'summary' | 'choose' | 'compare' | 'map' = 'summary'
+  let active = false
+  const mapComparison = setupPoloMapComparison(
+    host,
+    getState,
+    (preview) => {
+      change({ ...getState(), preview })
+      render()
+    },
+    () => {
+      mode = 'compare'
+      change({ ...getState(), preview: false })
+      render()
+      panel
+        .querySelector<HTMLHeadingElement>('h2')
+        ?.focus({ preventScroll: true })
+    },
+  )
   let draft: PoloLearnings = {}
   let customDraft: PoloCustomLearning[] = []
   let customText = ''
   let key = ''
+  let summaryArea: number | undefined
 
   const make = (tag: string, text = '', className = ''): HTMLElement => {
     const node = document.createElement(tag)
@@ -61,7 +82,7 @@ export function setupPoloLearning(
     return node
   }
   function syncTimeline(): void {
-    const summaryOpen = !panel.hidden && mode === 'summary'
+    const summaryOpen = active
     root
       .querySelector('[data-polo-action="summary"].polo-stop')
       ?.setAttribute('aria-current', summaryOpen ? 'step' : 'false')
@@ -74,9 +95,13 @@ export function setupPoloLearning(
       )
   }
   function dismiss(): void {
-    const wasOpen = !panel.hidden
-    panel.hidden = caption.hidden = true
+    const wasOpen = active
+    active = false
+    mode = 'summary'
+    workspace.hidden = panel.hidden = true
+    mapComparison.setVisible(false)
     delete root.dataset['poloLearning']
+    if (wasOpen && getState().preview) change({ ...getState(), preview: false })
     syncTimeline()
     if (wasOpen && getState().confirmed)
       root
@@ -88,55 +113,95 @@ export function setupPoloLearning(
     else {
       mode = 'summary'
       render()
-      panel
-        .querySelector<HTMLHeadingElement>('h2')
+      summaryPanel
+        .querySelector<HTMLButtonElement>('.polo-summary-footer button')
         ?.focus({ preventScroll: true })
     }
   }
+  function renderSummary(state: PoloSceneState): void {
+    if (summaryArea === state.areaHa && summaryPanel.childElementCount) return
+    const content = summaryPanel.querySelector('.polo-summary-content')
+    const scrollTop = content?.scrollTop ?? 0
+    const detailsOpen =
+      summaryPanel.querySelector<HTMLDetailsElement>('details')?.open ?? false
+    summaryPanel.replaceChildren()
+    const closeButton = button('×', dismiss)
+    closeButton.setAttribute('aria-label', 'Close project summary and changes')
+    appendPoloSummary(
+      summaryPanel,
+      state,
+      () => {
+        if (mode === 'choose') {
+          panel
+            .querySelector<HTMLHeadingElement>('h2')
+            ?.focus({ preventScroll: true })
+          return
+        }
+        draft = { ...getState().learnings }
+        customDraft =
+          getState().customLearnings?.map((item) => ({ ...item })) ?? []
+        mode = 'choose'
+        render()
+        panel
+          .querySelector<HTMLHeadingElement>('h2')
+          ?.focus({ preventScroll: true })
+      },
+      closeButton,
+    )
+    const heading = summaryPanel.querySelector('h2')
+    if (heading) {
+      const title = make('div', '', 'polo-summary-title')
+      heading.replaceWith(title)
+      title.append(heading, make('small', 'Today → Original campus'))
+    }
+    const nextContent = summaryPanel.querySelector('.polo-summary-content')
+    if (nextContent) nextContent.scrollTop = scrollTop
+    const details = summaryPanel.querySelector<HTMLDetailsElement>('details')
+    if (details) details.open = detailsOpen
+    summaryArea = state.areaHa
+  }
   function render(): void {
     const state = getState()
+    root.dataset['poloLearning'] = mode
+    workspace.hidden = mode === 'map'
+    mapComparison.setVisible(mode === 'map')
+    syncTimeline()
+    if (mode === 'map') {
+      key = stateKey()
+      return
+    }
     const scrollTop =
       panel.dataset['mode'] === mode
         ? (panel.querySelector('.polo-learning-content')?.scrollTop ?? 0)
         : 0
+    workspace.dataset['mode'] = mode
     panel.dataset['mode'] = mode
-    root.dataset['poloLearning'] = mode
-    panel.classList.toggle('is-summary', mode === 'summary')
+    panel.hidden = mode === 'summary'
     panel.setAttribute(
       'aria-label',
-      mode === 'summary' ? 'Project summary' : 'Propose changes',
+      mode === 'compare' ? 'Proposed impact' : 'Propose changes',
     )
-    syncTimeline()
+    renderSummary(state)
+    if (mode === 'summary') {
+      key = stateKey()
+      return
+    }
     panel.replaceChildren()
     const header = make('div', '', 'polo-learning-heading')
     const closeButton = button('×', close)
     closeButton.setAttribute(
       'aria-label',
-      mode === 'summary' ? 'Close project summary' : 'Back to summary',
+      'Close changes and return to summary',
     )
-    if (mode === 'summary') {
-      caption.hidden = true
-      appendPoloSummary(
-        panel,
-        state,
-        () => {
-          draft = { ...getState().learnings }
-          customDraft =
-            getState().customLearnings?.map((item) => ({ ...item })) ?? []
-          mode = 'choose'
-          render()
-          panel
-            .querySelector<HTMLHeadingElement>('h2')
-            ?.focus({ preventScroll: true })
-        },
-        closeButton,
-      )
-      key = stateKey()
-      return
-    }
     const title = make(
       'h2',
-      mode === 'choose' ? 'What would you change?' : 'Compare your plans',
+      mode === 'choose'
+        ? 'What would you change?'
+        : selectedPoloLearnings(state).length === 1 &&
+            state.learnings?.heat &&
+            selectedCustomPoloLearnings(state).length === 0
+          ? 'Waste heat'
+          : 'Proposed impact',
     )
     title.tabIndex = -1
     header.append(title, closeButton)
@@ -144,7 +209,6 @@ export function setupPoloLearning(
     const footer = make('div', '', 'polo-learning-footer')
     panel.append(header, content, footer)
     if (mode === 'choose') {
-      caption.hidden = true
       const all =
         POLO_LEARNINGS.every((item) => draft[item.id]) &&
         customDraft.every((item) => item.selected)
@@ -174,47 +238,7 @@ export function setupPoloLearning(
         card.title = item.action
         card.dataset['learning'] = item.id
         card.setAttribute('aria-pressed', String(selected))
-        const top = make('span', '', 'polo-learning-choice-top')
-        top.append(
-          make('span', item.icon),
-          make('strong', item.title),
-          make('span', selected ? '✓' : '+', 'polo-learning-check'),
-        )
-        card.append(
-          top,
-          make('span', POLO_LEARNING_IMPACTS[item.id], 'polo-learning-impact'),
-        )
-        if (item.id === 'heat') {
-          const heat = POLO_HEAT_IMPACT_EXAMPLE
-          const benefit = make('span', '', 'polo-learning-benefit')
-          const label = make('span', '', 'polo-learning-benefit-label')
-          label.append(
-            make('span', 'of heating covered'),
-            make(
-              'span',
-              'Two-building example',
-              'polo-learning-benefit-context',
-            ),
-          )
-          benefit.append(
-            make(
-              'strong',
-              `${String(heat.coveragePercent)}%`,
-              'polo-learning-benefit-value',
-            ),
-            label,
-          )
-          const source = make(
-            'span',
-            `${heat.recipients} · ${String(heat.year)} teaching example: ${heat.usefulHeatMWhYear} MWh of useful heat per year against ${String(heat.demandMWhYear)} MWh of assumed heating demand. Recovery adds ${heat.addedElectricityMWhYear} MWh of electricity per year. Assumed connections and heat-pump performance; backup heating remains. This is separate from the map’s pool and is not a neighbourhood electricity-saving percentage.`,
-          )
-          source.id = 'polo-heat-benefit-source'
-          source.hidden = true
-          card.setAttribute('aria-describedby', source.id)
-          benefit.title = source.textContent
-          card.append(benefit, source)
-        } else
-          card.append(make('span', item.tradeoff, 'polo-learning-tradeoff'))
+        appendPoloLearningChoiceContent(card, item, selected)
         cards.append(card)
       }
       for (const item of customDraft) {
@@ -302,7 +326,7 @@ export function setupPoloLearning(
           JSON.stringify(state.customLearnings ?? [])
       const compare = button(
         count
-          ? `Compare my plans · ${String(count)} selected →`
+          ? `View impact · ${String(count)} selected →`
           : canApply
             ? 'Use original plan'
             : 'Choose at least one change',
@@ -316,9 +340,12 @@ export function setupPoloLearning(
             return
           }
           mode = 'compare'
-          change(applyPoloLearnings(getState(), draft, customDraft))
+          change({
+            ...applyPoloLearnings(getState(), draft, customDraft),
+            preview: false,
+          })
+          onProposalApplied?.()
           render()
-          focus()
           panel
             .querySelector<HTMLHeadingElement>('h2')
             ?.focus({ preventScroll: true })
@@ -329,41 +356,14 @@ export function setupPoloLearning(
       content.append(cards, customForm)
       footer.append(compare)
     } else {
-      caption.hidden = false
-      caption.textContent = state.preview
-        ? selectedPoloLearnings(state).length
-          ? 'AFTER · YOUR IMPROVED PLAN'
-          : 'AFTER · YOUR PROPOSED PLAN'
-        : 'BEFORE · ORIGINAL PLAN'
-      caption.dataset['view'] = state.preview ? 'improved' : 'original'
-      const views = make('div', '', 'polo-learning-views')
-      views.setAttribute('role', 'group')
-      views.setAttribute('aria-label', 'Compare the same campus')
-      for (const [preview, label] of [
-        [false, 'Original plan'],
-        [true, 'Improved plan'],
-      ] as const) {
-        const view = button(label, () => {
-          change({ ...getState(), preview })
-          render()
-          panel
-            .querySelector<HTMLButtonElement>(
-              `[data-view="${String(preview)}"]`,
-            )
-            ?.focus()
-        })
-        view.dataset['view'] = String(preview)
-        view.setAttribute('aria-pressed', String(state.preview === preview))
-        views.append(view)
-      }
-      content.append(views)
       const changes = make('div', '', 'polo-learning-changes')
       for (const item of selectedPoloLearnings(state)) {
+        if (item.id === 'heat') continue
         const row = make('div', '', 'polo-learning-change')
         row.title = 'Trade-off: ' + item.tradeoff
         row.append(
           make('strong', item.icon + ' ' + item.title),
-          make('span', state.preview ? item.after : item.before),
+          make('span', item.after),
         )
         changes.append(row)
       }
@@ -371,38 +371,37 @@ export function setupPoloLearning(
         const row = make('div', '', 'polo-learning-change')
         row.append(
           make('strong', '✎ ' + item.text),
-          make(
-            'span',
-            state.preview
-              ? 'Your proposal · not mapped yet'
-              : 'Not included in the original plan',
-          ),
+          make('span', 'Your proposal · not mapped yet'),
         )
         changes.append(row)
       }
-      content.append(
-        changes,
-        make('p', 'The playing field is still lost.', 'polo-learning-conflict'),
-        make(
-          'small',
-          'Design comparison · water, energy and heat savings need assessment.',
+      if (changes.childElementCount) content.append(changes)
+      appendPoloHeatComparison(content, state)
+      if (!state.learnings?.heat)
+        content.append(
+          make(
+            'p',
+            'The playing field is still lost.',
+            'polo-learning-conflict',
+          ),
+          make(
+            'small',
+            'Design comparison · water, energy and heat savings need assessment.',
+          ),
+        )
+      footer.append(
+        button(
+          'View changes on map',
+          () => {
+            mode = 'map'
+            change({ ...getState(), preview: true })
+            render()
+            focus()
+            mapComparison.focus()
+          },
+          true,
         ),
       )
-      const actions = make('div', '', 'polo-learning-actions')
-      actions.append(
-        button('Edit my choices', () => {
-          draft = { ...getState().learnings }
-          customDraft =
-            getState().customLearnings?.map((item) => ({ ...item })) ?? []
-          mode = 'choose'
-          render()
-          panel
-            .querySelector<HTMLHeadingElement>('h2')
-            ?.focus({ preventScroll: true })
-        }),
-        button('Back to summary →', close, true),
-      )
-      footer.append(actions)
     }
     content.scrollTop = scrollTop
     key = stateKey()
@@ -412,6 +411,7 @@ export function setupPoloLearning(
     return JSON.stringify([
       state.phase,
       state.preview,
+      state.recipientAvailable,
       state.learnings,
       state.customLearnings,
       state.areaHa,
@@ -423,24 +423,26 @@ export function setupPoloLearning(
     openSummary(): void {
       const state = getState()
       if (!state.confirmed || state.phase !== 'M6') return
+      active = true
       mode = 'summary'
-      panel.hidden = false
+      if (state.preview) change({ ...state, preview: false })
       render()
-      panel
+      summaryPanel
         .querySelector<HTMLHeadingElement>('h2')
         ?.focus({ preventScroll: true })
     },
     dismiss,
     sync(): void {
       const state = getState()
-      if (panel.hidden) return
+      if (!active) return
       if (!state.confirmed || state.phase !== 'M6') dismiss()
       else if (key !== stateKey()) render()
     },
     destroy(): void {
+      active = false
       delete root.dataset['poloLearning']
-      panel.remove()
-      caption.remove()
+      workspace.remove()
+      mapComparison.destroy()
     },
   }
 }

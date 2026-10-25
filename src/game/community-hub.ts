@@ -26,6 +26,7 @@ interface HubOptions {
   tryIdea: (target: DialogueTarget) => void
   beforeOpen: () => void
   reactionsChanged?: (reactions: ConversationReactions) => void
+  contributionCompleted?: (id: CommunityId | 'public') => void
 }
 interface Pending {
   controller: AbortController
@@ -523,7 +524,10 @@ export class CommunityHub {
         },
       )
       if (!complete || !this.isCurrent(pending)) return false
-      if (message) this.selectedReply = undefined
+      if (message) {
+        this.selectedReply = undefined
+        if (pending.delivered) this.options.contributionCompleted?.('public')
+      }
       return true
     } catch (error) {
       if (!this.isCurrent(pending)) return false
