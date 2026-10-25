@@ -86,6 +86,40 @@ export const scenarios: readonly Scenario[] = [
     regionIds: ['new-york-city'],
     enabled: false,
   },
+  {
+    id: 'au-sample-1',
+    label: 'Not unlocked yet',
+    summary: 'This region has not been unlocked yet.',
+    // A point in the basin, not a researched site. The region is still locked.
+    location: { lat: -34.2, lng: 145.5 },
+    regionIds: ['murray-darling-basin'],
+    enabled: false,
+  },
+  {
+    id: 'au-sample-2',
+    label: 'Not unlocked yet',
+    summary: 'This region has not been unlocked yet.',
+    location: { lat: -34.9, lng: 146.2 },
+    regionIds: ['murray-darling-basin'],
+    enabled: false,
+  },
+  {
+    id: 'jp-sample-1',
+    label: 'Not unlocked yet',
+    summary: 'This region has not been unlocked yet.',
+    // A point on the plain, not a researched site. The region is still locked.
+    location: { lat: 35.7, lng: 139.8 },
+    regionIds: ['kanto-plain'],
+    enabled: false,
+  },
+  {
+    id: 'jp-sample-2',
+    label: 'Not unlocked yet',
+    summary: 'This region has not been unlocked yet.',
+    location: { lat: 35.85, lng: 139.65 },
+    regionIds: ['kanto-plain'],
+    enabled: false,
+  },
 ]
 
 const scenariosById = new Map<string, Scenario>()
