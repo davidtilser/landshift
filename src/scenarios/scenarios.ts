@@ -4,6 +4,8 @@ import {
   leafRegions,
   type LatLng,
 } from '../regions/regions.ts'
+import { POLO_SCENARIO_ID } from '../shared/scenarios.ts'
+import type { GameLaunch } from '../shared/game-launch.ts'
 
 export interface Scenario {
   id: string
@@ -12,6 +14,7 @@ export interface Scenario {
   location: LatLng
   regionIds: readonly string[]
   enabled: boolean
+  gameScenarioId?: string
 }
 
 export const scenarios: readonly Scenario[] = [
@@ -24,6 +27,7 @@ export const scenarios: readonly Scenario[] = [
     location: { lat: 37.7687, lng: -122.4928 },
     regionIds: ['sf-bay-area'],
     enabled: true,
+    gameScenarioId: POLO_SCENARIO_ID,
   },
   {
     id: 'hillside-housing',
@@ -155,6 +159,17 @@ export function scenariosForRegion(regionId: string): readonly Scenario[] {
 
 export function isPlayableIn(scenario: Scenario, regionId: string): boolean {
   return scenario.enabled && scenario.regionIds.includes(regionId)
+}
+
+/** Onboarding cards can have a different ID from their implemented game. */
+export function gameLaunchForScenario(
+  regionId: string,
+  scenarioId: string,
+): GameLaunch | null {
+  const scenario = findScenario(scenarioId)
+  if (!scenario?.gameScenarioId || !isPlayableIn(scenario, regionId))
+    return null
+  return { scenarioId: scenario.gameScenarioId }
 }
 
 for (const region of leafRegions.filter(isSelectable)) {

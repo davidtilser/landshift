@@ -2,6 +2,8 @@ import './style.css'
 import { createLandingStore } from './app/state.ts'
 import { mountLanding } from './screens/landing/landing.ts'
 import type { LandingGlobe } from './screens/landing/landingGlobe.ts'
+import { gameLaunchForScenario } from './scenarios/scenarios.ts'
+import { createGameUrl } from './shared/game-launch.ts'
 
 const app = document.querySelector('#app')
 if (!(app instanceof HTMLDivElement)) {
@@ -52,6 +54,11 @@ unmountLanding = mountLanding(app, store, {
   globeHost,
   globe: globeReady,
   onHandoff(regionId, scenarioId) {
+    const launch = gameLaunchForScenario(regionId, scenarioId)
+    if (launch) {
+      window.location.assign(createGameUrl(launch, window.location.href).href)
+      return
+    }
     void import('./screens/game/index.ts').then(
       ({ mountGame }) => {
         landingMounted = false
