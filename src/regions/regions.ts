@@ -267,26 +267,23 @@ export const regions: readonly Region[] = [
       }),
     ],
   ),
-  area(
-    { id: 'japan', label: 'Japan', lat: 36.2, lng: 138.3, altitude: 1.2 },
-    [
-      leaf({
-        id: 'kanto-plain',
-        label: 'Kanto Plain',
-        lat: 35.7,
-        lng: 139.8,
-        altitude: 0.3,
-        extent: {
-          south: 35.25,
-          north: 36.2,
-          west: 139.2,
-          east: 140.4,
-        },
-        enabled: true,
-        summary: 'This region has not been unlocked yet.',
-      }),
-    ],
-  ),
+  area({ id: 'japan', label: 'Japan', lat: 36.2, lng: 138.3, altitude: 1.2 }, [
+    leaf({
+      id: 'kanto-plain',
+      label: 'Kanto Plain',
+      lat: 35.7,
+      lng: 139.8,
+      altitude: 0.3,
+      extent: {
+        south: 35.25,
+        north: 36.2,
+        west: 139.2,
+        east: 140.4,
+      },
+      enabled: true,
+      summary: 'This region has not been unlocked yet.',
+    }),
+  ]),
 ]
 
 const regionsById = new Map<string, Region>()
