@@ -1,0 +1,20 @@
+@font-face {
+  font-family: Fredoka;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/fredoka-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: Fredoka;
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./fonts/fredoka-600.ttf') format('truetype');
+}
+
+:root {
+  /* Menu, body, and other interface text. The page title is the wordmark. */
+  --ls-font-ui: Fredoka, system-ui, sans-serif;
+}

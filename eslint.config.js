@@ -26,5 +26,30 @@ export default defineConfig([
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
     },
   },
+  {
+    files: ['src/**/*.{ts,tsx,mts,cts}'],
+    ignores: ['src/globe/**'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            'ImportExpression[source.value=/^(three|globe\\.gl)(\\/|$)/]',
+          message: 'Only src/globe may import globe.gl or three.',
+        },
+      ],
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['globe.gl', 'three', 'three/*'],
+              message: 'Only src/globe may import globe.gl or three.',
+            },
+          ],
+        },
+      ],
+    },
+  },
   prettier,
 ])

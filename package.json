@@ -20,13 +20,14 @@
     "data:bundle": "npm run data:verify && tar -czf data/san-jose-dc04.tar.gz -C public/data san-jose-dc04",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc",
+    "typecheck": "tsc && tsc -p scripts",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "npm run lint -- --fix",
     "check": "npm run lint && npm run typecheck && npm run format:check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
+    "textures": "node scripts/make-textures.ts",
     "data:prepare:golden-gate": "node scripts/data/prepare-golden-gate.mjs && node scripts/data/prepare-cesium.mjs golden-gate-park",
     "data:verify:golden-gate": "node scripts/data/verify-san-jose.mjs golden-gate-park",
     "data:bundle:golden-gate": "npm run data:verify:golden-gate && tar -czf data/golden-gate-park.tar.gz -C public/data golden-gate-park"
@@ -36,6 +37,7 @@
     "@mapbox/vector-tile": "^3.0.0",
     "@types/geojson": "^7946.0.16",
     "@types/node": "^26.6.5",
+    "@types/three": "^0.186.0",
     "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.1.8",
     "pbf": "^5.1.2",
@@ -55,6 +57,8 @@
     "@turf/helpers": "^7.4.0",
     "cesium": "^1.146.0",
     "earcut": "^3.2.4",
+    "globe.gl": "^2.46.2",
+    "three": "^0.186.1",
     "zod": "^4.6.7"
   }
 }

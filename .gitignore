@@ -12,6 +12,7 @@ node_modules
 dist
 dist-ssr
 *.local
+.cache/
 
 # Geographic downloads and generated runtime packs
 /data/raw/

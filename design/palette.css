@@ -1,0 +1,58 @@
+/* Source colors are the measured screen and box colors.
+   Role colors are the ones used for text and controls.
+   A role meets WCAG AA against the surface named in its comment: 4.5:1. */
+
+:root {
+  --ls-source-ground: #131718;
+  --ls-source-ocean: #0000a8;
+  --ls-source-cover-ocean: #1e70af;
+  --ls-source-ocean-deep: #0b3a68;
+  --ls-source-ocean-highlight: #7ec8ee;
+  --ls-source-script-top: #2d7cb9;
+  --ls-source-script-mid: #319bd3;
+  --ls-source-script-lower: #3bbeec;
+  --ls-source-script-bottom: #45c7ef;
+  --ls-source-subtitle: #42b6e4;
+  /* Paints in the wordmark file, separate from the sampled script colors above. */
+  --ls-source-wordmark-top: #243a9e;
+  --ls-source-wordmark-mid: #3d82e6;
+  --ls-source-wordmark-bottom: #6ad4ff;
+  --ls-source-wordmark-offset: #3c3188;
+  --ls-source-wordmark-stroke: #1a2d78;
+  --ls-source-wordmark-glow: #4a74e8;
+  --ls-source-wordmark-glow-wide: #2a4db8;
+  --ls-source-titlebar: #54fcfc;
+  --ls-source-lagoon: #00a8a8;
+  --ls-source-forest: #00a800;
+  --ls-source-leaf: #54fc54;
+  --ls-source-earth: #a85400;
+  --ls-source-red: #a80000;
+  --ls-source-alert: #fc5454;
+  --ls-source-cover-red: #a6181f;
+  --ls-source-sand: #fcfc54;
+  --ls-source-chrome: #a8a8a8;
+  --ls-source-chrome-dark: #545454;
+  --ls-source-paper: #fcfcfc;
+  --ls-source-ink: #000000;
+  --ls-source-trace: #1a3d36;
+
+  --ls-bg: var(--ls-source-ground);
+  --ls-fg: var(--ls-source-paper); /* 17.59:1 on --ls-bg */
+  --ls-menu-bg: var(--ls-source-chrome);
+  --ls-menu-fg: var(--ls-source-ink); /* 8.83:1 on --ls-menu-bg */
+  --ls-title: var(--ls-source-script-bottom); /* 9.17:1 on --ls-bg */
+  --ls-link: #3b85be; /* script top lifted to 4.54:1 on --ls-bg */
+  --ls-offset: #3d9a34; /* forest, more vivid than the dull olive; 5.05:1 on --ls-bg */
+  --ls-forest: var(--ls-source-forest); /* 5.67:1 on --ls-bg */
+  --ls-forest-on-paper: #008800; /* 4.53:1 on --ls-fg */
+  --ls-leaf: var(--ls-source-leaf); /* 13.26:1 on --ls-bg */
+  --ls-leaf-on-paper: #2c852c; /* 4.55:1 on --ls-fg */
+  --ls-earth: var(--ls-source-earth); /* 5.20:1 on --ls-fg */
+  --ls-earth-on-bg: #b56f28; /* 4.53:1 on --ls-bg */
+  --ls-danger: var(--ls-source-red); /* 7.68:1 on --ls-fg */
+  --ls-danger-on-bg: #c85f5f; /* 4.52:1 on --ls-bg */
+  --ls-alert: var(--ls-source-alert); /* 5.62:1 on --ls-bg */
+  --ls-alert-on-paper: #cd4444; /* 4.54:1 on --ls-fg */
+  --ls-trace: var(--ls-source-trace);
+  --ls-focus: var(--ls-source-sand); /* 16.50:1 on --ls-bg */
+}

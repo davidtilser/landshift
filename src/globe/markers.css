@@ -1,0 +1,89 @@
+.marker-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.marker-lines {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.marker-dot {
+  position: absolute;
+  z-index: 1;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.marker-pin-hover {
+  z-index: 3;
+  width: 10px;
+  height: 10px;
+  background: var(--ls-leaf);
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--ls-bg) 85%, transparent),
+    0 0 10px color-mix(in srgb, var(--ls-leaf) 90%, transparent);
+}
+
+.marker-pill {
+  position: absolute;
+  z-index: 2;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font:
+    600 12px/1.5 var(--ls-font-ui),
+    system-ui,
+    sans-serif;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  user-select: none;
+}
+
+.marker-pill-enabled {
+  border: 1px solid var(--ls-source-wordmark-bottom);
+  color: var(--ls-bg);
+  background: var(--ls-source-wordmark-bottom);
+  cursor: pointer;
+}
+
+.marker-pill-enabled:hover {
+  box-shadow: 0 0 14px
+    color-mix(in srgb, var(--ls-source-wordmark-glow) 45%, transparent);
+}
+
+.marker-pill-disabled {
+  border: 1px solid color-mix(in srgb, var(--ls-fg) 25%, transparent);
+  font-weight: 400;
+  color: color-mix(in srgb, var(--ls-fg) 60%, transparent);
+  background: color-mix(in srgb, var(--ls-bg) 60%, transparent);
+  cursor: default;
+}
+
+.marker-pill[data-highlighted] {
+  outline: 2px solid var(--ls-focus);
+  outline-offset: 2px;
+}
+
+.marker-line {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+/* Same metrics as a pill, kept out of view while measuring label width. */
+.marker-measure {
+  visibility: hidden;
+  pointer-events: none;
+}

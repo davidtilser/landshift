@@ -1,70 +1,68 @@
 import './style.css'
-import heroImg from './assets/hero.png'
-import typescriptLogo from './assets/typescript.svg'
-import viteLogo from './assets/vite.svg'
-import { setupCounter } from './counter.ts'
+import { createLandingStore } from './app/state.ts'
+import { mountLanding } from './screens/landing/landing.ts'
+import type { LandingGlobe } from './screens/landing/landingGlobe.ts'
 
 const app = document.querySelector('#app')
 if (!(app instanceof HTMLDivElement)) {
   throw new Error('Missing #app container')
 }
 
-app.innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${typescriptLogo}" class="framework" alt="TypeScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.ts</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+const store = createLandingStore({ screen: 'idle' })
+const globeHost = document.createElement('div')
+globeHost.className = 'globe'
 
-<div class="ticks"></div>
-
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://www.typescriptlang.org" target="_blank">
-          <img class="button-icon" src="${typescriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
-
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
-
-const counter = document.querySelector('#counter')
-if (!(counter instanceof HTMLButtonElement)) {
-  throw new Error('Missing #counter button')
+interface LiveGlobe extends LandingGlobe {
+  destroy(): void
 }
 
-setupCounter(counter)
+let unmountLanding = (): void => {}
+let globe: LiveGlobe | undefined
+let landingMounted = true
+
+const globeReady = new Promise<LiveGlobe>((resolve, reject) => {
+  // A later task lets the headline and Explore paint before the globe bundle parses.
+  window.setTimeout(() => {
+    void import('./globe/index.ts').then(
+      ({ createGlobe }) => {
+        try {
+          const created = createGlobe(globeHost)
+          if (!landingMounted) {
+            created.destroy()
+            return
+          }
+          globe = created
+          resolve(created)
+        } catch (error: unknown) {
+          reject(
+            error instanceof Error ? error : new Error('Globe failed to load'),
+          )
+        }
+      },
+      (error: unknown) => {
+        reject(
+          error instanceof Error ? error : new Error('Globe failed to load'),
+        )
+      },
+    )
+  }, 0)
+})
+
+unmountLanding = mountLanding(app, store, {
+  globeHost,
+  globe: globeReady,
+  onHandoff(regionId, scenarioId) {
+    void import('./screens/game/index.ts').then(
+      ({ mountGame }) => {
+        landingMounted = false
+        unmountLanding()
+        globe?.destroy()
+        mountGame(app, regionId, scenarioId)
+      },
+      (error: unknown) => {
+        console.error('Could not load the game', error)
+        store.dispatch({ type: 'handoffFailed' })
+      },
+    )
+  },
+})

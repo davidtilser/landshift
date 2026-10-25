@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="900" viewBox="0 0 1200 900">
+  <title>LandShift comparison</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <path d="M0 40 L1200 40" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 88 L1200 88" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 136 L1200 136" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 184 L1200 184" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 232 L1200 232" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 280 L1200 280" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 328 L1200 328" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 376 L1200 376" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 424 L1200 424" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 472 L1200 472" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 520 L1200 520" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 568 L1200 568" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 616 L1200 616" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 664 L1200 664" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 712 L1200 712" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 760 L1200 760" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 808 L1200 808" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M0 856 L1200 856" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M36 0 L36 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M92 0 L92 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M148 0 L148 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M204 0 L204 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M260 0 L260 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M316 0 L316 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M372 0 L372 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M428 0 L428 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M484 0 L484 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M540 0 L540 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M596 0 L596 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M652 0 L652 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M708 0 L708 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M764 0 L764 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M820 0 L820 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M876 0 L876 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M932 0 L932 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M988 0 L988 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M1044 0 L1044 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M1100 0 L1100 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+    <path d="M1156 0 L1156 900" fill="none" stroke="#1a3d36" stroke-miterlimit="10"/>
+  </g>
+</svg>
