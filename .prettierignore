@@ -4,3 +4,11 @@ data/raw
 data/processed
 public/data/san-jose-dc04
 public/cesium
+
+# Golden Gate Park frozen source snapshots and deterministic outputs.
+docs/research/water-demo-golden-gate-polo/raw/
+docs/research/water-demo-golden-gate-polo/results.json
+docs/research/water-demo-golden-gate-polo/results.md
+docs/research/water-demo-golden-gate-polo/milestones.sk.json
+docs/research/water-demo-golden-gate-polo/walkthrough.sk.md
+docs/research/water-demo-golden-gate-polo/wider-water-story.md

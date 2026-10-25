@@ -1,0 +1,1349 @@
+{
+  "scenario_id": "sf-polo-turf-water-v1",
+  "shared": {
+    "title": "Čo sa stane s vodou, ak na časti Polo Fields vznikne dátové centrum?",
+    "scenario_label": "Alternatívny model: 4-hektárový trávnatý výrez Polo Fields, Golden Gate Park, San Francisco.",
+    "opening_disclosure": "Ide o hypotetické výučbové demo na skutočnom mieste, nie o ohlásený projekt. Plochu, pôdu, budovu a odbery sme zvolili pre scenár. Existujúce okrajové stromy a dráhy do zásahu nezahŕňame.",
+    "rain_replay_label": "86,4 mm · NOAA San Francisco Downtown · záznam 11. 12. 2014",
+    "rain_replay_explanation": "Skutočný denný úhrn zo stanice približne 5,8 km východne od ihriska. Na každom stave zopakujeme ten istý dážď a predpoklad vlhkosti. Nie je to meranie na ihrisku ani rekonštrukcia odtoku historickej búrky.",
+    "evidence_labels": {
+      "observed_station_input": "Meranie NOAA",
+      "published_method": "Publikovaná metodika",
+      "project_reference": "Odhad referenčného projektu",
+      "scenario_assumption": "Predpoklad nášho scenára",
+      "derived_result": "Výpočet pre tento scenár"
+    },
+    "units": {
+      "area": "ha",
+      "rain": "mm",
+      "event_volume": "miliónov litrov pri tomto daždi",
+      "phase_supply": "miliónov litrov za tento krok",
+      "operating_daily": "litrov za priemerný deň",
+      "operating_annual": "miliónov litrov za prvý rok prevádzky"
+    },
+    "display_rules": [
+      "Každá číselná karta uvádza časový základ a pôvod: meranie NOAA, publikovaná metodika, predpoklad alebo odvodený výpočet.",
+      "Objemy zaokrúhľovať na 0,1 milióna litrov; plochy na 0,1 ha; denné prúdy na celé tisíce litrov. Zaokrúhlenie nie je presnosť modelu.",
+      "Areál má zvolenú rozlohu 4 ha; celé miesto má v oficiálnom zozname 24,64 akra (~10 ha). Nezamieňať rozsah areálu s rozlohou celého ihriska.",
+      "Východiskom je udržiavaný prírodný trávnik. Neanimovať výrub stromov; nerozširovať zásah do okolia bez nových dát a bilancie.",
+      "Po samotnom odstránení mačiny je odtok null = Nevyčíslené, nikdy nie nula. Pri gradingu sa rovnaká plocha neodstráni druhýkrát.",
+      "Každý dážď je samostatný porovnávací replay. Objemy zo siedmich stavov sa nesčítajú ako skutočná história výstavby.",
+      "Stavebná dodávka, prevádzková dodávka, odparovanie, odluh a dažďový odtok majú odlišné časové základy a kategórie.",
+      "M6 má samostatný prevádzkový rozpočet; nulová nová stavebná voda neznamená nulový odber prevádzky.",
+      "Závlaha pôvodného ihriska je rozpočtový predpoklad. Neoznačiť ju za metered data a pokles jej objemu neoznačiť automaticky ako úsporu pitnej vody.",
+      "Zber dažďa v nádrži je objem jedného dažďa, nie ročná úspora chladenia, doplnenie podzemnej vody ani preukázaná ochrana pred povodňou.",
+      "Nezobrazovať konkrétne jazero, oceán alebo kombinovanú kanalizáciu ako overené miesto vypúšťania. Pripojenie sme nezistili.",
+      "Veľkosť a IT kapacita sú rôzne predpoklady. Polovičný prevádzkový odber oproti starému demu vyplýva z 10 namiesto 20 MW, nie z dokázanej výhody klímy."
+    ],
+    "optional_questions": [
+      {
+        "question": "Je Polo Fields menšie než náš pôvodný pozemok?",
+        "answer": "Oficiálny zoznam uvádza 24,64 akra, približne 10 hektárov za celé miesto. Pre túto alternatívu sme si zvolili 4 hektáre trávnika. Nie je to geodeticky určená stavebná parcela.",
+        "source_ids": [
+          "P02",
+          "P03"
+        ]
+      },
+      {
+        "question": "Bude trávnaté ihrisko pri výstavbe potrebovať oveľa viac vody na prach než les?",
+        "answer": "Taký násobiteľ nemáme podložený. Prašnosť závisí od vlhkosti, jemných častíc, vetra, dopravy a činností. Po odstránení krytu môže prášiť aj bývalý les. Naše dva stavebné rozpočty sa líšia plochou a programom prác, nie preukázanou výhodou lesa.",
+        "source_ids": [
+          "S10",
+          "S11"
+        ]
+      },
+      {
+        "question": "Prečo nepočítame celú pôvodnú závlahu ako úsporu pitnej vody?",
+        "answer": "Nemáme overený zdroj ani vodomer Polo Fields. Park využíva viacero vodných zdrojov a pripravuje prechod na recyklovanú vodu. Vieme porovnať modelové dodané objemy, ale z tohto porovnania nevyplýva čistá zmena odberu pitnej vody.",
+        "source_ids": [
+          "P08",
+          "P09"
+        ]
+      },
+      {
+        "question": "Môže dátové centrum automaticky chladiť recyklovanou vodou z parku?",
+        "answer": "Nie je overená jeho prípojka ani pridelená kapacita. Pri kontrole 24. 10. 2026 SFPUC stále uvádzal výstavbu recyklačného projektu s dokončením koncom roka 2026. V deme je pitná chladiaca prípojka iba predpoklad.",
+        "source_ids": [
+          "P09"
+        ]
+      },
+      {
+        "question": "Nezníži chladnejšie San Francisco spotrebu chladenia?",
+        "answer": "Môže ju ovplyvniť, ale potrebovali by sme hodinové počasie a návrh technológie. Zatiaľ držíme rovnaký predpoklad 1,25 l/kWh IT ako pri San José. Nižší celkový odber tu spôsobuje zvolených 10 namiesto 20 MW IT.",
+        "source_ids": [
+          "S08",
+          "S09"
+        ]
+      },
+      {
+        "question": "Je všetka voda, ktorá neodtečie po povrchu, doplnenou podzemnou vodou?",
+        "answer": "Nie. Model zvyšok nerozdeľuje medzi vodu na povrchu, v pôde, vegetácii a neskorší výpar. Nepočíta doplnenie podzemnej vody.",
+        "source_ids": [
+          "S07"
+        ]
+      },
+      {
+        "question": "Vyrieši nádrž ročnú potrebu chladiacej vody?",
+        "answer": "Vypočítame iba zber pri jednom daždi do nádrže, ktorá je na začiatku prázdna. Bez ročného časového modelu z odberu chladenia neodpočítavame žiadnu úsporu z dažďa.",
+        "source_ids": [
+          "S07",
+          "P10"
+        ]
+      }
+    ]
+  },
+  "metric_definitions": {
+    "areas_m2.turf": {
+      "label": "Zostávajúci pôvodný trávnik",
+      "stored_unit": "m²",
+      "display_unit": "ha",
+      "display_multiplier": 0.0001,
+      "time_basis": "stav pozemku",
+      "evidence_label": "Predpoklad scenára"
+    },
+    "areas_m2.stripped_not_graded": {
+      "label": "Odstránený trávnik pred zarovnaním",
+      "stored_unit": "m²",
+      "display_unit": "ha",
+      "display_multiplier": 0.0001,
+      "time_basis": "stav pozemku",
+      "evidence_label": "Predpoklad scenára"
+    },
+    "areas_m2.bare_graded": {
+      "label": "Pripravená holá plocha",
+      "stored_unit": "m²",
+      "display_unit": "ha",
+      "display_multiplier": 0.0001,
+      "time_basis": "stav pozemku",
+      "evidence_label": "Predpoklad scenára"
+    },
+    "areas_m2.roof": {
+      "label": "Pôdorysná plocha budov",
+      "stored_unit": "m²",
+      "display_unit": "ha",
+      "display_multiplier": 0.0001,
+      "time_basis": "stav pozemku",
+      "evidence_label": "Predpoklad scenára"
+    },
+    "rainfall_on_parcel_m3": {
+      "label": "Dážď na celom pozemku",
+      "stored_unit": "m³",
+      "display_unit": "mil. litrov",
+      "display_multiplier": 0.001,
+      "time_basis": "pri porovnávacom daždi",
+      "evidence_label": "Výpočet z merania NOAA a plochy scenára"
+    },
+    "event.generated_surface_runoff_m3": {
+      "label": "Vzniknutý povrchový odtok",
+      "stored_unit": "m³",
+      "display_unit": "mil. litrov",
+      "display_multiplier": 0.001,
+      "time_basis": "pri porovnávacom daždi",
+      "evidence_label": "Modelový výpočet"
+    },
+    "event.roof_capture_m3": {
+      "label": "Zachytené v pôvodne prázdnej strešnej nádrži",
+      "stored_unit": "m³",
+      "display_unit": "mil. litrov",
+      "display_multiplier": 0.001,
+      "time_basis": "pri porovnávacom daždi",
+      "evidence_label": "Modelový výpočet"
+    },
+    "event.water_to_managed_drainage_m3": {
+      "label": "Voda smerujúca do spravovaného odvodnenia",
+      "stored_unit": "m³",
+      "display_unit": "mil. litrov",
+      "display_multiplier": 0.001,
+      "time_basis": "pri porovnávacom daždi",
+      "evidence_label": "Modelový výpočet"
+    },
+    "step_site_supplied_m3": {
+      "label": "Voda dodaná na stavenisko",
+      "stored_unit": "m³",
+      "display_unit": "mil. litrov",
+      "display_multiplier": 0.001,
+      "time_basis": "spolu za tento krok",
+      "evidence_label": "Rozpočtový výpočet z predpokladov"
+    },
+    "step_offsite_concrete_mixing_m3": {
+      "label": "Voda na miešanie betónu mimo staveniska",
+      "stored_unit": "m³",
+      "display_unit": "mil. litrov",
+      "display_multiplier": 0.001,
+      "time_basis": "spolu za tento krok",
+      "evidence_label": "Rozpočtový výpočet z predpokladov"
+    },
+    "operation.first_year_total_supplied_m3": {
+      "label": "Celková dodaná voda",
+      "stored_unit": "m³",
+      "display_unit": "mil. litrov",
+      "display_multiplier": 0.001,
+      "time_basis": "prvý celý rok prevádzky",
+      "evidence_label": "Modelový výpočet"
+    },
+    "no_build_baseline.annual_irrigation_supplied_m3": {
+      "label": "Pôvodná modelová závlaha",
+      "stored_unit": "m³",
+      "display_unit": "mil. litrov",
+      "display_multiplier": 0.001,
+      "time_basis": "rok bez výstavby",
+      "evidence_label": "Rozpočtový predpoklad, nie meranie ihriska"
+    },
+    "operation.irrigation_supply_reduction_m3_year": {
+      "label": "Pokles dodanej vody na závlahu",
+      "stored_unit": "m³",
+      "display_unit": "mil. litrov",
+      "display_multiplier": 0.001,
+      "time_basis": "prvý celý rok oproti roku bez výstavby",
+      "evidence_label": "Výpočet zo zvolenej závlahy"
+    },
+    "operation.net_all_source_supply_increase_m3_year": {
+      "label": "Nárast dodanej vody zo všetkých zdrojov",
+      "stored_unit": "m³",
+      "display_unit": "mil. litrov",
+      "display_multiplier": 0.001,
+      "time_basis": "prvý celý rok oproti roku bez výstavby",
+      "evidence_label": "Výpočet zo zvolenej závlahy a prevádzky"
+    },
+    "operation.daily_average_cooling_supply_m3": {
+      "label": "Dodaná chladiaca voda",
+      "stored_unit": "m³/day",
+      "display_unit": "litrov",
+      "display_multiplier": 1000,
+      "time_basis": "za priemerný prevádzkový deň",
+      "evidence_label": "Modelový výpočet"
+    },
+    "operation.daily_average_cooling_evaporation_m3": {
+      "label": "Odparená chladiaca voda",
+      "stored_unit": "m³/day",
+      "display_unit": "litrov",
+      "display_multiplier": 1000,
+      "time_basis": "za priemerný prevádzkový deň",
+      "evidence_label": "Modelový výpočet"
+    },
+    "operation.daily_average_cooling_blowdown_m3": {
+      "label": "Chladiaci odluh do splaškovej kanalizácie",
+      "stored_unit": "m³/day",
+      "display_unit": "litrov",
+      "display_multiplier": 1000,
+      "time_basis": "za priemerný prevádzkový deň",
+      "evidence_label": "Modelový výpočet"
+    }
+  },
+  "cards": [
+    {
+      "id": "M0",
+      "title": "Začíname na zavlažovanom trávniku.",
+      "animation": "Ukáž schematický 4 ha výrez vo vnútri trávnatého ihriska. Dráhy a stromy nechaj mimo výrezu. Oddeľ dážď a dodanú závlahu.",
+      "what_changes": "Zatiaľ sa nestavia. Sledujeme rovnaké 4 ha, na ktorých budeme porovnávať ďalšie stavy.",
+      "why": "Trávnik a pôda ovplyvňujú odtok. Zavlažovanie má vlastnú vodnú potrebu aj pred stavbou.",
+      "meaning": "Pôvodný stav nemá nulový odber vody. Jeho modelovú závlahu zohľadníme pri porovnaní prvého roka prevádzky.",
+      "primary_metrics": [
+        "areas_m2.turf",
+        "rainfall_on_parcel_m3",
+        "event.generated_surface_runoff_m3",
+        "no_build_baseline.annual_irrigation_supplied_m3"
+      ],
+      "source_ids": [
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "S07"
+      ],
+      "uncertainty": "Pôdnu skupinu B a dobrý trávnatý kryt predpokladáme; nemáme pôdny test ani vodomer ihriska. Mestská stanica je klimatická referencia, nie meranie na mieste.",
+      "visible_assumptions": [
+        "Závlaha: zvolených 300 mm dodanej vody ročne na 4 ha. Tento rozpočet nie je odvodený z ročných zrážok ani z merania spotreby."
+      ],
+      "data": {
+        "areas_m2": {
+          "turf": 40000,
+          "stripped_not_graded": 0,
+          "bare_graded": 0,
+          "roof": 0,
+          "other_impervious": 0,
+          "landscape": 0
+        },
+        "rainfall_mm": 86.4,
+        "rainfall_on_parcel_m3": 3456.0,
+        "event": {
+          "generated_by_surface_m3": {
+            "turf": 537.6439241691463,
+            "bare_graded": 0.0,
+            "roofs": 0.0,
+            "other_impervious": 0.0,
+            "landscape": 0.0
+          },
+          "generated_surface_runoff_m3": 537.6439241691463,
+          "roof_capture_m3": 0,
+          "water_to_managed_drainage_m3": 537.6439241691463,
+          "rainfall_not_generated_as_surface_runoff_m3": 2918.3560758308536,
+          "tank_storage_after_event_m3": 0,
+          "basis": "one independent replay; no within-event tank release or reuse; no flow routing"
+        },
+        "step_site_supplied_m3": 0.0,
+        "step_offsite_concrete_mixing_m3": 0,
+        "cumulative_preopening_selected_supply_m3": 0.0,
+        "operation": null,
+        "no_build_baseline": {
+          "annual_irrigation_supplied_m3": 12000.0,
+          "gross_irrigation_allowance_mm_year": 300,
+          "source_type": "park_irrigation_source_unverified",
+          "kind": "derived_from_scenario_assumptions_not_metered"
+        },
+        "baseline_generated_runoff_m3": 537.6439241691463,
+        "generated_runoff_change_from_baseline_m3": 0.0,
+        "area_change_from_previous_step_m2": null
+      },
+      "wider_context": {
+        "locale": "en",
+        "id": "M0",
+        "headline": "This place already has a water story.",
+        "default_explanation": "The turf already needs modelled irrigation, while other city users rely on a wider supply system; the turf water source is unverified.",
+        "animation": "Keep the grass scene. Show the separate irrigation-context label and a small city-supply/other-users icon. No operating-campus arrow.",
+        "metrics": [],
+        "source_ids": [
+          "P12",
+          "P08",
+          "P09"
+        ]
+      }
+    },
+    {
+      "id": "M1",
+      "title": "Odstraňujeme 3,2 hektára trávnika.",
+      "animation": "Odober mačinu na 3,2 ha; 0,8 ha pôvodného trávnika zostáva. Neanimuj výrub ani hotové zarovnanie.",
+      "what_changes": "Začíname prípravu staveniska. Trávnik ustupuje na ploche budúcej stavby a obslužných priestorov.",
+      "why": "Odstránenie vegetačného krytu mení ochranu povrchu; ďalšie prejazdy môžu pôdu poškodiť.",
+      "meaning": "Samotné odstránenie mačiny pred zarovnaním nevystihuje naša kategória pripraveného staveniska. Jeho odtok nevyčísľujeme.",
+      "primary_metrics": [
+        "areas_m2.stripped_not_graded",
+        "areas_m2.turf",
+        "step_site_supplied_m3"
+      ],
+      "source_ids": [
+        "S07",
+        "S10",
+        "S11"
+      ],
+      "uncertainty": "Nevyčíslený odtok neznamená nulový dopad. Voda na kropenie je pracovný rozpočet; nejde o automatický rozdiel les verzus ihrisko.",
+      "data": {
+        "areas_m2": {
+          "turf": 8000,
+          "stripped_not_graded": 32000,
+          "bare_graded": 0,
+          "roof": 0,
+          "other_impervious": 0,
+          "landscape": 0
+        },
+        "rainfall_mm": 86.4,
+        "rainfall_on_parcel_m3": 3456.0,
+        "event": null,
+        "step_site_supplied_m3": 50.0,
+        "step_offsite_concrete_mixing_m3": 0,
+        "cumulative_preopening_selected_supply_m3": 50.0,
+        "operation": null,
+        "no_build_baseline": {
+          "annual_irrigation_supplied_m3": 12000.0,
+          "gross_irrigation_allowance_mm_year": 300,
+          "source_type": "park_irrigation_source_unverified",
+          "kind": "derived_from_scenario_assumptions_not_metered"
+        },
+        "baseline_generated_runoff_m3": 537.6439241691463,
+        "generated_runoff_change_from_baseline_m3": null,
+        "area_change_from_previous_step_m2": {
+          "turf": -32000,
+          "stripped_not_graded": 32000,
+          "bare_graded": 0,
+          "roof": 0,
+          "other_impervious": 0,
+          "landscape": 0
+        }
+      },
+      "wider_context": {
+        "locale": "en",
+        "id": "M1",
+        "headline": "Work water comes from beyond the boundary.",
+        "default_explanation": "Work adds a modelled demand to water supplied from outside the site boundary.",
+        "animation": "Highlight the dashed assumed work-water connection. Remove turf as already specified. Do not draw a quantified rainfall outflow.",
+        "metrics": [
+          {
+            "path": "step_site_supplied_m3",
+            "label": "Water supplied for this work step",
+            "display_unit": "m³",
+            "time_basis": "entire work step",
+            "display_multiplier": 1,
+            "stored_value": 50.0,
+            "display_value": 50.0,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          }
+        ],
+        "source_ids": [
+          "P12",
+          "S10",
+          "S11"
+        ]
+      }
+    },
+    {
+      "id": "M2",
+      "title": "Zarovnaná zem vytvára viac povrchového odtoku.",
+      "animation": "Zarovnaj už odkrytých 3,2 ha a zopakuj referenčný dážď. Sediment znázorni ako riziko, nie vypočítané znečistenie jazera.",
+      "what_changes": "Na 3,2 ha je holá upravená zem. Zvyšných 0,8 ha zostáva trávnatých.",
+      "why": "V zvolenom modeli má pripravený holý povrch vyšší odtokový potenciál. Voda môže odnášať uvoľnené častice.",
+      "meaning": "Zmena cesty dažďa vzniká ešte pred betonážou. Kropenie zároveň potrebuje samostatnú dodávku vody.",
+      "primary_metrics": [
+        "areas_m2.bare_graded",
+        "event.generated_surface_runoff_m3",
+        "step_site_supplied_m3"
+      ],
+      "source_ids": [
+        "S07",
+        "S10",
+        "S11",
+        "P04"
+      ],
+      "uncertainty": "Neodhadujeme množstvo sedimentu, kvalitu konkrétneho jazera ani skutočný priebeh historickej búrky.",
+      "data": {
+        "areas_m2": {
+          "turf": 8000,
+          "stripped_not_graded": 0,
+          "bare_graded": 32000,
+          "roof": 0,
+          "other_impervious": 0,
+          "landscape": 0
+        },
+        "rainfall_mm": 86.4,
+        "rainfall_on_parcel_m3": 3456.0,
+        "event": {
+          "generated_by_surface_m3": {
+            "turf": 107.52878483382928,
+            "bare_graded": 1634.919522281692,
+            "roofs": 0.0,
+            "other_impervious": 0.0,
+            "landscape": 0.0
+          },
+          "generated_surface_runoff_m3": 1742.4483071155214,
+          "roof_capture_m3": 0,
+          "water_to_managed_drainage_m3": 1742.4483071155214,
+          "rainfall_not_generated_as_surface_runoff_m3": 1713.5516928844786,
+          "tank_storage_after_event_m3": 0,
+          "basis": "one independent replay; no within-event tank release or reuse; no flow routing"
+        },
+        "step_site_supplied_m3": 1050.0,
+        "step_offsite_concrete_mixing_m3": 0,
+        "cumulative_preopening_selected_supply_m3": 1100.0,
+        "operation": null,
+        "no_build_baseline": {
+          "annual_irrigation_supplied_m3": 12000.0,
+          "gross_irrigation_allowance_mm_year": 300,
+          "source_type": "park_irrigation_source_unverified",
+          "kind": "derived_from_scenario_assumptions_not_metered"
+        },
+        "baseline_generated_runoff_m3": 537.6439241691463,
+        "generated_runoff_change_from_baseline_m3": 1204.804382946375,
+        "area_change_from_previous_step_m2": {
+          "turf": 0,
+          "stripped_not_graded": -32000,
+          "bare_graded": 32000,
+          "roof": 0,
+          "other_impervious": 0,
+          "landscape": 0
+        }
+      },
+      "wider_context": {
+        "locale": "en",
+        "id": "M2",
+        "headline": "Disturbed ground changes what drainage must manage.",
+        "default_explanation": "Preparing the ground increases modelled runoff during this rainfall, leaving more water for drainage to manage.",
+        "animation": "During optional rain, highlight the arrow to a generic managed-drainage endpoint. Add a qualitative sediment-risk cue, never a polluted lake.",
+        "metrics": [
+          {
+            "path": "event.water_to_managed_drainage_m3",
+            "label": "Water requiring managed drainage",
+            "display_unit": "m³",
+            "time_basis": "one independent rainfall replay",
+            "display_multiplier": 1,
+            "stored_value": 1742.4483071155214,
+            "display_value": 1742.4483071155214,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          }
+        ],
+        "source_ids": [
+          "P10",
+          "S07"
+        ]
+      }
+    },
+    {
+      "id": "M3",
+      "title": "Zhutnenie má vlastnú etapu prác.",
+      "animation": "Zobraz zhutňovanie na tých istých 3,2 ha; žiadne nové odstraňovanie trávnika.",
+      "what_changes": "Pripravenú pôdu zhutňujeme a počas vybraných pracovných dní zvlhčujeme.",
+      "why": "Zhutnenie môže znižovať vsakovanie. Náš hrubý model však už v M2 pracuje so spoločnou kategóriou upraveného holého povrchu.",
+      "meaning": "Samostatná animácia neznamená, že smieme pripočítať druhý vymyslený nárast odtoku. Viditeľná je ďalšia dodaná stavebná voda.",
+      "primary_metrics": [
+        "areas_m2.bare_graded",
+        "event.generated_surface_runoff_m3",
+        "step_site_supplied_m3"
+      ],
+      "source_ids": [
+        "S07",
+        "S10",
+        "S11"
+      ],
+      "uncertainty": "Rozpočtové zvlhčovanie nedokazuje dosiahnutie geotechnicky potrebnej vlhkosti.",
+      "data": {
+        "areas_m2": {
+          "turf": 8000,
+          "stripped_not_graded": 0,
+          "bare_graded": 32000,
+          "roof": 0,
+          "other_impervious": 0,
+          "landscape": 0
+        },
+        "rainfall_mm": 86.4,
+        "rainfall_on_parcel_m3": 3456.0,
+        "event": {
+          "generated_by_surface_m3": {
+            "turf": 107.52878483382928,
+            "bare_graded": 1634.919522281692,
+            "roofs": 0.0,
+            "other_impervious": 0.0,
+            "landscape": 0.0
+          },
+          "generated_surface_runoff_m3": 1742.4483071155214,
+          "roof_capture_m3": 0,
+          "water_to_managed_drainage_m3": 1742.4483071155214,
+          "rainfall_not_generated_as_surface_runoff_m3": 1713.5516928844786,
+          "tank_storage_after_event_m3": 0,
+          "basis": "one independent replay; no within-event tank release or reuse; no flow routing"
+        },
+        "step_site_supplied_m3": 525.0,
+        "step_offsite_concrete_mixing_m3": 0,
+        "cumulative_preopening_selected_supply_m3": 1625.0,
+        "operation": null,
+        "no_build_baseline": {
+          "annual_irrigation_supplied_m3": 12000.0,
+          "gross_irrigation_allowance_mm_year": 300,
+          "source_type": "park_irrigation_source_unverified",
+          "kind": "derived_from_scenario_assumptions_not_metered"
+        },
+        "baseline_generated_runoff_m3": 537.6439241691463,
+        "generated_runoff_change_from_baseline_m3": 1204.804382946375,
+        "area_change_from_previous_step_m2": {
+          "turf": 0,
+          "stripped_not_graded": 0,
+          "bare_graded": 0,
+          "roof": 0,
+          "other_impervious": 0,
+          "landscape": 0
+        }
+      },
+      "wider_context": {
+        "locale": "en",
+        "id": "M3",
+        "headline": "The same land now has another work-water step.",
+        "default_explanation": "Compaction adds another work-water requirement, while the same prepared surface still needs runoff management.",
+        "animation": "Highlight work-water supply by default. During optional rain, reuse the M2 drainage result without increasing it again.",
+        "metrics": [
+          {
+            "path": "step_site_supplied_m3",
+            "label": "Water supplied for this work step",
+            "display_unit": "m³",
+            "time_basis": "entire work step",
+            "display_multiplier": 1,
+            "stored_value": 525.0,
+            "display_value": 525.0,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          },
+          {
+            "path": "event.water_to_managed_drainage_m3",
+            "label": "Water requiring managed drainage",
+            "display_unit": "m³",
+            "time_basis": "one independent rainfall replay",
+            "display_multiplier": 1,
+            "stored_value": 1742.4483071155214,
+            "display_value": 1742.4483071155214,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          }
+        ],
+        "source_ids": [
+          "P12",
+          "P10",
+          "S07"
+        ]
+      }
+    },
+    {
+      "id": "M4",
+      "title": "Budova mení povrch aj vodný rozpočet.",
+      "animation": "Postav 1,2 ha pôdorysu budov. Dva hektáre zostávajú v tomto okamihu holé a 0,8 ha trávnatých. Strechu a základy nepočítaj ako dve dažďové plochy.",
+      "what_changes": "Pribúdajú nepriepustné budovy. Vodu dodávame na práce, ošetrovanie betónu, umývanie a potreby pracovníkov.",
+      "why": "Dážď pod novou budovou nevstupuje priamo do pôdy. Miešanie betónu navyše potrebuje vodu mimo staveniska.",
+      "meaning": "Odber na stavbe a miešanie v betonárni ukazujeme oddelene. Vymývacia voda sa zachytáva a spravuje.",
+      "primary_metrics": [
+        "areas_m2.roof",
+        "event.generated_surface_runoff_m3",
+        "step_site_supplied_m3",
+        "step_offsite_concrete_mixing_m3"
+      ],
+      "source_ids": [
+        "S07",
+        "S12",
+        "S17"
+      ],
+      "uncertainty": "Ide o vybraný stav výstavby a autorský rozpočet materiálov a vody. Nie je to výkaz reálnej stavby ani celá vodná stopa betónu.",
+      "data": {
+        "areas_m2": {
+          "turf": 8000,
+          "stripped_not_graded": 0,
+          "bare_graded": 20000,
+          "roof": 12000,
+          "other_impervious": 0,
+          "landscape": 0
+        },
+        "rainfall_mm": 86.4,
+        "rainfall_on_parcel_m3": 3456.0,
+        "event": {
+          "generated_by_surface_m3": {
+            "turf": 107.52878483382928,
+            "bare_graded": 1021.8247014260575,
+            "roofs": 965.7161903780625,
+            "other_impervious": 0.0,
+            "landscape": 0.0
+          },
+          "generated_surface_runoff_m3": 2095.069676637949,
+          "roof_capture_m3": 0,
+          "water_to_managed_drainage_m3": 2095.069676637949,
+          "rainfall_not_generated_as_surface_runoff_m3": 1360.9303233620508,
+          "tank_storage_after_event_m3": 0,
+          "basis": "one independent replay; no within-event tank release or reuse; no flow routing"
+        },
+        "step_site_supplied_m3": 1988.0,
+        "step_offsite_concrete_mixing_m3": 1080.0,
+        "cumulative_preopening_selected_supply_m3": 4693.0,
+        "operation": null,
+        "no_build_baseline": {
+          "annual_irrigation_supplied_m3": 12000.0,
+          "gross_irrigation_allowance_mm_year": 300,
+          "source_type": "park_irrigation_source_unverified",
+          "kind": "derived_from_scenario_assumptions_not_metered"
+        },
+        "baseline_generated_runoff_m3": 537.6439241691463,
+        "generated_runoff_change_from_baseline_m3": 1557.4257524688028,
+        "area_change_from_previous_step_m2": {
+          "turf": 0,
+          "stripped_not_graded": 0,
+          "bare_graded": -12000,
+          "roof": 12000,
+          "other_impervious": 0,
+          "landscape": 0
+        }
+      },
+      "wider_context": {
+        "locale": "en",
+        "id": "M4",
+        "headline": "Construction needs supply and controlled waste handling.",
+        "default_explanation": "Construction needs supplied water, contained washwater handling and water for offsite concrete mixing.",
+        "animation": "Show the work-water arrow and a small contained-washwater icon inside the site. Do not send raw washwater into the drainage arrow.",
+        "metrics": [
+          {
+            "path": "step_site_supplied_m3",
+            "label": "Water supplied for this work step",
+            "display_unit": "m³",
+            "time_basis": "entire work step",
+            "display_multiplier": 1,
+            "stored_value": 1988.0,
+            "display_value": 1988.0,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          },
+          {
+            "path": "step_offsite_concrete_mixing_m3",
+            "label": "Offsite concrete mixing water",
+            "display_unit": "m³",
+            "time_basis": "entire work step",
+            "display_multiplier": 1,
+            "stored_value": 1080.0,
+            "display_value": 1080.0,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          }
+        ],
+        "source_ids": [
+          "S12",
+          "S17",
+          "P12"
+        ]
+      }
+    },
+    {
+      "id": "M5",
+      "title": "Hotový areál musí spravovať dážď.",
+      "animation": "Dokonči 1,2 ha striech, 1,6 ha ciest a tvrdých plôch, 0,4 ha obnovenej vegetácie a 0,8 ha ponechaného trávnika. Strechy pripoj k 200 m³ nádrži.",
+      "what_changes": "Nepriepustných je 2,8 ha. Pred otvorením napĺňame systémy a robíme vybrané skúšky.",
+      "why": "Prázdna nádrž prijme časť strešného odtoku. Zvyšný objem potrebuje spravované odvodnenie.",
+      "meaning": "Zásoba v nádrži sa nerovná odparenej vode ani ročnej úspore z vodovodu. Neurčili sme existujúce odtokové napojenie ihriska.",
+      "primary_metrics": [
+        "event.generated_surface_runoff_m3",
+        "event.roof_capture_m3",
+        "event.water_to_managed_drainage_m3",
+        "step_site_supplied_m3"
+      ],
+      "source_ids": [
+        "S07",
+        "P10"
+      ],
+      "uncertainty": "Počítame objem jedného dažďa bez priebežného vyprázdňovania. Nemodelujeme špičkový prietok, kapacitu kanalizácie, povodeň ani schválený drenážny návrh. Dobré pokrytie obnovenej vegetácie je predpoklad tohto stavu.",
+      "data": {
+        "areas_m2": {
+          "turf": 8000,
+          "stripped_not_graded": 0,
+          "bare_graded": 0,
+          "roof": 12000,
+          "other_impervious": 16000,
+          "landscape": 4000
+        },
+        "rainfall_mm": 86.4,
+        "rainfall_on_parcel_m3": 3456.0,
+        "event": {
+          "generated_by_surface_m3": {
+            "turf": 107.52878483382928,
+            "bare_graded": 0.0,
+            "roofs": 965.7161903780625,
+            "other_impervious": 1287.62158717075,
+            "landscape": 53.76439241691464
+          },
+          "generated_surface_runoff_m3": 2414.6309547995565,
+          "roof_capture_m3": 200,
+          "water_to_managed_drainage_m3": 2214.6309547995565,
+          "rainfall_not_generated_as_surface_runoff_m3": 1041.3690452004435,
+          "tank_storage_after_event_m3": 200,
+          "basis": "one independent replay; no within-event tank release or reuse; no flow routing"
+        },
+        "step_site_supplied_m3": 215.0,
+        "step_offsite_concrete_mixing_m3": 0,
+        "cumulative_preopening_selected_supply_m3": 4908.0,
+        "operation": null,
+        "no_build_baseline": {
+          "annual_irrigation_supplied_m3": 12000.0,
+          "gross_irrigation_allowance_mm_year": 300,
+          "source_type": "park_irrigation_source_unverified",
+          "kind": "derived_from_scenario_assumptions_not_metered"
+        },
+        "baseline_generated_runoff_m3": 537.6439241691463,
+        "generated_runoff_change_from_baseline_m3": 1876.9870306304101,
+        "area_change_from_previous_step_m2": {
+          "turf": 0,
+          "stripped_not_graded": 0,
+          "bare_graded": -20000,
+          "roof": 0,
+          "other_impervious": 16000,
+          "landscape": 4000
+        }
+      },
+      "wider_context": {
+        "locale": "en",
+        "id": "M5",
+        "headline": "Storage helps, while onward drainage still matters.",
+        "default_explanation": "Roof storage holds part of this rainfall; the remaining volume still needs managed drainage beyond the roof system.",
+        "animation": "During optional rain, split roof inflow into the tank and generic drainage path. Show the neutral service-status note, not a new plant or a blocked-gameplay warning.",
+        "metrics": [
+          {
+            "path": "event.roof_capture_m3",
+            "label": "Roof capture",
+            "display_unit": "m³",
+            "time_basis": "one independent rainfall replay",
+            "display_multiplier": 1,
+            "stored_value": 200,
+            "display_value": 200,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          },
+          {
+            "path": "event.water_to_managed_drainage_m3",
+            "label": "Water requiring managed drainage",
+            "display_unit": "m³",
+            "time_basis": "one independent rainfall replay",
+            "display_multiplier": 1,
+            "stored_value": 2214.6309547995565,
+            "display_value": 2214.6309547995565,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          }
+        ],
+        "source_ids": [
+          "P10",
+          "P12"
+        ],
+        "capacity_status": "Campus service and spare capacity: not assessed. Household shortages and required infrastructure upgrades: not predicted."
+      }
+    },
+    {
+      "id": "M6",
+      "title": "Chladenie pridáva pravidelný odber; závlahy ubúda.",
+      "animation": "Rozlíš prívod chladiacej vody, odparovanie a odluh do predpokladaného riadeného splaškového napojenia. Vedľa ukáž závlahu pôvodných 4 ha a výsledných 1,2 ha; nevypúšťaj odluh do jazera.",
+      "what_changes": "Spúšťame modelovú 10 MW IT prevádzku. Menšia zavlažovaná plocha znižuje vybraný závlahový rozpočet o 8,4 milióna litrov ročne, ale pribúda chladenie a bežná voda budovy.",
+      "why": "Časť chladiacej vody sa odparí, časť sa odvádza ako odluh kvôli minerálom.",
+      "meaning": "Pokles závlahy odčítame pri porovnaní celkových dodaných objemov s rokom bez výstavby. Nevyplýva z toho čistá zmena odberu pitnej vody; zdroj závlahy nie je overený.",
+      "primary_metrics": [
+        "operation.daily_average_cooling_supply_m3",
+        "operation.daily_average_cooling_evaporation_m3",
+        "operation.daily_average_cooling_blowdown_m3",
+        "operation.first_year_total_supplied_m3",
+        "operation.net_all_source_supply_increase_m3_year"
+      ],
+      "source_ids": [
+        "S08",
+        "S09",
+        "P08",
+        "P09"
+      ],
+      "uncertainty": "Ide o prvý celý 365-dňový rok a denné priemery, nie letné špičky. Závlaha je predpoklad; vodná strata výparom zo závlahy ani čistá zmena spotreby všetkých zdrojov sa nepočítajú. Kapacita a prípojky sú neoverené.",
+      "visible_assumptions": [
+        "Priemerný príkon serverov: 10 MW IT — zvolená kapacita, nie údaj odvodený zo 4 ha.",
+        "Uzavretý vnútorný okruh a vonkajšie chladiče s odparovaním; predpoklad 1,25 l dodanej chladiacej vody/kWh IT prevzatý z návrhového pomeru SJ04. Nie je overený pre klímu San Francisca.",
+        "CoC = 4, zanedbané úniky a odnos kvapiek. Chladenie a bežné potreby majú predpokladanú pitnú prípojku; zdroj parkovej závlahy nepoznáme.",
+        "Rovnaký zvolený závlahový rozpočet 300 mm/rok na 4 ha pred stavbou a na 1,2 ha po stavbe: 12 oproti 3,6 milióna litrov ročne. Nie je to meranie ihriska."
+      ],
+      "data": {
+        "areas_m2": {
+          "turf": 8000,
+          "stripped_not_graded": 0,
+          "bare_graded": 0,
+          "roof": 12000,
+          "other_impervious": 16000,
+          "landscape": 4000
+        },
+        "rainfall_mm": 86.4,
+        "rainfall_on_parcel_m3": 3456.0,
+        "event": {
+          "generated_by_surface_m3": {
+            "turf": 107.52878483382928,
+            "bare_graded": 0.0,
+            "roofs": 965.7161903780625,
+            "other_impervious": 1287.62158717075,
+            "landscape": 53.76439241691464
+          },
+          "generated_surface_runoff_m3": 2414.6309547995565,
+          "roof_capture_m3": 200,
+          "water_to_managed_drainage_m3": 2214.6309547995565,
+          "rainfall_not_generated_as_surface_runoff_m3": 1041.3690452004435,
+          "tank_storage_after_event_m3": 200,
+          "basis": "one independent replay; no within-event tank release or reuse; no flow routing"
+        },
+        "step_site_supplied_m3": 0.0,
+        "step_offsite_concrete_mixing_m3": 0,
+        "cumulative_preopening_selected_supply_m3": 4908.0,
+        "operation": {
+          "assumptions": {
+            "average_it_load_mw": {
+              "value": 10,
+              "unit": "MW IT",
+              "kind": "scenario_assumption",
+              "source_ids": [],
+              "note": "Authored average IT load, chosen smaller demo capacity. Not derived from 4 ha and not equal capacity to old 20 MW scenario."
+            },
+            "cooling_technology": {
+              "value": "closed_internal_loop_with_indirect_evaporative_fluid_coolers",
+              "unit": "category",
+              "kind": "scenario_assumption",
+              "source_ids": [
+                "S08",
+                "S09"
+              ],
+              "note": "Chosen outdoor heat rejection permits evaporation; internal closed loop is not zero-water heat rejection. Annual intensity includes unspecified weather-dependent dry/wet operation, not a validated hourly cooling model."
+            },
+            "cooling_supply_l_kwh_it": {
+              "value": 1.25,
+              "unit": "L/kWh IT",
+              "kind": "scenario_assumption",
+              "source_ids": [
+                "S08"
+              ],
+              "note": "Same SJ04 design-reference intensity as old demo. Unvalidated transfer to San Francisco; no automatic marine-climate saving."
+            },
+            "cycles_of_concentration": {
+              "value": 4,
+              "unit": "ratio",
+              "kind": "scenario_assumption",
+              "source_ids": [
+                "S08",
+                "S09"
+              ],
+              "note": "Selected operating condition matching SJ04 design reference; negligible drift and leaks assumed."
+            },
+            "water_supply_type": {
+              "value": "potable_cooling_and_domestic_plus_unverified_park_irrigation",
+              "unit": "category",
+              "kind": "scenario_assumption",
+              "source_ids": [],
+              "note": "Hypothetical potable supply for construction, commissioning, cooling and domestic uses. Irrigation source unverified; total all-source water must not be called total potable supply."
+            },
+            "operation_days": {
+              "value": 365,
+              "unit": "days",
+              "kind": "scenario_assumption",
+              "source_ids": [],
+              "note": "First full non-leap operating year after opening. No ramp-up simulated."
+            },
+            "operating_domestic_m3_day": {
+              "value": 3,
+              "unit": "m³/day",
+              "kind": "scenario_assumption",
+              "source_ids": [],
+              "note": "Selected domestic supply allowance."
+            },
+            "irrigation_applications": {
+              "value": 30,
+              "unit": "applications in first operating year",
+              "kind": "scenario_assumption",
+              "source_ids": [],
+              "note": "Authored first-year schedule: 300 mm gross annual irrigation on both original and final planted area. No annual weather/ET simulation."
+            },
+            "irrigation_depth_mm_application": {
+              "value": 10,
+              "unit": "mm/application",
+              "kind": "scenario_assumption",
+              "source_ids": [],
+              "note": "Selected gross delivered irrigation per application; not a crop/ET measurement."
+            },
+            "irrigation_supply_type": {
+              "value": "park_irrigation_source_unverified",
+              "unit": "category",
+              "kind": "scenario_assumption",
+              "source_ids": [
+                "P08",
+                "P09"
+              ],
+              "note": "No Polo Fields meter/source attribution established; park programme includes groundwater and recycled transition. Do not claim current active recycled supply or potable savings."
+            }
+          },
+          "daily_average_cooling_supply_m3": 300.0,
+          "daily_average_cooling_evaporation_m3": 225.0,
+          "daily_average_cooling_blowdown_m3": 75.0,
+          "annual_supply_by_use_m3": {
+            "cooling": 109500.0,
+            "domestic": 1095,
+            "landscape_irrigation": 3600.0
+          },
+          "first_year_total_supplied_m3": 114195.0,
+          "annual_cooling_evaporation_m3": 82125.0,
+          "annual_cooling_blowdown_m3": 27375.0,
+          "annual_rainwater_supply_credit_m3": 0,
+          "supply_type": "potable_cooling_and_domestic_plus_unverified_park_irrigation",
+          "known_scenario_potable_cooling_and_domestic_m3": 110595.0,
+          "irrigation_supply_type": "park_irrigation_source_unverified",
+          "no_build_baseline_irrigation_m3_year": 12000.0,
+          "irrigation_supply_reduction_m3_year": 8400.0,
+          "net_all_source_supply_increase_m3_year": 102195.0,
+          "net_potable_supply_change_m3_year": null,
+          "baseline_note": "Same selected 300 mm annual delivered irrigation on the same 4 ha baseline versus 1.2 ha planted final surface. Not metered, not net consumptive use. Unknown irrigation-source shares prevent net-potable claim; no construction-season irrigation credit.",
+          "daily_cooling_supply_sensitivity_m3": {
+            "0.5": 120.0,
+            "1.25": 300.0,
+            "2.0": 480.0
+          },
+          "sensitivity_note": "Illustrative intensity choices, not measured range, confidence interval or same-capacity engineered alternatives."
+        },
+        "no_build_baseline": {
+          "annual_irrigation_supplied_m3": 12000.0,
+          "gross_irrigation_allowance_mm_year": 300,
+          "source_type": "park_irrigation_source_unverified",
+          "kind": "derived_from_scenario_assumptions_not_metered"
+        },
+        "baseline_generated_runoff_m3": 537.6439241691463,
+        "generated_runoff_change_from_baseline_m3": 1876.9870306304101,
+        "area_change_from_previous_step_m2": {
+          "turf": 0,
+          "stripped_not_graded": 0,
+          "bare_graded": 0,
+          "roof": 0,
+          "other_impervious": 0,
+          "landscape": 0
+        }
+      },
+      "wider_context": {
+        "locale": "en",
+        "id": "M6",
+        "headline": "Cooling connects supply, evaporation and wastewater.",
+        "default_explanation": "Cooling adds a regular demand to an assumed supply that also serves other users, with water split between evaporation and managed wastewater.",
+        "animation": "Show supply → campus, campus → sky, and campus → assumed managed wastewater. Keep the other-users icon neutral and the spare-capacity status visible. Rainfall stays a separate optional view.",
+        "metrics": [
+          {
+            "path": "operation.daily_average_cooling_supply_m3",
+            "label": "Cooling make-up supply",
+            "display_unit": "L/day",
+            "time_basis": "average operating day",
+            "display_multiplier": 1000,
+            "stored_value": 300.0,
+            "display_value": 300000.0,
+            "stored_unit": "m³/day",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          },
+          {
+            "path": "operation.daily_average_cooling_evaporation_m3",
+            "label": "Cooling evaporation",
+            "display_unit": "L/day",
+            "time_basis": "average operating day",
+            "display_multiplier": 1000,
+            "stored_value": 225.0,
+            "display_value": 225000.0,
+            "stored_unit": "m³/day",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          },
+          {
+            "path": "operation.daily_average_cooling_blowdown_m3",
+            "label": "Cooling blowdown",
+            "display_unit": "L/day",
+            "time_basis": "average operating day",
+            "display_multiplier": 1000,
+            "stored_value": 75.0,
+            "display_value": 75000.0,
+            "stored_unit": "m³/day",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          },
+          {
+            "path": "operation.net_all_source_supply_increase_m3_year",
+            "label": "Increase over assumed no-build irrigation",
+            "display_unit": "m³/year",
+            "time_basis": "first full operating year",
+            "display_multiplier": 1,
+            "stored_value": 102195.0,
+            "display_value": 102195.0,
+            "stored_unit": "m³/year",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          }
+        ],
+        "source_ids": [
+          "P12",
+          "S09",
+          "S08",
+          "P08",
+          "P09"
+        ],
+        "capacity_status": "Campus service and spare capacity: not assessed. Household shortages and required infrastructure upgrades: not predicted."
+      }
+    }
+  ],
+  "wider_water_story": {
+    "scenario_id": "sf-polo-turf-water-v1",
+    "locale": "en",
+    "status": "authored_content_and_visualization_brief_not_implemented",
+    "title": "Beyond the site: a simple San Francisco water story",
+    "core_message": "The campus changes rainfall pathways and adds demand to a wider water system. Its footprint, water supply and wastewater do not stop at the site boundary.",
+    "default_presentation": "Keep the existing 3D campus and water card. Add one short context sentence per step and a small schematic strip beside the scene. Highlight only the current pathway. Rainfall arrows appear only during the optional rainfall replay. At M6, show the three cooling flows together. Broader context is visible without opening a detail panel; it never adds a required task.",
+    "user_actions": "Continue, Back, camera movement, replay and rainfall controls remain as defined in README.md. One optional About this connection detail explains provenance and uncertainty. Use the prepared questions below; no new sliders, city-management mode, forced decision, free-form chat or extra milestone is required.",
+    "visual_rules": [
+      "The strip is schematic, not a map of buried pipes or a hydraulic service zone. Show a regional-source icon, shared city-supply icon, generic other-users/homes icon, campus, sky, and generic managed-drainage/wastewater endpoints. Reveal only the icons needed for the active step.",
+      "Use a solid connection for documented regional context and a visibly labelled dashed connection for an assumed campus connection or unknown destination. Rainfall and modelled volumes must be labelled Scenario calculation; documented city context must be labelled Regional context.",
+      "Label the homes icon Other city water users. It illustrates shared-system context, not a measured neighbourhood allocation. Do not reduce household water, animate dry taps, lower a reservoir or change river levels.",
+      "Keep rainfall drainage and operating wastewater as separate pathways. Their actual downstream connections are unverified; endpoints may later join a real system, but this demo does not establish that. Do not attach either to a named park lake, creek, ocean outfall or treatment plant.",
+      "Flow arrows explain direction, not pipe sizing, instantaneous flow, pressure or capacity. Replays do not accumulate demand or water loss. Only the roof tank receives an event-volume fill animation.",
+      "Park irrigation has an unverified source. Do not connect the baseline irrigation budget to the assumed potable cooling line or automatically call its reduction a potable-water saving.",
+      "At M0, show the existing setting without an operating data-centre flow. At M1, runoff is unquantified. At M2/M3, use the same coarse runoff result. At M6, the event and average-day operating views retain separate time labels."
+    ],
+    "paths": [
+      {
+        "id": "supply",
+        "label": "Where delivered water comes from",
+        "regional_context": "SFPUC supplies residents and businesses through regional sources, treatment, storage and city distribution. Hetch Hetchy is part of that system, alongside other sources; supply can originate well beyond the park.",
+        "site_assumption": "The fictional campus uses an assumed potable connection for construction, cooling and domestic water. Its actual service, available reserve and peak-day demand have not been established.",
+        "source_ids": [
+          "P12"
+        ]
+      },
+      {
+        "id": "rainfall",
+        "label": "Where rainfall needs to go",
+        "regional_context": "San Francisco manages stormwater through systems whose requirements depend on actual drainage connections and site conditions.",
+        "site_assumption": "Reuse the selected rainfall/runoff and roof-tank calculation. The generic endpoint means water requiring managed drainage, not a verified receiving lake or sewer.",
+        "source_ids": [
+          "P10",
+          "S07"
+        ]
+      },
+      {
+        "id": "wastewater",
+        "label": "Where cooling water goes",
+        "regional_context": "Evaporative cooling divides make-up water between evaporation and managed liquid outflow under the selected balance. Liquid outflow may require treatment and an appropriate discharge route.",
+        "site_assumption": "Use the existing CoC 4 model with negligible drift/leaks. Evaporated water does not return through the local wastewater connection. The sanitary route is assumed; the treatment plant and downstream capacity are unverified.",
+        "source_ids": [
+          "S09",
+          "S08"
+        ]
+      }
+    ],
+    "capacity_explainer": {
+      "question": "Does this mean a new water plant is needed?",
+      "answer": "Not established. First distinguish available source water, treatment throughput and delivery capacity in pipes, pumps and storage. If the relevant system cannot serve the additional demand, a response might involve lower demand, another supply or an infrastructure upgrade. A larger treatment plant alone does not create a new water source. This demo does not determine which constraint exists or which response is required.",
+      "visible_status": "Campus service and spare capacity: not assessed. Household shortages and required infrastructure upgrades: not predicted.",
+      "why_not_a_gauge": "Annual-average campus supply cannot establish a peak-day or drought deficit. Do not show an invented reserve percentage, plant overload or upgrade size.",
+      "source_ids": [
+        "P12"
+      ]
+    },
+    "local_recycled_water_context": {
+      "question": "Could recycled water change the story?",
+      "answer": "It is a local option to investigate. SFPUC describes a Westside project for park irrigation and lake fill, with completion listed for end 2026 when checked on 24 October 2026. This establishes regional context, not an active cooling connection or spare allocation for this campus. The base cooling assumption remains potable supply; irrigation source remains unverified.",
+      "source_ids": [
+        "P08",
+        "P09"
+      ]
+    },
+    "optional_questions": [
+      {
+        "question": "Will nearby homes have less water?",
+        "answer": "The campus adds a modelled demand to an assumed shared supply. We have not established the available reserve or local service conditions, so household shortages are not predicted.",
+        "source_ids": [
+          "P12"
+        ]
+      },
+      {
+        "question": "Will runoff enter the nearest park lake?",
+        "answer": "We have not verified the site drainage route. The model shows the volume requiring management; proximity alone does not establish a lake connection or pollution.",
+        "source_ids": [
+          "P10"
+        ]
+      },
+      {
+        "question": "Would an extra treatment plant solve every supply constraint?",
+        "answer": "It can address treatment capacity if enough source water and delivery capacity are available. It does not by itself establish a new water source or solve a local pipe constraint.",
+        "source_ids": [
+          "P12"
+        ]
+      }
+    ],
+    "steps": [
+      {
+        "id": "M0",
+        "headline": "This place already has a water story.",
+        "default_explanation": "The turf already needs modelled irrigation, while other city users rely on a wider supply system; the turf water source is unverified.",
+        "animation": "Keep the grass scene. Show the separate irrigation-context label and a small city-supply/other-users icon. No operating-campus arrow.",
+        "metrics": [],
+        "source_ids": [
+          "P12",
+          "P08",
+          "P09"
+        ]
+      },
+      {
+        "id": "M1",
+        "headline": "Work water comes from beyond the boundary.",
+        "default_explanation": "Work adds a modelled demand to water supplied from outside the site boundary.",
+        "animation": "Highlight the dashed assumed work-water connection. Remove turf as already specified. Do not draw a quantified rainfall outflow.",
+        "metrics": [
+          {
+            "path": "step_site_supplied_m3",
+            "label": "Water supplied for this work step",
+            "display_unit": "m³",
+            "time_basis": "entire work step",
+            "display_multiplier": 1,
+            "stored_value": 50.0,
+            "display_value": 50.0,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          }
+        ],
+        "source_ids": [
+          "P12",
+          "S10",
+          "S11"
+        ]
+      },
+      {
+        "id": "M2",
+        "headline": "Disturbed ground changes what drainage must manage.",
+        "default_explanation": "Preparing the ground increases modelled runoff during this rainfall, leaving more water for drainage to manage.",
+        "animation": "During optional rain, highlight the arrow to a generic managed-drainage endpoint. Add a qualitative sediment-risk cue, never a polluted lake.",
+        "metrics": [
+          {
+            "path": "event.water_to_managed_drainage_m3",
+            "label": "Water requiring managed drainage",
+            "display_unit": "m³",
+            "time_basis": "one independent rainfall replay",
+            "display_multiplier": 1,
+            "stored_value": 1742.4483071155214,
+            "display_value": 1742.4483071155214,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          }
+        ],
+        "source_ids": [
+          "P10",
+          "S07"
+        ]
+      },
+      {
+        "id": "M3",
+        "headline": "The same land now has another work-water step.",
+        "default_explanation": "Compaction adds another work-water requirement, while the same prepared surface still needs runoff management.",
+        "animation": "Highlight work-water supply by default. During optional rain, reuse the M2 drainage result without increasing it again.",
+        "metrics": [
+          {
+            "path": "step_site_supplied_m3",
+            "label": "Water supplied for this work step",
+            "display_unit": "m³",
+            "time_basis": "entire work step",
+            "display_multiplier": 1,
+            "stored_value": 525.0,
+            "display_value": 525.0,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          },
+          {
+            "path": "event.water_to_managed_drainage_m3",
+            "label": "Water requiring managed drainage",
+            "display_unit": "m³",
+            "time_basis": "one independent rainfall replay",
+            "display_multiplier": 1,
+            "stored_value": 1742.4483071155214,
+            "display_value": 1742.4483071155214,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          }
+        ],
+        "source_ids": [
+          "P12",
+          "P10",
+          "S07"
+        ]
+      },
+      {
+        "id": "M4",
+        "headline": "Construction needs supply and controlled waste handling.",
+        "default_explanation": "Construction needs supplied water, contained washwater handling and water for offsite concrete mixing.",
+        "animation": "Show the work-water arrow and a small contained-washwater icon inside the site. Do not send raw washwater into the drainage arrow.",
+        "metrics": [
+          {
+            "path": "step_site_supplied_m3",
+            "label": "Water supplied for this work step",
+            "display_unit": "m³",
+            "time_basis": "entire work step",
+            "display_multiplier": 1,
+            "stored_value": 1988.0,
+            "display_value": 1988.0,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          },
+          {
+            "path": "step_offsite_concrete_mixing_m3",
+            "label": "Offsite concrete mixing water",
+            "display_unit": "m³",
+            "time_basis": "entire work step",
+            "display_multiplier": 1,
+            "stored_value": 1080.0,
+            "display_value": 1080.0,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          }
+        ],
+        "source_ids": [
+          "S12",
+          "S17",
+          "P12"
+        ]
+      },
+      {
+        "id": "M5",
+        "headline": "Storage helps, while onward drainage still matters.",
+        "default_explanation": "Roof storage holds part of this rainfall; the remaining volume still needs managed drainage beyond the roof system.",
+        "animation": "During optional rain, split roof inflow into the tank and generic drainage path. Show the neutral service-status note, not a new plant or a blocked-gameplay warning.",
+        "metrics": [
+          {
+            "path": "event.roof_capture_m3",
+            "label": "Roof capture",
+            "display_unit": "m³",
+            "time_basis": "one independent rainfall replay",
+            "display_multiplier": 1,
+            "stored_value": 200,
+            "display_value": 200,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          },
+          {
+            "path": "event.water_to_managed_drainage_m3",
+            "label": "Water requiring managed drainage",
+            "display_unit": "m³",
+            "time_basis": "one independent rainfall replay",
+            "display_multiplier": 1,
+            "stored_value": 2214.6309547995565,
+            "display_value": 2214.6309547995565,
+            "stored_unit": "m³",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          }
+        ],
+        "source_ids": [
+          "P10",
+          "P12"
+        ],
+        "capacity_status": "Campus service and spare capacity: not assessed. Household shortages and required infrastructure upgrades: not predicted."
+      },
+      {
+        "id": "M6",
+        "headline": "Cooling connects supply, evaporation and wastewater.",
+        "default_explanation": "Cooling adds a regular demand to an assumed supply that also serves other users, with water split between evaporation and managed wastewater.",
+        "animation": "Show supply → campus, campus → sky, and campus → assumed managed wastewater. Keep the other-users icon neutral and the spare-capacity status visible. Rainfall stays a separate optional view.",
+        "metrics": [
+          {
+            "path": "operation.daily_average_cooling_supply_m3",
+            "label": "Cooling make-up supply",
+            "display_unit": "L/day",
+            "time_basis": "average operating day",
+            "display_multiplier": 1000,
+            "stored_value": 300.0,
+            "display_value": 300000.0,
+            "stored_unit": "m³/day",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          },
+          {
+            "path": "operation.daily_average_cooling_evaporation_m3",
+            "label": "Cooling evaporation",
+            "display_unit": "L/day",
+            "time_basis": "average operating day",
+            "display_multiplier": 1000,
+            "stored_value": 225.0,
+            "display_value": 225000.0,
+            "stored_unit": "m³/day",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          },
+          {
+            "path": "operation.daily_average_cooling_blowdown_m3",
+            "label": "Cooling blowdown",
+            "display_unit": "L/day",
+            "time_basis": "average operating day",
+            "display_multiplier": 1000,
+            "stored_value": 75.0,
+            "display_value": 75000.0,
+            "stored_unit": "m³/day",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          },
+          {
+            "path": "operation.net_all_source_supply_increase_m3_year",
+            "label": "Increase over assumed no-build irrigation",
+            "display_unit": "m³/year",
+            "time_basis": "first full operating year",
+            "display_multiplier": 1,
+            "stored_value": 102195.0,
+            "display_value": 102195.0,
+            "stored_unit": "m³/year",
+            "evidence": "Derived from the existing scenario assumptions; not measured site performance"
+          }
+        ],
+        "source_ids": [
+          "P12",
+          "S09",
+          "S08",
+          "P08",
+          "P09"
+        ],
+        "capacity_status": "Campus service and spare capacity: not assessed. Household shortages and required infrastructure upgrades: not predicted."
+      }
+    ]
+  }
+}

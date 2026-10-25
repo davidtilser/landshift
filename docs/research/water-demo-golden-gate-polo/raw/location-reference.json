@@ -1,0 +1,24 @@
+{
+  "kind": "scenario_assumption",
+  "source_ids": [
+    "P01",
+    "P02",
+    "P03"
+  ],
+  "place_point_wgs84": {
+    "latitude": 37.7682117,
+    "longitude": -122.4932246
+  },
+  "place_point_role": "Google place label only, not a surveyed parcel centroid",
+  "local_demo_rectangle_m": {
+    "width_east_west": 250,
+    "height_north_south": 160,
+    "area_m2": 40000
+  },
+  "geometry_status": "Schematic 4 ha grass subset inside the playing-field setting; no WGS84 polygon or surveyed fit is asserted. Rotate/place visually within turf using the official field map; never extend into trees/track without remodelling.",
+  "input_map_url": "https://maps.app.goo.gl/oWkaHd1QNv66b3C1A",
+  "resolved_place_url": "https://www.google.com/maps/place/Golden+Gate+Park+Polo+Field/@37.7682107,-122.4953296,17z/data=!4m6!3m5!1s0x808587a06929e577:0x19e35e0ef5c13401!8m2!3d37.7682117!4d-122.4932246!16s%2Fm%2F0t51ncp?entry=tts&g_ep=EgoyMDI2MTAyMC4wIPu8ASoASAFQAw%3D%3D&skid=1b2f98c1-7345-449b-90a3-82694eb92bb7",
+  "venue_listing_acres": 24.64,
+  "venue_listing_area_m2": 99714.54224793601,
+  "venue_area_scope": "Event-venue listing, not measured natural-grass area or buildable land."
+}

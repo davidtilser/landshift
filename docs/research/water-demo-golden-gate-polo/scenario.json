@@ -1,0 +1,437 @@
+{
+  "schema_version": 1,
+  "scenario_id": "sf-polo-turf-water-v1",
+  "status": "closed_educational_scenario_not_site_prediction",
+  "locale": "sk-SK",
+  "location": {
+    "label": "Golden Gate Park Polo Fields, San Francisco — authored grass subset",
+    "site_geometry": "Schematic 4 ha grass subset inside the playing-field setting; no WGS84 polygon or surveyed fit is asserted. Rotate/place visually within turf using the official field map; never extend into trees/track without remodelling.",
+    "geometry_file": "raw/location-reference.json",
+    "weather_station": {
+      "id": "USW00023272",
+      "name": "SAN FRANCISCO DOWNTOWN",
+      "latitude": 37.7705,
+      "longitude": -122.4269,
+      "elevation_m": 45.7,
+      "coordinates_are": "weather station only; approximately 5.8 km east of Polo Fields, not an on-field gauge"
+    },
+    "habitat_reference": "Managed natural-grass sports field, not forest or exposed agricultural field. Surrounding woodland, tracks, stands and offsite works excluded."
+  },
+  "event": {
+    "station_id": "USW00023272",
+    "observation_date": "2014-12-11",
+    "raw_file": "raw/noaa-sf-downtown-2014-12-prcp.dly",
+    "kind": "observed_station_input",
+    "source_ids": ["P04", "S03"],
+    "use": "Replay the same recorded daily depth on each surface state, holding average antecedent runoff condition fixed. Not a reconstruction of actual storm runoff; no return period assigned."
+  },
+  "cn_method": {
+    "kind": "published_method",
+    "source_ids": ["S07"],
+    "initial_abstraction_ratio": 0.2,
+    "antecedent_condition": "ARC II, average; scenario assumption, not measured 2014 moisture",
+    "curve_numbers": {
+      "A": {
+        "turf": 39,
+        "bare_graded": 77,
+        "landscape": 39,
+        "impervious": 98
+      },
+      "B": {
+        "turf": 61,
+        "bare_graded": 86,
+        "landscape": 61,
+        "impervious": 98
+      },
+      "C": {
+        "turf": 74,
+        "bare_graded": 91,
+        "landscape": 74,
+        "impervious": 98
+      },
+      "D": {
+        "turf": 80,
+        "bare_graded": 94,
+        "landscape": 80,
+        "impervious": 98
+      }
+    }
+  },
+  "inputs": {
+    "site_area_m2": {
+      "value": 40000,
+      "unit": "m²",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Authored 4 ha demo area, not the whole ~10 ha venue. Site footprint including internal infrastructure, not floor area."
+    },
+    "cleared_area_m2": {
+      "value": 32000,
+      "unit": "m²",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "3.2 ha turf removal/works; 0.8 ha retained turf; no trees counted or removed in this scenario."
+    },
+    "roof_area_m2": {
+      "value": 12000,
+      "unit": "m²",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Authored 1.2 ha building roof footprint; no inferred capacity/floor count."
+    },
+    "other_impervious_area_m2": {
+      "value": 16000,
+      "unit": "m²",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "1.6 ha internal roads, parking, utilities and water infrastructure. Existing tracks and external works excluded."
+    },
+    "landscaped_area_m2": {
+      "value": 4000,
+      "unit": "m²",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "0.4 ha rehabilitated good-cover landscape, not necessarily mature on opening day."
+    },
+    "hydrologic_soil_group": {
+      "value": "B",
+      "unit": "class",
+      "kind": "scenario_assumption",
+      "source_ids": ["P07", "S07"],
+      "note": "Selected illustrative sports-field soil group, NOT a soil survey. Sandy park history does not establish actual HSG; A/C/D sensitivity required."
+    },
+    "dust_allowance_l_m2_workday": {
+      "value": 1,
+      "unit": "L/m²/eligible workday",
+      "kind": "scenario_assumption",
+      "source_ids": ["S10", "S11"],
+      "note": "Combined dust suppression/soil-wetting allowance. Close to CEC rough heuristic; not a geotechnical compaction requirement. Eligible days are authored net watering workdays, not automatically all dry days from monthly rainfall."
+    },
+    "concrete_volume_m3": {
+      "value": 6000,
+      "unit": "m³",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Authored material allowance, not a measured structural design or generic hectares-to-concrete coefficient."
+    },
+    "concrete_mixing_water_l_m3": {
+      "value": 180,
+      "unit": "L/m³",
+      "kind": "scenario_assumption",
+      "source_ids": ["S17"],
+      "note": "Authored example recipe. Count mixing water at offsite batching separately from water delivered to site; no claim of full concrete LCA."
+    },
+    "curing_area_m2": {
+      "value": 12000,
+      "unit": "m²",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "One selected curing surface allowance, not all floors."
+    },
+    "curing_l_m2_day": {
+      "value": 2,
+      "unit": "L/m²/day",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Budget allowance, not a prescribed curing method or validated water demand."
+    },
+    "curing_days": {
+      "value": 7,
+      "unit": "days",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Budget duration; sufficient curing depends on actual design and method."
+    },
+    "equipment_wash_m3": {
+      "value": 60,
+      "unit": "m³",
+      "kind": "scenario_assumption",
+      "source_ids": ["S12"],
+      "note": "Authored aggregate contained-wash allowance."
+    },
+    "construction_workers": {
+      "value": 60,
+      "unit": "people/working day",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Average water-budget headcount; not a workforce forecast."
+    },
+    "worker_water_l_person_day": {
+      "value": 50,
+      "unit": "L/person/working day",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Authored domestic-water allowance."
+    },
+    "commissioning_workdays": {
+      "value": 10,
+      "unit": "working days",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Selected commissioning period, outside the 215 construction workdays."
+    },
+    "commissioning_workers": {
+      "value": 30,
+      "unit": "people/working day",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Selected water-budget headcount."
+    },
+    "cooling_initial_fill_m3": {
+      "value": 100,
+      "unit": "m³",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Selected one-time cooling inventory, not evaporation."
+    },
+    "fire_initial_fill_m3": {
+      "value": 50,
+      "unit": "m³",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Selected one-time stock, not annual consumption."
+    },
+    "commissioning_flush_m3": {
+      "value": 50,
+      "unit": "m³",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Selected testing/flushing allowance; managed discharge."
+    },
+    "roof_tank_capacity_m3": {
+      "value": 200,
+      "unit": "m³",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Selected roof-only storage within hardstanding footprint."
+    },
+    "roof_tank_initial_m3": {
+      "value": 0,
+      "unit": "m³",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Empty at start of each independent event replay. No annual harvesting simulation."
+    },
+    "average_it_load_mw": {
+      "value": 10,
+      "unit": "MW IT",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Authored average IT load, chosen smaller demo capacity. Not derived from 4 ha and not equal capacity to old 20 MW scenario."
+    },
+    "cooling_supply_l_kwh_it": {
+      "value": 1.25,
+      "unit": "L/kWh IT",
+      "kind": "scenario_assumption",
+      "source_ids": ["S08"],
+      "note": "Same SJ04 design-reference intensity as old demo. Unvalidated transfer to San Francisco; no automatic marine-climate saving."
+    },
+    "cycles_of_concentration": {
+      "value": 4,
+      "unit": "ratio",
+      "kind": "scenario_assumption",
+      "source_ids": ["S08", "S09"],
+      "note": "Selected operating condition matching SJ04 design reference; negligible drift and leaks assumed."
+    },
+    "operation_days": {
+      "value": 365,
+      "unit": "days",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "First full non-leap operating year after opening. No ramp-up simulated."
+    },
+    "operating_domestic_m3_day": {
+      "value": 3,
+      "unit": "m³/day",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Selected domestic supply allowance."
+    },
+    "irrigation_area_m2": {
+      "value": 12000,
+      "unit": "m²",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "0.8 ha retained turf plus 0.4 ha restored cover receive model irrigation in the first operating year."
+    },
+    "irrigation_depth_mm_application": {
+      "value": 10,
+      "unit": "mm/application",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Selected gross delivered irrigation per application; not a crop/ET measurement."
+    },
+    "irrigation_applications": {
+      "value": 30,
+      "unit": "applications in first operating year",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Authored first-year schedule: 300 mm gross annual irrigation on both original and final planted area. No annual weather/ET simulation."
+    },
+    "water_supply_type": {
+      "value": "potable_cooling_and_domestic_plus_unverified_park_irrigation",
+      "unit": "category",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Hypothetical potable supply for construction, commissioning, cooling and domestic uses. Irrigation source unverified; total all-source water must not be called total potable supply."
+    },
+    "operations_rainwater_supply_credit_m3": {
+      "value": 0,
+      "unit": "m³/year",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "No annual tank reliability or demand-offset model; do not deduct event capture from annual utility supply."
+    },
+    "cooling_technology": {
+      "value": "closed_internal_loop_with_indirect_evaporative_fluid_coolers",
+      "unit": "category",
+      "kind": "scenario_assumption",
+      "source_ids": ["S08", "S09"],
+      "note": "Chosen outdoor heat rejection permits evaporation; internal closed loop is not zero-water heat rejection. Annual intensity includes unspecified weather-dependent dry/wet operation, not a validated hourly cooling model."
+    },
+    "construction_workdays": {
+      "value": 215,
+      "unit": "working days",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Selected programme: 10 stripping + 30 grading + 15 compaction + 160 construction; then 10 commissioning."
+    },
+    "stripping_only_runoff_quantified": {
+      "value": false,
+      "unit": "boolean",
+      "kind": "scenario_assumption",
+      "source_ids": ["S07"],
+      "note": "Sod removal before grading not isolated by chosen TR-55 classes; unknown is not zero."
+    },
+    "baseline_irrigation_area_m2": {
+      "value": 40000,
+      "unit": "m²",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "The authored 4 ha grass subset only, not whole Polo Fields."
+    },
+    "irrigation_supply_type": {
+      "value": "park_irrigation_source_unverified",
+      "unit": "category",
+      "kind": "scenario_assumption",
+      "source_ids": ["P08", "P09"],
+      "note": "No Polo Fields meter/source attribution established; park programme includes groundwater and recycled transition. Do not claim current active recycled supply or potable savings."
+    }
+  },
+  "stages_kind": "scenario_assumptions",
+  "stages": [
+    {
+      "id": "M0",
+      "milestone": "Today",
+      "step": "Existing managed turf",
+      "turf_m2": 40000,
+      "stripped_not_graded_m2": 0,
+      "bare_graded_m2": 0,
+      "roof_m2": 0,
+      "other_impervious_m2": 0,
+      "landscape_m2": 0,
+      "eligible_watering_workdays": 0,
+      "average_active_watering_area_m2": 0,
+      "worker_days": 0,
+      "tank_active": false
+    },
+    {
+      "id": "M1",
+      "milestone": "Site preparation",
+      "step": "Sod stripping, before grading",
+      "turf_m2": 8000,
+      "stripped_not_graded_m2": 32000,
+      "bare_graded_m2": 0,
+      "roof_m2": 0,
+      "other_impervious_m2": 0,
+      "landscape_m2": 0,
+      "eligible_watering_workdays": 10,
+      "average_active_watering_area_m2": 2000,
+      "worker_days": 10,
+      "tank_active": false
+    },
+    {
+      "id": "M2",
+      "milestone": "Site preparation",
+      "step": "Grading",
+      "turf_m2": 8000,
+      "stripped_not_graded_m2": 0,
+      "bare_graded_m2": 32000,
+      "roof_m2": 0,
+      "other_impervious_m2": 0,
+      "landscape_m2": 0,
+      "eligible_watering_workdays": 30,
+      "average_active_watering_area_m2": 32000,
+      "worker_days": 30,
+      "tank_active": false
+    },
+    {
+      "id": "M3",
+      "milestone": "Site preparation",
+      "step": "Compaction",
+      "turf_m2": 8000,
+      "stripped_not_graded_m2": 0,
+      "bare_graded_m2": 32000,
+      "roof_m2": 0,
+      "other_impervious_m2": 0,
+      "landscape_m2": 0,
+      "eligible_watering_workdays": 15,
+      "average_active_watering_area_m2": 32000,
+      "worker_days": 15,
+      "tank_active": false
+    },
+    {
+      "id": "M4",
+      "milestone": "Construction",
+      "step": "Buildings and foundations",
+      "turf_m2": 8000,
+      "stripped_not_graded_m2": 0,
+      "bare_graded_m2": 20000,
+      "roof_m2": 12000,
+      "other_impervious_m2": 0,
+      "landscape_m2": 0,
+      "eligible_watering_workdays": 160,
+      "average_active_watering_area_m2": 8000,
+      "worker_days": 160,
+      "tank_active": false
+    },
+    {
+      "id": "M5",
+      "milestone": "Opening",
+      "step": "Completed campus and commissioning",
+      "turf_m2": 8000,
+      "stripped_not_graded_m2": 0,
+      "bare_graded_m2": 0,
+      "roof_m2": 12000,
+      "other_impervious_m2": 16000,
+      "landscape_m2": 4000,
+      "eligible_watering_workdays": 0,
+      "average_active_watering_area_m2": 0,
+      "worker_days": 0,
+      "tank_active": true
+    },
+    {
+      "id": "M6",
+      "milestone": "Operation",
+      "step": "First full operating year",
+      "turf_m2": 8000,
+      "stripped_not_graded_m2": 0,
+      "bare_graded_m2": 0,
+      "roof_m2": 12000,
+      "other_impervious_m2": 16000,
+      "landscape_m2": 4000,
+      "eligible_watering_workdays": 0,
+      "average_active_watering_area_m2": 0,
+      "worker_days": 0,
+      "tank_active": true
+    }
+  ],
+  "boundaries": {
+    "construction": "Selected onsite and separate offsite concrete mixing inventory; 215 construction working days plus 10 commissioning, not a dated programme. External access/pipe works, dewatering and demolition of unmodelled infrastructure excluded, not asserted zero in a real project.",
+    "runoff": "Generated direct surface runoff volumes; for M5/M6 subtract roof-tank storage in static event accounting. No hydraulic routing, flood depth, peak flow, aquifer recharge or annual runoff.",
+    "operation": "Direct cooling/domestic/irrigation supply, first full 365 days. Compare to an authored no-build irrigation budget for same 4 ha, same 300 mm annual allowance. Baseline is not metered; net total-supply change is not net potable withdrawal or net evaporative consumption.",
+    "quality": "Qualitative causal hazards and controls, no invented sediment masses, turbidity, downstream pH, ecological mortality or pollution occurrence.",
+    "tank": "Volume snapshot immediately after replay: no release/reuse during event; all uncaptured runoff continues to managed site drainage, treatment assigned zero volume-reduction credit. Captured water not called aquifer recharge or evaporative consumption."
+  },
+  "normals_raw_file": "raw/noaa-sf-downtown-monthly-normals.json"
+}

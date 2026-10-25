@@ -1,0 +1,189 @@
+{
+  "shared": {
+    "title": "Čo sa stane s vodou, ak na časti Polo Fields vznikne dátové centrum?",
+    "scenario_label": "Alternatívny model: 4-hektárový trávnatý výrez Polo Fields, Golden Gate Park, San Francisco.",
+    "opening_disclosure": "Ide o hypotetické výučbové demo na skutočnom mieste, nie o ohlásený projekt. Plochu, pôdu, budovu a odbery sme zvolili pre scenár. Existujúce okrajové stromy a dráhy do zásahu nezahŕňame.",
+    "rain_replay_label": "86,4 mm · NOAA San Francisco Downtown · záznam 11. 12. 2014",
+    "rain_replay_explanation": "Skutočný denný úhrn zo stanice približne 5,8 km východne od ihriska. Na každom stave zopakujeme ten istý dážď a predpoklad vlhkosti. Nie je to meranie na ihrisku ani rekonštrukcia odtoku historickej búrky.",
+    "evidence_labels": {
+      "observed_station_input": "Meranie NOAA",
+      "published_method": "Publikovaná metodika",
+      "project_reference": "Odhad referenčného projektu",
+      "scenario_assumption": "Predpoklad nášho scenára",
+      "derived_result": "Výpočet pre tento scenár"
+    },
+    "units": {
+      "area": "ha",
+      "rain": "mm",
+      "event_volume": "miliónov litrov pri tomto daždi",
+      "phase_supply": "miliónov litrov za tento krok",
+      "operating_daily": "litrov za priemerný deň",
+      "operating_annual": "miliónov litrov za prvý rok prevádzky"
+    },
+    "display_rules": [
+      "Každá číselná karta uvádza časový základ a pôvod: meranie NOAA, publikovaná metodika, predpoklad alebo odvodený výpočet.",
+      "Objemy zaokrúhľovať na 0,1 milióna litrov; plochy na 0,1 ha; denné prúdy na celé tisíce litrov. Zaokrúhlenie nie je presnosť modelu.",
+      "Areál má zvolenú rozlohu 4 ha; celé miesto má v oficiálnom zozname 24,64 akra (~10 ha). Nezamieňať rozsah areálu s rozlohou celého ihriska.",
+      "Východiskom je udržiavaný prírodný trávnik. Neanimovať výrub stromov; nerozširovať zásah do okolia bez nových dát a bilancie.",
+      "Po samotnom odstránení mačiny je odtok null = Nevyčíslené, nikdy nie nula. Pri gradingu sa rovnaká plocha neodstráni druhýkrát.",
+      "Každý dážď je samostatný porovnávací replay. Objemy zo siedmich stavov sa nesčítajú ako skutočná história výstavby.",
+      "Stavebná dodávka, prevádzková dodávka, odparovanie, odluh a dažďový odtok majú odlišné časové základy a kategórie.",
+      "M6 má samostatný prevádzkový rozpočet; nulová nová stavebná voda neznamená nulový odber prevádzky.",
+      "Závlaha pôvodného ihriska je rozpočtový predpoklad. Neoznačiť ju za metered data a pokles jej objemu neoznačiť automaticky ako úsporu pitnej vody.",
+      "Zber dažďa v nádrži je objem jedného dažďa, nie ročná úspora chladenia, doplnenie podzemnej vody ani preukázaná ochrana pred povodňou.",
+      "Nezobrazovať konkrétne jazero, oceán alebo kombinovanú kanalizáciu ako overené miesto vypúšťania. Pripojenie sme nezistili.",
+      "Veľkosť a IT kapacita sú rôzne predpoklady. Polovičný prevádzkový odber oproti starému demu vyplýva z 10 namiesto 20 MW, nie z dokázanej výhody klímy."
+    ],
+    "optional_questions": [
+      {
+        "question": "Je Polo Fields menšie než náš pôvodný pozemok?",
+        "answer": "Oficiálny zoznam uvádza 24,64 akra, približne 10 hektárov za celé miesto. Pre túto alternatívu sme si zvolili 4 hektáre trávnika. Nie je to geodeticky určená stavebná parcela.",
+        "source_ids": ["P02", "P03"]
+      },
+      {
+        "question": "Bude trávnaté ihrisko pri výstavbe potrebovať oveľa viac vody na prach než les?",
+        "answer": "Taký násobiteľ nemáme podložený. Prašnosť závisí od vlhkosti, jemných častíc, vetra, dopravy a činností. Po odstránení krytu môže prášiť aj bývalý les. Naše dva stavebné rozpočty sa líšia plochou a programom prác, nie preukázanou výhodou lesa.",
+        "source_ids": ["S10", "S11"]
+      },
+      {
+        "question": "Prečo nepočítame celú pôvodnú závlahu ako úsporu pitnej vody?",
+        "answer": "Nemáme overený zdroj ani vodomer Polo Fields. Park využíva viacero vodných zdrojov a pripravuje prechod na recyklovanú vodu. Vieme porovnať modelové dodané objemy, ale z tohto porovnania nevyplýva čistá zmena odberu pitnej vody.",
+        "source_ids": ["P08", "P09"]
+      },
+      {
+        "question": "Môže dátové centrum automaticky chladiť recyklovanou vodou z parku?",
+        "answer": "Nie je overená jeho prípojka ani pridelená kapacita. Pri kontrole 24. 10. 2026 SFPUC stále uvádzal výstavbu recyklačného projektu s dokončením koncom roka 2026. V deme je pitná chladiaca prípojka iba predpoklad.",
+        "source_ids": ["P09"]
+      },
+      {
+        "question": "Nezníži chladnejšie San Francisco spotrebu chladenia?",
+        "answer": "Môže ju ovplyvniť, ale potrebovali by sme hodinové počasie a návrh technológie. Zatiaľ držíme rovnaký predpoklad 1,25 l/kWh IT ako pri San José. Nižší celkový odber tu spôsobuje zvolených 10 namiesto 20 MW IT.",
+        "source_ids": ["S08", "S09"]
+      },
+      {
+        "question": "Je všetka voda, ktorá neodtečie po povrchu, doplnenou podzemnou vodou?",
+        "answer": "Nie. Model zvyšok nerozdeľuje medzi vodu na povrchu, v pôde, vegetácii a neskorší výpar. Nepočíta doplnenie podzemnej vody.",
+        "source_ids": ["S07"]
+      },
+      {
+        "question": "Vyrieši nádrž ročnú potrebu chladiacej vody?",
+        "answer": "Vypočítame iba zber pri jednom daždi do nádrže, ktorá je na začiatku prázdna. Bez ročného časového modelu z odberu chladenia neodpočítavame žiadnu úsporu z dažďa.",
+        "source_ids": ["S07", "P10"]
+      }
+    ]
+  },
+  "cards": {
+    "M0": {
+      "title": "Začíname na zavlažovanom trávniku.",
+      "animation": "Ukáž schematický 4 ha výrez vo vnútri trávnatého ihriska. Dráhy a stromy nechaj mimo výrezu. Oddeľ dážď a dodanú závlahu.",
+      "what_changes": "Zatiaľ sa nestavia. Sledujeme rovnaké 4 ha, na ktorých budeme porovnávať ďalšie stavy.",
+      "why": "Trávnik a pôda ovplyvňujú odtok. Zavlažovanie má vlastnú vodnú potrebu aj pred stavbou.",
+      "meaning": "Pôvodný stav nemá nulový odber vody. Jeho modelovú závlahu zohľadníme pri porovnaní prvého roka prevádzky.",
+      "primary_metrics": [
+        "areas_m2.turf",
+        "rainfall_on_parcel_m3",
+        "event.generated_surface_runoff_m3",
+        "no_build_baseline.annual_irrigation_supplied_m3"
+      ],
+      "source_ids": ["P03", "P04", "P05", "P06", "S07"],
+      "uncertainty": "Pôdnu skupinu B a dobrý trávnatý kryt predpokladáme; nemáme pôdny test ani vodomer ihriska. Mestská stanica je klimatická referencia, nie meranie na mieste.",
+      "visible_assumptions": [
+        "Závlaha: zvolených 300 mm dodanej vody ročne na 4 ha. Tento rozpočet nie je odvodený z ročných zrážok ani z merania spotreby."
+      ]
+    },
+    "M1": {
+      "title": "Odstraňujeme 3,2 hektára trávnika.",
+      "animation": "Odober mačinu na 3,2 ha; 0,8 ha pôvodného trávnika zostáva. Neanimuj výrub ani hotové zarovnanie.",
+      "what_changes": "Začíname prípravu staveniska. Trávnik ustupuje na ploche budúcej stavby a obslužných priestorov.",
+      "why": "Odstránenie vegetačného krytu mení ochranu povrchu; ďalšie prejazdy môžu pôdu poškodiť.",
+      "meaning": "Samotné odstránenie mačiny pred zarovnaním nevystihuje naša kategória pripraveného staveniska. Jeho odtok nevyčísľujeme.",
+      "primary_metrics": [
+        "areas_m2.stripped_not_graded",
+        "areas_m2.turf",
+        "step_site_supplied_m3"
+      ],
+      "source_ids": ["S07", "S10", "S11"],
+      "uncertainty": "Nevyčíslený odtok neznamená nulový dopad. Voda na kropenie je pracovný rozpočet; nejde o automatický rozdiel les verzus ihrisko."
+    },
+    "M2": {
+      "title": "Zarovnaná zem vytvára viac povrchového odtoku.",
+      "animation": "Zarovnaj už odkrytých 3,2 ha a zopakuj referenčný dážď. Sediment znázorni ako riziko, nie vypočítané znečistenie jazera.",
+      "what_changes": "Na 3,2 ha je holá upravená zem. Zvyšných 0,8 ha zostáva trávnatých.",
+      "why": "V zvolenom modeli má pripravený holý povrch vyšší odtokový potenciál. Voda môže odnášať uvoľnené častice.",
+      "meaning": "Zmena cesty dažďa vzniká ešte pred betonážou. Kropenie zároveň potrebuje samostatnú dodávku vody.",
+      "primary_metrics": [
+        "areas_m2.bare_graded",
+        "event.generated_surface_runoff_m3",
+        "step_site_supplied_m3"
+      ],
+      "source_ids": ["S07", "S10", "S11", "P04"],
+      "uncertainty": "Neodhadujeme množstvo sedimentu, kvalitu konkrétneho jazera ani skutočný priebeh historickej búrky."
+    },
+    "M3": {
+      "title": "Zhutnenie má vlastnú etapu prác.",
+      "animation": "Zobraz zhutňovanie na tých istých 3,2 ha; žiadne nové odstraňovanie trávnika.",
+      "what_changes": "Pripravenú pôdu zhutňujeme a počas vybraných pracovných dní zvlhčujeme.",
+      "why": "Zhutnenie môže znižovať vsakovanie. Náš hrubý model však už v M2 pracuje so spoločnou kategóriou upraveného holého povrchu.",
+      "meaning": "Samostatná animácia neznamená, že smieme pripočítať druhý vymyslený nárast odtoku. Viditeľná je ďalšia dodaná stavebná voda.",
+      "primary_metrics": [
+        "areas_m2.bare_graded",
+        "event.generated_surface_runoff_m3",
+        "step_site_supplied_m3"
+      ],
+      "source_ids": ["S07", "S10", "S11"],
+      "uncertainty": "Rozpočtové zvlhčovanie nedokazuje dosiahnutie geotechnicky potrebnej vlhkosti."
+    },
+    "M4": {
+      "title": "Budova mení povrch aj vodný rozpočet.",
+      "animation": "Postav 1,2 ha pôdorysu budov. Dva hektáre zostávajú v tomto okamihu holé a 0,8 ha trávnatých. Strechu a základy nepočítaj ako dve dažďové plochy.",
+      "what_changes": "Pribúdajú nepriepustné budovy. Vodu dodávame na práce, ošetrovanie betónu, umývanie a potreby pracovníkov.",
+      "why": "Dážď pod novou budovou nevstupuje priamo do pôdy. Miešanie betónu navyše potrebuje vodu mimo staveniska.",
+      "meaning": "Odber na stavbe a miešanie v betonárni ukazujeme oddelene. Vymývacia voda sa zachytáva a spravuje.",
+      "primary_metrics": [
+        "areas_m2.roof",
+        "event.generated_surface_runoff_m3",
+        "step_site_supplied_m3",
+        "step_offsite_concrete_mixing_m3"
+      ],
+      "source_ids": ["S07", "S12", "S17"],
+      "uncertainty": "Ide o vybraný stav výstavby a autorský rozpočet materiálov a vody. Nie je to výkaz reálnej stavby ani celá vodná stopa betónu."
+    },
+    "M5": {
+      "title": "Hotový areál musí spravovať dážď.",
+      "animation": "Dokonči 1,2 ha striech, 1,6 ha ciest a tvrdých plôch, 0,4 ha obnovenej vegetácie a 0,8 ha ponechaného trávnika. Strechy pripoj k 200 m³ nádrži.",
+      "what_changes": "Nepriepustných je 2,8 ha. Pred otvorením napĺňame systémy a robíme vybrané skúšky.",
+      "why": "Prázdna nádrž prijme časť strešného odtoku. Zvyšný objem potrebuje spravované odvodnenie.",
+      "meaning": "Zásoba v nádrži sa nerovná odparenej vode ani ročnej úspore z vodovodu. Neurčili sme existujúce odtokové napojenie ihriska.",
+      "primary_metrics": [
+        "event.generated_surface_runoff_m3",
+        "event.roof_capture_m3",
+        "event.water_to_managed_drainage_m3",
+        "step_site_supplied_m3"
+      ],
+      "source_ids": ["S07", "P10"],
+      "uncertainty": "Počítame objem jedného dažďa bez priebežného vyprázdňovania. Nemodelujeme špičkový prietok, kapacitu kanalizácie, povodeň ani schválený drenážny návrh. Dobré pokrytie obnovenej vegetácie je predpoklad tohto stavu."
+    },
+    "M6": {
+      "title": "Chladenie pridáva pravidelný odber; závlahy ubúda.",
+      "animation": "Rozlíš prívod chladiacej vody, odparovanie a odluh do predpokladaného riadeného splaškového napojenia. Vedľa ukáž závlahu pôvodných 4 ha a výsledných 1,2 ha; nevypúšťaj odluh do jazera.",
+      "what_changes": "Spúšťame modelovú 10 MW IT prevádzku. Menšia zavlažovaná plocha znižuje vybraný závlahový rozpočet o 8,4 milióna litrov ročne, ale pribúda chladenie a bežná voda budovy.",
+      "why": "Časť chladiacej vody sa odparí, časť sa odvádza ako odluh kvôli minerálom.",
+      "meaning": "Pokles závlahy odčítame pri porovnaní celkových dodaných objemov s rokom bez výstavby. Nevyplýva z toho čistá zmena odberu pitnej vody; zdroj závlahy nie je overený.",
+      "primary_metrics": [
+        "operation.daily_average_cooling_supply_m3",
+        "operation.daily_average_cooling_evaporation_m3",
+        "operation.daily_average_cooling_blowdown_m3",
+        "operation.first_year_total_supplied_m3",
+        "operation.net_all_source_supply_increase_m3_year"
+      ],
+      "source_ids": ["S08", "S09", "P08", "P09"],
+      "uncertainty": "Ide o prvý celý 365-dňový rok a denné priemery, nie letné špičky. Závlaha je predpoklad; vodná strata výparom zo závlahy ani čistá zmena spotreby všetkých zdrojov sa nepočítajú. Kapacita a prípojky sú neoverené.",
+      "visible_assumptions": [
+        "Priemerný príkon serverov: 10 MW IT — zvolená kapacita, nie údaj odvodený zo 4 ha.",
+        "Uzavretý vnútorný okruh a vonkajšie chladiče s odparovaním; predpoklad 1,25 l dodanej chladiacej vody/kWh IT prevzatý z návrhového pomeru SJ04. Nie je overený pre klímu San Francisca.",
+        "CoC = 4, zanedbané úniky a odnos kvapiek. Chladenie a bežné potreby majú predpokladanú pitnú prípojku; zdroj parkovej závlahy nepoznáme.",
+        "Rovnaký zvolený závlahový rozpočet 300 mm/rok na 4 ha pred stavbou a na 1,2 ha po stavbe: 12 oproti 3,6 milióna litrov ročne. Nie je to meranie ihriska."
+      ]
+    }
+  }
+}

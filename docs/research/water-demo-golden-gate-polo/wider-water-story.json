@@ -1,0 +1,220 @@
+{
+  "scenario_id": "sf-polo-turf-water-v1",
+  "locale": "en",
+  "status": "authored_content_and_visualization_brief_not_implemented",
+  "title": "Beyond the site: a simple San Francisco water story",
+  "core_message": "The campus changes rainfall pathways and adds demand to a wider water system. Its footprint, water supply and wastewater do not stop at the site boundary.",
+  "default_presentation": "Keep the existing 3D campus and water card. Add one short context sentence per step and a small schematic strip beside the scene. Highlight only the current pathway. Rainfall arrows appear only during the optional rainfall replay. At M6, show the three cooling flows together. Broader context is visible without opening a detail panel; it never adds a required task.",
+  "user_actions": "Continue, Back, camera movement, replay and rainfall controls remain as defined in README.md. One optional About this connection detail explains provenance and uncertainty. Use the prepared questions below; no new sliders, city-management mode, forced decision, free-form chat or extra milestone is required.",
+  "visual_rules": [
+    "The strip is schematic, not a map of buried pipes or a hydraulic service zone. Show a regional-source icon, shared city-supply icon, generic other-users/homes icon, campus, sky, and generic managed-drainage/wastewater endpoints. Reveal only the icons needed for the active step.",
+    "Use a solid connection for documented regional context and a visibly labelled dashed connection for an assumed campus connection or unknown destination. Rainfall and modelled volumes must be labelled Scenario calculation; documented city context must be labelled Regional context.",
+    "Label the homes icon Other city water users. It illustrates shared-system context, not a measured neighbourhood allocation. Do not reduce household water, animate dry taps, lower a reservoir or change river levels.",
+    "Keep rainfall drainage and operating wastewater as separate pathways. Their actual downstream connections are unverified; endpoints may later join a real system, but this demo does not establish that. Do not attach either to a named park lake, creek, ocean outfall or treatment plant.",
+    "Flow arrows explain direction, not pipe sizing, instantaneous flow, pressure or capacity. Replays do not accumulate demand or water loss. Only the roof tank receives an event-volume fill animation.",
+    "Park irrigation has an unverified source. Do not connect the baseline irrigation budget to the assumed potable cooling line or automatically call its reduction a potable-water saving.",
+    "At M0, show the existing setting without an operating data-centre flow. At M1, runoff is unquantified. At M2/M3, use the same coarse runoff result. At M6, the event and average-day operating views retain separate time labels."
+  ],
+  "paths": [
+    {
+      "id": "supply",
+      "label": "Where delivered water comes from",
+      "regional_context": "SFPUC supplies residents and businesses through regional sources, treatment, storage and city distribution. Hetch Hetchy is part of that system, alongside other sources; supply can originate well beyond the park.",
+      "site_assumption": "The fictional campus uses an assumed potable connection for construction, cooling and domestic water. Its actual service, available reserve and peak-day demand have not been established.",
+      "source_ids": ["P12"]
+    },
+    {
+      "id": "rainfall",
+      "label": "Where rainfall needs to go",
+      "regional_context": "San Francisco manages stormwater through systems whose requirements depend on actual drainage connections and site conditions.",
+      "site_assumption": "Reuse the selected rainfall/runoff and roof-tank calculation. The generic endpoint means water requiring managed drainage, not a verified receiving lake or sewer.",
+      "source_ids": ["P10", "S07"]
+    },
+    {
+      "id": "wastewater",
+      "label": "Where cooling water goes",
+      "regional_context": "Evaporative cooling divides make-up water between evaporation and managed liquid outflow under the selected balance. Liquid outflow may require treatment and an appropriate discharge route.",
+      "site_assumption": "Use the existing CoC 4 model with negligible drift/leaks. Evaporated water does not return through the local wastewater connection. The sanitary route is assumed; the treatment plant and downstream capacity are unverified.",
+      "source_ids": ["S09", "S08"]
+    }
+  ],
+  "capacity_explainer": {
+    "question": "Does this mean a new water plant is needed?",
+    "answer": "Not established. First distinguish available source water, treatment throughput and delivery capacity in pipes, pumps and storage. If the relevant system cannot serve the additional demand, a response might involve lower demand, another supply or an infrastructure upgrade. A larger treatment plant alone does not create a new water source. This demo does not determine which constraint exists or which response is required.",
+    "visible_status": "Campus service and spare capacity: not assessed. Household shortages and required infrastructure upgrades: not predicted.",
+    "why_not_a_gauge": "Annual-average campus supply cannot establish a peak-day or drought deficit. Do not show an invented reserve percentage, plant overload or upgrade size.",
+    "source_ids": ["P12"]
+  },
+  "local_recycled_water_context": {
+    "question": "Could recycled water change the story?",
+    "answer": "It is a local option to investigate. SFPUC describes a Westside project for park irrigation and lake fill, with completion listed for end 2026 when checked on 24 October 2026. This establishes regional context, not an active cooling connection or spare allocation for this campus. The base cooling assumption remains potable supply; irrigation source remains unverified.",
+    "source_ids": ["P08", "P09"]
+  },
+  "optional_questions": [
+    {
+      "question": "Will nearby homes have less water?",
+      "answer": "The campus adds a modelled demand to an assumed shared supply. We have not established the available reserve or local service conditions, so household shortages are not predicted.",
+      "source_ids": ["P12"]
+    },
+    {
+      "question": "Will runoff enter the nearest park lake?",
+      "answer": "We have not verified the site drainage route. The model shows the volume requiring management; proximity alone does not establish a lake connection or pollution.",
+      "source_ids": ["P10"]
+    },
+    {
+      "question": "Would an extra treatment plant solve every supply constraint?",
+      "answer": "It can address treatment capacity if enough source water and delivery capacity are available. It does not by itself establish a new water source or solve a local pipe constraint.",
+      "source_ids": ["P12"]
+    }
+  ],
+  "steps": [
+    {
+      "id": "M0",
+      "headline": "This place already has a water story.",
+      "default_explanation": "The turf already needs modelled irrigation, while other city users rely on a wider supply system; the turf water source is unverified.",
+      "animation": "Keep the grass scene. Show the separate irrigation-context label and a small city-supply/other-users icon. No operating-campus arrow.",
+      "metrics": [],
+      "source_ids": ["P12", "P08", "P09"]
+    },
+    {
+      "id": "M1",
+      "headline": "Work water comes from beyond the boundary.",
+      "default_explanation": "Work adds a modelled demand to water supplied from outside the site boundary.",
+      "animation": "Highlight the dashed assumed work-water connection. Remove turf as already specified. Do not draw a quantified rainfall outflow.",
+      "metrics": [
+        {
+          "path": "step_site_supplied_m3",
+          "label": "Water supplied for this work step",
+          "display_unit": "m³",
+          "time_basis": "entire work step",
+          "display_multiplier": 1
+        }
+      ],
+      "source_ids": ["P12", "S10", "S11"]
+    },
+    {
+      "id": "M2",
+      "headline": "Disturbed ground changes what drainage must manage.",
+      "default_explanation": "Preparing the ground increases modelled runoff during this rainfall, leaving more water for drainage to manage.",
+      "animation": "During optional rain, highlight the arrow to a generic managed-drainage endpoint. Add a qualitative sediment-risk cue, never a polluted lake.",
+      "metrics": [
+        {
+          "path": "event.water_to_managed_drainage_m3",
+          "label": "Water requiring managed drainage",
+          "display_unit": "m³",
+          "time_basis": "one independent rainfall replay",
+          "display_multiplier": 1
+        }
+      ],
+      "source_ids": ["P10", "S07"]
+    },
+    {
+      "id": "M3",
+      "headline": "The same land now has another work-water step.",
+      "default_explanation": "Compaction adds another work-water requirement, while the same prepared surface still needs runoff management.",
+      "animation": "Highlight work-water supply by default. During optional rain, reuse the M2 drainage result without increasing it again.",
+      "metrics": [
+        {
+          "path": "step_site_supplied_m3",
+          "label": "Water supplied for this work step",
+          "display_unit": "m³",
+          "time_basis": "entire work step",
+          "display_multiplier": 1
+        },
+        {
+          "path": "event.water_to_managed_drainage_m3",
+          "label": "Water requiring managed drainage",
+          "display_unit": "m³",
+          "time_basis": "one independent rainfall replay",
+          "display_multiplier": 1
+        }
+      ],
+      "source_ids": ["P12", "P10", "S07"]
+    },
+    {
+      "id": "M4",
+      "headline": "Construction needs supply and controlled waste handling.",
+      "default_explanation": "Construction needs supplied water, contained washwater handling and water for offsite concrete mixing.",
+      "animation": "Show the work-water arrow and a small contained-washwater icon inside the site. Do not send raw washwater into the drainage arrow.",
+      "metrics": [
+        {
+          "path": "step_site_supplied_m3",
+          "label": "Water supplied for this work step",
+          "display_unit": "m³",
+          "time_basis": "entire work step",
+          "display_multiplier": 1
+        },
+        {
+          "path": "step_offsite_concrete_mixing_m3",
+          "label": "Offsite concrete mixing water",
+          "display_unit": "m³",
+          "time_basis": "entire work step",
+          "display_multiplier": 1
+        }
+      ],
+      "source_ids": ["S12", "S17", "P12"]
+    },
+    {
+      "id": "M5",
+      "headline": "Storage helps, while onward drainage still matters.",
+      "default_explanation": "Roof storage holds part of this rainfall; the remaining volume still needs managed drainage beyond the roof system.",
+      "animation": "During optional rain, split roof inflow into the tank and generic drainage path. Show the neutral service-status note, not a new plant or a blocked-gameplay warning.",
+      "metrics": [
+        {
+          "path": "event.roof_capture_m3",
+          "label": "Roof capture",
+          "display_unit": "m³",
+          "time_basis": "one independent rainfall replay",
+          "display_multiplier": 1
+        },
+        {
+          "path": "event.water_to_managed_drainage_m3",
+          "label": "Water requiring managed drainage",
+          "display_unit": "m³",
+          "time_basis": "one independent rainfall replay",
+          "display_multiplier": 1
+        }
+      ],
+      "source_ids": ["P10", "P12"],
+      "capacity_status": "Campus service and spare capacity: not assessed. Household shortages and required infrastructure upgrades: not predicted."
+    },
+    {
+      "id": "M6",
+      "headline": "Cooling connects supply, evaporation and wastewater.",
+      "default_explanation": "Cooling adds a regular demand to an assumed supply that also serves other users, with water split between evaporation and managed wastewater.",
+      "animation": "Show supply → campus, campus → sky, and campus → assumed managed wastewater. Keep the other-users icon neutral and the spare-capacity status visible. Rainfall stays a separate optional view.",
+      "metrics": [
+        {
+          "path": "operation.daily_average_cooling_supply_m3",
+          "label": "Cooling make-up supply",
+          "display_unit": "L/day",
+          "time_basis": "average operating day",
+          "display_multiplier": 1000
+        },
+        {
+          "path": "operation.daily_average_cooling_evaporation_m3",
+          "label": "Cooling evaporation",
+          "display_unit": "L/day",
+          "time_basis": "average operating day",
+          "display_multiplier": 1000
+        },
+        {
+          "path": "operation.daily_average_cooling_blowdown_m3",
+          "label": "Cooling blowdown",
+          "display_unit": "L/day",
+          "time_basis": "average operating day",
+          "display_multiplier": 1000
+        },
+        {
+          "path": "operation.net_all_source_supply_increase_m3_year",
+          "label": "Increase over assumed no-build irrigation",
+          "display_unit": "m³/year",
+          "time_basis": "first full operating year",
+          "display_multiplier": 1
+        }
+      ],
+      "source_ids": ["P12", "S09", "S08", "P08", "P09"],
+      "capacity_status": "Campus service and spare capacity: not assessed. Household shortages and required infrastructure upgrades: not predicted."
+    }
+  ]
+}

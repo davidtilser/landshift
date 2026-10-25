@@ -1,0 +1,514 @@
+{
+  "scenario_id": "sf-polo-turf-water-v1",
+  "generated_by": "python3 compute.py",
+  "evidence": "Observed weather; published method; authored site and demand assumptions; derived outputs.",
+  "event": {
+    "station_id": "USW00023272",
+    "observation_date": "2014-12-11",
+    "rainfall_mm": 86.4,
+    "measurement_flag": "",
+    "quality_flag": "",
+    "source_flag": "W",
+    "rainfall_on_parcel_m3": 3456.0
+  },
+  "climate_context": {
+    "station_id": "USW00023272",
+    "normal_period": "1991–2020",
+    "monthly_normals": [
+      {
+        "month": 1,
+        "precipitation_mm": 111.8
+      },
+      {
+        "month": 2,
+        "precipitation_mm": 111.0
+      },
+      {
+        "month": 3,
+        "precipitation_mm": 80.0
+      },
+      {
+        "month": 4,
+        "precipitation_mm": 40.6
+      },
+      {
+        "month": 5,
+        "precipitation_mm": 17.8
+      },
+      {
+        "month": 6,
+        "precipitation_mm": 5.1
+      },
+      {
+        "month": 7,
+        "precipitation_mm": 0.3
+      },
+      {
+        "month": 8,
+        "precipitation_mm": 1.5
+      },
+      {
+        "month": 9,
+        "precipitation_mm": 2.5
+      },
+      {
+        "month": 10,
+        "precipitation_mm": 23.9
+      },
+      {
+        "month": 11,
+        "precipitation_mm": 66.0
+      },
+      {
+        "month": 12,
+        "precipitation_mm": 120.9
+      }
+    ],
+    "sum_rounded_monthly_normals_mm": 581.4000000000001,
+    "november_to_april_share_pct": 91.21087031303749,
+    "normal_rainfall_on_parcel_m3": 23256.000000000004,
+    "gross_normal_rainfall_on_roofs_m3": 6976.800000000001,
+    "annual_runoff_m3": null,
+    "note": "Rainfall volumes only, not harvest, recharge or annual runoff."
+  },
+  "stages": [
+    {
+      "id": "M0",
+      "milestone": "Today",
+      "step": "Existing managed turf",
+      "areas_m2": {
+        "turf": 40000,
+        "stripped_not_graded": 0,
+        "bare_graded": 0,
+        "roof": 0,
+        "other_impervious": 0,
+        "landscape": 0
+      },
+      "rain_event": {
+        "generated_by_surface_m3": {
+          "turf": 537.6439241691463,
+          "bare_graded": 0.0,
+          "roofs": 0.0,
+          "other_impervious": 0.0,
+          "landscape": 0.0
+        },
+        "generated_surface_runoff_m3": 537.6439241691463,
+        "roof_capture_m3": 0,
+        "water_to_managed_drainage_m3": 537.6439241691463,
+        "rainfall_not_generated_as_surface_runoff_m3": 2918.3560758308536,
+        "tank_storage_after_event_m3": 0,
+        "basis": "one independent replay; no within-event tank release or reuse; no flow routing"
+      },
+      "construction_and_commissioning_supply_m3": {
+        "dust_and_soil_wetting": 0.0,
+        "worker_domestic": 0.0,
+        "curing": 0,
+        "equipment_wash": 0,
+        "initial_cooling_fill": 0,
+        "initial_fire_fill": 0,
+        "commissioning_flush": 0
+      },
+      "step_site_supply_m3": 0.0,
+      "step_offsite_concrete_mixing_m3": 0,
+      "cumulative_preopening_site_supply_m3": 0.0,
+      "cumulative_preopening_selected_supply_m3": 0.0,
+      "soil_group_sensitivity": {
+        "A": 4.770943120278344,
+        "B": 537.6439241691463,
+        "C": 1191.2417619044097,
+        "D": 1583.5830903790088
+      }
+    },
+    {
+      "id": "M1",
+      "milestone": "Site preparation",
+      "step": "Sod stripping, before grading",
+      "areas_m2": {
+        "turf": 8000,
+        "stripped_not_graded": 32000,
+        "bare_graded": 0,
+        "roof": 0,
+        "other_impervious": 0,
+        "landscape": 0
+      },
+      "rain_event": null,
+      "construction_and_commissioning_supply_m3": {
+        "dust_and_soil_wetting": 20.0,
+        "worker_domestic": 30.0,
+        "curing": 0,
+        "equipment_wash": 0,
+        "initial_cooling_fill": 0,
+        "initial_fire_fill": 0,
+        "commissioning_flush": 0
+      },
+      "step_site_supply_m3": 50.0,
+      "step_offsite_concrete_mixing_m3": 0,
+      "cumulative_preopening_site_supply_m3": 50.0,
+      "cumulative_preopening_selected_supply_m3": 50.0,
+      "soil_group_sensitivity": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": "M2",
+      "milestone": "Site preparation",
+      "step": "Grading",
+      "areas_m2": {
+        "turf": 8000,
+        "stripped_not_graded": 0,
+        "bare_graded": 32000,
+        "roof": 0,
+        "other_impervious": 0,
+        "landscape": 0
+      },
+      "rain_event": {
+        "generated_by_surface_m3": {
+          "turf": 107.52878483382928,
+          "bare_graded": 1634.919522281692,
+          "roofs": 0.0,
+          "other_impervious": 0.0,
+          "landscape": 0.0
+        },
+        "generated_surface_runoff_m3": 1742.4483071155214,
+        "roof_capture_m3": 0,
+        "water_to_managed_drainage_m3": 1742.4483071155214,
+        "rainfall_not_generated_as_surface_runoff_m3": 1713.5516928844786,
+        "tank_storage_after_event_m3": 0,
+        "basis": "one independent replay; no within-event tank release or reuse; no flow routing"
+      },
+      "construction_and_commissioning_supply_m3": {
+        "dust_and_soil_wetting": 960.0,
+        "worker_domestic": 90.0,
+        "curing": 0,
+        "equipment_wash": 0,
+        "initial_cooling_fill": 0,
+        "initial_fire_fill": 0,
+        "commissioning_flush": 0
+      },
+      "step_site_supply_m3": 1050.0,
+      "step_offsite_concrete_mixing_m3": 0,
+      "cumulative_preopening_site_supply_m3": 1100.0,
+      "cumulative_preopening_selected_supply_m3": 1100.0,
+      "soil_group_sensitivity": {
+        "A": 1104.5895381029427,
+        "B": 1742.4483071155214,
+        "C": 2228.026305779638,
+        "D": 2543.592706505969
+      }
+    },
+    {
+      "id": "M3",
+      "milestone": "Site preparation",
+      "step": "Compaction",
+      "areas_m2": {
+        "turf": 8000,
+        "stripped_not_graded": 0,
+        "bare_graded": 32000,
+        "roof": 0,
+        "other_impervious": 0,
+        "landscape": 0
+      },
+      "rain_event": {
+        "generated_by_surface_m3": {
+          "turf": 107.52878483382928,
+          "bare_graded": 1634.919522281692,
+          "roofs": 0.0,
+          "other_impervious": 0.0,
+          "landscape": 0.0
+        },
+        "generated_surface_runoff_m3": 1742.4483071155214,
+        "roof_capture_m3": 0,
+        "water_to_managed_drainage_m3": 1742.4483071155214,
+        "rainfall_not_generated_as_surface_runoff_m3": 1713.5516928844786,
+        "tank_storage_after_event_m3": 0,
+        "basis": "one independent replay; no within-event tank release or reuse; no flow routing"
+      },
+      "construction_and_commissioning_supply_m3": {
+        "dust_and_soil_wetting": 480.0,
+        "worker_domestic": 45.0,
+        "curing": 0,
+        "equipment_wash": 0,
+        "initial_cooling_fill": 0,
+        "initial_fire_fill": 0,
+        "commissioning_flush": 0
+      },
+      "step_site_supply_m3": 525.0,
+      "step_offsite_concrete_mixing_m3": 0,
+      "cumulative_preopening_site_supply_m3": 1625.0,
+      "cumulative_preopening_selected_supply_m3": 1625.0,
+      "soil_group_sensitivity": {
+        "A": 1104.5895381029427,
+        "B": 1742.4483071155214,
+        "C": 2228.026305779638,
+        "D": 2543.592706505969
+      }
+    },
+    {
+      "id": "M4",
+      "milestone": "Construction",
+      "step": "Buildings and foundations",
+      "areas_m2": {
+        "turf": 8000,
+        "stripped_not_graded": 0,
+        "bare_graded": 20000,
+        "roof": 12000,
+        "other_impervious": 0,
+        "landscape": 0
+      },
+      "rain_event": {
+        "generated_by_surface_m3": {
+          "turf": 107.52878483382928,
+          "bare_graded": 1021.8247014260575,
+          "roofs": 965.7161903780625,
+          "other_impervious": 0.0,
+          "landscape": 0.0
+        },
+        "generated_surface_runoff_m3": 2095.069676637949,
+        "roof_capture_m3": 0,
+        "water_to_managed_drainage_m3": 2095.069676637949,
+        "rainfall_not_generated_as_surface_runoff_m3": 1360.9303233620508,
+        "tank_storage_after_event_m3": 0,
+        "basis": "one independent replay; no within-event tank release or reuse; no flow routing"
+      },
+      "construction_and_commissioning_supply_m3": {
+        "dust_and_soil_wetting": 1280.0,
+        "worker_domestic": 480.0,
+        "curing": 168.0,
+        "equipment_wash": 60,
+        "initial_cooling_fill": 0,
+        "initial_fire_fill": 0,
+        "commissioning_flush": 0
+      },
+      "step_site_supply_m3": 1988.0,
+      "step_offsite_concrete_mixing_m3": 1080.0,
+      "cumulative_preopening_site_supply_m3": 3613.0,
+      "cumulative_preopening_selected_supply_m3": 4693.0,
+      "soil_group_sensitivity": {
+        "A": 1656.4424724264227,
+        "B": 2095.069676637949,
+        "C": 2447.575763633167,
+        "D": 2674.2303637227187
+      }
+    },
+    {
+      "id": "M5",
+      "milestone": "Opening",
+      "step": "Completed campus and commissioning",
+      "areas_m2": {
+        "turf": 8000,
+        "stripped_not_graded": 0,
+        "bare_graded": 0,
+        "roof": 12000,
+        "other_impervious": 16000,
+        "landscape": 4000
+      },
+      "rain_event": {
+        "generated_by_surface_m3": {
+          "turf": 107.52878483382928,
+          "bare_graded": 0.0,
+          "roofs": 965.7161903780625,
+          "other_impervious": 1287.62158717075,
+          "landscape": 53.76439241691464
+        },
+        "generated_surface_runoff_m3": 2414.6309547995565,
+        "roof_capture_m3": 200,
+        "water_to_managed_drainage_m3": 2214.6309547995565,
+        "rainfall_not_generated_as_surface_runoff_m3": 1041.3690452004435,
+        "tank_storage_after_event_m3": 200,
+        "basis": "one independent replay; no within-event tank release or reuse; no flow routing"
+      },
+      "construction_and_commissioning_supply_m3": {
+        "dust_and_soil_wetting": 0.0,
+        "worker_domestic": 15.0,
+        "curing": 0,
+        "equipment_wash": 0,
+        "initial_cooling_fill": 100,
+        "initial_fire_fill": 50,
+        "commissioning_flush": 50
+      },
+      "step_site_supply_m3": 215.0,
+      "step_offsite_concrete_mixing_m3": 0,
+      "cumulative_preopening_site_supply_m3": 3828.0,
+      "cumulative_preopening_selected_supply_m3": 4908.0,
+      "soil_group_sensitivity": {
+        "A": 2254.7690604848963,
+        "B": 2414.6309547995565,
+        "C": 2610.7103061201356,
+        "D": 2728.4127046625154
+      }
+    },
+    {
+      "id": "M6",
+      "milestone": "Operation",
+      "step": "First full operating year",
+      "areas_m2": {
+        "turf": 8000,
+        "stripped_not_graded": 0,
+        "bare_graded": 0,
+        "roof": 12000,
+        "other_impervious": 16000,
+        "landscape": 4000
+      },
+      "rain_event": {
+        "generated_by_surface_m3": {
+          "turf": 107.52878483382928,
+          "bare_graded": 0.0,
+          "roofs": 965.7161903780625,
+          "other_impervious": 1287.62158717075,
+          "landscape": 53.76439241691464
+        },
+        "generated_surface_runoff_m3": 2414.6309547995565,
+        "roof_capture_m3": 200,
+        "water_to_managed_drainage_m3": 2214.6309547995565,
+        "rainfall_not_generated_as_surface_runoff_m3": 1041.3690452004435,
+        "tank_storage_after_event_m3": 200,
+        "basis": "one independent replay; no within-event tank release or reuse; no flow routing"
+      },
+      "construction_and_commissioning_supply_m3": {
+        "dust_and_soil_wetting": 0.0,
+        "worker_domestic": 0.0,
+        "curing": 0,
+        "equipment_wash": 0,
+        "initial_cooling_fill": 0,
+        "initial_fire_fill": 0,
+        "commissioning_flush": 0
+      },
+      "step_site_supply_m3": 0.0,
+      "step_offsite_concrete_mixing_m3": 0,
+      "cumulative_preopening_site_supply_m3": 3828.0,
+      "cumulative_preopening_selected_supply_m3": 4908.0,
+      "soil_group_sensitivity": {
+        "A": 2254.7690604848963,
+        "B": 2414.6309547995565,
+        "C": 2610.7103061201356,
+        "D": 2728.4127046625154
+      }
+    }
+  ],
+  "operation": {
+    "assumptions": {
+      "average_it_load_mw": {
+        "value": 10,
+        "unit": "MW IT",
+        "kind": "scenario_assumption",
+        "source_ids": [],
+        "note": "Authored average IT load, chosen smaller demo capacity. Not derived from 4 ha and not equal capacity to old 20 MW scenario."
+      },
+      "cooling_technology": {
+        "value": "closed_internal_loop_with_indirect_evaporative_fluid_coolers",
+        "unit": "category",
+        "kind": "scenario_assumption",
+        "source_ids": [
+          "S08",
+          "S09"
+        ],
+        "note": "Chosen outdoor heat rejection permits evaporation; internal closed loop is not zero-water heat rejection. Annual intensity includes unspecified weather-dependent dry/wet operation, not a validated hourly cooling model."
+      },
+      "cooling_supply_l_kwh_it": {
+        "value": 1.25,
+        "unit": "L/kWh IT",
+        "kind": "scenario_assumption",
+        "source_ids": [
+          "S08"
+        ],
+        "note": "Same SJ04 design-reference intensity as old demo. Unvalidated transfer to San Francisco; no automatic marine-climate saving."
+      },
+      "cycles_of_concentration": {
+        "value": 4,
+        "unit": "ratio",
+        "kind": "scenario_assumption",
+        "source_ids": [
+          "S08",
+          "S09"
+        ],
+        "note": "Selected operating condition matching SJ04 design reference; negligible drift and leaks assumed."
+      },
+      "water_supply_type": {
+        "value": "potable_cooling_and_domestic_plus_unverified_park_irrigation",
+        "unit": "category",
+        "kind": "scenario_assumption",
+        "source_ids": [],
+        "note": "Hypothetical potable supply for construction, commissioning, cooling and domestic uses. Irrigation source unverified; total all-source water must not be called total potable supply."
+      },
+      "operation_days": {
+        "value": 365,
+        "unit": "days",
+        "kind": "scenario_assumption",
+        "source_ids": [],
+        "note": "First full non-leap operating year after opening. No ramp-up simulated."
+      },
+      "operating_domestic_m3_day": {
+        "value": 3,
+        "unit": "m³/day",
+        "kind": "scenario_assumption",
+        "source_ids": [],
+        "note": "Selected domestic supply allowance."
+      },
+      "irrigation_applications": {
+        "value": 30,
+        "unit": "applications in first operating year",
+        "kind": "scenario_assumption",
+        "source_ids": [],
+        "note": "Authored first-year schedule: 300 mm gross annual irrigation on both original and final planted area. No annual weather/ET simulation."
+      },
+      "irrigation_depth_mm_application": {
+        "value": 10,
+        "unit": "mm/application",
+        "kind": "scenario_assumption",
+        "source_ids": [],
+        "note": "Selected gross delivered irrigation per application; not a crop/ET measurement."
+      },
+      "irrigation_supply_type": {
+        "value": "park_irrigation_source_unverified",
+        "unit": "category",
+        "kind": "scenario_assumption",
+        "source_ids": [
+          "P08",
+          "P09"
+        ],
+        "note": "No Polo Fields meter/source attribution established; park programme includes groundwater and recycled transition. Do not claim current active recycled supply or potable savings."
+      }
+    },
+    "daily_average_cooling_supply_m3": 300.0,
+    "daily_average_cooling_evaporation_m3": 225.0,
+    "daily_average_cooling_blowdown_m3": 75.0,
+    "annual_supply_by_use_m3": {
+      "cooling": 109500.0,
+      "domestic": 1095,
+      "landscape_irrigation": 3600.0
+    },
+    "first_year_total_supplied_m3": 114195.0,
+    "annual_cooling_evaporation_m3": 82125.0,
+    "annual_cooling_blowdown_m3": 27375.0,
+    "annual_rainwater_supply_credit_m3": 0,
+    "supply_type": "potable_cooling_and_domestic_plus_unverified_park_irrigation",
+    "known_scenario_potable_cooling_and_domestic_m3": 110595.0,
+    "irrigation_supply_type": "park_irrigation_source_unverified",
+    "no_build_baseline_irrigation_m3_year": 12000.0,
+    "irrigation_supply_reduction_m3_year": 8400.0,
+    "net_all_source_supply_increase_m3_year": 102195.0,
+    "net_potable_supply_change_m3_year": null,
+    "baseline_note": "Same selected 300 mm annual delivered irrigation on the same 4 ha baseline versus 1.2 ha planted final surface. Not metered, not net consumptive use. Unknown irrigation-source shares prevent net-potable claim; no construction-season irrigation credit.",
+    "daily_cooling_supply_sensitivity_m3": {
+      "0.5": 120.0,
+      "1.25": 300.0,
+      "2.0": 480.0
+    },
+    "sensitivity_note": "Illustrative intensity choices, not measured range, confidence interval or same-capacity engineered alternatives."
+  },
+  "no_build_baseline": {
+    "annual_irrigation_supplied_m3": 12000.0,
+    "gross_irrigation_allowance_mm_year": 300,
+    "source_type": "park_irrigation_source_unverified",
+    "kind": "derived_from_scenario_assumptions_not_metered"
+  },
+  "totals": {
+    "preopening_site_supplied_m3": 3828.0,
+    "preopening_selected_offsite_mixing_m3": 1080.0,
+    "preopening_selected_supply_m3": 4908.0,
+    "preopening_plus_first_operating_year_selected_supply_m3": 119103.0
+  }
+}

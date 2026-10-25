@@ -1,0 +1,183 @@
+{
+  "retrieved_on": "2026-10-24",
+  "sources": [
+    {
+      "id": "S03",
+      "title": "NOAA GHCN-Daily format and flags",
+      "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/readme.txt",
+      "use_and_limits": "PRCP units are tenths of mm; -9999 is missing. Preserve measurement, quality and source flags; an empty quality flag is not field calibration."
+    },
+    {
+      "id": "S07",
+      "title": "USDA NRCS TR-55, Urban Hydrology for Small Watersheds",
+      "url": "https://www.hydrocad.net/pdf/TR-55%20Manual.pdf",
+      "use_and_limits": "USDA primary document hosted by HydroCAD. Equations 2-3/2-4, table 2-2a: good open space (>75% grass cover) A/B/C/D 39/61/74/80; newly graded 77/86/91/94; impervious 98. ARC II, Ia=0.2S. CN classes are selected scenario conditions, not site measurements. Chapter 2 warns on low-runoff estimates; no annual runoff/recharge/peak-flow claim."
+    },
+    {
+      "id": "S08",
+      "title": "Microsoft SJ04 fourth revised project description, July 2025",
+      "url": "https://efiling.energy.ca.gov/GetDocument.aspx?DocumentContentId=101543&tn=264764",
+      "use_and_limits": "Printed pp. 9, 15, 20: planned 76.8 MW IT; approximately 680 acre-feet/year recycled cooling supply; CoC 4; sanitary blowdown; 3.5 acre-feet construction water. Design estimates, not observed WUE. Same benchmark used in both demos; neither San Jose connection nor climate is transferred as verified."
+    },
+    {
+      "id": "S09",
+      "title": "DOE FEMP: Cooling Tower Management",
+      "url": "https://www.energy.gov/cmei/femp/best-management-practice-10-cooling-tower-management",
+      "use_and_limits": "Make-up replaces evaporation, blowdown and drift. With negligible drift/leaks, blowdown = make-up/CoC. Liquid cooling inside servers does not by itself specify how heat is rejected outdoors."
+    },
+    {
+      "id": "S10",
+      "title": "EPA AP-42 13.2.3: Heavy Construction Operations",
+      "url": "https://www.epa.gov/sites/default/files/2020-10/documents/13.2.3_heavy_construction_operations.pdf",
+      "use_and_limits": "Dust depends on activity, worked area, fine particles, soil moisture and traffic. Source does not establish a forest-versus-field watering multiplier."
+    },
+    {
+      "id": "S11",
+      "title": "CEC construction-water conversation for a different San Jose project, 2020",
+      "url": "https://efiling.energy.ca.gov/GetDocument.aspx?DocumentContentId=65450&tn=232985",
+      "use_and_limits": "Printed page 1: about 51 acre-feet total, dust control dominant. Page 2 mentions a rough 1,000 US gallons/acre/day heuristic; not a universal dose or an SJ04 estimate. Converted rate is about 0.935 L/m²/day, used only as a plausibility anchor for the authored 1 L/m²/day demo allowance."
+    },
+    {
+      "id": "S12",
+      "title": "EPA: Concrete Washout",
+      "url": "https://www.epa.gov/sites/default/files/2020-02/documents/concretewashout.pdf",
+      "use_and_limits": "Concrete washwater can have pH near 12 and needs containment. This is the washwater hazard, not a predicted downstream water-body pH."
+    },
+    {
+      "id": "S14",
+      "title": "CEC Walsh Data Center initial study, February 2020",
+      "url": "https://files.ceqanet.lci.ca.gov/259363-2/attachment/agW7OFEjD111eMa2a-2bulWi_pGeVksUxCXri4w6rUDo-hSXz52T1nULVowDYvuZlFVx6dU5jxO6pnQr0",
+      "use_and_limits": "Sections 5.13 and 5.18: air-cooled chillers and 25.6 acre-feet/year operational potable demand. Different demand boundary and capacity: not an isolated technology saving or WUE comparison."
+    },
+    {
+      "id": "S17",
+      "title": "FAO: Basic materials for construction",
+      "url": "https://www.fao.org/fishery/static/FAO_Training/FAO_Training/General/x6708e/x6708e03.htm",
+      "use_and_limits": "Concrete contains mixing water; Table 9 gives example mixtures. Does not establish a data-centre concrete volume or certify our assumed 180 L/m³ recipe."
+    },
+    {
+      "id": "P01",
+      "title": "User map link: Golden Gate Park Polo Field",
+      "url": "https://maps.app.goo.gl/oWkaHd1QNv66b3C1A",
+      "use_and_limits": "Resolved to Golden Gate Park Polo Field, place point 37.7682117,-122.4932246. This label is not surveyed parcel geometry. Local reproduction reference in raw/location-reference.json."
+    },
+    {
+      "id": "P02",
+      "title": "SF Recreation & Parks: Polo Field venue listing",
+      "url": "https://sfrecpark.org/877/Golden-Gate-Park---Polo-Field",
+      "use_and_limits": "Venue listing: 24.64 acres (~9.97 ha), not a measured natural-turf or buildable boundary. Checked HTML locally after web-reader timeouts. The 4 ha demo subset is authored."
+    },
+    {
+      "id": "P03",
+      "title": "SF Recreation & Parks: official Polo Fields field map",
+      "url": "https://www.sfrecpark.org/DocumentCenter/View/19734/Polo-Fields-PDF",
+      "use_and_limits": "One-page aerial field map: natural-grass playing pitches within perimeter tracks, surrounding woodland outside. Historical imagery reference (2012 shown), not current survey; cross-checked current facility/usage pages. Image not bundled."
+    },
+    {
+      "id": "P04",
+      "title": "NOAA GHCN-Daily San Francisco Downtown USW00023272",
+      "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00023272.dly",
+      "use_and_limits": "Verbatim December 2014 PRCP line retained; day 11 value 864 tenths mm = 86.4 mm, blank measurement/quality flags, source W. Daily gauge depth approximately 5.8 km east, not field rain or historical measured runoff."
+    },
+    {
+      "id": "P05",
+      "title": "NOAA SF Downtown 1991–2020 monthly precipitation normals",
+      "url": "https://www.ncei.noaa.gov/access/services/data/v1?dataset=normals-monthly-1991-2020&stations=USW00023272&dataTypes=MLY-PRCP-NORMAL&format=json&units=metric",
+      "use_and_limits": "Metric monthly normals, rounded sum 581.4 mm. Annual report 22.89 in = 581.406 mm; rounding only. No annual observed rainfall, annual runoff or cooling-weather simulation."
+    },
+    {
+      "id": "P06",
+      "title": "NOAA station metadata, San Francisco Downtown",
+      "url": "https://www.ncdc.noaa.gov/cdo-web/datasets/GHCND/stations/GHCND%3AUSW00023272/detail",
+      "use_and_limits": "Station point 37.7705,-122.4269, elevation 45.7 m. Different microclimate from western park; fog deposition not added."
+    },
+    {
+      "id": "P07",
+      "title": "SF Recreation & Parks: Golden Gate Park Master Plan, objectives/policies",
+      "url": "https://sfrecpark.org/DocumentCenter/View/11713/C-Objectives-and-Policies",
+      "use_and_limits": "Historical 2005 park context mentions fragile sandy soil; not Polo Fields HSG or measured engineered turf infiltration. Group B chosen for demo, A/C/D alternatives supplied."
+    },
+    {
+      "id": "P08",
+      "title": "SFPUC Westside Enhanced Water Recycling Project, FAQ Aug 2024",
+      "url": "https://www.sfpuc.gov/sites/default/files/documents/Westside_Enhanced_Water_Recycling_Project_FAQ_August_2024.pdf",
+      "use_and_limits": "Two pages: delivery scheduled end 2026; groundwater backup at Central Pump Station; signage may precede delivery. Does not establish Polo meter demand or data-centre service."
+    },
+    {
+      "id": "P09",
+      "title": "SFPUC Westside recycling project status",
+      "url": "https://www.sfpuc.gov/construction-contracts/construction-projects/westside-enhanced-water-recycling-project",
+      "use_and_limits": "Retrieved 2026-10-24: page still lists construction, end 2026. Do not infer that park recycling is already operational or has capacity allocated to a fictional campus."
+    },
+    {
+      "id": "P10",
+      "title": "SFPUC Stormwater Management Requirements",
+      "url": "https://www.sfpuc.gov/construction-contracts/design-guidelines-standards/stormwater-requirements",
+      "use_and_limits": "Local requirements depend on combined versus separate service and project conditions. We have not verified this footprint’s drainage connections. Volume-only demo tank is not compliant drainage design and does not predict a named lake/ocean discharge."
+    },
+    {
+      "id": "P11",
+      "title": "SF Recreation & Parks: Polo Field facility and usage",
+      "url": "https://www.sfrecpark.org/Facilities/Facility/Details/Polo-Field-419",
+      "use_and_limits": "Current facility description identifies athletic grounds and tracks. Companion https://sfrecpark.org/526/Polo-Field-Usage documents rain-saturation closures. Sports turf does not prove unimpeded infiltration or a dry dusty field."
+    },
+    {
+      "id": "P12",
+      "title": "SFPUC regional water system: sources, treatment and distribution",
+      "url": "https://www.sfpuc.gov/about-us/our-systems/water-system",
+      "use_and_limits": "Checked 2026-10-24. Regional context: residents/businesses share a system of sources including Hetch Hetchy, treatment, storage and distribution. This does not identify the fictional campus connection, local spare capacity, peak demand, household shortage, source-specific marginal depletion or required upgrade. Scenario pathway and capacity explanations are qualitative interpretations of system components."
+    }
+  ],
+  "raw_files": [
+    {
+      "path": "raw/noaa-sf-downtown-monthly-normals.json",
+      "source_id": "P05",
+      "sha256": "6670cd02cda173d6cb491622f47375a156fc4213e2ae4819e2d2f3793edd631d",
+      "licence_note": "NOAA public data with attribution; location file is authored metadata with source links."
+    },
+    {
+      "path": "raw/noaa-sf-downtown-2014-12-prcp.dly",
+      "source_id": "P04",
+      "sha256": "ee8901900982f70a0d81eafedc6257bd479be89b61b8d7c61a098f2bc5e8df85",
+      "licence_note": "NOAA public data with attribution; location file is authored metadata with source links."
+    },
+    {
+      "path": "raw/location-reference.json",
+      "source_id": "P01",
+      "sha256": "433b785ae1487b572854a682efc698be491536c38fd662cd04cc872b073d7351",
+      "licence_note": "NOAA public data with attribution; location file is authored metadata with source links."
+    }
+  ],
+  "reference_document_hashes": [
+    {
+      "source_id": "S08",
+      "sha256": "563f388083b5531f22c3bfcfdd182212e3452fae97a1888d3d8ce5467bbbc182",
+      "note": "Public source inspected locally; large PDF is not bundled. Use source URL and page locator above."
+    },
+    {
+      "source_id": "S07",
+      "sha256": "bbd93b8df7688d2e4ef5a080a3d2385bddfb3e7975967a7a3817d752dfd0f22a",
+      "note": "Public source inspected locally; large PDF is not bundled. Use source URL and page locator above."
+    },
+    {
+      "source_id": "P03",
+      "sha256": "cda4cd37aeb426203f47cd477b2e99fb56e8e09b40ef58d618fc020cab9156da",
+      "note": "Public reference inspected locally, not bundled. Follow linked original."
+    },
+    {
+      "source_id": "P08",
+      "sha256": "63c65cd85591fd7cf4c9cf237b2bdbcd23ccfb302f4378f09074b0276761afb7",
+      "note": "Public reference inspected locally, not bundled. Follow linked original."
+    },
+    {
+      "source_id": "P07",
+      "sha256": "0c06f718f80d1f93c84b984076076f7e6bacf55102a433556db98f2253175221",
+      "note": "Public reference inspected locally, not bundled. Follow linked original."
+    },
+    {
+      "source_id": "P02",
+      "sha256": "a701fb6822f7d656c1ee5f22ffb1b8cb085e7393bc27e7f461e43fcbd43a8df2",
+      "note": "Official venue HTML checked for Acreage 24.64; transient menus/scripts mean a future response hash may differ. Not bundled."
+    }
+  ]
+}
