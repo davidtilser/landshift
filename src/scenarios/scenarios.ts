@@ -12,6 +12,8 @@ export interface Scenario {
   location: LatLng
   regionIds: readonly string[]
   enabled: boolean
+  /** `game.html` scenario param. Absent until that scenario has a game. */
+  gameScenarioId?: string
 }
 
 export const scenarios: readonly Scenario[] = [
@@ -24,6 +26,7 @@ export const scenarios: readonly Scenario[] = [
     location: { lat: 37.7687, lng: -122.4928 },
     regionIds: ['sf-bay-area'],
     enabled: true,
+    gameScenarioId: 'golden-gate-polo',
   },
   {
     id: 'hillside-housing',
