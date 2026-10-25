@@ -58,6 +58,17 @@ const cloudLimbFadeFragment = /* glsl */ `
 diffuseColor.a *= smoothstep(0.0, ${LIMB_FADE_FACING.toFixed(2)}, abs(dot(normalize(vNormal), normalize(vViewPosition))));
 `
 
+// Screen-pixel taps, so the line stays about the old contour's width and never lands on the land.
+const cloudContourFragment = /* glsl */ `
+vec2 cloudStep = fwidth(vAlphaMapUv) * 1.5;
+float cloudEast = texture2D(alphaMap, vAlphaMapUv + vec2(cloudStep.x, 0.0)).r;
+float cloudWest = texture2D(alphaMap, vAlphaMapUv - vec2(cloudStep.x, 0.0)).r;
+float cloudNorth = texture2D(alphaMap, vAlphaMapUv + vec2(0.0, cloudStep.y)).r;
+float cloudSouth = texture2D(alphaMap, vAlphaMapUv - vec2(0.0, cloudStep.y)).r;
+float cloudEdge = length(vec2(cloudEast - cloudWest, cloudNorth - cloudSouth));
+outgoingLight = mix(outgoingLight, outgoingLight * 0.12, smoothstep(0.08, 0.4, cloudEdge));
+`
+
 export interface CloudsLayer extends GlobeLayer {
   setDrifting(drifting: boolean): void
 }
@@ -92,6 +103,10 @@ export function createCloudsLayer(): CloudsLayer {
         shader.fragmentShader = shader.fragmentShader.replace(
           '#include <alphamap_fragment>',
           `#include <alphamap_fragment>\n${cloudLimbFadeFragment}`,
+        )
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <opaque_fragment>',
+          `${cloudContourFragment}\n#include <opaque_fragment>`,
         )
       }
       const clouds = new Mesh(

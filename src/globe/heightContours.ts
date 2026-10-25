@@ -30,7 +30,7 @@ float line = (1.0 - smoothstep(0.0, max(fw * 0.6, 0.015), dist)) * onSlope;
 outgoingLight *= mix(1.0, ${LINE_INK.toFixed(2)}, line);
 `
 
-const POSTERIZE_STEPS = 16
+const POSTERIZE_STEPS = 23
 const POSTERIZE_MIX = 0.36
 
 const posterize = /* glsl */ `
@@ -38,44 +38,33 @@ vec3 stepped = floor(outgoingLight * ${POSTERIZE_STEPS.toFixed(1)} + 0.5) / ${PO
 outgoingLight = mix(outgoingLight, stepped, ${POSTERIZE_MIX.toFixed(2)});
 `
 
-interface GlobeEffects {
-  contours: boolean
-  posterize: boolean
-}
-
-function readEffects(): GlobeEffects {
+function warnDroppedEffects(): void {
   const raw = new URLSearchParams(window.location.search).get('fx')
-  const effects = { contours: false, posterize: false }
-  if (raw === null) return effects
+  if (raw === null) return
   for (const name of raw.split(',')) {
     const token = name.trim()
-    if (token === 'contours') effects.contours = true
-    else if (token === 'posterize') effects.posterize = true
-    else if (token === DEFERRED_EFFECT) {
+    if (token === 'contours' || token === 'posterize' || token === '') continue
+    if (token === DEFERRED_EFFECT) {
       console.warn(`Globe effect "${token}" is documented and not built.`)
     } else if (DROPPED_EFFECTS.some((effect) => effect === token)) {
       console.warn(`Globe effect "${token}" was dropped.`)
-    } else if (token !== '') {
-      console.warn(`Unknown globe effect "${token}". Use contours, posterize.`)
+    } else {
+      console.warn(
+        `Unknown globe effect "${token}". Contours and posterize stay on.`,
+      )
     }
   }
-  return effects
 }
 
-/** Height isolines and a light posterize. No-op unless `?fx=` asks for one of them. */
+/** Height isolines and a light posterize. Both are part of the globe, not a query flag. */
 export function attachHeightContours(material: MeshPhongMaterial): void {
-  const effects = readEffects()
-  if (!effects.contours && !effects.posterize) {
-    return
-  }
+  warnDroppedEffects()
   material.onBeforeCompile = (shader) => {
-    const parts: string[] = []
-    if (effects.posterize) parts.push(posterize)
-    if (effects.contours && material.displacementMap !== null) {
+    const parts = [posterize]
+    if (material.displacementMap !== null) {
       shader.fragmentShader = contourDeclarations + shader.fragmentShader
       parts.unshift(contourLines)
     }
-    if (parts.length === 0) return
     shader.fragmentShader = shader.fragmentShader.replace(
       '#include <opaque_fragment>',
       `${parts.join('\n')}\n#include <opaque_fragment>`,
