@@ -17,50 +17,159 @@
 }
 .polo-talk-launcher {
   width: 100%;
-  min-height: 99px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  min-height: 276px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 16px;
   padding: 17px;
   border: 1px solid #e4d5fb;
   border-radius: 24px;
-  background: #faf8ff;
+  background: linear-gradient(145deg, #fff 0%, #faf5ff 100%);
   color: #29183a;
   text-align: left;
   font: inherit;
   cursor: pointer;
   box-shadow: 0 8px 24px #34146412;
+  transition:
+    border-color 180ms,
+    box-shadow 180ms;
 }
 .polo-talk-launcher:hover {
   background: #f0e6ff;
   border-color: #ba94ec;
 }
-.polo-talk-launcher-copy {
-  display: grid;
-  gap: 5px;
+.polo-talk-top,
+.polo-talk-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
-.polo-talk-launcher-copy strong {
+.polo-talk-top > strong {
   font-size: 26.4px;
   line-height: 1.1;
 }
-.polo-talk-launcher-copy > span {
-  max-width: 114px;
+.polo-talk-preview {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+}
+.polo-talk-reaction {
+  display: grid;
+  gap: 12px;
+  animation: polo-talk-arrive 420ms ease-out both;
+}
+.polo-talk-byline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.polo-talk-byline img {
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #eadeff;
+  box-shadow: 0 0 0 3px #eee2ff;
+}
+.polo-talk-byline > span {
+  display: grid;
+  gap: 2px;
+}
+.polo-talk-byline strong {
+  font-size: 18px;
+}
+.polo-talk-byline > span > span {
   color: #6a557d;
-  font-size: 14.4px;
-  line-height: 1.3;
+  font-size: 13px;
+}
+.polo-talk-quote {
+  font-size: 20px;
+  font-weight: 550;
+  line-height: 1.4;
+  letter-spacing: -0.25px;
+}
+.polo-talk-footer {
+  padding-top: 12px;
+  border-top: 1px solid #e9def4;
+  color: #6b2bb9;
+  font-size: 12px;
+  font-weight: 650;
 }
 .polo-talk-faces {
   display: flex;
   padding-left: 10px;
 }
 .polo-talk-faces img {
-  width: 38px;
-  height: 38px;
+  width: 29px;
+  height: 29px;
   margin-left: -11px;
   border: 2px solid #faf8ff;
   border-radius: 50%;
   background: #eadeff;
+  transition:
+    transform 200ms,
+    box-shadow 200ms;
+}
+.polo-talk-faces img.is-speaking {
+  z-index: 1;
+  transform: translateY(-3px);
+  box-shadow: 0 0 0 2px #8b42df;
+}
+.polo-talk-waiting {
+  display: grid;
+  gap: 20px;
+  padding: 20px 0;
+  color: #6a557d;
+  font-size: 18px;
+  line-height: 1.4;
+}
+.polo-talk-typing {
+  display: flex;
+  gap: 5px;
+}
+.polo-talk-typing i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a67bd6;
+  animation: polo-talk-dot 1.2s ease-in-out infinite;
+}
+.polo-talk-typing i:nth-child(2) {
+  animation-delay: 150ms;
+}
+.polo-talk-typing i:nth-child(3) {
+  animation-delay: 300ms;
+}
+@keyframes polo-talk-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes polo-talk-dot {
+  0%,
+  70%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  35% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .polo-talk-launcher,
+  .polo-talk-faces img {
+    transition: none;
+  }
+  .polo-talk-reaction,
+  .polo-talk-typing i {
+    animation: none;
+  }
 }
 .polo-talk-picker {
   box-sizing: border-box;
@@ -174,7 +283,40 @@
   #game[data-polo-confirmed='true'] .polo-people {
     top: 126px;
     right: 10px;
-    width: 264px;
+    width: calc(100% - 20px);
+  }
+  #game[data-polo-confirmed='true'] .polo-studio .polo-deck {
+    max-height: min(470px, calc(100dvh - 487px));
+  }
+  .polo-talk-launcher {
+    min-height: 228px;
+    padding: 12px;
+    gap: 8px;
+  }
+  .polo-talk-top > strong {
+    font-size: 22px;
+  }
+  .polo-talk-reaction {
+    gap: 8px;
+  }
+  .polo-talk-byline img {
+    width: 38.4px;
+    height: 38.4px;
+  }
+  .polo-talk-quote {
+    font-size: 17px;
+  }
+  .polo-talk-footer {
+    padding-top: 8px;
+  }
+  .polo-talk-faces img {
+    width: 24px;
+    height: 24px;
+  }
+  .polo-talk-waiting {
+    padding: 8px 0;
+    gap: 12px;
+    font-size: 15px;
   }
   .polo-talk-picker {
     margin: auto;

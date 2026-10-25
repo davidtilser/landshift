@@ -896,6 +896,7 @@ export async function startPoloDemo(): Promise<void> {
       case 'replay':
         if (!state.confirmed || protest.pending()) return
         scene?.replay()
+        talkPicker.sync(true)
         break
       case 'skip':
         if (!state.confirmed || protest.pending()) return
