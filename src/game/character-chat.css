@@ -117,14 +117,19 @@
   flex-shrink: 0;
 }
 .chat-message.assistant {
+  align-self: flex-start;
+  max-width: 90%;
   background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-bottom-left-radius: 5px;
 }
 .chat-message.user {
   align-self: flex-end;
-  max-width: 90%;
-  background: var(--ls-role-surface);
+  max-width: 85%;
+  background: var(--ls-source-wordmark-top);
+  color: var(--ls-role-selected-label);
+  border: 1px solid var(--ls-source-wordmark-mid);
   border-bottom-right-radius: 5px;
   font-size: 15px;
 }
