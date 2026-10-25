@@ -18,12 +18,14 @@ import type {
 import type { CommunityVoice } from './community.ts'
 import type { DiscussionContext } from './discussion.ts'
 import type { DialogueTarget } from './dialogue-choices.ts'
+import type { ConversationReactions } from './community-reactions.ts'
 
 interface HubOptions {
   getContext: () => DiscussionContext
   getPlan: () => PlannerState
   tryIdea: (target: DialogueTarget) => void
   beforeOpen: () => void
+  reactionsChanged?: (reactions: ConversationReactions) => void
 }
 interface Pending {
   controller: AbortController
@@ -58,7 +60,7 @@ function action(
 export class CommunityHub {
   private readonly options: HubOptions
   private readonly client = new CommunityClient()
-  private readonly session = new CommunitySession()
+  private readonly session: CommunitySession
   private readonly privateChat: CharacterChat
   private readonly autoplay: CommunityAutoplay
   private readonly root = node('aside', 'community-hub')
@@ -77,6 +79,9 @@ export class CommunityHub {
 
   constructor(options: HubOptions) {
     this.options = options
+    this.session = new CommunitySession(() => {
+      options.reactionsChanged?.(this.session.bubbleReactions())
+    })
     this.root.hidden = true
     this.root.id = 'community-hub'
     this.root.setAttribute('aria-label', 'Shared community discussion')

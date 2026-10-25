@@ -35,12 +35,12 @@ export function poloTodayCard(
   if (tab === 'general')
     return {
       metrics: [
-        { label: 'Selected demo area', value: usAcres(state.areaHa * 10_000) },
+        { label: 'Selected site area', value: usAcres(state.areaHa * 10_000) },
         { label: 'Current use', value: 'Playing field' },
       ],
       detailsTitle: 'More info & data sources',
       details: [
-        'This demo covers part of Polo Fields, not the entire venue or a surveyed parcel. No construction has started.',
+        'The selected site covers part of Polo Fields, not the entire venue or a surveyed parcel. No construction has started.',
         'SF Recreation & Parks describes the playing fields. UNCCD and USGS provide land and water context, not measurements of this site.',
       ],
       sources: [
@@ -64,7 +64,7 @@ export function poloTodayCard(
     metrics: [
       { label: 'Playing-field turf', value: usAcres(data.areasM2.turf) },
       {
-        label: 'Built surfaces in the demo area',
+        label: 'Built surfaces in the site area',
         value: usAcres(data.areasM2.roof + data.areasM2.other_impervious),
       },
     ],

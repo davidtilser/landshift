@@ -902,6 +902,15 @@
   border-radius: 50%;
   object-fit: cover;
 }
+.polo-person[data-mood='angry'] img {
+  border-color: #dc8b91;
+}
+.polo-person[data-mood='concerned'] img {
+  border-color: #d9b25c;
+}
+.polo-person[data-mood='hopeful'] img {
+  border-color: #8bbb69;
+}
 .polo-reader-copy {
   min-height: 3em;
   margin: 12px 0;

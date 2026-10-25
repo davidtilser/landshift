@@ -3,12 +3,19 @@ import type {
   ConversationLine,
   PlannerState,
   CommunityMoodBreakdown,
+  CommunityReaction,
+  CommunityMood,
 } from '../shared/community-contract.ts'
 import type { CommunityProfile } from './community-profiles.ts'
 import type { DiscussionTopic } from './discussion.ts'
 import { initialCommunityMoodBreakdown } from './community-mood.ts'
 import { POLO_PROPOSAL_NAMES } from './polo/model.ts'
 import { poloImprovementSummary } from './polo/interventions.ts'
+import { conversationReaction } from './community-reactions.ts'
+import type {
+  ConversationReactions,
+  ConversationReaction,
+} from './community-reactions.ts'
 
 export interface CommunityLine extends ConversationLine {
   id: number
@@ -19,6 +26,7 @@ export interface CommunityLine extends ConversationLine {
   kind?: 'update'
   category?: string
   communityMood?: CommunityMoodBreakdown | undefined
+  reaction?: CommunityReaction | undefined
 }
 export type NewCommunityLine = Omit<
   CommunityLine,
@@ -128,7 +136,23 @@ export class CommunitySession {
   private sequence = 0
   private previous: PlannerState | undefined
   private reactions = new Map<CommunityId, string>()
+  private readonly latestReactions = new Map<
+    CommunityId,
+    ConversationReaction
+  >()
+  private moods = new Map<CommunityId, CommunityMood>()
   private key = ''
+  private readonly onReactionsChange: () => void
+
+  constructor(onReactionsChange: () => void = () => {}) {
+    this.onReactionsChange = onReactionsChange
+  }
+
+  bubbleReactions(): ConversationReactions {
+    return new Map(
+      [...this.latestReactions].map(([id, reaction]) => [id, { ...reaction }]),
+    )
+  }
 
   sync(plan: PlannerState, profiles: CommunityProfile[]): boolean {
     const key = JSON.stringify(plan)
@@ -136,6 +160,10 @@ export class CommunitySession {
     if (this.previous && this.previous.scenarioId !== plan.scenarioId)
       this.reset()
     this.revision++
+    this.latestReactions.clear()
+    this.moods = new Map(
+      profiles.map((profile) => [profile.id, profile.initialMood.mood]),
+    )
     this.publicMood = initialCommunityMoodBreakdown(profiles)
     if (!this.previous) {
       const [proposal] = this.append(this.publicThread, [
@@ -202,6 +230,7 @@ export class CommunitySession {
     this.reactions = new Map(
       profiles.map((profile) => [profile.id, profile.post]),
     )
+    this.onReactionsChange()
     return true
   }
   privateThread(profile: CommunityProfile): CommunityThread {
@@ -231,12 +260,32 @@ export class CommunitySession {
     const limit = current === this.publicThread ? 160 : 40
     if (current.lines.length > limit)
       current.lines.splice(1, current.lines.length - limit)
+    let reactionChanged = false
     for (const line of added)
       if (line.speaker !== 'planner') {
         if (line.source !== 'scenario') this.heard.add(line.speaker)
         if (current === this.publicThread && line.communityMood)
           this.publicMood = line.communityMood
+        if (
+          (line.source === 'live' || line.source === 'demo') &&
+          (current === this.publicThread ||
+            this.privateThreads.get(line.speaker) === current)
+        ) {
+          this.latestReactions.set(
+            line.speaker,
+            conversationReaction(
+              line.text,
+              this.latestReactions.get(line.speaker)?.mood ??
+                this.moods.get(line.speaker) ??
+                'concerned',
+              current === this.publicThread ? 'community' : 'private',
+              line.reaction,
+            ),
+          )
+          reactionChanged = true
+        }
       }
+    if (reactionChanged) this.onReactionsChange()
     return added
   }
   history(current: CommunityThread): ConversationLine[] {
@@ -270,9 +319,12 @@ export class CommunitySession {
     this.heard.clear()
     this.publicMood = undefined
     this.reactions.clear()
+    this.latestReactions.clear()
+    this.moods.clear()
     this.revision = 0
     this.previous = undefined
     this.key = ''
     this.sequence = 0
+    this.onReactionsChange()
   }
 }

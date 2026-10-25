@@ -13,6 +13,7 @@ import { poloDiscussionContext } from './context.ts'
 import { CommunitySession } from '../community-session.ts'
 import { communityProfiles } from '../community-profiles.ts'
 import { DEFAULT_CHOICES } from '../consequences.ts'
+import { poloTodayCard, POLO_TODAY_TABS } from './today.ts'
 
 describe('immersive planning language', () => {
   it('keeps development framing out of player-facing phases, interventions, opinions and replies', () => {
@@ -44,6 +45,14 @@ describe('immersive planning language', () => {
       item.reaction,
     ])
     for (const state of states) {
+      for (const tab of POLO_TODAY_TABS) {
+        const card = poloTodayCard(state, tab)
+        copy.push(
+          ...card.metrics.map((metric) => metric.label),
+          ...card.details,
+          card.copy ?? '',
+        )
+      }
       const phase = poloDisplayPhase(state)
       copy.push(
         phase.summary,

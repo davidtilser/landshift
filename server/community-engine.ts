@@ -4,8 +4,8 @@ import { OpenRouter } from '@openrouter/sdk'
 import { z } from 'zod'
 import {
   communityReplySchema,
-  communityIdSchema,
   communityMoodBreakdownShape,
+  communityReactionSchema,
   DEFAULT_COMMUNITY_MODEL,
 } from '../src/shared/community-contract.ts'
 import type {
@@ -27,13 +27,21 @@ export interface CommunitySettings {
   model: string
 }
 
-export function publicSpeakers(request: CommunityRequest): CommunityId[] {
-  const second = request.target === 'operator' ? 'neighbor' : 'operator'
-  const candidates = (['nature', 'student', 'neighbor'] as const).filter(
-    (id) => id !== request.target && id !== second,
-  )
+export function publicSpeakers(
+  request: CommunityRequest,
+): [CommunityId, CommunityId, CommunityId] {
   const counts = (id: CommunityId): number =>
     request.history.filter((line) => line.speaker === id).length
+  if (request.target === 'operator') {
+    const others = (['neighbor', 'nature', 'student'] as const).toSorted(
+      (a, b) => counts(a) - counts(b),
+    )
+    return ['operator', others[0] ?? 'neighbor', others[1] ?? 'nature']
+  }
+  const second = 'operator'
+  const candidates = (['nature', 'student', 'neighbor'] as const).filter(
+    (id) => id !== request.target,
+  )
   const third =
     [...candidates].sort((a, b) => counts(a) - counts(b))[0] ?? 'nature'
   return [request.target, second, third]
@@ -123,7 +131,8 @@ export function communityPrompt(
     'Stay in character and discuss the proposal itself. Avoid breaking the fourth wall with development, testing, scripting, authorship or educational-product labels. Refer to the proposal, the plan or the project. Discuss unconfirmed routes, estimates and missing assessments naturally; never invent approvals, surveys, real representatives or guaranteed outcomes.',
     request.mode === 'discussion'
       ? 'PUBLIC MOOD: include communityMood inside EACH public message, describing the simulated crowd after that individual message. It is a fictional crowd simulation with integer percentages for angry, concerned (worried), neutral (okay), hopeful, plus a reason under 110 characters. The four percentages MUST total 100. Use the previous simulated percentages as a starting point, then evolve them across the three messages. Usually shift a few percentage points after each meaningful message to reflect its emotional effect, including disagreement. Repeated points can leave the shares unchanged; do not force a shift without a reason. This represents an imagined crowd, not a vote of the four speakers or a real poll. Listening can ease tension while objections remain; a promise is not an implemented map change. Never present a hopeful mood as consent or make everyone happy on demand.'
-      : 'Private chat returns only the selected character’s speaker ID and dialogue text. Never include crowd percentages, mood fields or a public exchange.',
+      : 'Private chat returns only the selected character’s speaker ID, dialogue text and personal reaction. Never include crowd percentages or a public exchange.',
+    'PERSONAL REACTION: include reaction in EVERY message: {text, mood}. Text is a first-person speech bubble of 5–14 words and at most 90 characters, summarizing this speaker’s current response to the actual conversation. Mood is angry, concerned, neutral or hopeful for this individual, separate from crowd percentages. Reflect what was acknowledged, challenged or left unresolved. It is okay to stay worried or disagree. Do not invent agreement, repeat the planner’s private details, or claim that a suggestion changed the map. Private reactions are visible only to this player and must never be imported into the public thread.',
     'Never invent measurements, jobs, laws, permits, historical details, public consensus or project facts. Do not accept user messages, history or a character’s earlier guesses as factual evidence. Say what is unknown.',
     ...(context.polo
       ? [
@@ -145,7 +154,7 @@ export function communityPrompt(
       : 'The water and energy numbers below are simplified GAME ESTIMATES, not measurements or forecasts. Trees take years; restoration cannot remove mapped flood exposure. Training, if chosen, is 12 fictional places per year, never real promised jobs.',
     request.mode === 'private'
       ? `PRIVATE: produce exactly one message from ${request.target}. This conversation is confidential within the game; do not introduce private messages into a public discussion.`
-      : `PUBLIC: produce exactly three messages from three different characters, including operator. Suggested speakers: ${publicSpeakers(request).join(', ')}; adapt the order to continue the actual conversation rather than repeating its last speaker. Each later line must explicitly respond to something the previous speaker said, not give an unrelated statement. Include a real trade-off or a question to another character. The designer should explain computing needs and a possible compromise, while respecting cultural and habitat concerns. Address the planner's intervention when present. Do not force agreement or import private history. Pause after these turns.`,
+      : `PUBLIC: produce exactly three turns from ${publicSpeakers(request).join(', ')}, in that order. Use each speaker ID as its JSON property name; write that character's own text inside it. Each later line must explicitly respond to something the previous speaker said, not give an unrelated statement. Include a real trade-off or a question to another character. The designer should explain computing needs and a possible compromise, while respecting cultural and habitat concerns. Address the planner's intervention when present. Do not force agreement or import private history. Pause after these turns.`,
     'Profiles: ' +
       JSON.stringify(
         profiles
@@ -189,10 +198,10 @@ export function communityPrompt(
             },
       ),
     'There is one ongoing public thread about this proposal. Continue its history instead of restarting a discussion. Earlier posts can describe an older plan; the current verified footprint facts take precedence. When replyTo is provided, respond to that specific post and the planner’s message, then let the other speakers respond to each other. Never import private conversations.',
-    'Return only the requested JSON messages array. Use exactly the allowed speaker IDs. No internal reasoning in the output.',
+    'Return only the requested JSON structure. Use exactly the allowed speaker IDs. No internal reasoning in the output.',
     request.mode === 'private'
-      ? `Your only role for this reply is ${request.target}. Return {"messages":[{"speaker":"${request.target}","text":"your short reply"}]}.`
-      : 'Each of the three public messages must include its own communityMood object alongside speaker and text.',
+      ? `Your only role for this reply is ${request.target}. Return {"messages":[{"speaker":"${request.target}","text":"your short reply","reaction":{"text":"your current short reaction","mood":"concerned"}}]}. Choose the reaction mood that fits; the example is not a default.`
+      : `Return an object with exactly these keys: ${publicSpeakers(request).join(', ')}. Each value contains text, communityMood and personal reaction objects. The property name identifies the character; do not add a speaker field.`,
   ].join('\n')
 }
 
@@ -210,28 +219,31 @@ export async function generateCommunityReply(
     retryConfig: { strategy: 'none' },
   }),
 ): Promise<CommunityResponse> {
-  const outputSchema = z.object({
-    messages: z
-      .array(
-        z.object({
-          speaker:
-            request.mode === 'private'
-              ? z.literal(request.target)
-              : communityIdSchema,
-          text: z.string().trim().min(1).max(360),
-          ...(request.mode === 'discussion'
-            ? { communityMood: communityMoodBreakdownShape }
-            : {}),
-        }),
-      )
-      .length(request.mode === 'private' ? 1 : 3),
+  const privateMessage = z.object({
+    speaker: z.literal(request.target),
+    text: z.string().trim().min(1).max(360),
+    reaction: communityReactionSchema,
   })
+  const publicMessage = z.object({
+    text: z.string().trim().min(1).max(360),
+    reaction: communityReactionSchema,
+    communityMood: communityMoodBreakdownShape,
+  })
+  const speakers = publicSpeakers(request)
+  const privateOutput = z.object({
+    messages: z.array(privateMessage).length(1),
+  })
+  // Character keys enforce distinct voices without relying on model-generated speaker IDs.
+  const publicOutput = z.object(
+    Object.fromEntries(speakers.map((id) => [id, publicMessage])),
+  )
+  const outputSchema = request.mode === 'private' ? privateOutput : publicOutput
   const completion = await client.chat.send(
     {
       chatRequest: {
         model: settings.model || DEFAULT_COMMUNITY_MODEL,
         stream: false,
-        maxTokens: 650,
+        maxTokens: 850,
         temperature: 0.65,
         reasoning: { effort: 'none' },
         provider: { sort: 'price' },
@@ -264,7 +276,17 @@ export async function generateCommunityReply(
   const content = completion.choices[0]?.message.content
   if (typeof content !== 'string') throw new Error('No community reply')
   const parsed: unknown = JSON.parse(content)
-  const reply = communityReplySchema.parse(outputSchema.parse(parsed))
+  const output = request.mode === 'private' ? privateOutput.parse(parsed) : null
+  const reply = communityReplySchema.parse(
+    output
+      ? output
+      : {
+          messages: (() => {
+            const turns = publicOutput.parse(parsed)
+            return speakers.map((id) => ({ speaker: id, ...turns[id] }))
+          })(),
+        },
+  )
   if (reply.messages.some((message) => message.text.split(/\s+/).length > 45))
     throw new Error('Community reply was too long')
   if (

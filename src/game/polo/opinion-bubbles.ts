@@ -32,6 +32,11 @@ export class PoloOpinionBubbles {
         'aria-label',
         `${opinion.name}: ${opinion.text} Talk privately.`,
       )
+      if (opinion.scope)
+        card.title =
+          opinion.scope === 'private'
+            ? 'From your private chat, visible only to you.'
+            : 'From the Community discussion.'
       const avatar = document.createElement('img')
       avatar.src = `/avatars/${opinion.avatar}.png`
       avatar.alt = ''

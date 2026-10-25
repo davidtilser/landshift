@@ -97,6 +97,8 @@ Player-facing language stays in the planning role: the proposal, the site, desig
 
 Polo uses the same bubble/private-chat and shared Community interfaces, including public simulated mood percentages, with separate scenario histories and fictional Polo perspectives: park regular, soil volunteer, young player and designer. Stage/proposal changes append to the same public thread. Chat never applies equipment or changes public access.
 
+Delivered private and public replies update the matching character's portrait and map bubbles. Gemini returns a short personal reaction and emotion in the same response, with no separate summary request; prepared replies use a compact excerpt of their actual text. The latest delivered reply for each character takes precedence. Private reactions appear only in the player's view and never enter public history or another character's prompt. Tooltips identify the conversation source. New plan revisions clear these reactions so current stage facts take priority; a conversation can change a response without changing equipment, consent or Support points.
+
 The server validates the Polo scene state, confirmation and matching coordinates/orientation, and constructs context from the committed phase handoff. Choosing a campus location does not recalculate the frozen turf-scenario baseline into a new GIS impact estimate. It bypasses the old sandbox consequence equations. Active concept views omit numeric baseline facts from model context and explicitly prohibit fabricated performance or savings. Gemini replies remain interpretation; authored demo replies are labeled when the provider is unavailable. Private messages stay separate from public history.
 
 ## Verification

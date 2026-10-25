@@ -63,6 +63,7 @@ import {
   poloProtesterPosition,
 } from './reactions.ts'
 import { poloOpinions } from './opinions.ts'
+import type { ConversationReactions } from '../community-reactions.ts'
 import { poloGeometryScale } from './size.ts'
 import { usAcres } from './us-units.ts'
 import { PoloOpinionBubbles } from './opinion-bubbles.ts'
@@ -111,6 +112,7 @@ const PALETTE = {
 
 /** A separate authored Polo scenario. No old sandbox campus or consequence rules enter this scene. */
 export class PoloScene {
+  private conversationReactions: ConversationReactions = new Map()
   readonly viewer: CesiumWidget
   private readonly interventionScene: PoloInterventionScene
   private constructionPausedAt: number | undefined
@@ -1790,7 +1792,9 @@ export class PoloScene {
     this.opinionBubbles.setVisibleCount(
       this.opinionReveal.count(performance.now()),
     )
-    this.opinionBubbles.update(poloOpinions(this.state))
+    this.opinionBubbles.update(
+      poloOpinions(this.state, this.conversationReactions),
+    )
     this.opinionBubbles.element.hidden =
       this.overview || this.environmentalLayer !== null
     for (const [index, bubble] of bubbles.entries()) {
@@ -2141,6 +2145,13 @@ export class PoloScene {
     }
     return local + 0.7
   }
+  setConversationReactions(reactions: ConversationReactions): void {
+    if (this.destroyed) return
+    this.conversationReactions = reactions
+    this.opinionBubbles.update(poloOpinions(this.state, reactions))
+    this.viewer.scene.requestRender()
+  }
+
   setState(state: PoloSceneState): void {
     if (this.destroyed) return
     const previous = this.state

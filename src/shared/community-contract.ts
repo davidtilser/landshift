@@ -24,6 +24,11 @@ export const communityMoodSchema = z.enum([
   'hopeful',
 ])
 export type CommunityMood = z.infer<typeof communityMoodSchema>
+export const communityReactionSchema = z.object({
+  text: z.string().trim().min(1).max(90),
+  mood: communityMoodSchema,
+})
+export type CommunityReaction = z.infer<typeof communityReactionSchema>
 export interface CommunityMoodState {
   mood: CommunityMood
   reason: string
@@ -152,6 +157,7 @@ export const communityReplySchema = z.object({
       z.object({
         speaker: communityIdSchema,
         text: z.string().trim().min(1).max(360),
+        reaction: communityReactionSchema.optional(),
         communityMood: communityMoodBreakdownSchema.optional(),
       }),
     )

@@ -55,6 +55,10 @@ function withMoods(
   return messages.map((message) => ({
     ...message,
     communityMood: simulatedMood,
+    reaction: {
+      text: 'I still want us to compare another site.',
+      mood: 'concerned',
+    },
   }))
 }
 const settings = {
@@ -62,6 +66,20 @@ const settings = {
   model: DEFAULT_COMMUNITY_MODEL,
 }
 function mockClient(reply: unknown, captured: Request[]): OpenRouter {
+  const parsed = z.object({ messages: z.array(z.unknown()) }).safeParse(reply)
+  // The provider uses character keys; the browser still receives a message array.
+  const wireReply =
+    parsed.success && parsed.data.messages.length === 3
+      ? Object.fromEntries(
+          parsed.data.messages.map((line) => {
+            const { speaker, ...body } = z
+              .object({ speaker: z.string() })
+              .loose()
+              .parse(line)
+            return [speaker, body]
+          }),
+        )
+      : reply
   return new OpenRouter({
     apiKey: settings.apiKey,
     httpClient: new HTTPClient({
@@ -79,7 +97,10 @@ function mockClient(reply: unknown, captured: Request[]): OpenRouter {
               {
                 index: 0,
                 finish_reason: 'stop',
-                message: { role: 'assistant', content: JSON.stringify(reply) },
+                message: {
+                  role: 'assistant',
+                  content: JSON.stringify(wireReply),
+                },
               },
             ],
           }),
@@ -96,6 +117,10 @@ describe('server-side community generation', () => {
         {
           speaker: 'neighbor',
           text: 'New trees cannot replace this memorial and its setting. Could we compare another site?',
+          reaction: {
+            text: 'I still want the memorial and its setting protected.',
+            mood: 'concerned',
+          },
         },
       ],
     }
@@ -122,7 +147,7 @@ describe('server-side community generation', () => {
       })
       .parse(await sent.json())
     expect(body.model).toBe(DEFAULT_COMMUNITY_MODEL)
-    expect(body.max_tokens).toBeLessThanOrEqual(650)
+    expect(body.max_tokens).toBeLessThanOrEqual(850)
     expect(body.response_format.type).toBe('json_schema')
     expect(JSON.stringify(result)).not.toContain(settings.apiKey)
   })
@@ -135,7 +160,18 @@ describe('server-side community generation', () => {
           settings,
           new AbortController().signal,
           mockClient(
-            { messages: [{ speaker, text: 'I approve this proposal.' }] },
+            {
+              messages: [
+                {
+                  speaker,
+                  text: 'I approve this proposal.',
+                  reaction: {
+                    text: 'I approve this proposal.',
+                    mood: 'hopeful',
+                  },
+                },
+              ],
+            },
             [],
           ),
         ),
@@ -248,7 +284,14 @@ describe('server-side community generation', () => {
     }
     await expect(
       generateCommunityReply(
-        { ...request, mode: 'discussion' },
+        {
+          ...request,
+          mode: 'discussion',
+          target: 'operator',
+          history: [
+            { speaker: 'neighbor', text: 'Could we compare locations first?' },
+          ],
+        },
         context,
         settings,
         new AbortController().signal,
@@ -269,6 +312,8 @@ describe('server-side community generation', () => {
     expect(prompt).not.toContain('PUBLIC MOOD:')
     expect(prompt).not.toContain('"id":"operator"')
     expect(prompt).toContain('"id":"neighbor"')
+    expect(prompt).toContain('PERSONAL REACTION:')
+    expect(prompt).toContain('not invent agreement')
     expect(prompt).not.toContain(settings.apiKey)
   })
   it('passes a specific public reply target and the shared history to the model', async () => {
@@ -280,6 +325,7 @@ describe('server-side community generation', () => {
     const targeted: CommunityRequest = {
       ...request,
       mode: 'discussion',
+      target: 'nature',
       message: 'Could we keep the grove?',
       replyTo,
       history: [replyTo],

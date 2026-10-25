@@ -3,6 +3,7 @@ import { INITIAL_POLO_STATE, POLO_PHASES, POLO_PROPOSALS } from './model.ts'
 import { lockPoloForProtest, poloExploreAfterProtest } from './protest.ts'
 import { poloOpinions, poloPortraitOpinions } from './opinions.ts'
 import { poloPhaseAt } from './placement.ts'
+import type { ConversationReactions } from '../community-reactions.ts'
 
 describe('portrait speech bubbles', () => {
   it('shows all four voices immediately after confirmation, including during the protest', () => {
@@ -30,6 +31,50 @@ describe('portrait speech bubbles', () => {
     expect(poloPortraitOpinions(built)[2]?.text).toContain(
       'still needs a pitch',
     )
+  })
+
+  it('uses personal replies for matching portraits and map bubbles without changing the plan', () => {
+    const state = {
+      ...INITIAL_POLO_STATE,
+      confirmed: true,
+      phase: 'M1' as const,
+    }
+    const before = structuredClone(state)
+    const reactions: ConversationReactions = new Map([
+      [
+        'neighbor',
+        {
+          text: 'I appreciate being heard. I still want our field.',
+          mood: 'concerned',
+          scope: 'private',
+        },
+      ],
+      [
+        'operator',
+        {
+          text: 'I think comparing sites is worth exploring.',
+          mood: 'hopeful',
+          scope: 'community',
+        },
+      ],
+    ])
+    const portraits = poloPortraitOpinions(state, reactions)
+    expect(portraits[0]).toMatchObject({
+      text: reactions.get('neighbor')?.text,
+      scope: 'private',
+    })
+    expect(portraits[3]).toMatchObject({
+      text: reactions.get('operator')?.text,
+      mood: 'hopeful',
+      scope: 'community',
+    })
+    expect(portraits[1]?.text).toBe(poloPortraitOpinions(state)[1]?.text)
+    expect(poloOpinions(state, reactions)[0]?.text).toBe(
+      reactions.get('neighbor')?.text,
+    )
+    expect(poloOpinions(state, reactions)[1]?.tone).toBe('possibility')
+    expect(poloPortraitOpinions(INITIAL_POLO_STATE, reactions)).toEqual([])
+    expect(state).toEqual(before)
   })
 })
 

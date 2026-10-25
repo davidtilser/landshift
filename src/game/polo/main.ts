@@ -19,6 +19,7 @@ import { setupPoloInterventions } from './intervention-ui.ts'
 import { activePoloImprovements } from './interventions.ts'
 import { poloPortraitOpinions } from './opinions.ts'
 import { POLO_TALK_PEOPLE, setupPoloTalkPicker } from './talk-picker.ts'
+import type { ConversationReactions } from '../community-reactions.ts'
 import {
   lockPoloForProtest,
   poloExploreAfterProtest,
@@ -198,6 +199,7 @@ export async function startPoloDemo(): Promise<void> {
     center: [...INITIAL_POLO_STATE.center],
   }
   let scene: PoloScene | undefined
+  let conversationReactions: ConversationReactions = new Map()
   const interventions = setupPoloInterventions(
     root,
     () => scene,
@@ -400,16 +402,9 @@ export async function startPoloDemo(): Promise<void> {
       message('Jumped ahead. Replay shows this step being done.')
     if (phase === 'M6') scene?.focus('site')
   }
-  function render(): void {
-    const phase = poloDisplayPhase(state)
-    const inOperation = state.confirmed && state.phase === 'M6'
-    const proposed = inOperation && state.proposal !== null && state.preview
-    const improved = activePoloImprovements(state).length > 0
-    const proposal = state.proposal ? PROPOSAL_COPY[state.proposal] : undefined
-    root.dataset['poloPhase'] = state.phase
-    root.dataset['poloConfirmed'] = String(state.confirmed)
+  function renderPeople(): void {
     get('.polo-people', HTMLElement).hidden = !state.confirmed
-    for (const opinion of poloPortraitOpinions(state)) {
+    for (const opinion of poloPortraitOpinions(state, conversationReactions)) {
       const portrait = get(
         `.polo-person[data-person="${opinion.id}"]`,
         HTMLButtonElement,
@@ -420,8 +415,25 @@ export async function startPoloDemo(): Promise<void> {
         'aria-label',
         `${opinion.name}: ${opinion.text} Talk privately.`,
       )
+      portrait.dataset['mood'] = opinion.mood ?? 'concerned'
+      portrait.title =
+        opinion.scope === 'private'
+          ? `${opinion.name} · From your private chat, visible only to you.`
+          : opinion.scope === 'community'
+            ? `${opinion.name} · From the Community discussion.`
+            : `Talk to ${opinion.name}`
     }
     talkPicker.sync()
+  }
+  function render(): void {
+    const phase = poloDisplayPhase(state)
+    const inOperation = state.confirmed && state.phase === 'M6'
+    const proposed = inOperation && state.proposal !== null && state.preview
+    const improved = activePoloImprovements(state).length > 0
+    const proposal = state.proposal ? PROPOSAL_COPY[state.proposal] : undefined
+    root.dataset['poloPhase'] = state.phase
+    root.dataset['poloConfirmed'] = String(state.confirmed)
+    renderPeople()
     root.dataset['poloBearing'] = String(state.bearing)
     get('#polo-bearing', HTMLOutputElement).value =
       `${state.bearing.toFixed(0)}°`
@@ -992,6 +1004,11 @@ export async function startPoloDemo(): Promise<void> {
         scene?.cancelPlacementDrag()
         evidence.close()
         talkPicker.dismiss()
+      },
+      reactionsChanged: (reactions) => {
+        conversationReactions = reactions
+        renderPeople()
+        scene?.setConversationReactions(reactions)
       },
     })
     talkPicker.attachChatFocus()
