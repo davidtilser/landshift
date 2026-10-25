@@ -22,13 +22,13 @@
 }
 .polo-topic-buttons button[aria-selected='true'],
 .polo-topic-buttons button[aria-selected='true']:hover {
-  background: #7226e8;
-  border-color: #7226e8;
-  color: #fff;
+  background: var(--ls-role-action);
+  border-color: color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
+  color: var(--ls-role-action-label);
 }
 .polo-topic-buttons button:focus-visible,
 .polo-today-panel:focus-visible {
-  outline: 3px solid #7629ec;
+  outline: 3px solid var(--ls-role-focus);
   outline-offset: 3px;
 }
 .polo-topic-buttons > button[hidden],
@@ -39,7 +39,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
-  border-top: 1px solid #e8def3;
+  border-top: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   padding-top: 16px;
 }
 .polo-today-metrics .polo-metric {
@@ -47,7 +47,7 @@
 }
 .polo-today-details p,
 .polo-rain-story p {
-  color: #655274;
+  color: var(--ls-role-ink);
   font-size: 15px;
   line-height: 1.5;
 }
@@ -59,8 +59,8 @@
   margin-top: 10px;
   padding: 10px 12px;
   border-radius: 12px;
-  background: #f0e7fb;
-  color: #6024a1;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
 }
 .polo-story-comparison strong {
   font-size: 18px;
@@ -73,7 +73,7 @@
 .polo-rain-story {
   margin: 14px 0 0;
   font-size: 13px;
-  color: #655274;
+  color: var(--ls-role-ink);
 }
 .polo-today-details summary,
 .polo-rain-story summary {
@@ -82,7 +82,7 @@
   line-height: 1.5;
 }
 .polo-rain-story > strong {
-  color: #542396;
+  color: var(--ls-role-ink);
   font-size: 20px;
 }
 .polo-today-sources {
@@ -92,7 +92,7 @@
 }
 .polo-today-sources a {
   overflow-wrap: anywhere;
-  color: #7226e8;
+  color: var(--ls-role-ink);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -130,15 +130,15 @@
   height: 48px;
   object-fit: cover;
   border-radius: 50%;
-  background: #eee3fc;
+  background: var(--ls-role-surface);
 }
 .polo-chapter-speech {
   position: relative;
   margin: 0;
   padding: 13px 15px;
   border-radius: 0 18px 18px;
-  background: #eee5fc;
-  color: #55416b;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   font-size: 15px;
   font-weight: 400;
   line-height: 1.5;
@@ -148,7 +148,7 @@
   position: absolute;
   top: 0;
   left: -8px;
-  border-top: 9px solid #eee5fc;
+  border-top: 9px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-left: 8px solid transparent;
 }
 
@@ -161,14 +161,14 @@
   z-index: 2;
   top: 0;
   padding-block: 3px;
-  background: #ffffff;
+  background: var(--ls-role-surface);
   box-shadow:
     0 -20px 0 #ffffff,
     0 8px 12px #ffffff;
 }
 .polo-reader-progress {
   margin: 0 0 16px;
-  color: #79658b;
+  color: var(--ls-role-ink);
   font-size: 14px;
   font-weight: 600;
   line-height: 1.5;
@@ -195,10 +195,10 @@
 }
 .polo-reader-number {
   padding: 18px;
-  border: 1px solid #e4d4f7;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 15px;
-  background: #faf7ff;
-  color: #6024a1;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
 }
 .polo-reader-number strong {
   display: block;
@@ -212,19 +212,19 @@
 .polo-reader-number span {
   display: block;
   margin-top: 8px;
-  color: #655274;
+  color: var(--ls-role-ink);
   font-size: 16px;
   line-height: 1.4;
 }
 .polo-reader-explanation {
   margin: 18px 0;
-  color: #55416b;
+  color: var(--ls-role-ink);
   font-size: 18px;
   line-height: 1.5;
 }
 .polo-reader-end {
   margin: 14px 0 0;
-  color: #79658b;
+  color: var(--ls-role-ink);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -232,8 +232,8 @@
   z-index: 3;
 }
 .polo-deck[data-polo-reader] .polo-next:disabled {
-  background: #eee7f6;
-  color: #806c95;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-muted);
   box-shadow: none;
   cursor: default;
 }
@@ -262,10 +262,10 @@
   place-items: center;
   flex: 0 0 24px;
   height: 24px;
-  border: 1px solid #d8c5ef;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 50%;
-  background: #f3ebff;
-  color: #6522ba;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   font-size: 21px;
   font-weight: 400;
   line-height: 1;
@@ -274,7 +274,7 @@
   content: '−';
 }
 #game[data-polo-confirmed='true'] .polo-today-details > summary:focus-visible {
-  outline: 3px solid #7629ec;
+  outline: 3px solid var(--ls-role-focus);
   outline-offset: 3px;
   border-radius: 8px;
 }

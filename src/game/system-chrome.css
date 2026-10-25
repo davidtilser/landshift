@@ -1,0 +1,119 @@
+html.ls-system-dark
+  :is(
+    .panel,
+    .topbar,
+    .bottom-bar,
+    .gameplay-panel,
+    .polo-topbar,
+    .polo-deck,
+    .polo-timeline,
+    .polo-project-setup,
+    .polo-talk-picker,
+    .polo-evidence,
+    .polo-protest-dialog
+  ) {
+  background: var(--ls-role-panel);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+html.ls-system-dark button {
+  background: var(--ls-role-secondary);
+  color: var(--ls-role-secondary-label);
+  border-color: rgb(255 255 255 / 0.38);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+html.ls-system-dark button:hover {
+  background: var(--ls-role-secondary-hover);
+  color: var(--ls-role-secondary-label);
+}
+
+html.ls-system-dark button:active {
+  background: var(--ls-role-secondary-press);
+  color: var(--ls-role-secondary-press-label);
+}
+
+html.ls-system-light,
+html.ls-system-dark {
+  font-family: var(--ls-role-body-font);
+}
+
+html.ls-system-light :is(h1, h2, h3, .brand),
+html.ls-system-dark :is(h1, h2, h3, .polo-brand) {
+  font-family: var(--ls-role-title-font);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+html.ls-system-light :is(button, input, textarea, select),
+html.ls-system-dark :is(button, input, textarea, select) {
+  font-family: var(--ls-role-body-font);
+  font-weight: 400;
+}
+
+html.ls-system-light
+  :is(
+    .primary-button,
+    .reality-button.active,
+    .choice-tabs button[aria-selected='true'],
+    .chat-composer button
+  ),
+html.ls-system-dark
+  :is(
+    .polo-next,
+    .polo-education-next,
+    .polo-learning button.is-primary,
+    .polo-learning-views button[aria-pressed='true'],
+    .polo-topic-buttons button[aria-selected='true'],
+    .polo-placement-confirm,
+    .polo-project-setup button,
+    .polo-protest-primary
+  ) {
+  background: var(--ls-role-action);
+  color: var(--ls-role-action-label);
+}
+
+html.ls-system-light
+  :is(.primary-button, .reality-button.active, .chat-composer button):hover,
+html.ls-system-dark
+  :is(
+    .polo-next,
+    .polo-education-next,
+    .polo-learning button.is-primary,
+    .polo-placement-confirm,
+    .polo-project-setup button,
+    .polo-protest-primary
+  ):hover {
+  background: color-mix(in srgb, var(--ls-fg) 22%, var(--ls-role-action));
+  color: var(--ls-role-action-label);
+}
+
+html.ls-system-light
+  :is(.primary-button, .reality-button.active, .chat-composer button):active,
+html.ls-system-dark
+  :is(
+    .polo-next,
+    .polo-education-next,
+    .polo-learning button.is-primary,
+    .polo-placement-confirm,
+    .polo-project-setup button,
+    .polo-protest-primary
+  ):active {
+  background: color-mix(
+    in srgb,
+    var(--ls-role-action-label) 22%,
+    var(--ls-role-action)
+  );
+  color: var(--ls-role-action-label);
+}
+
+html.ls-system-light .reality-button {
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
+}
+
+#map canvas:focus-visible {
+  outline: 2px solid var(--ls-role-focus);
+}

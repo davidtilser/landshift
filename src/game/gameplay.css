@@ -1,6 +1,6 @@
 /* The map is the board. The only permanent panel is the choice deck. */
 .has-gameplay {
-  background: #263e34;
+  background: var(--ls-role-surface);
 }
 .has-gameplay .topbar {
   top: 18px;
@@ -9,9 +9,9 @@
   height: 58px;
   width: auto;
   padding: 0 17px;
-  border: 1px solid #ffffff80;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 18px;
-  background: #f8faefee;
+  background: var(--ls-role-surface);
   box-shadow: 0 7px 30px #162d2420;
 }
 .has-gameplay .brand {
@@ -64,13 +64,13 @@
   font-size: 12px;
   font-weight: 650;
   padding: 11px;
-  background: #f8faefee;
-  color: #416046;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   box-shadow: 0 3px 15px #183d2420;
-  border: 1px solid #fff9;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
 }
 .has-gameplay #place.placing {
-  background: #ddbb65;
+  background: var(--ls-role-action);
 }
 .rotation-tool {
   position: relative;
@@ -81,8 +81,8 @@
   height: 43px;
   width: 49px;
   border-radius: 12px;
-  background: #f8faefee;
-  color: #527257;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   list-style: none;
   cursor: pointer;
   box-shadow: 0 3px 15px #183d2420;
@@ -97,7 +97,7 @@
   width: 215px;
   padding: 16px;
   border-radius: 13px;
-  background: #f8faef;
+  background: var(--ls-role-surface);
   box-shadow: 0 7px 25px #183d2433;
 }
 .has-gameplay .rotation-label {
@@ -106,7 +106,7 @@
 .has-gameplay #placement-hint {
   display: none;
   width: 220px;
-  background: #f8faefeb;
+  background: var(--ls-role-surface);
   border-radius: 8px;
   padding: 10px;
   margin: 0;
@@ -199,14 +199,14 @@
   display: flex;
   gap: 11px;
   align-items: center;
-  background: #f8faefe8;
-  border: 1px solid #fff8;
+  background: var(--ls-role-surface);
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 13px;
   padding: 6px 8px 6px 13px;
   box-shadow: 0 3px 15px #183d2415;
 }
 #impact-year {
-  color: #627c54;
+  color: var(--ls-role-ink);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -222,12 +222,16 @@
   border-radius: 7px;
   padding: 9px;
   font-size: 10px;
-  color: #88977b;
+  color: var(--ls-role-muted);
   white-space: nowrap;
 }
 .year-hud button[aria-pressed='true'] {
-  background: #dce9ca;
-  color: #3c613c;
+  background: color-mix(
+    in srgb,
+    var(--ls-role-action) 18%,
+    var(--ls-role-surface)
+  );
+  color: var(--ls-role-ink);
 }
 .hud-actions {
   position: absolute;
@@ -244,11 +248,11 @@
 .challenge-picker summary,
 .history-hud summary {
   list-style: none;
-  background: #f8faefed;
+  background: var(--ls-role-surface);
   padding: 14px 13px;
   border-radius: 12px;
   font-size: 11px;
-  color: #8b7541;
+  color: var(--ls-role-ink);
   cursor: pointer;
   box-shadow: 0 3px 15px #183d2415;
   white-space: nowrap;
@@ -264,7 +268,7 @@
   right: 0;
   width: 190px;
   padding: 7px;
-  background: #f9fbf0;
+  background: var(--ls-role-surface);
   border-radius: 12px;
   box-shadow: 0 7px 25px #183d2433;
 }
@@ -278,24 +282,29 @@
   border-radius: 8px;
   font-size: 12px;
   text-align: left;
-  color: #5b744d;
+  color: var(--ls-role-ink);
 }
 .weather-picks button[aria-pressed='true'] {
-  background: #f1e5c7;
+  background: color-mix(
+    in srgb,
+    var(--ls-role-action) 18%,
+    var(--ls-role-surface)
+  );
+  color: var(--ls-role-ink);
 }
 #saved-plans button > span {
   display: block;
   font-size: 9px;
-  color: #91a17e;
+  color: var(--ls-role-muted);
   margin-top: 4px;
 }
 .help-orb {
   width: 41px;
   height: 41px;
   border-radius: 50%;
-  border: 1px solid #fff9;
-  background: #f9fbef;
-  color: #749166;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
+  background: var(--ls-role-surface);
+  color: var(--ls-role-muted);
   font-size: 16px;
   box-shadow: 0 3px 15px #183d2415;
 }
@@ -304,24 +313,24 @@
   top: 250px;
   left: 20px;
   max-width: 225px;
-  border: 1px solid #fff6;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   padding: 9px 12px;
   border-radius: 9px;
-  background: #f8faefdf;
+  background: var(--ls-role-surface);
   font-size: 10px;
-  color: #71915b;
+  color: var(--ls-role-muted);
   box-shadow: 0 2px 9px #183d2410;
 }
 .map-alert.warning {
-  background: #fff1cddd;
-  color: #967140;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
 }
 .life-caption {
   position: absolute;
   bottom: 20px;
   left: 22px;
   font-size: 9px;
-  color: #eff4e6;
+  color: var(--ls-role-ink);
   text-shadow: 0 1px 4px #1e3429;
 }
 .gameplay-panel {
@@ -334,10 +343,10 @@
   border-radius: 23px;
   z-index: 5;
   box-shadow: 0 12px 48px #18372d40;
-  background: #fafbf2f5;
-  border: 2px solid #fff9;
+  background: var(--ls-role-surface);
+  border: 2px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   backdrop-filter: blur(20px);
-  color: #36583f;
+  color: var(--ls-role-ink);
 }
 .deck-heading {
   display: flex;
@@ -350,7 +359,7 @@
 }
 .quest-kicker {
   font-size: 8px;
-  color: #8a9b79;
+  color: var(--ls-role-muted);
   font-weight: 650;
   letter-spacing: 0.13em;
 }
@@ -367,8 +376,8 @@
 }
 .choice-tabs button {
   border: 0;
-  background: #e9eede;
-  color: #9aa78b;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   font-size: 13px;
   font-weight: 700;
   height: 37px;
@@ -385,8 +394,8 @@
   font-weight: 500;
 }
 .choice-tabs button[aria-selected='true'] {
-  background: #466a45;
-  color: #fff9df;
+  background: var(--ls-role-action);
+  color: var(--ls-role-action-label);
 }
 .game-budget {
   display: grid;
@@ -397,7 +406,7 @@
 }
 .coin {
   grid-row: span 2;
-  color: #d6ac48;
+  color: var(--ls-role-muted);
   font-size: 24px;
   text-shadow: 0 1px #ad8c38;
 }
@@ -409,10 +418,10 @@
 }
 .game-budget small {
   font-size: 8px;
-  color: #8b9b78;
+  color: var(--ls-role-muted);
 }
 .over-budget #credits-left {
-  color: #ba6946;
+  color: var(--ls-role-muted);
 }
 .choice-pages > section {
   display: grid;
@@ -426,11 +435,11 @@
   align-items: center;
   justify-content: center;
   min-height: 144px;
-  border: 2px solid #e2e9d9;
+  border: 2px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 16px;
-  background: #f6f9ed;
+  background: var(--ls-role-surface);
   padding: 5px 12px 12px;
-  color: #3d6144;
+  color: var(--ls-role-ink);
   cursor: pointer;
   transition:
     transform 0.16s,
@@ -439,14 +448,14 @@
 }
 .choice-card:hover {
   transform: translateY(-4px);
-  border-color: #abc58d;
+  border-color: color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
 }
 .choice-card:active {
   transform: translateY(-1px);
 }
 .choice-card[aria-pressed='true'] {
-  border-color: #83a45d;
-  background: #e7efcf;
+  border-color: color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
+  background: var(--ls-role-surface);
   box-shadow: 0 3px 0 #a0b77f;
 }
 .choice-art {
@@ -468,7 +477,7 @@
 }
 .card-caption {
   font-size: 10px;
-  color: #8b9b7c;
+  color: var(--ls-role-muted);
   margin-top: 6px;
   line-height: 1.3;
   text-align: center;
@@ -479,10 +488,10 @@
   right: 12px;
   font-size: 12px;
   font-weight: 600;
-  color: #8e7b43;
+  color: var(--ls-role-muted);
 }
 .card-cost small {
-  color: #d7b35f;
+  color: var(--ls-role-muted);
   font-size: 12px;
 }
 .card-check {
@@ -490,8 +499,8 @@
   bottom: 11px;
   left: 10px;
   font-size: 12px;
-  color: #fff;
-  background: #83a45d;
+  color: var(--ls-role-ink);
+  background: var(--ls-role-surface);
   height: 17px;
   width: 17px;
   border-radius: 50%;
@@ -509,13 +518,13 @@
   gap: 12px;
 }
 .deck-back {
-  background: #e7edda;
+  background: var(--ls-role-surface);
   border: 0;
   border-radius: 11px;
   width: 40px;
   height: 39px;
   font-size: 19px;
-  color: #6f8859;
+  color: var(--ls-role-muted);
   flex-shrink: 0;
 }
 .deck-back:disabled {
@@ -524,7 +533,7 @@
 }
 #action-hint {
   flex: 1;
-  color: #8b9b7b;
+  color: var(--ls-role-muted);
   font-size: 11px;
   margin: 0;
   line-height: 1.35;
@@ -538,14 +547,14 @@
   min-height: 42px;
   border: 0;
   border-radius: 12px;
-  background: #3f6544;
-  color: #f4f8e5;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
 }
 .test-plan:hover {
-  background: #2d5437;
+  background: var(--ls-role-surface);
 }
 .test-plan b {
   font-size: 18px;
@@ -558,24 +567,24 @@
 }
 .deck-outcome > span {
   flex: 1;
-  background: #e8f0d9;
+  background: var(--ls-role-surface);
   padding: 13px;
   border-radius: 12px;
-  color: #7a9466;
+  color: var(--ls-role-muted);
   font-size: 11px;
 }
 .deck-outcome b {
   display: block;
-  color: #5e7f48;
+  color: var(--ls-role-ink);
   font-size: 20px;
   font-weight: 550;
   margin-bottom: 5px;
 }
 .deck-outcome > span:nth-child(2) {
-  background: #f4ecd5;
+  background: var(--ls-role-surface);
 }
 .deck-outcome > span:nth-child(2) b {
-  color: #a08850;
+  color: var(--ls-role-muted);
 }
 .future-ready .choice-tabs {
   opacity: 0.65;
@@ -584,7 +593,7 @@
   position: absolute;
   inset: 0;
   z-index: 4;
-  background: #f4f8e8f0;
+  background: var(--ls-role-surface);
   border-radius: 22px;
   display: flex;
   align-items: center;
@@ -595,17 +604,17 @@
 .time-reveal > span {
   font-size: 9px;
   letter-spacing: 0.15em;
-  color: #91a878;
+  color: var(--ls-role-muted);
 }
 .time-reveal > strong {
   font-size: 52px;
   font-weight: 500;
   letter-spacing: -2px;
   margin: 7px 0;
-  color: #54773d;
+  color: var(--ls-role-ink);
 }
 .time-reveal small {
-  color: #96a481;
+  color: var(--ls-role-muted);
   font-size: 12px;
 }
 .is-running {
@@ -625,8 +634,8 @@
   padding: 30px;
   max-height: calc(100dvh - 46px);
   border-radius: 20px;
-  background: #f9fbf0;
-  color: #3c6040;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
 }
 .dialog-close {
   position: absolute;
@@ -634,7 +643,7 @@
   top: 13px;
   border: 0;
   background: transparent;
-  color: #81976e;
+  color: var(--ls-role-muted);
   font-size: 26px;
   cursor: pointer;
 }
@@ -654,13 +663,16 @@
 .results-dialog p {
   font-size: 11px;
   line-height: 1.7;
-  color: #829475;
+  color: var(--ls-role-muted);
 }
 .score-orb {
   width: 98px;
   height: 98px;
   border-radius: 50%;
-  background: conic-gradient(#97b87a var(--score), #e2e9d6 0);
+  background: conic-gradient(
+    var(--ls-role-action) var(--score),
+    color-mix(in srgb, var(--ls-role-ink) 12%, var(--ls-role-surface)) 0
+  );
   padding: 7px;
   flex-shrink: 0;
 }
@@ -672,15 +684,15 @@
   justify-content: center;
   flex-direction: column;
   border-radius: 50%;
-  background: #f9fbef;
+  background: var(--ls-role-surface);
   font-size: 35px;
   font-weight: 500;
-  color: #5f7a4b;
+  color: var(--ls-role-ink);
 }
 .score-orb small {
   font-size: 10px;
   font-weight: 400;
-  color: #9caa8d;
+  color: var(--ls-role-muted);
 }
 .result-tags {
   display: flex;
@@ -691,8 +703,8 @@
 .result-tags span {
   font-size: 9px;
   padding: 7px 9px;
-  background: #e9f0dd;
-  color: #8aa072;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-muted);
   border-radius: 5px;
 }
 .future-cards {
@@ -704,26 +716,26 @@
 .future-cards article {
   padding: 15px;
   border-radius: 12px;
-  background: #e9f0dc;
+  background: var(--ls-role-surface);
 }
 .future-cards article > span {
   font-size: 7px;
   letter-spacing: 0.1em;
-  color: #90a47b;
+  color: var(--ls-role-muted);
 }
 .future-cards strong {
   display: block;
   font-size: 23px;
   font-weight: 500;
   letter-spacing: -0.5px;
-  color: #65834e;
+  color: var(--ls-role-ink);
   margin-top: 9px;
 }
 .future-cards .tradeoff {
-  background: #f2ead3;
+  background: var(--ls-role-surface);
 }
 .future-cards .tradeoff strong {
-  color: #a28a56;
+  color: var(--ls-role-muted);
 }
 .future-cards p {
   font-size: 10px;
@@ -731,13 +743,13 @@
 }
 .comparison-details,
 .optional-perspectives {
-  border-top: 1px solid #dde6cf;
+  border-top: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
 }
 .comparison-details > summary,
 .optional-perspectives > summary,
 .learning-card > summary {
   font-size: 11px;
-  color: #7f9c66;
+  color: var(--ls-role-muted);
   cursor: pointer;
   padding: 13px 0;
 }
@@ -750,29 +762,31 @@
 .plan-comparison caption {
   text-align: left;
   font-size: 8px;
-  color: #91a47b;
+  color: var(--ls-role-muted);
   padding-bottom: 9px;
 }
 .plan-comparison th,
 .plan-comparison td {
-  border-bottom: 1px solid #e0e8d4;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   padding: 9px;
   text-align: left;
   font-weight: 400;
 }
 .plan-comparison td:last-child {
-  background: #ebf3de;
-  color: #668a4e;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-muted);
 }
 .result-goals {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   padding: 15px 0;
-  border-top: 1px solid #dce5cf;
-  border-bottom: 1px solid #dce5cf;
+  border-top: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   font-size: 10px;
-  color: #97a782;
+  color: var(--ls-role-muted);
 }
 .result-goals > div {
   display: flex;
@@ -780,10 +794,10 @@
   align-items: center;
 }
 .result-goals .passed {
-  color: #79965e;
+  color: var(--ls-role-muted);
 }
 .result-goals .missed {
-  color: #b29761;
+  color: var(--ls-role-muted);
 }
 .result-goals span {
   font-size: 15px;
@@ -791,10 +805,10 @@
 .consequence {
   margin: 14px 0;
   padding-left: 10px;
-  border-left: 2px solid #aabf8b;
+  border-left: 2px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
 }
 .consequence.warning {
-  border-color: #c3a164;
+  border-color: color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
 }
 .consequence strong {
   font-size: 11px;
@@ -804,7 +818,7 @@
   margin: 6px 0;
 }
 .result-blockers {
-  background: #f3e7cf;
+  background: var(--ls-role-surface);
   border-radius: 8px;
   padding: 7px 12px;
 }
@@ -816,15 +830,15 @@
 .community-voices article {
   padding: 12px;
   border-radius: 9px;
-  background: #edf2e3;
+  background: var(--ls-role-surface);
 }
 .community-voices article > span {
   font-size: 7px;
-  color: #91a47e;
+  color: var(--ls-role-muted);
 }
 .learning-card {
   padding: 0 12px;
-  border: 1px solid #dce6d0;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 9px;
   margin-top: 10px;
 }
@@ -840,21 +854,26 @@
 }
 .preference-options button {
   flex: 1;
-  border: 1px solid #d8e3ca;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 7px;
-  background: #f5f8ed;
-  color: #7a9465;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   font-size: 10px;
   padding: 10px 5px;
 }
 .preference-options button[aria-pressed='true'] {
-  background: #dfebcd;
-  border-color: #94ad76;
+  background: color-mix(
+    in srgb,
+    var(--ls-role-action) 18%,
+    var(--ls-role-surface)
+  );
+  color: var(--ls-role-ink);
+  border-color: color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
 }
 .learning-card label {
   display: block;
   font-size: 10px;
-  color: #8da279;
+  color: var(--ls-role-muted);
   margin: 12px 0 7px;
 }
 .learning-card textarea,
@@ -862,9 +881,9 @@
   width: 100%;
   padding: 10px;
   border-radius: 7px;
-  border: 1px solid #d4e1c5;
-  background: #f8fbef;
-  color: #62834c;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   font: inherit;
   font-size: 11px;
   resize: vertical;
@@ -879,8 +898,8 @@
   bottom: 0;
   padding: 13px 0;
   margin-top: 12px;
-  border-top: 1px solid #dde5d1;
-  background: #f9fbef;
+  border-top: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
+  background: var(--ls-role-surface);
   z-index: 2;
 }
 .results-actions > button {
@@ -888,10 +907,10 @@
   justify-content: center;
 }
 .secondary-game-button {
-  border: 1px solid #b5cba0;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 12px;
   background: transparent;
-  color: #77995d;
+  color: var(--ls-role-ink);
   padding: 12px;
   font-size: 11px;
 }
@@ -901,7 +920,7 @@
 .inline-details {
   border: 0;
   background: transparent;
-  color: #69914f;
+  color: var(--ls-role-muted);
   padding: 0;
   text-decoration: underline;
   font: inherit;
@@ -924,17 +943,18 @@
 .model-dialog th,
 .model-dialog td {
   padding: 10px;
-  border-bottom: 1px solid #dbe6ce;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   text-align: left;
 }
 .model-dialog caption {
   font-size: 10px;
   text-align: left;
-  color: #9aac86;
+  color: var(--ls-role-muted);
   margin-bottom: 7px;
 }
 .model-dialog a {
-  color: #69924f;
+  color: var(--ls-role-muted);
 }
 .model-dialog .model-footnote {
   font-size: 10px;
@@ -1164,8 +1184,8 @@
   padding: 8px 32px 8px 12px;
   border: 0;
   border-radius: 12px;
-  color: #35533c;
-  background: #e9edce;
+  color: var(--ls-role-ink);
+  background: var(--ls-role-surface);
   cursor: pointer;
   min-height: 48px;
 }
@@ -1194,12 +1214,16 @@
   height: 44px;
   border-radius: 50%;
   border: 2px solid transparent;
-  background: #edf0e4;
+  background: var(--ls-role-surface);
   font-size: 22px;
 }
 .voice-picks button[aria-pressed='true'] {
-  border-color: #7e9865;
-  background: #e1e9c8;
+  border-color: var(--ls-role-action);
+  background: color-mix(
+    in srgb,
+    var(--ls-role-action) 18%,
+    var(--ls-role-surface)
+  );
 }
 .voice-picks button:hover,
 .mini-challenge:hover {
@@ -1207,7 +1231,7 @@
 }
 .mini-challenge:focus-visible,
 .voice-picks button:focus-visible {
-  outline: 3px solid #405e42;
+  outline: 3px solid var(--ls-role-focus);
   outline-offset: 3px;
 }
 .is-running .community-quest {

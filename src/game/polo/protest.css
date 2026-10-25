@@ -3,10 +3,10 @@
   box-sizing: border-box;
   width: min(440px, calc(100vw - 32px));
   padding: 24px;
-  border: 1px solid #ded0f0;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 28px;
-  background: #faf7ff;
-  color: #241731;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   box-shadow: 0 18px 70px #24123633;
   font:
     18px/1.4 system-ui,
@@ -27,8 +27,8 @@
   overflow-y: auto;
 }
 .polo-protest-dialog::backdrop {
-  background: #24123612;
-  backdrop-filter: none;
+  background: var(--ls-role-scrim);
+  backdrop-filter: blur(8px);
 }
 .polo-protest-person {
   display: flex;
@@ -49,7 +49,7 @@
 .polo-protest-invitation h2,
 .polo-protest-dialog h2 {
   margin: 24px 0 18px;
-  color: #21152e;
+  color: var(--ls-role-ink);
   font-size: 30px;
   font-weight: 750;
   line-height: 1.15;
@@ -65,10 +65,10 @@
 .polo-protest-dialog button {
   min-height: 44px;
   padding: 10px 14px;
-  border: 1px solid #d9c7ed;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 14px;
-  background: #fff;
-  color: #6525a5;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   font: inherit;
   font-size: 15px;
   font-weight: 700;
@@ -81,13 +81,13 @@
 }
 .polo-protest-invitation .polo-protest-primary,
 .polo-protest-dialog .polo-protest-primary {
-  background: #b1ed0c;
-  border-color: #b1ed0c;
-  color: #273500;
+  background: var(--ls-role-action);
+  border-color: color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
+  color: var(--ls-role-action-label);
 }
 .polo-protest-invitation button:focus-visible,
 .polo-protest-dialog button:focus-visible {
-  outline: 3px solid #7629ec;
+  outline: 3px solid var(--ls-role-focus);
   outline-offset: 3px;
 }
 .polo-protest-choices {
@@ -109,7 +109,7 @@
   position: relative;
   padding: 20px;
   border-radius: 22px;
-  background: #eee0ff;
+  background: var(--ls-role-surface);
 }
 .polo-protest-reply::before {
   content: '';
@@ -123,7 +123,7 @@
 }
 .polo-protest-dialog .polo-protest-answer {
   margin: 0;
-  color: #291a39;
+  color: var(--ls-role-ink);
   font-size: 22px;
   font-weight: 650;
   line-height: 1.4;
@@ -139,7 +139,7 @@
   flex: 1;
 }
 .polo-protest-progress {
-  color: #7c648d;
+  color: var(--ls-role-ink);
   font-size: 13px;
 }
 #game[data-polo-protest-pending='true']

@@ -1,4 +1,5 @@
 import './talk-picker.css'
+import { insertBeforeMapCredits } from '../map-credits.ts'
 import type { CommunityId } from '../../shared/community-contract.ts'
 import type { ConversationReactions } from '../community-reactions.ts'
 import type { PoloSceneState } from './model.ts'
@@ -72,7 +73,9 @@ export function setupPoloTalkPicker(
     choices.set(person.id, choice)
     grid?.append(choice)
   }
-  root.querySelector('.polo-studio')?.append(picker)
+  const studio = root.querySelector('.polo-studio')
+  if (studio) insertBeforeMapCredits(studio, picker)
+  else root.append(picker)
 
   let privateChat: HTMLDialogElement | undefined
   const active = (): boolean => getState().confirmed

@@ -1,4 +1,5 @@
 import './protest.css'
+import { insertBeforeMapCredits } from '../map-credits.ts'
 import type { PoloSceneState } from './model.ts'
 import { confirmPoloPlacement, poloPhaseAt } from './placement.ts'
 
@@ -202,7 +203,8 @@ export function setupPoloProtest(
   const count = node('span', 'polo-protest-progress')
   footer.append(back, count, next)
   dialog.append(question, speaker, reply, footer, exit)
-  host.append(invitation, dialog)
+  host.append(invitation)
+  insertBeforeMapCredits(host, dialog)
 
   let progress = { ...INITIAL_POLO_PROTEST }
   let gatheringTimer: ReturnType<typeof setTimeout> | undefined

@@ -1,4 +1,5 @@
 import './character-chat.css'
+import { insertBeforeMapCredits } from './map-credits.ts'
 import { authoredPrivateCommunityReply } from './community-replies.ts'
 import { messageUiText } from './ui-text.ts'
 import { dialogueChoices } from './dialogue-choices.ts'
@@ -162,7 +163,9 @@ export class CharacterChat {
       )
         this.dialog.close()
     })
-    document.querySelector('.studio')?.append(this.dialog)
+    const studio = document.querySelector('.studio')
+    if (studio) insertBeforeMapCredits(studio, this.dialog)
+    else document.body.append(this.dialog)
   }
   open(profile: CommunityProfile): void {
     if (this.destroyed) return

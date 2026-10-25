@@ -26,7 +26,7 @@ const paper = byName.get('--ls-fg') ?? '#fcfcfc'
 root.append(
   heading('Design system'),
   paragraph(
-    'Dark and light surfaces share one set of roles. Titles are Fredoka in all caps. Body text and button labels are Roboto. The focus ring is white on the dark sheet and black on the light sheet. Primary is a filled wordmark color with ground-colored text.',
+    'Dark and light share one set of roles. Page, panel, raised, inset, overlay, and scrim are the surface stack. Titles are Fredoka in all caps. Body text and controls are Roboto. Focus is white on the dark sheet and black on the light sheet. Primary is the wordmark blue. Selected is a separate fill. Status colors are not buttons.',
   ),
 )
 mountSystem(root)

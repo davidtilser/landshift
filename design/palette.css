@@ -21,6 +21,9 @@
   --ls-source-wordmark-stroke: #1a2d78;
   --ls-source-wordmark-glow: #4a74e8;
   --ls-source-wordmark-glow-wide: #2a4db8;
+  /* UN brand blue and navy. https://www.un.org/styleguide/pdf/UN_brand_identity_quick_guide_2020.pdf */
+  --ls-source-un-blue: #009edb;
+  --ls-source-un-navy: #022944;
   --ls-source-titlebar: #54fcfc;
   --ls-source-lagoon: #00a8a8;
   --ls-source-forest: #00a800;

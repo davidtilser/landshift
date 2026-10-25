@@ -8,10 +8,10 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid #ded8ed;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 22px;
-  background: #f7f6fc;
-  color: #21172e;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   box-shadow: 0 18px 70px #24104640;
 }
 .community-hub[hidden] {
@@ -28,7 +28,7 @@
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: #755490;
+  color: var(--ls-role-ink);
 }
 .community-header h2 {
   margin: 2px 0 0;
@@ -46,7 +46,8 @@
   height: 34px;
   width: 34px;
   border-radius: 50%;
-  background: #eae3f5;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   font-size: 23px;
 }
 .community-context {
@@ -55,13 +56,15 @@
   align-items: center;
   gap: 8px;
   font-size: 11px;
-  color: #71657e;
-  border-bottom: 1px solid #e3dbed;
+  color: var(--ls-role-ink);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   flex-shrink: 0;
 }
 .community-moods {
   padding: 7px 14px;
-  border-bottom: 1px solid #e3dbed;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   flex-shrink: 0;
 }
 .community-mood-heading {
@@ -72,7 +75,7 @@
   font-size: 12px;
 }
 .community-mood-heading > span {
-  color: #796a87;
+  color: var(--ls-role-ink);
   font-size: 10px;
 }
 .community-mood-bar {
@@ -80,7 +83,7 @@
   height: 3px;
   border-radius: 10px;
   overflow: hidden;
-  background: #e3dbed;
+  background: var(--ls-role-surface);
   gap: 1px;
 }
 .community-mood-bar > span {
@@ -88,16 +91,28 @@
   transition: width 500ms ease;
 }
 .community-mood-bar [data-mood='angry'] {
-  background: #ed765d;
+  background: var(--ls-role-surface);
 }
 .community-mood-bar [data-mood='concerned'] {
-  background: #edb82d;
+  background: color-mix(
+    in srgb,
+    var(--ls-role-ink) 10%,
+    var(--ls-role-surface)
+  );
 }
 .community-mood-bar [data-mood='neutral'] {
-  background: #ae9cc4;
+  background: color-mix(
+    in srgb,
+    var(--ls-role-ink) 10%,
+    var(--ls-role-surface)
+  );
 }
 .community-mood-bar [data-mood='hopeful'] {
-  background: #89bb14;
+  background: color-mix(
+    in srgb,
+    var(--ls-role-ink) 10%,
+    var(--ls-role-surface)
+  );
 }
 .community-mood-values {
   display: grid;
@@ -116,7 +131,7 @@
 .mood-name {
   font-size: 10px;
   line-height: 1.3;
-  color: #6b567e;
+  color: var(--ls-role-ink);
   white-space: nowrap;
 }
 .mood-value {
@@ -135,7 +150,8 @@
   overflow-y: auto;
   padding: 2px 14px 10px;
   scrollbar-width: thin;
-  scrollbar-color: #c8b1e5 transparent;
+  scrollbar-color: color-mix(in srgb, var(--ls-role-ink) 35%, transparent)
+    transparent;
   overflow-anchor: none;
 }
 .community-post {
@@ -150,7 +166,7 @@
   position: absolute;
   content: '';
   width: 1px;
-  background: #e5d9f0;
+  background: var(--ls-role-surface);
   left: 15px;
   top: 46px;
   bottom: -2px;
@@ -164,24 +180,24 @@
   border-radius: 50%;
   font-size: 17px;
   padding: 0;
-  background: #edddff;
+  background: var(--ls-role-surface);
   z-index: 1;
   flex-shrink: 0;
 }
 .community-avatar.amber {
-  background: #f6e2cf;
+  background: var(--ls-role-surface);
 }
 .community-avatar.green {
-  background: #e0f4c4;
+  background: var(--ls-role-surface);
 }
 .community-avatar.blue {
-  background: #dce8ff;
+  background: var(--ls-role-surface);
 }
 .community-avatar.purple {
-  background: #eadeff;
+  background: var(--ls-role-surface);
 }
 .community-avatar.planner {
-  background: #e8f7bb;
+  background: var(--ls-role-surface);
 }
 .community-post-head {
   display: flex;
@@ -196,30 +212,30 @@
 }
 .community-post-head time {
   font-size: 10px;
-  color: #81728d;
+  color: var(--ls-role-ink);
   white-space: normal;
 }
 .community-source {
   display: block;
   font-size: 10px;
-  color: #78668c;
+  color: var(--ls-role-ink);
   margin-top: 2px;
 }
 .community-post-text {
   margin: 4px 0 5px;
   font-size: 15px;
   line-height: 1.45;
-  color: #2b2038;
+  color: var(--ls-role-ink);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 .proposal-post .community-post-text {
   font-size: 15px;
-  color: #281538;
+  color: var(--ls-role-ink);
   font-weight: 550;
 }
 .proposal-post .community-source {
-  color: #7130b9;
+  color: var(--ls-role-ink);
   letter-spacing: 0.08em;
   font-weight: 700;
 }
@@ -231,18 +247,18 @@
 .community-post-actions button {
   padding: 3px 0;
   font-size: 12px;
-  color: #7136ad;
+  color: var(--ls-role-muted);
   min-height: 28px;
 }
 .community-post-actions button:hover {
-  color: #542080;
+  color: var(--ls-role-ink);
 }
 .community-reply-context {
   display: block;
   width: 100%;
   text-align: left;
   font-size: 11px;
-  color: #78648b;
+  color: var(--ls-role-ink);
   padding: 3px 0;
   margin-top: 2px;
   line-height: 1.4;
@@ -252,8 +268,8 @@
   margin: 8px 0;
   padding: 8px 10px;
   border-radius: 9px;
-  background: #ebe2f6;
-  color: #675079;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
 }
 .community-plan-update > span {
   font-size: 11px;
@@ -266,21 +282,21 @@
 }
 .community-footer {
   padding: 7px 12px 8px;
-  border-top: 1px solid #e0d6ed;
-  background: #f0eafb;
+  border-top: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
+  background: var(--ls-role-surface);
   flex-shrink: 0;
 }
 .community-status {
-  color: #6e5c81;
+  color: var(--ls-role-ink);
   font-size: 11px;
   line-height: 1.4;
   margin: 0 2px 5px;
 }
 .community-compose-area {
-  border: 1px solid #d8c8e9;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 13px;
   overflow: hidden;
-  background: #fff;
+  background: var(--ls-role-surface);
 }
 .community-reply-target {
   display: flex;
@@ -288,9 +304,10 @@
   align-items: center;
   padding: 7px 10px 0;
   font-size: 14px;
-  color: #73528d;
+  color: var(--ls-role-ink);
 }
 .community-reply-target button {
+  color: var(--ls-role-ink);
   font-size: 18px;
   height: 44px;
   width: 44px;
@@ -303,7 +320,7 @@
 }
 .community-composer textarea {
   font: inherit;
-  color: #281a35;
+  color: var(--ls-role-ink);
   font-size: 15px;
   line-height: 1.4;
   padding: 3px;
@@ -316,14 +333,14 @@
   border: 0;
 }
 .community-composer textarea::placeholder {
-  color: #8a7b96;
+  color: var(--ls-role-muted);
 }
 .community-send {
   padding: 8px 10px;
   border: 0;
   border-radius: 9px;
-  background: #b1ed0c;
-  color: #243000;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   font: inherit;
   font-size: 14px;
   font-weight: 700;
@@ -338,13 +355,13 @@
   margin: 5px 2px 0;
   font-size: 10px;
   line-height: 1.3;
-  color: #786a85;
+  color: var(--ls-role-ink);
 }
 .community-hub button:focus-visible,
 .community-hub textarea:focus-visible,
 .community-post:focus,
 .community-plan-update:focus {
-  outline: 2px solid #7729ee;
+  outline: 2px solid var(--ls-role-focus);
   outline-offset: 2px;
 }
 .community-open .gameplay-panel {
@@ -368,8 +385,8 @@
   right: 520px;
 }
 .has-gameplay .community-launch {
-  background: #eaddff;
-  color: #6421ac;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   font-weight: 750;
 }
 @media (min-width: 1400px) {

@@ -1,4 +1,5 @@
 import './project-setup.css'
+import { insertBeforeMapCredits } from '../map-credits.ts'
 import { usAcres, usAreaNumber } from './us-units.ts'
 import {
   POLO_SCENARIO_ID,
@@ -84,7 +85,7 @@ export function setupPoloProjectIntro(
   city.className = 'polo-city-label'
   city.textContent = 'San Francisco'
   const studio = root.querySelector('.polo-studio') ?? root
-  studio.append(city, status, dialog)
+  insertBeforeMapCredits(studio, city, status, dialog)
   let disposed = false
   let flightVersion = 0
   const dismiss = (): void => {

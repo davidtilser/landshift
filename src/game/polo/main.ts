@@ -1,4 +1,6 @@
+import emblemUrl from '../../../design/un-emblem-white.svg'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
+import '../../../design/shared.css'
 import '../style.css'
 import './style.css'
 import './motion-overlay.css'
@@ -40,6 +42,9 @@ import {
   poloPhaseAt,
   poloPlacementValid,
 } from './placement.ts'
+import '../system-chrome.css'
+
+document.documentElement.classList.add('ls-system-dark')
 
 const PHASE_LABELS: Record<PoloPhase, string> = {
   M0: 'Today',
@@ -142,7 +147,7 @@ export async function startPoloDemo(): Promise<void> {
     <main class="studio polo-studio">
       <div id="map" aria-label="Interactive 3D map of the Polo Fields"></div>
       <header class="polo-topbar">
-        <a class="polo-brand" href="./" aria-label="Landshift onboarding">◉ <strong>landshift.</strong></a>
+        <a class="polo-brand" href="./" aria-label="Landshift onboarding"><img class="polo-brand-emblem" src="${emblemUrl}" alt="" /> <strong>landshift.</strong></a>
       <nav class="polo-camera" aria-label="Map views">
         <button type="button" data-polo-action="site">Your site</button>
         <button type="button" data-polo-action="access">Access route</button>
@@ -188,10 +193,10 @@ export async function startPoloDemo(): Promise<void> {
         <div class="polo-deck-bottom"><button type="button" data-polo-action="back" class="polo-back">← Back</button><button type="button" data-polo-action="next" class="polo-next" id="polo-next">Continue →</button></div>
       </section>
       <nav class="polo-timeline" aria-label="Story milestones"></nav>
-      <div id="cesium-credits"></div>
       <div class="polo-toast" id="polo-toast" role="status" hidden></div>
       <div class="polo-loading" id="polo-loading"><span>◉</span><h2>Your city. Your choices.</h2><p>Opening San Francisco…</p></div>
       <dialog class="polo-evidence" id="polo-evidence" aria-labelledby="polo-evidence-title"><button type="button" data-polo-action="close-evidence" class="polo-dialog-close" aria-label="Close sources">×</button><span class="polo-eyebrow">BEHIND THIS STORY</span><h2 id="polo-evidence-title">Real place. Clear assumptions.</h2><div id="polo-evidence-copy"></div></dialog>
+      <div id="cesium-credits"></div>
     </main>
   `
   let state: PoloSceneState = {

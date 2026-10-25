@@ -18,10 +18,10 @@
   .polo-more-toggle {
     display: block;
     min-height: 44px;
-    border: 1px solid #e2d9ec;
+    border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
     border-radius: 12px;
-    background: #f3eaff;
-    color: #52239a;
+    background: var(--ls-role-surface);
+    color: var(--ls-role-ink);
     font: 650 14px system-ui;
     padding: 8px 12px;
   }
@@ -33,7 +33,7 @@
     width: 220px;
     padding: 12px;
     border-radius: 20px;
-    background: #faf7ff;
+    background: var(--ls-role-surface);
     box-shadow: 0 12px 40px #20142f40;
     z-index: 12;
   }

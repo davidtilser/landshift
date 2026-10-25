@@ -309,7 +309,8 @@ h3 {
 
 @media (max-width: 640px) {
   .role,
-  .samples {
+  .samples,
+  .ls-layer-row {
     grid-template-columns: 1fr;
   }
 }

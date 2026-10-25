@@ -1,6 +1,7 @@
 import {
   createButton,
   createButtonGroup,
+  createDepthStack,
   createFocusSpecimen,
   createSurface,
   createTypeSample,
@@ -15,16 +16,30 @@ export function mountSystem(root: HTMLElement): void {
   grid.append(
     systemColumn(
       'Dark',
-      'Surface is the landing panel mix. Ink is --ls-fg.',
+      'Panel sits above the page. Ink is --ls-fg. Focus is white.',
       'dark',
     ),
     systemColumn(
       'Light',
-      'Surface is --ls-fg. Ink is --ls-menu-fg. Muted text is --ls-muted-on-paper.',
+      'Panel sits above the page. Ink is --ls-menu-fg. Focus is black.',
       'light',
     ),
   )
-  root.append(grid)
+  const layers = document.createElement('div')
+  layers.className = 'compare'
+  layers.append(
+    layerColumn(
+      'Dark layers',
+      'System. Page, panel, then raised. Inset sits below the panel. The overlay sits on a scrim. Selected is not the primary fill. Status marks are not buttons.',
+      'dark',
+    ),
+    layerColumn(
+      'Light layers',
+      'System. The page is under a near-paper panel with a white rim. Raised is paper. Inset is the well. Scrim is translucent. The same status roles, not action or muted.',
+      'light',
+    ),
+  )
+  root.append(grid, layers)
 }
 
 export function mountExploration(root: HTMLElement): void {
@@ -78,6 +93,14 @@ function proposedColumn(): HTMLDivElement {
   )
 }
 
+function layerColumn(
+  title: string,
+  note: string,
+  tone: 'dark' | 'light',
+): HTMLDivElement {
+  return column(title, note, [createDepthStack(tone)])
+}
+
 function systemColumn(
   title: string,
   note: string,
@@ -95,6 +118,7 @@ function systemSpecimen(tone: 'dark' | 'light'): HTMLElement {
     }),
     primaryStates(),
     createButtonGroup([
+      createButton('Selected', 'selected'),
       createButton('Default', 'default'),
       createButton('Quiet', 'quiet'),
     ]),
@@ -152,7 +176,7 @@ function referenceNotes(): HTMLDivElement {
       un75Pdf,
     ),
     judgment(
-      'These notes do not set fills or type. The system uses Fredoka in all caps for titles, Roboto for body text and button labels, and --ls-source-wordmark-bottom with --ls-bg text for primary. Focus is --ls-fg on the dark sheet and #000000 on the light sheet.',
+      'These notes do not set fills or type. The system uses Fredoka in all caps for titles and Roboto for body text and controls. Primary stays --ls-source-wordmark-bottom. Selected is a separate role. Focus is --ls-fg on the dark sheet and #000000 on the light sheet.',
     ),
   )
   return notes
@@ -482,7 +506,7 @@ function tokenPlan(): HTMLElement {
       [un75Pdf, brandQuickGuide],
     ),
     judgment(
-      'These notes do not set fills or type. The system uses role tokens: surface, ink, muted, action, action label, focus, title font, and body font.',
+      'These notes do not set fills or type. The system uses page, panel, raised, inset, overlay, scrim, ink, muted, action, action label, selected, focus, title font, body font, and status roles. Status roles are not button fills.',
     ),
     planTable(),
   )
@@ -584,7 +608,7 @@ function planRows(): readonly PlanRow[] {
       menus: 'Landing, studio, polo',
       un75: 'The PDF does not name a UI surface. Logo colors include #FFFFFF and #022944.',
       pairing:
-        'Dark: --ls-role-surface, the landing panel mix of --ls-bg. Light: --ls-role-surface is --ls-fg.',
+        'Page, panel, raised, inset, overlay, and scrim. --ls-role-surface follows the panel. Panel and raised sit above the page. Inset sits below the panel. Scrim is translucent.',
     },
     {
       role: 'Ink',
@@ -618,7 +642,7 @@ function planRows(): readonly PlanRow[] {
       menus: 'Landing, studio, polo',
       un75: 'The PDF does not name a control fill. Logo colors include #009EDB and #022944.',
       pairing:
-        'Both tones: --ls-role-action is --ls-source-wordmark-bottom. --ls-role-action-label is --ls-bg.',
+        'Both tones: --ls-role-action is --ls-source-wordmark-bottom. --ls-role-action-label is --ls-bg. --ls-role-selected is a mix of --ls-source-wordmark-offset, so a selected control is not the primary fill.',
     },
     {
       role: 'Focus',
@@ -627,6 +651,15 @@ function planRows(): readonly PlanRow[] {
       un75: 'The PDF does not name a focus color.',
       pairing:
         'Dark: --ls-role-focus is --ls-fg. Light: --ls-role-focus is #000000.',
+    },
+    {
+      role: 'Status',
+      current:
+        'Good, caution, money, angry, live, water, and person fills (amber, green, blue, purple, planner, character, player) were separate colors.',
+      menus: 'Studio, polo, community',
+      un75: 'The PDF does not name status colors.',
+      pairing:
+        'Named status roles. Good uses forest. Caution, money, and amber share earth. Live uses wordmark glow. Water uses cover ocean. Angry uses alert. Community blue uses wordmark mid. Character and community purple share wordmark offset. Planner and player share leaf. They are not action or muted, and they are not button fills.',
     },
   ]
 }

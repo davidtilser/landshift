@@ -146,25 +146,85 @@
 
 /* Role tokens. Dark and light set the same names; components read the names. */
 .ls-system-dark {
-  --ls-role-surface: color-mix(in srgb, var(--ls-bg) 86%, transparent);
+  --ls-role-page: transparent;
+  /* Glassy black, so the map stays visible. */
+  --ls-role-panel: rgb(0 0 0 / 0.46);
+  --ls-role-raised: rgb(0 0 0 / 0.72);
+  --ls-role-inset: rgb(0 0 0 / 0.58);
+  --ls-role-overlay: rgb(0 0 0 / 0.55);
+  --ls-role-scrim: rgb(0 0 0 / 0.34);
+  --ls-role-surface: var(--ls-role-panel);
   --ls-role-ink: var(--ls-fg);
   --ls-role-muted: color-mix(in srgb, var(--ls-fg) 70%, transparent);
-  --ls-role-action: var(--ls-source-wordmark-bottom);
-  --ls-role-action-label: var(--ls-bg);
+  --ls-role-action: var(--ls-source-un-blue);
+  --ls-role-action-label: #ffffff;
+  --ls-role-secondary: rgb(255 255 255 / 0.22);
+  --ls-role-secondary-hover: rgb(255 255 255 / 0.4);
+  --ls-role-secondary-press: rgb(255 255 255 / 0.88);
+  --ls-role-secondary-label: #ffffff;
+  --ls-role-secondary-press-label: var(--ls-source-un-navy);
+  --ls-role-selected: var(--ls-source-un-navy);
+  --ls-role-selected-label: #ffffff;
   --ls-role-focus: var(--ls-fg); /* Black disappears on this sheet. */
   --ls-role-title-font: var(--ls-font-ui);
   --ls-role-body-font: Roboto, sans-serif;
+  --ls-role-status-good: var(--ls-source-forest);
+  --ls-role-status-caution: var(--ls-source-sand);
+  --ls-role-status-money: var(--ls-source-forest);
+  --ls-role-status-amber: var(--ls-source-earth);
+  --ls-role-status-angry: var(--ls-source-alert);
+  --ls-role-status-live: var(--ls-source-wordmark-glow);
+  --ls-role-status-water: var(--ls-source-cover-ocean);
+  --ls-role-status-community-green: var(--ls-source-forest);
+  --ls-role-status-community-blue: var(--ls-source-wordmark-mid);
+  --ls-role-status-community-purple: var(--ls-source-wordmark-offset);
+  /* Leaf is the other green already in the palette. */
+  --ls-role-status-planner: var(--ls-source-leaf);
+  --ls-role-status-player: var(--ls-source-leaf);
+  --ls-role-status-character: var(--ls-source-wordmark-offset);
 }
 
 .ls-system-light {
-  --ls-role-surface: var(--ls-fg);
+  --ls-role-page: color-mix(in srgb, var(--ls-source-chrome) 32%, var(--ls-fg));
+  --ls-role-panel: color-mix(in srgb, var(--ls-source-chrome) 6%, var(--ls-fg));
+  --ls-role-raised: var(--ls-fg);
+  --ls-role-raised-edge: color-mix(
+    in srgb,
+    var(--ls-role-ink) 18%,
+    transparent
+  );
+  --ls-role-inset: color-mix(
+    in srgb,
+    var(--ls-source-chrome) 18%,
+    var(--ls-role-panel)
+  );
+  --ls-role-overlay: var(--ls-fg);
+  --ls-role-scrim: color-mix(in srgb, var(--ls-bg) 46%, transparent);
+  --ls-role-surface: var(--ls-role-panel);
   --ls-role-ink: var(--ls-menu-fg);
   --ls-role-muted: var(--ls-muted-on-paper);
-  --ls-role-action: var(--ls-source-wordmark-bottom);
-  --ls-role-action-label: var(--ls-bg);
+  --ls-role-action: var(--ls-source-un-blue);
+  --ls-role-action-label: #ffffff;
+  --ls-role-secondary: rgb(255 255 255 / 0.72);
+  --ls-role-secondary-label: var(--ls-source-un-navy);
+  --ls-role-selected: var(--ls-source-un-navy);
+  --ls-role-selected-label: #ffffff;
   --ls-role-focus: #000000;
   --ls-role-title-font: var(--ls-font-ui);
   --ls-role-body-font: Roboto, sans-serif;
+  --ls-role-status-good: var(--ls-source-forest);
+  --ls-role-status-caution: var(--ls-source-sand);
+  --ls-role-status-money: var(--ls-source-forest);
+  --ls-role-status-amber: var(--ls-source-earth);
+  --ls-role-status-angry: var(--ls-source-alert);
+  --ls-role-status-live: var(--ls-source-wordmark-glow);
+  --ls-role-status-water: var(--ls-source-cover-ocean);
+  --ls-role-status-community-green: var(--ls-source-forest);
+  --ls-role-status-community-blue: var(--ls-source-wordmark-mid);
+  --ls-role-status-community-purple: var(--ls-source-wordmark-offset);
+  --ls-role-status-planner: var(--ls-source-leaf);
+  --ls-role-status-player: var(--ls-source-leaf);
+  --ls-role-status-character: var(--ls-source-wordmark-offset);
 }
 
 .ls-system {
@@ -182,34 +242,68 @@
   line-height: 1.4;
 }
 
-.ls-system-dark {
+.ls-system.ls-system-dark {
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
 
-.ls-system-light {
+.ls-system.ls-system-light {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
 
-.ls-system .ls-title {
+.ls-system-dark,
+.ls-system-light {
+  --ls-ring: var(--ls-role-focus);
+  color: var(--ls-role-ink);
+  font-family: var(--ls-role-body-font);
+}
+
+.ls-system .ls-title,
+.ls-system-dark .ls-title,
+.ls-system-light .ls-title {
   font-family: var(--ls-role-title-font);
   color: var(--ls-role-ink);
   text-transform: uppercase;
 }
 
-.ls-system .ls-body {
+.ls-system .ls-body,
+.ls-system-dark .ls-body,
+.ls-system-light .ls-body {
   font-family: var(--ls-role-body-font);
   font-weight: 400;
   color: var(--ls-role-ink);
   text-transform: none;
 }
 
-.ls-system .ls-label {
+.ls-system .ls-label,
+.ls-system-dark .ls-label,
+.ls-system-light .ls-label {
   color: var(--ls-role-muted);
+  font-family: var(--ls-role-body-font);
 }
 
-.ls-system .ls-button {
+.ls-system-dark .ls-button:not(.ls-button-primary) {
+  background: var(--ls-role-secondary);
+  color: var(--ls-role-secondary-label);
+  border-color: rgb(255 255 255 / 0.38);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.ls-system-dark .ls-button:not(.ls-button-primary):hover {
+  background: var(--ls-role-secondary-hover);
+  color: var(--ls-role-secondary-label);
+}
+
+.ls-system-dark .ls-button:not(.ls-button-primary):active {
+  background: var(--ls-role-secondary-press);
+  color: var(--ls-role-secondary-press-label);
+}
+
+.ls-system .ls-button,
+.ls-system-dark .ls-button,
+.ls-system-light .ls-button {
   --ls-action: var(--ls-role-action);
   border-color: color-mix(in srgb, var(--ls-role-ink) 35%, transparent);
   font-family: var(--ls-role-body-font);
@@ -217,21 +311,31 @@
   color: var(--ls-role-ink);
 }
 
-.ls-system .ls-button-primary {
+.ls-system .ls-button-primary,
+.ls-system-dark .ls-button-primary,
+.ls-system-light .ls-button-primary {
   border-color: transparent;
   background: var(--ls-role-action);
   color: var(--ls-role-action-label);
 }
 
 .ls-system .ls-button-primary:hover,
-.ls-system .ls-primary-hover {
+.ls-system .ls-primary-hover,
+.ls-system-dark .ls-button-primary:hover,
+.ls-system-dark .ls-primary-hover,
+.ls-system-light .ls-button-primary:hover,
+.ls-system-light .ls-primary-hover {
   border-color: transparent;
   background: color-mix(in srgb, var(--ls-fg) 22%, var(--ls-role-action));
   color: var(--ls-role-action-label);
 }
 
 .ls-system .ls-button-primary:active,
-.ls-system .ls-primary-press {
+.ls-system .ls-primary-press,
+.ls-system-dark .ls-button-primary:active,
+.ls-system-dark .ls-primary-press,
+.ls-system-light .ls-button-primary:active,
+.ls-system-light .ls-primary-press {
   border-color: transparent;
   background: color-mix(
     in srgb,
@@ -239,6 +343,26 @@
     var(--ls-role-action)
   );
   color: var(--ls-role-action-label);
+}
+
+.ls-system .ls-button-selected,
+.ls-system-dark .ls-button-selected,
+.ls-system-light .ls-button-selected {
+  border-color: transparent;
+  background: var(--ls-role-selected);
+  color: var(--ls-role-selected-label);
+}
+
+.ls-system .ls-button-selected:hover,
+.ls-system-dark .ls-button-selected:hover,
+.ls-system-light .ls-button-selected:hover {
+  border-color: transparent;
+  background: color-mix(
+    in srgb,
+    var(--ls-source-wordmark-offset) 18%,
+    var(--ls-role-selected)
+  );
+  color: var(--ls-role-selected-label);
 }
 
 .ls-primary-states {
@@ -262,17 +386,174 @@
   color: var(--ls-role-ink);
 }
 
-.ls-system .ls-button-quiet {
+.ls-system .ls-button-quiet,
+.ls-system-dark .ls-button-quiet,
+.ls-system-light .ls-button-quiet {
   color: var(--ls-role-muted);
 }
 
-.ls-system .ls-button-quiet:hover {
+.ls-system .ls-button-quiet:hover,
+.ls-system-dark .ls-button-quiet:hover,
+.ls-system-light .ls-button-quiet:hover {
   background: transparent;
   color: var(--ls-role-ink);
 }
 
-.ls-system .ls-focus-demo {
+.ls-system .ls-focus-demo,
+.ls-system-dark .ls-focus-demo,
+.ls-system-light .ls-focus-demo {
   color: var(--ls-role-ink);
+}
+
+.ls-stack {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 16%, transparent);
+  border-radius: 16px;
+  background: var(--ls-role-page);
+}
+
+.ls-panel {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--ls-role-panel);
+  color: var(--ls-role-ink);
+}
+
+.ls-system-dark .ls-panel,
+.ls-system-dark .ls-raised,
+.ls-system-dark .ls-overlay {
+  border: 1px solid color-mix(in srgb, var(--ls-fg) 18%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+/* Light panels keep a white rim against the page. */
+.ls-system-light .ls-panel {
+  border: 1px solid color-mix(in srgb, var(--ls-fg) 80%, transparent);
+}
+
+.ls-layer-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.ls-raised,
+.ls-inset,
+.ls-overlay {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 12px;
+  border-radius: 12px;
+  color: var(--ls-role-ink);
+}
+
+.ls-raised {
+  background: var(--ls-role-raised);
+  border: 1px solid
+    var(
+      --ls-role-raised-edge,
+      color-mix(in srgb, var(--ls-fg) 22%, transparent)
+    );
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--ls-bg) 28%, transparent);
+}
+
+.ls-inset {
+  background: var(--ls-role-inset);
+}
+
+.ls-dialog {
+  position: relative;
+  display: grid;
+  min-height: 108px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ls-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--ls-role-scrim);
+}
+
+.ls-overlay {
+  position: relative;
+  margin: 22px 16px 14px;
+  background: var(--ls-role-overlay);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--ls-bg) 28%, transparent);
+}
+
+.ls-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ls-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 2px 8px 2px 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ls-role-ink) 8%, var(--ls-role-panel));
+  color: var(--ls-role-ink);
+  font-family: var(--ls-role-body-font);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.ls-status-mark {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ls-status-fill);
+}
+
+.ls-status-good {
+  --ls-status-fill: var(--ls-role-status-good);
+}
+.ls-status-caution {
+  --ls-status-fill: var(--ls-role-status-caution);
+}
+.ls-status-money {
+  --ls-status-fill: var(--ls-role-status-money);
+}
+.ls-status-angry {
+  --ls-status-fill: var(--ls-role-status-angry);
+}
+.ls-status-live {
+  --ls-status-fill: var(--ls-role-status-live);
+}
+.ls-status-water {
+  --ls-status-fill: var(--ls-role-status-water);
+}
+.ls-status-amber {
+  --ls-status-fill: var(--ls-role-status-amber);
+}
+.ls-status-community-green {
+  --ls-status-fill: var(--ls-role-status-community-green);
+}
+.ls-status-community-blue {
+  --ls-status-fill: var(--ls-role-status-community-blue);
+}
+.ls-status-community-purple {
+  --ls-status-fill: var(--ls-role-status-community-purple);
+}
+.ls-status-planner {
+  --ls-status-fill: var(--ls-role-status-planner);
+}
+.ls-status-character {
+  --ls-status-fill: var(--ls-role-status-character);
+}
+.ls-status-player {
+  --ls-status-fill: var(--ls-role-status-player);
 }
 
 @media (prefers-reduced-motion: no-preference) {

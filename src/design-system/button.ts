@@ -1,4 +1,4 @@
-export type ButtonVariant = 'primary' | 'default' | 'quiet'
+export type ButtonVariant = 'primary' | 'selected' | 'default' | 'quiet'
 
 export function createButton(
   label: string,
@@ -24,6 +24,8 @@ function buttonClass(variant: ButtonVariant): string {
   switch (variant) {
     case 'primary':
       return 'ls-button ls-button-primary'
+    case 'selected':
+      return 'ls-button ls-button-selected'
     case 'default':
       return 'ls-button'
     case 'quiet':

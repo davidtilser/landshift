@@ -23,18 +23,22 @@
   justify-content: space-between;
   gap: 12px;
   padding: 17px;
-  border: 1px solid #e4d5fb;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 24px;
-  background: #faf8ff;
-  color: #29183a;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   text-align: left;
   font: inherit;
   cursor: pointer;
   box-shadow: 0 8px 24px #34146412;
 }
 .polo-talk-launcher:hover {
-  background: #f0e6ff;
-  border-color: #ba94ec;
+  background: color-mix(
+    in srgb,
+    var(--ls-role-ink) 12%,
+    var(--ls-role-surface)
+  );
+  border-color: color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
 }
 .polo-talk-launcher-copy {
   display: grid;
@@ -46,7 +50,7 @@
 }
 .polo-talk-launcher-copy > span {
   max-width: 114px;
-  color: #6a557d;
+  color: var(--ls-role-muted);
   font-size: 14.4px;
   line-height: 1.3;
 }
@@ -58,9 +62,9 @@
   width: 38px;
   height: 38px;
   margin-left: -11px;
-  border: 2px solid #faf8ff;
+  border: 2px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 50%;
-  background: #eadeff;
+  background: var(--ls-role-surface);
 }
 .polo-talk-picker {
   box-sizing: border-box;
@@ -68,16 +72,16 @@
   max-height: calc(100dvh - 32px);
   margin: auto 20px auto auto;
   padding: 24px;
-  border: 1px solid #ddcdf2;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 24px;
-  background: #faf8ff;
-  color: #261633;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   box-shadow: 0 24px 80px #24104644;
   overflow: auto;
 }
 .polo-talk-picker::backdrop {
-  background: #231c3c44;
-  backdrop-filter: blur(3px);
+  background: var(--ls-role-scrim);
+  backdrop-filter: blur(8px);
 }
 .polo-talk-heading {
   display: flex;
@@ -88,14 +92,8 @@
 }
 .polo-talk-heading h2 {
   margin: 0;
-  color: #181220;
-  font-family:
-    Inter,
-    ui-sans-serif,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  color: var(--ls-role-ink);
+  font-family: var(--ls-role-body-font);
   font-size: 28px;
   font-weight: 750;
   line-height: 1.15;
@@ -107,8 +105,8 @@
   height: 40px;
   border: 0;
   border-radius: 50%;
-  background: #ede2fa;
-  color: #6424b5;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   font-size: 27px;
   cursor: pointer;
 }
@@ -123,22 +121,22 @@
   align-items: center;
   min-width: 0;
   padding: 20px 12px 16px;
-  border: 1px solid #e0cff6;
+  border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 18px;
-  background: #f1e9ff;
-  color: #2e1941;
+  background: var(--ls-role-surface);
+  color: var(--ls-role-ink);
   text-align: center;
   font: inherit;
   cursor: pointer;
 }
 .polo-talk-choice:hover {
-  background: #e8d8ff;
-  border-color: #b788eb;
+  background: var(--ls-role-surface);
+  border-color: color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
 }
 .polo-talk-choice img {
   margin-bottom: 12px;
   border-radius: 50%;
-  background: #e0c9ff;
+  background: var(--ls-role-surface);
 }
 .polo-talk-choice strong {
   font-size: 27.3px;
@@ -146,13 +144,13 @@
 }
 .polo-talk-choice > span {
   margin: 6px 0 0;
-  color: #6e547e;
+  color: var(--ls-role-ink);
   font-size: 21px;
   line-height: 1.3;
 }
 .polo-talk-launcher:focus-visible,
 .polo-talk-picker button:focus-visible {
-  outline: 3px solid #7226ec;
+  outline: 3px solid var(--ls-role-focus);
   outline-offset: 3px;
 }
 @media (max-width: 900px) and (min-width: 701px) {

@@ -18,7 +18,7 @@
   border: 2px solid var(--opinion-edge);
   border-radius: 23px 23px 23px 5px;
   background: var(--opinion-fill);
-  color: #291e36;
+  color: var(--ls-role-action-label);
   box-shadow: 0 5px 20px #18232530;
   font: inherit;
   text-align: left;
@@ -36,14 +36,14 @@
   box-shadow: 0 7px 25px #18232540;
 }
 .polo-opinion:focus-visible {
-  outline: 3px solid #7226e8;
+  outline: 3px solid var(--ls-role-focus);
   outline-offset: 4px;
 }
 .polo-opinion > img {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: #eee0ff;
+  background: var(--ls-role-surface);
   object-fit: cover;
 }
 .polo-opinion-byline {

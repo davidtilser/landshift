@@ -1,4 +1,5 @@
 import './gameplay.css'
+import { insertBeforeMapCredits } from './map-credits.ts'
 import { choiceArt } from './choice-art.ts'
 import { CommunityHub } from './community-hub.ts'
 import type { DialogueTarget } from './dialogue-choices.ts'
@@ -244,7 +245,8 @@ export class Gameplay {
       .join(
         '',
       )}</tbody></table><p>Heatwave: direct cooling water × 1.3; electricity × 1.06 / 1.10 / 1.18 for evaporative / hybrid / dry. Dry summer: cooling water × 1.12. Establishment irrigation adds 8 L per planted tree per day at year 0, then 3 L. Indirect electricity-related water is excluded.</p><p>Tree survival is 82% in the drought test and 90% otherwise. Canopy growth is 12% / 55% / 100% at years 0 / 5 / 10; restoration recovery is 20% / 65% / 100%. Nature, shade, runoff and local benefits are <strong>game indices, not measured ecological outcomes or public opinion</strong>. Training places are planned, not guaranteed jobs. Credits are an upgrade allowance, not dollars or the cost of the building. Care is included.</p><p>Greening on the map is a schematic proposal. Soil suitability, land ownership, setbacks, tree species, detailed stormwater capacity, grid capacity, permitting and flood depths are not modeled. New planting cannot offset an occupied footprint or guarantee flood protection.</p><h3>Evidence behind the trade-offs</h3>${MODEL_SOURCES.map((source) => `<p><a href="${source.url}" target="_blank" rel="noopener noreferrer">${source.title} ↗</a><br>${source.detail}</p>`).join('')}<p class="model-footnote">The sources support the mechanisms. The numeric coefficients are planning assumptions. See docs/game-model.md for every scoring formula.</p>`
-    studio.append(this.panel, this.metrics, this.dialog, this.modelDialog)
+    studio.append(this.panel, this.metrics)
+    insertBeforeMapCredits(studio, this.dialog, this.modelDialog)
     for (const container of [
       this.panel,
       this.metrics,
