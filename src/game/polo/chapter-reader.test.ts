@@ -165,4 +165,27 @@ describe('chapter step reader', () => {
         expect(steps[0]?.value).toBeUndefined()
       }
   })
+
+  it('keeps custom-only plans qualitative and restores references in the original view', () => {
+    const proposed: PoloSceneState = {
+      ...foundations(),
+      phase: 'M6',
+      preview: true,
+      customLearnings: [
+        { id: 'idea-1', text: 'Share a public space', selected: true },
+      ],
+    }
+    for (const tab of POLO_TODAY_TABS) {
+      const steps = poloChapterSteps(proposed, tab)
+      expect(steps).toHaveLength(2)
+      expect(steps[1]?.value).toBe('Not recalculated')
+      expect(steps[0]?.copy).not.toContain('change the design on the map')
+      expect(
+        poloChapterSteps({ ...proposed, preview: false }, tab)[1]?.value,
+      ).not.toBe('Not recalculated')
+      expect(
+        poloChapterSteps({ ...proposed, phase: 'M1' }, tab)[1]?.value,
+      ).not.toBe('Not recalculated')
+    }
+  })
 })

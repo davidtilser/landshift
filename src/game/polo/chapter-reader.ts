@@ -1,6 +1,6 @@
 import type { PoloPhase, PoloSceneState } from './model.ts'
 import { activePoloImprovements } from './interventions.ts'
-import { activePoloLearnings } from './learnings.ts'
+import { hasActivePoloLearningPlan } from './learnings.ts'
 import { poloPlanningText } from './planning-copy.ts'
 import { poloChapterCard } from './today.ts'
 import type { PoloTodayTab } from './today.ts'
@@ -68,7 +68,7 @@ export function poloChapterSteps(
 ): PoloChapterStep[] {
   if (!state.confirmed) return []
   const card = poloChapterCard(state, tab)
-  const revised = activePoloLearnings(state).length > 0
+  const revised = hasActivePoloLearningPlan(state)
   const hasChanges = activePoloImprovements(state).length > 0
   const concept =
     state.phase === 'M6' && state.preview && state.proposal !== null
@@ -77,7 +77,7 @@ export function poloChapterSteps(
     title: 'The story',
     copy: poloPlanningText(
       revised
-        ? 'Your selected ideas change the design on the map. Their effects need assessment, and the public playing field is still lost.'
+        ? 'Your selected ideas are part of this proposed plan. Their effects need assessment, and the public playing field is still lost.'
         : hasChanges || concept
           ? (card.copy ?? '')
           : STORIES[state.phase][tab],
@@ -117,7 +117,7 @@ export function poloChapterSteps(
         title: 'Your changed plan',
         value: 'Not recalculated',
         label: 'Impacts of your design choices',
-        copy: 'Your choices are kept on the map. Their effects need assessment; original plan figures remain available in More info.',
+        copy: 'Your choices are kept with the plan. Their effects need assessment; original plan figures remain available in More info.',
       },
     ]
   const phase = state.phase
