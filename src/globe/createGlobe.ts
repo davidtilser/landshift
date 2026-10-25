@@ -200,6 +200,34 @@ export function createGlobe(container: HTMLElement): GlobeHandle {
   reducedMotion.addEventListener('change', applyMotionPreferences)
   applyMotionPreferences()
 
+  let localeTextureReady = false
+  let sharpenToken = 0
+  const sharpenLocaleTexture = (): void => {
+    if (
+      !localeTextureReady &&
+      renderer.capabilities.maxTextureSize >= DAY_TEXTURE_8K_SIZE
+    ) {
+      localeTextureReady = true
+      globe.globeImageUrl(DAY_TEXTURE_8K_URL)
+    }
+    sharpenToken += 1
+    const token = sharpenToken
+    const started = performance.now()
+    const apply = (): void => {
+      if (destroyed || token !== sharpenToken) return
+      const map = reliefMaterial.map
+      if (map) {
+        const next = Math.min(4, renderer.capabilities.getMaxAnisotropy())
+        if (map.anisotropy < next) {
+          map.anisotropy = next
+          map.needsUpdate = true
+        }
+      }
+      if (performance.now() - started < 1600) requestAnimationFrame(apply)
+    }
+    apply()
+  }
+
   const highDetail = window.matchMedia(HIGH_DETAIL_MEDIA_QUERY).matches
   const curvatureDegrees = highDetail
     ? HIGH_DETAIL_CURVATURE_DEGREES
@@ -228,6 +256,7 @@ export function createGlobe(container: HTMLElement): GlobeHandle {
         highDetail &&
         renderer.capabilities.maxTextureSize >= DAY_TEXTURE_8K_SIZE
       ) {
+        localeTextureReady = true
         globe.globeImageUrl(DAY_TEXTURE_8K_URL)
       }
       resolve(globeMesh)
@@ -269,7 +298,15 @@ export function createGlobe(container: HTMLElement): GlobeHandle {
       if (destroyed) {
         return Promise.resolve()
       }
+      if (target.tiltDegrees !== undefined && target.tiltDegrees > 0) {
+        // The day map is soft this close; a small anisotropy bump and the 8k swap land during the flight.
+        sharpenLocaleTexture()
+      }
       return cameraController.flyTo(target, durationMs)
+    },
+    view() {
+      const pov = globe.pointOfView()
+      return { lat: pov.lat, lng: pov.lng, altitude: pov.altitude }
     },
     setAutoRotate(enabled) {
       if (!destroyed) {

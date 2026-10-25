@@ -13,6 +13,15 @@ export interface Region {
   /** One-line brief shown when the region opens; `null` for regions that cannot be opened. */
   summary: string | null
   children: readonly Region[]
+  /** Outline bounds used to frame a locale view. Absent when the region is not a framed locale. */
+  extent?: LocaleExtent
+}
+
+export interface LocaleExtent {
+  south: number
+  north: number
+  west: number
+  east: number
 }
 
 interface RegionPlacement {
@@ -26,6 +35,20 @@ interface RegionPlacement {
 interface LeafPlacement extends RegionPlacement {
   enabled: boolean
   summary?: string
+  extent?: LocaleExtent
+}
+
+const EARTH_RADIUS_KM = 6371
+const MIN_LOCALE_ALTITUDE_KM = 100
+const LOCALE_CAMERA_FOV_DEGREES = 50
+
+// Under a third of a 50° view, so the outline stays smaller than the free area beside the panel.
+function localeFitAltitude(spanDegrees: number): number {
+  const halfFov = (LOCALE_CAMERA_FOV_DEGREES * Math.PI) / 360
+  const edge = Math.atan(0.32 * Math.tan(halfFov))
+  const halfSpan = (spanDegrees * Math.PI) / 360
+  const range = halfSpan / Math.tan(edge)
+  return Math.max(range, MIN_LOCALE_ALTITUDE_KM / EARTH_RADIUS_KM)
 }
 
 function leaf(placement: LeafPlacement): Region {
@@ -38,6 +61,7 @@ function leaf(placement: LeafPlacement): Region {
     altitude,
     summary: placement.summary ?? null,
     children: [],
+    ...(placement.extent === undefined ? {} : { extent: placement.extent }),
   }
 }
 
@@ -79,7 +103,14 @@ export const regions: readonly Region[] = [
             label: 'SF Bay Area',
             lat: 37.8,
             lng: -122.3,
-            altitude: 0.35,
+            // Nine-county outline, about 36.9° to 38.9°. The flight may sit farther to clear the panel.
+            altitude: localeFitAltitude(1.971),
+            extent: {
+              south: 36.893,
+              north: 38.864,
+              west: -123.534,
+              east: -121.208,
+            },
             enabled: true,
             summary:
               'Cities, farms, and wild land in the SF Bay Area compete for the same soil and water.',

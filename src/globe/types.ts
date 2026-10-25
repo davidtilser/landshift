@@ -3,6 +3,20 @@ export interface LatLngAlt {
   lng: number
   /** Height above the surface, in globe radii. */
   altitude: number
+  /**
+   * Locale flights only. The camera sits about this many degrees off vertical,
+   * south of the region. Globe.gl keeps the orbit target on the globe center.
+   */
+  tiltDegrees?: number
+  /** When set, the flight frames this outline inside `inset` instead of using `altitude` alone. */
+  locale?: {
+    south: number
+    north: number
+    west: number
+    east: number
+    inset: { left: number; top: number; right: number; bottom: number }
+    pin?: { lat: number; lng: number }
+  }
 }
 
 /** A region pill anchored on the globe. `group` is the parent region's label. */
@@ -22,6 +36,8 @@ export interface GlobeHandle {
    * `target.altitude` is raised to the orbit minimum, which keeps the camera above the clouds.
    */
   flyTo(target: LatLngAlt, durationMs?: number): Promise<void>
+  /** Current camera facing, including altitude. */
+  view(): LatLngAlt
   /** The only way to re-enable auto-rotate after `flyTo`; user interaction still pauses it for 5 s after release. */
   setAutoRotate(enabled: boolean): void
   /**

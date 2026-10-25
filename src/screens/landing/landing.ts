@@ -9,6 +9,7 @@ import { findScenario, type Scenario } from '../../scenarios/scenarios.ts'
 import { mountCreditsPanel } from '../../ui/creditsPanel.ts'
 import { createBackButton, createButton, createTitle } from './elements.ts'
 import {
+  LOCALE_TILT_DEGREES,
   OVERVIEW,
   type GlobeTarget,
   type LandingGlobe,
@@ -112,6 +113,8 @@ function relayGlobe(
   let autoRotate: boolean | null = null
   let paused: boolean | null = null
   let flight: GlobeTarget | null = null
+  let focusedRegion: string | null = null
+  let focusKnown = false
 
   const attach = (next: LandingGlobe): void => {
     if (isClosed()) return
@@ -122,6 +125,7 @@ function relayGlobe(
     next.setMarkers(markers)
     next.highlightMarker(highlighted)
     next.setInteractive(interactive)
+    if (focusKnown) next.focusRegion(focusedRegion)
     if (paused === true) next.pause()
     else if (paused === false) next.resume()
     if (flight !== null) {
@@ -153,6 +157,9 @@ function relayGlobe(
         flightResolvers.push(resolve)
       })
     },
+    view() {
+      return inner?.view() ?? { ...OVERVIEW }
+    },
     setAutoRotate(enabled) {
       autoRotate = enabled
       inner?.setAutoRotate(enabled)
@@ -177,6 +184,11 @@ function relayGlobe(
     setInteractive(enabled) {
       interactive = enabled
       inner?.setInteractive(enabled)
+    },
+    focusRegion(regionId) {
+      focusedRegion = regionId
+      focusKnown = true
+      inner?.focusRegion(regionId)
     },
     pause() {
       paused = true
@@ -294,11 +306,14 @@ export function mountLanding(
     globe.highlightMarker(null)
     if (!previous) return
     explore.focus()
-    // Drags may have moved the camera anywhere, so every return to idle flies home first.
-    void globe.flyTo(OVERVIEW).then(() => {
-      // Identity check: a later return to idle creates a new state object and owns rotation.
-      if (!disposed && store.get() === state) globe.setAutoRotate(true)
-    })
+    // Keep the facing from the regional view; only the zoom returns home.
+    const facing = globe.view()
+    void globe
+      .flyTo({ lat: facing.lat, lng: facing.lng, altitude: OVERVIEW.altitude })
+      .then(() => {
+        // Identity check: a later return to idle creates a new state object and owns rotation.
+        if (!disposed && store.get() === state) globe.setAutoRotate(true)
+      })
   }
 
   function showExplore(previous: LandingState | null): void {
@@ -321,7 +336,12 @@ export function mountLanding(
     globe.setAutoRotate(false)
     if (!previous) return
     if (previous.screen === 'regionFocused') {
-      void globe.flyTo(OVERVIEW)
+      const facing = globe.view()
+      void globe.flyTo({
+        lat: facing.lat,
+        lng: facing.lng,
+        altitude: OVERVIEW.altitude,
+      })
       if (
         listSelection === previous.regionId &&
         regionList.focus(listSelection)
@@ -330,6 +350,50 @@ export function mountLanding(
       }
     }
     hint.focus()
+  }
+
+  function panelInset(): {
+    left: number
+    top: number
+    right: number
+    bottom: number
+  } {
+    const rect = panel.getBoundingClientRect()
+    const width = window.innerWidth
+    const onLeft = rect.left < 48 && rect.right < width * 0.55
+    if (onLeft) {
+      return { left: rect.right, top: 12, right: 16, bottom: 16 }
+    }
+    return {
+      left: 12,
+      top: 12,
+      right: 12,
+      bottom: Math.max(16, window.innerHeight - rect.top),
+    }
+  }
+
+  function localeFlight(
+    region: Region,
+    pin?: { lat: number; lng: number },
+  ): GlobeTarget {
+    const extent = region.extent
+    return {
+      ...region.center,
+      altitude: region.altitude,
+      tiltDegrees: LOCALE_TILT_DEGREES,
+      ...(extent === undefined
+        ? {}
+        : {
+            locale: {
+              south: extent.south,
+              north: extent.north,
+              west: extent.west,
+              east: extent.east,
+              inset: panelInset(),
+              ...(pin === undefined ? {} : { pin }),
+            },
+          }),
+    }
   }
 
   function showRegion(
@@ -345,6 +409,9 @@ export function mountLanding(
       failedScenarioId,
       onBack: back,
       onStart: startScenario,
+      onScenarioHover(location) {
+        void globe.flyTo(localeFlight(region, location ?? undefined))
+      },
     })
     showView(...card.parts)
     globe.highlightMarker(region.id)
@@ -353,7 +420,7 @@ export function mountLanding(
       card.focusTarget.focus()
       return
     }
-    void globe.flyTo({ ...region.center, altitude: region.altitude })
+    void globe.flyTo(localeFlight(region))
     if (previous) card.focusTarget.focus()
   }
 
@@ -385,8 +452,10 @@ export function mountLanding(
     alertRegion.textContent = ''
     panel.className = `landing-panel landing-panel-${layoutFor(next)}`
     setPaused(next.screen === 'handoff')
-    setMarkersShown(next.screen !== 'idle')
+    // Locale view hides the globe pills. Explore still shows them; the keyboard list is separate.
+    setMarkersShown(next.screen === 'explore')
     setInteractive(next.screen === 'explore' || next.screen === 'regionFocused')
+    globe.focusRegion(next.screen === 'regionFocused' ? next.regionId : null)
     switch (next.screen) {
       case 'idle':
         showIdle(next, previous)
@@ -415,6 +484,7 @@ export function mountLanding(
     if (store.get().screen !== 'handoff') {
       globe.setMarkers([])
       globe.highlightMarker(null)
+      globe.focusRegion(null)
       globe.setInteractive(true)
       if (pausedByLanding) globe.resume()
     }

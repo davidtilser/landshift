@@ -1,9 +1,12 @@
 import type { GlobeInstance } from 'globe.gl'
+import { PerspectiveCamera } from 'three'
+import { frameLocale } from './localeFrame.ts'
 import type { LatLngAlt } from './types.ts'
 
 const AUTO_ROTATE_SPEED = 0.35
 const RESUME_DELAY_MS = 5000
 const DEFAULT_FLY_DURATION_MS = 1500
+const MIN_LOCALE_ALTITUDE = 100 / 6371
 
 export interface CameraController {
   flyTo(target: LatLngAlt, durationMs?: number): Promise<void>
@@ -17,8 +20,15 @@ interface PendingFlight {
   resolve: () => void
 }
 
+interface Geo {
+  lat: number
+  lng: number
+  altitude: number
+}
+
 export function createCameraController(globe: GlobeInstance): CameraController {
   const controls = globe.controls()
+  const camera = globe.camera()
   let autoRotateEnabled = true
   let reducedMotion = false
   let interacting = false
@@ -37,12 +47,11 @@ export function createCameraController(globe: GlobeInstance): CameraController {
   }
 
   const settleFlight = (): void => {
-    if (pendingFlight === undefined) {
-      return
-    }
+    if (pendingFlight === undefined) return
     clearTimeout(pendingFlight.timer)
-    pendingFlight.resolve()
+    const resolve = pendingFlight.resolve
     pendingFlight = undefined
+    resolve()
   }
 
   // Ending globe.gl's tween jumps to its old target, so re-pin the current view in the same task.
@@ -83,20 +92,48 @@ export function createCameraController(globe: GlobeInstance): CameraController {
   controls.addEventListener('end', onInteractionEnd)
   applyAutoRotate()
 
+  const localePose = (target: LatLngAlt): Geo | null => {
+    const locale = target.locale
+    const tilt = target.tiltDegrees
+    if (locale === undefined || tilt === undefined || tilt <= 0) return null
+    const fov = camera instanceof PerspectiveCamera ? camera.fov : 50
+    const framed = frameLocale({
+      extent: locale,
+      tiltDegrees: tilt,
+      fov,
+      width: globe.width(),
+      height: globe.height(),
+      inset: locale.inset,
+      ...(locale.pin === undefined ? {} : { pin: locale.pin }),
+    })
+    return framed
+  }
+
   return {
     flyTo(target, durationMs = DEFAULT_FLY_DURATION_MS) {
       setAutoRotate(false)
       freezeCamera()
       const duration = reducedMotion ? 0 : Math.max(0, durationMs)
       // Orbit controls clamp distance every frame, so a lower target would end the flight with a jump.
-      const minAltitude = controls.minDistance / globe.getGlobeRadius() - 1
+      const minAltitude = Math.max(
+        MIN_LOCALE_ALTITUDE,
+        controls.minDistance / globe.getGlobeRadius() - 1,
+      )
+      const framed = localePose(target)
+      const pose: Geo = framed ?? {
+        lat: target.lat,
+        lng: target.lng,
+        altitude: target.altitude,
+      }
       globe.pointOfView(
-        { ...target, altitude: Math.max(target.altitude, minAltitude) },
+        {
+          lat: pose.lat,
+          lng: pose.lng,
+          altitude: Math.max(pose.altitude, minAltitude),
+        },
         duration,
       )
-      if (duration <= 0) {
-        return Promise.resolve()
-      }
+      if (duration <= 0) return Promise.resolve()
       return new Promise((resolve) => {
         pendingFlight = {
           timer: setTimeout(settleFlight, duration),
