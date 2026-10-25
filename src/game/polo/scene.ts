@@ -56,6 +56,7 @@ import { poloTransitionFrame } from './transitions.ts'
 import type { PoloTransitionFrame } from './transitions.ts'
 import { segmentReveal, workPass } from './scene-animation.ts'
 import { poloPlacementValid } from './placement.ts'
+import { PoloAccessScene } from './access-scene.ts'
 import {
   activePoloProposal,
   pointOnPath,
@@ -100,6 +101,7 @@ export class PoloScene {
   private readonly callbacks: SceneCallbacks
   private readonly handler: ScreenSpaceEventHandler
   private readonly grid: ElevationGrid
+  private readonly access: PoloAccessScene
   private readonly reducedMotion = matchMedia(
     '(prefers-reduced-motion: reduce)',
   )
@@ -200,6 +202,12 @@ export class PoloScene {
       )
     })
     void viewer.dataSources.add(this.source)
+    this.access = new PoloAccessScene(
+      viewer,
+      grid,
+      () => this.source.entities.values,
+    )
+    this.access.setState(this.state)
     this.handler = new ScreenSpaceEventHandler(viewer.canvas)
     this.handler.setInputAction(
       (event: ScreenSpaceEventHandler.PositionedEvent) => {
@@ -228,6 +236,10 @@ export class PoloScene {
     )
     this.handler.setInputAction(
       (event: ScreenSpaceEventHandler.MotionEvent) => {
+        if (this.state.confirmed) {
+          this.viewer.canvas.style.cursor = ''
+          return
+        }
         if (this.drag || performance.now() - this.hoverAt < 90) return
         this.hoverAt = performance.now()
         const picked: unknown = this.viewer.scene.pick(event.endPosition)
@@ -299,7 +311,7 @@ export class PoloScene {
     if (center) this.requestPosition(center)
   }
   private requestPosition(center: LngLat): boolean {
-    if (this.destroyed) return false
+    if (this.destroyed || this.state.confirmed) return false
     if (
       !poloPlacementValid(center) ||
       !this.callbacks.positionRequested([...center])
@@ -317,6 +329,7 @@ export class PoloScene {
     this.beginPlacementDrag(event, this.placementHandle)
   }
   private readonly onCampusDown = (event: PointerEvent): void => {
+    if (this.state.confirmed) return
     if (event.button !== 0 || !event.isPrimary || this.drag) return
     const picked: unknown = this.viewer.scene.pick(this.pointerPosition(event))
     if (
@@ -333,6 +346,7 @@ export class PoloScene {
     event: PointerEvent,
     captureTarget: HTMLElement,
   ): void {
+    if (this.state.confirmed) return
     if (event.button !== 0 || !event.isPrimary || this.drag) return
     const start = this.pointerPosition(event)
     const ray = this.viewer.camera.getPickRay(start)
@@ -402,6 +416,7 @@ export class PoloScene {
     this.finishPlacementDrag(true)
   }
   private readonly onPlacementKey = (event: KeyboardEvent): void => {
+    if (this.state.confirmed) return
     if (event.key === 'Escape') {
       event.preventDefault()
       event.stopPropagation()
@@ -417,6 +432,7 @@ export class PoloScene {
     )
   }
   private requestRotation(bearing: number): void {
+    if (this.state.confirmed) return
     const next = ((bearing % 360) + 360) % 360
     if (this.destroyed || !this.callbacks.rotationRequested(next)) return
     if (this.state.bearing !== next)
@@ -424,7 +440,8 @@ export class PoloScene {
   }
   private readonly positionPlacementHandle = (): void => {
     if (this.destroyed || this.viewer.isDestroyed()) return
-    this.placementHandle.hidden = false
+    this.placementHandle.hidden = this.state.confirmed
+    if (this.state.confirmed) return
     const point = SceneTransforms.worldToWindowCoordinates(
       this.viewer.scene,
       this.point(0, 0, 27),
@@ -882,14 +899,55 @@ export class PoloScene {
     travel?: () => { x: number; y: number; heading: number; shown: boolean },
   ): void {
     const firstEntity = this.source.entities.values.length
-    this.box(x, y, 1, 13, 7, 4, '#edb852')
-    this.box(x - 3, y, 5, 5, 5, 4, '#4e655b')
+    const scale = 1.5
+    this.box(x, y, scale, 13 * scale, 7 * scale, 4 * scale, '#dc493e')
+    this.box(
+      x - 3 * scale,
+      y,
+      5 * scale,
+      5 * scale,
+      5 * scale,
+      4 * scale,
+      '#ad352f',
+    )
     for (const offset of [-4.5, 4.5]) {
-      this.cylinder(x + offset, y - 3.5, 0.4, 1.7, 1.4, '#414f43')
-      this.cylinder(x + offset, y + 3.5, 0.4, 1.7, 1.4, '#414f43')
+      this.cylinder(
+        x + offset * scale,
+        y - 3.5 * scale,
+        0.4 * scale,
+        1.7 * scale,
+        1.4 * scale,
+        '#414f43',
+      )
+      this.cylinder(
+        x + offset * scale,
+        y + 3.5 * scale,
+        0.4 * scale,
+        1.7 * scale,
+        1.4 * scale,
+        '#414f43',
+      )
     }
-    if (roller) this.box(x + 8, y, 0.5, 5, 10, 3.5, '#6b7164')
-    else this.box(x + 8, y, 0.4, 2, 11, 3.8, '#b2b4a5')
+    if (roller)
+      this.box(
+        x + 8 * scale,
+        y,
+        0.5 * scale,
+        5 * scale,
+        10 * scale,
+        3.5 * scale,
+        '#6b7164',
+      )
+    else
+      this.box(
+        x + 8 * scale,
+        y,
+        0.4 * scale,
+        2 * scale,
+        11 * scale,
+        3.8 * scale,
+        '#b2b4a5',
+      )
     for (const entity of this.source.entities.values.slice(firstEntity)) {
       const local = this.localAnchors.get(entity)
       if (!local) continue
@@ -1550,7 +1608,7 @@ export class PoloScene {
     this.draggableEntities.clear()
     this.localAnchors.clear()
     this.visibilityUpdates.length = 0
-    this.placementHandle.hidden = false
+    this.placementHandle.hidden = this.state.confirmed
     if (!this.state.confirmed) {
       this.placementScene()
       this.fieldActivity()
@@ -1727,6 +1785,7 @@ export class PoloScene {
       this.renderedAt = now
       const wasPlaying = this.baselinePlaying
       this.updateTransition(now)
+      this.access.update(now)
       if (!this.reducedMotion.matches || wasPlaying)
         this.viewer.scene.requestRender()
     }
@@ -1762,10 +1821,10 @@ export class PoloScene {
     this.state = state.confirmed
       ? { ...state, center: [...state.center] }
       : { ...state, center: [...state.center], phase: 'M0', proposal: null }
+    this.access.setState(this.state)
     const now = performance.now()
     if (phaseChanged) {
       const forward =
-        previous.confirmed &&
         this.state.confirmed &&
         POLO_PHASES.indexOf(this.state.phase) ===
           POLO_PHASES.indexOf(previous.phase) + 1
@@ -1824,8 +1883,33 @@ export class PoloScene {
     this.updateTransition(performance.now())
     this.viewer.scene.requestRender()
   }
-  focus(view: 'site' | 'connection' | 'park', duration = 1.2): void {
+  focus(view: 'site' | 'connection' | 'park' | 'access', duration = 1.2): void {
     if (this.destroyed) return
+    if (view === 'access') {
+      const bounds = BoundingSphere.union(
+        this.access.bounds(),
+        new BoundingSphere(this.point(0, 0, 15), 205),
+      )
+      // Keep the approach clear of the story card on the left of the map.
+      const center = Cartographic.fromCartesian(bounds.center)
+      bounds.center = Cartesian3.fromRadians(
+        center.longitude - 260 / (6378137 * Math.cos(center.latitude)),
+        center.latitude,
+        center.height,
+      )
+      const offset = new HeadingPitchRange(
+        CesiumMath.toRadians(-12),
+        CesiumMath.toRadians(-55),
+        Math.max(950, bounds.radius * 3.4),
+      )
+      if (duration === 0 || this.reducedMotion.matches) {
+        this.viewer.camera.viewBoundingSphere(bounds, offset)
+        this.viewer.camera.lookAtTransform(Matrix4.IDENTITY)
+      } else
+        this.viewer.camera.flyToBoundingSphere(bounds, { offset, duration })
+      this.viewer.scene.requestRender()
+      return
+    }
     const connection =
       view === 'connection' && activePoloProposal(this.state) !== 'green_roof'
     const target = this.point(
@@ -1864,6 +1948,7 @@ export class PoloScene {
     this.cancelPlacementDrag()
     this.connectionRevision++
     this.online = false
+    this.access.setOnline(false)
     if (this.tileset) this.tileset.show = false
     this.aerial.show = true
     this.viewer.scene.globe.show = true
@@ -1904,6 +1989,7 @@ export class PoloScene {
           )
         })
         tileset.allTilesLoaded.addEventListener(() => {
+          this.access.refreshSurface()
           if (
             !this.online ||
             this.destroyed ||
@@ -1946,6 +2032,7 @@ export class PoloScene {
       }
       if (this.destroyed || revision !== this.connectionRevision) return
       this.online = true
+      this.access.setOnline(true)
       this.tileset.show = true
       this.aerial.show = false
       this.viewer.scene.globe.show = false
@@ -1964,6 +2051,7 @@ export class PoloScene {
     if (this.destroyed) return
     this.finishPlacementDrag(false)
     this.destroyed = true
+    this.access.destroy()
     this.connectionRevision++
     cancelAnimationFrame(this.animation)
     this.removePostRender()

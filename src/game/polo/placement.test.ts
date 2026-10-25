@@ -15,6 +15,10 @@ import { poloDiscussionContext } from './context.ts'
 describe('place, confirm, then follow the Polo story', () => {
   it('requires confirmation before any timeline navigation', () => {
     expect(INITIAL_POLO_STATE.confirmed).toBe(false)
+    expect(confirmPoloPlacement(INITIAL_POLO_STATE)).toMatchObject({
+      confirmed: true,
+      phase: 'M1',
+    })
     for (const phase of POLO_PHASES)
       expect(() => poloPhaseAt(INITIAL_POLO_STATE, phase)).toThrow(
         'Confirm a location',
@@ -42,23 +46,28 @@ describe('place, confirm, then follow the Polo story', () => {
     expect(normalizePoloBearing(720)).toBe(0)
     expect(() => normalizePoloBearing(NaN)).toThrow('valid orientation')
   })
-  it('moves and rotates a confirmed operating campus without rewinding or reconfirming', () => {
-    const operating = poloPhaseAt(
-      confirmPoloPlacement(INITIAL_POLO_STATE),
-      'M6',
+  it('locks position and rotation in every confirmed phase, including the Today comparison', () => {
+    const placed = movePoloCampus(
+      INITIAL_POLO_STATE,
+      nudgePoloPlacement(POLO_CENTER, 20, 5),
+      35,
     )
-    // Arrival reveals the original operating campus before exploring a concept.
-    expect(operating.preview).toBe(false)
-    const moved = movePoloCampus(
-      operating,
-      nudgePoloPlacement(POLO_CENTER, 100, 70),
-      -5,
-    )
-    expect(moved.confirmed).toBe(true)
-    expect(moved.phase).toBe('M6')
-    expect(moved.proposal).toBe('heat_reuse_neighbors')
-    expect(moved.bearing).toBe(355)
-    expect(moved.center).not.toEqual(operating.center)
+    const confirmed = confirmPoloPlacement(placed)
+    for (const phase of POLO_PHASES) {
+      const locked = poloPhaseAt(confirmed, phase)
+      expect(
+        movePoloCampus(locked, nudgePoloPlacement(POLO_CENTER, 100, 70)),
+      ).toBe(locked)
+      expect(movePoloCampus(locked, locked.center, -5)).toBe(locked)
+      expect(confirmPoloPlacement(locked)).toBe(locked)
+      expect(locked.center).toEqual(placed.center)
+      expect(locked.bearing).toBe(35)
+    }
+    const reset = {
+      ...INITIAL_POLO_STATE,
+      center: [...POLO_CENTER] as [number, number],
+    }
+    expect(movePoloCampus(reset, reset.center, 5).bearing).toBe(5)
   })
   it('preserves the chosen position through every phase, replayed phase and proposal', () => {
     const center = nudgePoloPlacement(POLO_CENTER, 20, 5)

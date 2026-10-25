@@ -20,6 +20,7 @@ export function movePoloCampus(
   center: LngLat,
   bearing = state.bearing,
 ): PoloSceneState {
+  if (state.confirmed) return state
   if (!poloPlacementValid(center))
     throw new Error('Choose a location on the map.')
   return {
@@ -41,6 +42,7 @@ export function nudgePoloPlacement(
 }
 
 export function confirmPoloPlacement(state: PoloSceneState): PoloSceneState {
+  if (state.confirmed) return state
   if (!poloPlacementValid(state.center))
     throw new Error('Choose a location on the map.')
   return {
@@ -48,6 +50,7 @@ export function confirmPoloPlacement(state: PoloSceneState): PoloSceneState {
     center: [...state.center],
     bearing: normalizePoloBearing(state.bearing),
     confirmed: true,
+    phase: 'M1',
   }
 }
 

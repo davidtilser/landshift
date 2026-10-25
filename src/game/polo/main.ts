@@ -114,15 +114,17 @@ export async function startPoloDemo(): Promise<void> {
       </header>
       <nav class="polo-camera" aria-label="Map views">
         <button type="button" data-polo-action="site">Your site</button>
+        <button type="button" data-polo-action="access">Access route</button>
         <button type="button" data-polo-action="connection">Follow the idea</button>
         <button type="button" data-polo-action="park">Whole park</button>
         <span></span>
         <button type="button" data-polo-action="zoom-in" aria-label="Zoom in">＋</button>
         <button type="button" data-polo-action="zoom-out" aria-label="Zoom out">−</button>
-        <span></span>
+        <span id="polo-rotation-divider"></span>
         <div class="polo-rotation" role="group" aria-label="Rotate the campus"><button type="button" data-polo-action="rotate-left" aria-label="Rotate campus left 5 degrees" title="Rotate campus left">↶</button><output id="polo-bearing" aria-label="Campus bearing">0°</output><button type="button" data-polo-action="rotate-right" aria-label="Rotate campus right 5 degrees" title="Rotate campus right">↷</button></div>
       </nav>
       <div class="polo-scene-label"><span class="polo-live-dot"></span><span id="polo-scene-label">REAL PLACE · FICTIONAL PROJECT</span></div>
+      <p class="polo-access-note" id="polo-access-note" aria-live="polite"></p>
       <nav class="polo-people" aria-label="Private community chats"></nav>
       <section class="polo-deck" aria-label="Polo Fields story and proposals">
         <div class="polo-deck-head"><span id="polo-kicker"></span><button type="button" data-polo-action="replay" class="polo-replay">↻ Replay</button></div>
@@ -130,7 +132,7 @@ export async function startPoloDemo(): Promise<void> {
         <p class="polo-summary" id="polo-summary"></p>
         <div class="polo-motion" id="polo-motion" hidden><div class="polo-motion-heading"><span id="polo-motion-caption" role="status"></span><button type="button" data-polo-action="skip">Skip ↗</button></div><div class="polo-motion-track" id="polo-motion-track" role="progressbar" aria-label="Phase animation" aria-valuemin="0" aria-valuemax="100"><span id="polo-motion-fill"></span></div><small>Time-compressed illustration</small></div>
         <div class="polo-placement" id="polo-placement" role="group" aria-label="Adjust the campus location">
-          <p>Put it on the field, then confirm. You can move it again later.</p>
+          <p>Put it on the field, then confirm to lock the location.</p>
           <div class="polo-nudges"><button type="button" data-polo-action="nudge-west" aria-label="Move campus west 5 metres">←</button><button type="button" data-polo-action="nudge-north" aria-label="Move campus north 5 metres">↑</button><span>Nudge</span><button type="button" data-polo-action="nudge-south" aria-label="Move campus south 5 metres">↓</button><button type="button" data-polo-action="nudge-east" aria-label="Move campus east 5 metres">→</button></div>
         </div>
         <div class="polo-proposals" id="polo-proposals" role="group" aria-label="Try one proposal" hidden></div>
@@ -142,7 +144,7 @@ export async function startPoloDemo(): Promise<void> {
         <p class="polo-endpoint-label" id="polo-endpoint-label" hidden>After this step</p><div class="polo-metrics" id="polo-metrics"></div>
         <div class="polo-experiment" id="polo-experiment"></div>
         <details class="polo-details" id="polo-details"><summary>What’s behind this?</summary><div id="polo-detail-copy"></div></details>
-        <div class="polo-deck-bottom"><button type="button" data-polo-action="back" class="polo-back">← Back</button><button type="button" data-polo-action="edit-location" class="polo-back" hidden>Move campus</button><button type="button" data-polo-action="next" class="polo-next" id="polo-next">Confirm location →</button></div>
+        <div class="polo-deck-bottom"><button type="button" data-polo-action="back" class="polo-back">← Back</button><button type="button" data-polo-action="next" class="polo-next" id="polo-next">Confirm location →</button></div>
       </section>
       <nav class="polo-timeline" aria-label="Story milestones"></nav>
       <div class="polo-map-help"><strong>Drag campus · ← / → rotate</strong><span>·</span> Scroll to zoom <span>·</span> Right-drag to tilt <button type="button" data-polo-action="skip">Skip animation</button></div>
@@ -224,13 +226,13 @@ export async function startPoloDemo(): Promise<void> {
     }, 450)
   }
   function moveLocation(center: LngLat): boolean {
-    if (!poloPlacementValid(center)) return false
+    if (state.confirmed || !poloPlacementValid(center)) return false
     setState(movePoloCampus(state, center), false)
     scheduleCommunitySync()
     return true
   }
   function rotateLocation(value: number): boolean {
-    if (!Number.isFinite(value)) return false
+    if (state.confirmed || !Number.isFinite(value)) return false
     setState(movePoloCampus(state, state.center, value), false)
     scheduleCommunitySync()
     return true
@@ -278,6 +280,11 @@ export async function startPoloDemo(): Promise<void> {
         ? proposal.explanation
         : phase.summary
     get('#polo-placement', HTMLDivElement).hidden = state.confirmed
+    get('.polo-rotation', HTMLDivElement).hidden = state.confirmed
+    get('#polo-rotation-divider', HTMLSpanElement).hidden = state.confirmed
+    get('.polo-map-help > strong', HTMLElement).textContent = state.confirmed
+      ? 'Location locked · reset to move'
+      : 'Drag campus · ← / → rotate'
     get('.polo-timeline', HTMLElement).hidden = !state.confirmed
     const replay = root.querySelector<HTMLButtonElement>(
       '[data-polo-action="replay"]',
@@ -424,10 +431,6 @@ export async function startPoloDemo(): Promise<void> {
       previous.disabled = state.phase === 'M0'
       previous.hidden = !state.confirmed || state.phase === 'M0'
     }
-    const editLocation = root.querySelector<HTMLButtonElement>(
-      '[data-polo-action="edit-location"]',
-    )
-    if (editLocation) editLocation.hidden = !state.confirmed
     get('#polo-next', HTMLButtonElement).textContent = !state.confirmed
       ? 'Confirm location →'
       : inOperation
@@ -453,6 +456,17 @@ export async function startPoloDemo(): Promise<void> {
       : proposed
         ? 'ILLUSTRATIVE CONNECTION · VISUAL CONCEPT'
         : 'REAL PLACE · FICTIONAL PROJECT'
+    get('#polo-access-note', HTMLParagraphElement).hidden = !state.confirmed
+    get('[data-polo-action="access"]', HTMLButtonElement).hidden =
+      !state.confirmed
+    get('#polo-access-note', HTMLParagraphElement).textContent =
+      !state.confirmed
+        ? 'Proposed access · solid: existing road · dashed: campus link'
+        : state.phase === 'M0'
+          ? 'Proposed access · future traffic preview'
+          : state.phase === 'M5' || state.phase === 'M6'
+            ? 'Proposed access · illustrative service & car traffic'
+            : 'Proposed access · illustrative construction traffic'
     renderMotion()
   }
 
@@ -601,7 +615,7 @@ export async function startPoloDemo(): Promise<void> {
           scene?.cancelPlacementDrag()
           if (poloPlacementValid(state.center)) {
             setState(confirmPoloPlacement(state))
-            scene?.focus('site')
+            scene?.focus('access')
           }
         } else setPhase(POLO_PHASES[index + 1] ?? 'M0')
         break
@@ -612,10 +626,6 @@ export async function startPoloDemo(): Promise<void> {
           center: [...INITIAL_POLO_STATE.center],
         })
         scene?.focus('site')
-        break
-      case 'edit-location':
-        scene?.focus('site')
-        message('Drag the campus to move it. Use ← / → to rotate.')
         break
       case 'nudge-west':
         moveLocation(nudgePoloPlacement(state.center, -5, 0))
@@ -677,6 +687,7 @@ export async function startPoloDemo(): Promise<void> {
         scene?.skip()
         break
       case 'site':
+      case 'access':
       case 'connection':
       case 'park':
         scene?.focus(control.dataset['poloAction'])
