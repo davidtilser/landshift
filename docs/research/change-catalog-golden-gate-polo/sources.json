@@ -1,0 +1,111 @@
+{
+  "retrieved_on": "2026-10-24",
+  "sources": [
+    {
+      "id": "B01",
+      "title": "Existing authored SF Polo water baseline",
+      "url": "../water-demo-golden-gate-polo/README.md",
+      "locator": "Frozen scenario and results",
+      "use_and_limits": "4 ha managed turf subset, 10 MW average IT, selected HSG B, 86.4 mm comparison rain, original 200 m³ tank and irrigation assumptions. Not measured park performance."
+    },
+    {
+      "id": "B02",
+      "title": "Existing authored SF Polo energy baseline",
+      "url": "../energy-demo-golden-gate-polo/README.md",
+      "locator": "Frozen scenario and results",
+      "use_and_limits": "10 MW average IT and transferred annual PUE 1.20 yield 105,120 MWh/year. No verified peak or grid capacity; construction inventory incomplete."
+    },
+    {
+      "id": "S01",
+      "title": "JRC PVGIS 5.3 fixed-system response for Polo Fields",
+      "url": "https://re.jrc.ec.europa.eu/api/v5_3/PVcalc?lat=37.7682117&lon=-122.4932246&peakpower=1&loss=14&angle=10&aspect=0&mountingplace=free&pvtechchoice=crystSi&outputformat=json&usehorizon=1",
+      "locator": "inputs, outputs.totals.fixed.E_y and meta",
+      "use_and_limits": "1 kWp crystalline-silicon system, ventilated/free-standing mounting approximation for roof racks, 10° south-facing, 14% input system loss, DEM horizon. Service-selected PVGIS-ERA5 2005–2023; regional reanalysis, not on-roof measurements or a resolution of park fog/trees/building shade. Response metadata confirms peak_power units kW. No batteries or site structural assessment."
+    },
+    {
+      "id": "S02",
+      "title": "JRC PVGIS non-interactive API documentation",
+      "url": "https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/using-pvgis-5/api-non-interactive-service_en",
+      "locator": "PVcalc parameters and fixed-system outputs",
+      "use_and_limits": "Model method. An explicit NSRDB request was rejected by the live 5.3 service, which advertised ERA5/SARAH3; the successful request omitted database selection and its actual ERA5 identity is pinned from response metadata. No NSRDB weather is claimed."
+    },
+    {
+      "id": "S03",
+      "title": "DOE FEMP cooling tower management",
+      "url": "https://www.energy.gov/cmei/femp/best-management-practice-10-cooling-tower-management",
+      "locator": "Make-up balance, concentration ratio and chemistry constraints",
+      "use_and_limits": "At negligible drift/leaks, make-up = evaporation + blowdown and CoC = make-up/blowdown. CoC is a concentration ratio, not a literal count of loop passes. Higher ratios need suitable water chemistry/treatment; 6 is not confirmed feasible for Polo. Added control/treatment electricity and other water uses are not quantified."
+    },
+    {
+      "id": "S04",
+      "title": "USDA NRCS TR-55",
+      "url": "https://www.hydrocad.net/pdf/TR-55%20Manual.pdf",
+      "locator": "Equations 2-3/2-4 and table 2-2a",
+      "use_and_limits": "Same inherited volume method and selected HSG B: turf/landscape 61, graded 86, impervious 98; Ia/S 0.2. No flow routing, peak/flood, groundwater recharge, sediment or ecological outcome model."
+    },
+    {
+      "id": "S05",
+      "title": "SFPUC stormwater management requirements",
+      "url": "https://www.sfpuc.gov/construction-contracts/design-guidelines-standards/stormwater-requirements",
+      "locator": "Local design and review context",
+      "use_and_limits": "Educational volume results do not establish design compliance or an actual Polo discharge route."
+    },
+    {
+      "id": "S06",
+      "title": "SFPUC Hetch Hetchy Power for Developers",
+      "url": "https://www.sfpuc.gov/hetch-hetchy-power",
+      "locator": "Application, infrastructure and solar/battery interconnection",
+      "use_and_limits": "Project service and any solar interconnection still need assessment. A reduction in annual grid import is not proof of reduced required connection capacity or approval."
+    }
+  ],
+  "raw_files": [
+    {
+      "path": "raw/water-scenario.json",
+      "source_id": "B01",
+      "sha256": "b903e28a0265fa78ceb3ad98cdc2863dc317faf74f6b72b1e35d934bf905ba3d",
+      "kind": "verbatim_authored_baseline_snapshot"
+    },
+    {
+      "path": "raw/water-results.json",
+      "source_id": "B01",
+      "sha256": "87cbc29531d5c167aa740445b7bfa16776e16662e4ea8043f252b70a7f111105",
+      "kind": "verbatim_authored_baseline_snapshot"
+    },
+    {
+      "path": "raw/energy-scenario.json",
+      "source_id": "B02",
+      "sha256": "07da904a62347de7dc038d18845bf94fc4f5d49d15377e3daae2269898bc4f12",
+      "kind": "verbatim_authored_baseline_snapshot"
+    },
+    {
+      "path": "raw/energy-results.json",
+      "source_id": "B02",
+      "sha256": "0a53916bdca0fb32930b16ab4421058ad7c4ffc5168ac7e97a04b9775a177f15",
+      "kind": "verbatim_authored_baseline_snapshot"
+    },
+    {
+      "path": "raw/pvgis-polo-1kw.json",
+      "source_id": "S01",
+      "sha256": "e700042eb36276d138b43650e8539cd7b75fd4bb6d8546f79d8513e23cd08ca9",
+      "kind": "verbatim_public_response"
+    },
+    {
+      "path": "raw/pvgis-request.json",
+      "source_id": "S01",
+      "sha256": "22080d5bf0d79f2e15c21661393cd8b0b41c9aa6b7c35bd5b9c800ae5aba9ecb",
+      "kind": "authored_request_record"
+    },
+    {
+      "path": "raw/pvgis-api.html",
+      "source_id": "S02",
+      "sha256": "368bf2b26f7ad6cc2249f1fab33aaa502c8126b05fd395220aeb141670a7328c",
+      "kind": "verbatim_public_response"
+    },
+    {
+      "path": "raw/doe-cooling-controls.html",
+      "source_id": "S03",
+      "sha256": "19f0fe105dbe1e4623034fbc5132c1afa4714c296fcbd3a8c532420de25dc04a",
+      "kind": "verbatim_public_response"
+    }
+  ]
+}

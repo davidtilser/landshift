@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "scenario_id": "sf-polo-four-changes-v1",
+  "locale": "en",
+  "status": "Prepared educational alternatives, not engineering approvals",
+  "changes": [
+    {
+      "id": "solar_roof",
+      "title": "Add rooftop solar",
+      "user_examples": [
+        "Put solar panels on the roof.",
+        "Can solar cover 10% of our annual electricity?"
+      ],
+      "parameter": {
+        "name": "solar_zone_m2",
+        "unit": "m²",
+        "minimum": 0,
+        "maximum": 6000,
+        "default": 6000
+      },
+      "milestones": ["M4", "M5", "M6"],
+      "implementation": "Reserve a roof zone, add ventilated PV racks and electrical integration; start generation at operation.",
+      "why_interesting": "Own generation reduces grid purchases while computing demand remains; roof space limits the target.",
+      "constraints": [
+        "Prepared allocation is 6,000 m²; its actual fit is unknown.",
+        "Roof structure, cooling equipment, maintenance/fire access, local shading and interconnection require assessment.",
+        "Production is a regional long-term estimate, not measured Polo roof output.",
+        "No battery, night supply or peak-connection reduction is promised."
+      ],
+      "visual": "At M4 show a dashed solar zone; at M5 install panels; at M6 add a solar branch before the grid meter. Keep the IT/support demand unchanged.",
+      "wider": "Potentially lower annual electricity bought through the shared system. Grid capacity and neighbourhood outage effects remain unassessed.",
+      "source_ids": ["B02", "S01", "S02", "S06"]
+    },
+    {
+      "id": "roof_tank",
+      "title": "Enlarge the roof-rain tank",
+      "user_examples": [
+        "Make the rainwater tank bigger.",
+        "Could we capture more roof rain?"
+      ],
+      "parameter": {
+        "name": "tank_capacity_m3",
+        "unit": "m³",
+        "minimum": 200,
+        "maximum": 2000,
+        "default": 400
+      },
+      "milestones": ["M4", "M5", "M6"],
+      "implementation": "Expand the existing roof-only storage on authored hardstanding; preserve the same empty start and rainfall event.",
+      "why_interesting": "More storage helps during the event, but capacity cannot create rain or establish annual water savings.",
+      "constraints": [
+        "Only roof runoff enters; rain on roads/turf is not automatically collected.",
+        "Every comparison starts empty; no within-event release or reuse.",
+        "Nominal added footprint uses a 2 m depth assumption and must fit the authored expansion zone; real access/engineering unknown.",
+        "No annual reuse, treatment or potable substitution credit."
+      ],
+      "visual": "At M4/M5 enlarge a schematic tank; on optional rainfall replay show captured volume and remaining managed drainage. Do not draw an unverified outfall.",
+      "wider": "Less volume passes to managed drainage during this event; peak flow, flood protection and annual supply effects are not established.",
+      "source_ids": ["B01", "S04", "S05"]
+    },
+    {
+      "id": "preserve_turf",
+      "title": "Keep a larger grass strip",
+      "user_examples": [
+        "Keep more of the park green.",
+        "Use less hardstanding and preserve the grass."
+      ],
+      "parameter": {
+        "name": "extra_retained_turf_m2",
+        "unit": "m²",
+        "minimum": 0,
+        "maximum": 4000,
+        "default": 4000
+      },
+      "milestones": ["M1", "M2", "M3", "M4", "M5", "M6"],
+      "implementation": "Exclude an additional original-turf strip from works and reduce proposed final non-roof hardstanding by the same area; keep roof and IT demand.",
+      "why_interesting": "A softer surface lowers modelled event runoff but the inherited irrigation allowance increases water demand.",
+      "constraints": [
+        "Same 4 ha campus and 1.2 ha roof; replace proposed non-roof hardstanding only.",
+        "Delivery, emergency access, parking and utility layouts must still be resolved.",
+        "No automatic reduction in construction duration, machinery, materials or cooling demand.",
+        "The strip stays inside the campus; green area is not restored public playing space or a measured biodiversity gain."
+      ],
+      "visual": "Before M1 mark a protected strip and leave it intact through preparation. At opening reduce hardstanding accordingly; show the same buildings and a clear campus boundary.",
+      "wider": "The proposal retains more original turf but still occupies the same park footprint. Public access and community acceptance are not inferred.",
+      "source_ids": ["B01", "B02", "S04", "S05"]
+    },
+    {
+      "id": "cooling_water_controls",
+      "title": "Improve cooling-water management",
+      "user_examples": [
+        "Waste less cooling water.",
+        "Can we discharge less cooling water?"
+      ],
+      "parameter": {
+        "name": "concentration_ratio",
+        "unit": "ratio",
+        "minimum": 4,
+        "maximum": 6,
+        "default": 6
+      },
+      "milestones": ["M5", "M6"],
+      "implementation": "Assume suitable treatment and conductivity/blowdown control permit a higher concentration ratio in the evaporative outdoor circuit.",
+      "why_interesting": "Less blowdown reduces make-up supply while the same heat-rejection evaporation remains.",
+      "constraints": [
+        "The range 4–6 is a prepared teaching range, not a verified chemistry limit.",
+        "Feasibility at 6 requires water-quality and treatment assessment.",
+        "Keep evaporation and IT demand fixed for the conditional calculation; negligible drift/leaks.",
+        "Control/treatment electricity and any additional process water remain unquantified; no energy saving is invented."
+      ],
+      "visual": "At M5 add a schematic control/treatment marker. At M6 narrow make-up and blowdown arrows while keeping evaporation visible and unchanged; do not animate literal loop counts.",
+      "wider": "Conditionally lower cooling supply and sanitary blowdown. No drinking-water shortage, treatment-plant capacity relief or river outcome is calculated.",
+      "source_ids": ["B01", "B02", "S03"]
+    }
+  ],
+  "interaction": {
+    "sequence": [
+      "Interpret a request or goal",
+      "Show the specific proposed edit and assumptions",
+      "Preview one alternative",
+      "Show water, energy, land and wider implications",
+      "Apply the prepared alternative or revise/reset"
+    ],
+    "user_input_rule": "Natural-language examples are intents, not a parser. A future language layer may select an ID/parameters; compute.py supplies numbers and constraints.",
+    "state_rule": "Preview is separate from applying a design. Compare under the same baseline/rainfall. Navigate by loading complete states; replay never accumulates consumption.",
+    "unsupported_rule": "Do not force batteries, new sites, new power plants or arbitrary cooling technologies into these four actions. Explain unsupported scope; request clarification when the goal does not identify a change.",
+    "combination_rule": "One change per preview in this version. Do not sum savings across changes; solar/roof equipment, tank/hardstanding and operating water/energy interactions need a combined design model."
+  }
+}

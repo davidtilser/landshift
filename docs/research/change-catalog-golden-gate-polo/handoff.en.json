@@ -1,0 +1,4848 @@
+{
+  "schema_version": 1,
+  "scenario_id": "sf-polo-four-changes-v1",
+  "locale": "en",
+  "interaction": {
+    "sequence": [
+      "Interpret a request or goal",
+      "Show the specific proposed edit and assumptions",
+      "Preview one alternative",
+      "Show water, energy, land and wider implications",
+      "Apply the prepared alternative or revise/reset"
+    ],
+    "user_input_rule": "Natural-language examples are intents, not a parser. A future language layer may select an ID/parameters; compute.py supplies numbers and constraints.",
+    "state_rule": "Preview is separate from applying a design. Compare under the same baseline/rainfall. Navigate by loading complete states; replay never accumulates consumption.",
+    "unsupported_rule": "Do not force batteries, new sites, new power plants or arbitrary cooling technologies into these four actions. Explain unsupported scope; request clarification when the goal does not identify a change.",
+    "combination_rule": "One change per preview in this version. Do not sum savings across changes; solar/roof equipment, tank/hardstanding and operating water/energy interactions need a combined design model."
+  },
+  "comparison_policy": {
+    "max_simultaneous_changes": 1,
+    "mode": "Alternative design from the same preconstruction baseline; not an operating-building retrofit.",
+    "baseline_immutable": true,
+    "missing_values": "null means Not established, never zero",
+    "scores": "No universal environmental or approval score",
+    "grid_capacity_known": false
+  },
+  "changes": [
+    {
+      "id": "solar_roof",
+      "title": "Add rooftop solar",
+      "user_examples": [
+        "Put solar panels on the roof.",
+        "Can solar cover 10% of our annual electricity?"
+      ],
+      "parameter": {
+        "name": "solar_zone_m2",
+        "unit": "m²",
+        "minimum": 0,
+        "maximum": 6000,
+        "default": 6000
+      },
+      "milestones": [
+        "M4",
+        "M5",
+        "M6"
+      ],
+      "implementation": "Reserve a roof zone, add ventilated PV racks and electrical integration; start generation at operation.",
+      "why_interesting": "Own generation reduces grid purchases while computing demand remains; roof space limits the target.",
+      "constraints": [
+        "Prepared allocation is 6,000 m²; its actual fit is unknown.",
+        "Roof structure, cooling equipment, maintenance/fire access, local shading and interconnection require assessment.",
+        "Production is a regional long-term estimate, not measured Polo roof output.",
+        "No battery, night supply or peak-connection reduction is promised."
+      ],
+      "visual": "At M4 show a dashed solar zone; at M5 install panels; at M6 add a solar branch before the grid meter. Keep the IT/support demand unchanged.",
+      "wider": "Potentially lower annual electricity bought through the shared system. Grid capacity and neighbourhood outage effects remain unassessed.",
+      "source_ids": [
+        "B02",
+        "S01",
+        "S02",
+        "S06"
+      ],
+      "preview": {
+        "change_id": "solar_roof",
+        "title": "Add rooftop solar",
+        "status": "conditional_educational_preview",
+        "preview_allowed": true,
+        "parameters": {
+          "solar_zone_m2": 6000
+        },
+        "engineering_feasibility": "not_established",
+        "source_ids": [
+          "B02",
+          "S01",
+          "S02",
+          "S06"
+        ],
+        "primary_metrics": [
+          "pv_generation_mwh_year",
+          "grid_import_mwh_year",
+          "grid_import_reduction_percent"
+        ],
+        "metrics": [
+          {
+            "id": "facility_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same full operating-year demand; not a peak",
+            "baseline": 105120.0,
+            "alternative": 105120.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "it_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same 10 MW average IT service assumption",
+            "baseline": 87600,
+            "alternative": 87600,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "normal operation; flat-load assumption for PV",
+            "baseline": 105120.0,
+            "alternative": 103666.572,
+            "delta": -1453.4279999999999,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "pv_generation_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "long-term average regional PV output estimate",
+            "baseline": 0,
+            "alternative": 1453.4280000000003,
+            "delta": 1453.4280000000003,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "grid_import_reduction_percent",
+            "facet": "energy",
+            "unit": "%",
+            "time_basis": "annual grid-import reduction against baseline",
+            "baseline": 0,
+            "alternative": 1.38263698630137,
+            "delta": 1.38263698630137,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "cooling_makeup_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling make-up supplied; includes blowdown",
+            "baseline": 109500.0,
+            "alternative": 109500.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_evaporation_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling water evaporated",
+            "baseline": 82125.0,
+            "alternative": 82125.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_blowdown_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling sanitary blowdown volume",
+            "baseline": 27375.0,
+            "alternative": 27375.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "existing_uses_water_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "selected cooling, domestic and irrigation uses only",
+            "baseline": 114195.0,
+            "alternative": 114195.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "irrigation_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "inherited 300 mm delivered allowance",
+            "baseline": 3600.0,
+            "alternative": 3600.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_generated_runoff_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "same 86.4 mm rain, selected HSG B",
+            "baseline": 2414.6309547995565,
+            "alternative": 2414.6309547995565,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_roof_capture_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "roof-only storage, empty start, no release",
+            "baseline": 200,
+            "alternative": 200,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_managed_drainage_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "volume after roof capture; not peak or flood",
+            "baseline": 2214.6309547995565,
+            "alternative": 2214.6309547995565,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "retained_turf_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "original turf retained at completed campus",
+            "baseline": 8000,
+            "alternative": 8000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "final_impervious_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "roof plus other final hard surfaces",
+            "baseline": 28000,
+            "alternative": 28000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "campus_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same authored campus envelope",
+            "baseline": 40000,
+            "alternative": 40000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "roof_area_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same roof footprint",
+            "baseline": 12000,
+            "alternative": 12000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "pv_dc_kwp",
+            "facet": "energy",
+            "unit": "kWp DC",
+            "time_basis": "nameplate power, not annual generation",
+            "baseline": 0,
+            "alternative": 900.0000000000001,
+            "delta": 900.0000000000001,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "tank_capacity_m3",
+            "facet": "water",
+            "unit": "m³ storage",
+            "time_basis": "static tank capacity",
+            "baseline": 200,
+            "alternative": 200,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "tank_added_nominal_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "additional volume / assumed usable depth",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "additional_pv_cleaning_water_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "not estimated once PV is added",
+            "baseline": 0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "additional_controls_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "not estimated for changed water treatment/control",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "public_access_area_m2",
+            "facet": "community",
+            "unit": "m²",
+            "time_basis": "not established; green inside campus is not public access",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "available_network_headroom_mw",
+            "facet": "energy",
+            "unit": "MW",
+            "time_basis": "not assessed for this site",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          }
+        ],
+        "details": {
+          "solar_zone_m2": 6000,
+          "module_surface_m2": 4500.0,
+          "specific_yield_kwh_per_kwp_year": 1614.92,
+          "meteo_source": {
+            "radiation_db": "PVGIS-ERA5",
+            "meteo_db": "ERA5",
+            "year_min": 2005,
+            "year_max": 2023,
+            "use_horizon": true,
+            "horizon_db": "DEM-calculated"
+          },
+          "monthly_generation_kwh": [
+            {
+              "month": 1,
+              "energy_kwh": 68292.0
+            },
+            {
+              "month": 2,
+              "energy_kwh": 83655.00000000001
+            },
+            {
+              "month": 3,
+              "energy_kwh": 115371.00000000001
+            },
+            {
+              "month": 4,
+              "energy_kwh": 144360.00000000003
+            },
+            {
+              "month": 5,
+              "energy_kwh": 163944.00000000003
+            },
+            {
+              "month": 6,
+              "energy_kwh": 168813.00000000003
+            },
+            {
+              "month": 7,
+              "energy_kwh": 172458.00000000003
+            },
+            {
+              "month": 8,
+              "energy_kwh": 159759.0
+            },
+            {
+              "month": 9,
+              "energy_kwh": 134712.00000000003
+            },
+            {
+              "month": 10,
+              "energy_kwh": 106794.00000000001
+            },
+            {
+              "month": 11,
+              "energy_kwh": 75726.00000000001
+            },
+            {
+              "month": 12,
+              "energy_kwh": 59544.00000000001
+            }
+          ],
+          "peak_connection_reduction_mw": null,
+          "self_consumption_basis": "Assumed flat 12 MW demand; prepared DC array below demand; no export/storage; regional yield with chosen losses."
+        },
+        "goal": null,
+        "unquantified_implications": [
+          "Construction fuel/electricity/material deltas and costs are not calculated for the edit.",
+          "Actual grid capacity, route, outage effects, biodiversity and community consent remain unassessed.",
+          "PV cleaning water, actual local shade, roof fit/structure and maintenance are not estimated. Existing modelled water uses stay at baseline; no complete revised water total is claimed."
+        ],
+        "milestone_states": [
+          {
+            "id": "M0",
+            "areas_m2": {
+              "turf_m2": 40000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 537.6439241691463,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 537.6439241691463,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 2918.3560758308536,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M1",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 32000,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": null,
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M2",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 32000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1742.4483071155214,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1742.4483071155214,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1713.5516928844786,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M3",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 32000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1742.4483071155214,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1742.4483071155214,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1713.5516928844786,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M4",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 20000,
+              "roof_m2": 12000,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2095.069676637949,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 2095.069676637949,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1360.9303233620508,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M5",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 16000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2414.6309547995565,
+              "roof_capture_m3": 200,
+              "water_to_managed_drainage_m3": 2214.6309547995565,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1041.3690452004435,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M6",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 16000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2414.6309547995565,
+              "roof_capture_m3": 200,
+              "water_to_managed_drainage_m3": 2214.6309547995565,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1041.3690452004435,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": {
+              "facility_electricity_mwh_year": 105120.0,
+              "it_electricity_mwh_year": 87600,
+              "grid_import_mwh_year": 103666.572,
+              "pv_generation_mwh_year": 1453.4280000000003,
+              "grid_import_reduction_percent": 1.38263698630137,
+              "cooling_makeup_m3_year": 109500.0,
+              "cooling_evaporation_m3_year": 82125.0,
+              "cooling_blowdown_m3_year": 27375.0,
+              "existing_uses_water_supply_m3_year": 114195.0,
+              "irrigation_supply_m3_year": 3600.0,
+              "additional_pv_cleaning_water_m3_year": null,
+              "additional_controls_electricity_mwh_year": 0
+            }
+          }
+        ],
+        "visualization": "At M4 show a dashed solar zone; at M5 install panels; at M6 add a solar branch before the grid meter. Keep the IT/support demand unchanged.",
+        "wider_context": "Potentially lower annual electricity bought through the shared system. Grid capacity and neighbourhood outage effects remain unassessed."
+      }
+    },
+    {
+      "id": "roof_tank",
+      "title": "Enlarge the roof-rain tank",
+      "user_examples": [
+        "Make the rainwater tank bigger.",
+        "Could we capture more roof rain?"
+      ],
+      "parameter": {
+        "name": "tank_capacity_m3",
+        "unit": "m³",
+        "minimum": 200,
+        "maximum": 2000,
+        "default": 400
+      },
+      "milestones": [
+        "M4",
+        "M5",
+        "M6"
+      ],
+      "implementation": "Expand the existing roof-only storage on authored hardstanding; preserve the same empty start and rainfall event.",
+      "why_interesting": "More storage helps during the event, but capacity cannot create rain or establish annual water savings.",
+      "constraints": [
+        "Only roof runoff enters; rain on roads/turf is not automatically collected.",
+        "Every comparison starts empty; no within-event release or reuse.",
+        "Nominal added footprint uses a 2 m depth assumption and must fit the authored expansion zone; real access/engineering unknown.",
+        "No annual reuse, treatment or potable substitution credit."
+      ],
+      "visual": "At M4/M5 enlarge a schematic tank; on optional rainfall replay show captured volume and remaining managed drainage. Do not draw an unverified outfall.",
+      "wider": "Less volume passes to managed drainage during this event; peak flow, flood protection and annual supply effects are not established.",
+      "source_ids": [
+        "B01",
+        "S04",
+        "S05"
+      ],
+      "preview": {
+        "change_id": "roof_tank",
+        "title": "Enlarge the roof-rain tank",
+        "status": "conditional_educational_preview",
+        "preview_allowed": true,
+        "parameters": {
+          "tank_capacity_m3": 400
+        },
+        "engineering_feasibility": "not_established",
+        "source_ids": [
+          "B01",
+          "S04",
+          "S05"
+        ],
+        "primary_metrics": [
+          "event_roof_capture_m3",
+          "event_managed_drainage_m3",
+          "tank_added_nominal_footprint_m2"
+        ],
+        "metrics": [
+          {
+            "id": "facility_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same full operating-year demand; not a peak",
+            "baseline": 105120.0,
+            "alternative": 105120.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "it_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same 10 MW average IT service assumption",
+            "baseline": 87600,
+            "alternative": 87600,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "normal operation; flat-load assumption for PV",
+            "baseline": 105120.0,
+            "alternative": 105120.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "pv_generation_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "long-term average regional PV output estimate",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_reduction_percent",
+            "facet": "energy",
+            "unit": "%",
+            "time_basis": "annual grid-import reduction against baseline",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_makeup_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling make-up supplied; includes blowdown",
+            "baseline": 109500.0,
+            "alternative": 109500.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_evaporation_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling water evaporated",
+            "baseline": 82125.0,
+            "alternative": 82125.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_blowdown_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling sanitary blowdown volume",
+            "baseline": 27375.0,
+            "alternative": 27375.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "existing_uses_water_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "selected cooling, domestic and irrigation uses only",
+            "baseline": 114195.0,
+            "alternative": 114195.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "irrigation_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "inherited 300 mm delivered allowance",
+            "baseline": 3600.0,
+            "alternative": 3600.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_generated_runoff_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "same 86.4 mm rain, selected HSG B",
+            "baseline": 2414.6309547995565,
+            "alternative": 2414.6309547995565,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_roof_capture_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "roof-only storage, empty start, no release",
+            "baseline": 200,
+            "alternative": 400,
+            "delta": 200,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "event_managed_drainage_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "volume after roof capture; not peak or flood",
+            "baseline": 2214.6309547995565,
+            "alternative": 2014.6309547995565,
+            "delta": -200.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "retained_turf_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "original turf retained at completed campus",
+            "baseline": 8000,
+            "alternative": 8000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "final_impervious_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "roof plus other final hard surfaces",
+            "baseline": 28000,
+            "alternative": 28000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "campus_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same authored campus envelope",
+            "baseline": 40000,
+            "alternative": 40000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "roof_area_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same roof footprint",
+            "baseline": 12000,
+            "alternative": 12000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "pv_dc_kwp",
+            "facet": "energy",
+            "unit": "kWp DC",
+            "time_basis": "nameplate power, not annual generation",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "tank_capacity_m3",
+            "facet": "water",
+            "unit": "m³ storage",
+            "time_basis": "static tank capacity",
+            "baseline": 200,
+            "alternative": 400,
+            "delta": 200,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "tank_added_nominal_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "additional volume / assumed usable depth",
+            "baseline": 0,
+            "alternative": 100.0,
+            "delta": 100.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "additional_pv_cleaning_water_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "not estimated once PV is added",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "additional_controls_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "not estimated for changed water treatment/control",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "public_access_area_m2",
+            "facet": "community",
+            "unit": "m²",
+            "time_basis": "not established; green inside campus is not public access",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "available_network_headroom_mw",
+            "facet": "energy",
+            "unit": "MW",
+            "time_basis": "not assessed for this site",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          }
+        ],
+        "details": {
+          "annual_reuse_savings_m3": null,
+          "initial_storage_m3": 0,
+          "nominal_usable_depth_m": 2,
+          "footprint_basis": "Additional capacity divided by assumed depth, within existing hardstanding; no new impervious-area change.",
+          "operation_basis": "No within-event release or annual reuse; selected normal-operation electricity and water uses are held fixed."
+        },
+        "goal": null,
+        "unquantified_implications": [
+          "Construction fuel/electricity/material deltas and costs are not calculated for the edit.",
+          "Actual grid capacity, route, outage effects, biodiversity and community consent remain unassessed.",
+          "Actual tank fit, construction resources, treatment/reuse, drainage peaks and flood outcomes are not estimated."
+        ],
+        "milestone_states": [
+          {
+            "id": "M0",
+            "areas_m2": {
+              "turf_m2": 40000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 537.6439241691463,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 537.6439241691463,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 2918.3560758308536,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M1",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 32000,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": null,
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M2",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 32000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1742.4483071155214,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1742.4483071155214,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1713.5516928844786,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M3",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 32000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1742.4483071155214,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1742.4483071155214,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1713.5516928844786,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M4",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 20000,
+              "roof_m2": 12000,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2095.069676637949,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 2095.069676637949,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1360.9303233620508,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M5",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 16000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2414.6309547995565,
+              "roof_capture_m3": 400,
+              "water_to_managed_drainage_m3": 2014.6309547995565,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1041.3690452004435,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M6",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 16000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2414.6309547995565,
+              "roof_capture_m3": 400,
+              "water_to_managed_drainage_m3": 2014.6309547995565,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1041.3690452004435,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": {
+              "facility_electricity_mwh_year": 105120.0,
+              "it_electricity_mwh_year": 87600,
+              "grid_import_mwh_year": 105120.0,
+              "pv_generation_mwh_year": 0,
+              "grid_import_reduction_percent": 0,
+              "cooling_makeup_m3_year": 109500.0,
+              "cooling_evaporation_m3_year": 82125.0,
+              "cooling_blowdown_m3_year": 27375.0,
+              "existing_uses_water_supply_m3_year": 114195.0,
+              "irrigation_supply_m3_year": 3600.0,
+              "additional_pv_cleaning_water_m3_year": 0,
+              "additional_controls_electricity_mwh_year": 0
+            }
+          }
+        ],
+        "visualization": "At M4/M5 enlarge a schematic tank; on optional rainfall replay show captured volume and remaining managed drainage. Do not draw an unverified outfall.",
+        "wider_context": "Less volume passes to managed drainage during this event; peak flow, flood protection and annual supply effects are not established."
+      }
+    },
+    {
+      "id": "preserve_turf",
+      "title": "Keep a larger grass strip",
+      "user_examples": [
+        "Keep more of the park green.",
+        "Use less hardstanding and preserve the grass."
+      ],
+      "parameter": {
+        "name": "extra_retained_turf_m2",
+        "unit": "m²",
+        "minimum": 0,
+        "maximum": 4000,
+        "default": 4000
+      },
+      "milestones": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6"
+      ],
+      "implementation": "Exclude an additional original-turf strip from works and reduce proposed final non-roof hardstanding by the same area; keep roof and IT demand.",
+      "why_interesting": "A softer surface lowers modelled event runoff but the inherited irrigation allowance increases water demand.",
+      "constraints": [
+        "Same 4 ha campus and 1.2 ha roof; replace proposed non-roof hardstanding only.",
+        "Delivery, emergency access, parking and utility layouts must still be resolved.",
+        "No automatic reduction in construction duration, machinery, materials or cooling demand.",
+        "The strip stays inside the campus; green area is not restored public playing space or a measured biodiversity gain."
+      ],
+      "visual": "Before M1 mark a protected strip and leave it intact through preparation. At opening reduce hardstanding accordingly; show the same buildings and a clear campus boundary.",
+      "wider": "The proposal retains more original turf but still occupies the same park footprint. Public access and community acceptance are not inferred.",
+      "source_ids": [
+        "B01",
+        "B02",
+        "S04",
+        "S05"
+      ],
+      "preview": {
+        "change_id": "preserve_turf",
+        "title": "Keep a larger grass strip",
+        "status": "conditional_educational_preview",
+        "preview_allowed": true,
+        "parameters": {
+          "extra_retained_turf_m2": 4000
+        },
+        "engineering_feasibility": "not_established",
+        "source_ids": [
+          "B01",
+          "B02",
+          "S04",
+          "S05"
+        ],
+        "primary_metrics": [
+          "retained_turf_m2",
+          "event_managed_drainage_m3",
+          "irrigation_supply_m3_year"
+        ],
+        "metrics": [
+          {
+            "id": "facility_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same full operating-year demand; not a peak",
+            "baseline": 105120.0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "it_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same 10 MW average IT service assumption",
+            "baseline": 87600,
+            "alternative": 87600,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "normal operation; flat-load assumption for PV",
+            "baseline": 105120.0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "pv_generation_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "long-term average regional PV output estimate",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_reduction_percent",
+            "facet": "energy",
+            "unit": "%",
+            "time_basis": "annual grid-import reduction against baseline",
+            "baseline": 0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "cooling_makeup_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling make-up supplied; includes blowdown",
+            "baseline": 109500.0,
+            "alternative": 109500.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_evaporation_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling water evaporated",
+            "baseline": 82125.0,
+            "alternative": 82125.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_blowdown_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling sanitary blowdown volume",
+            "baseline": 27375.0,
+            "alternative": 27375.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "existing_uses_water_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "selected cooling, domestic and irrigation uses only",
+            "baseline": 114195.0,
+            "alternative": 115395.0,
+            "delta": 1200.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "irrigation_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "inherited 300 mm delivered allowance",
+            "baseline": 3600.0,
+            "alternative": 4800.0,
+            "delta": 1200.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "event_generated_runoff_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "same 86.4 mm rain, selected HSG B",
+            "baseline": 2414.6309547995565,
+            "alternative": 2146.4899504237833,
+            "delta": -268.14100437577326,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "event_roof_capture_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "roof-only storage, empty start, no release",
+            "baseline": 200,
+            "alternative": 200,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_managed_drainage_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "volume after roof capture; not peak or flood",
+            "baseline": 2214.6309547995565,
+            "alternative": 1946.4899504237833,
+            "delta": -268.14100437577326,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "retained_turf_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "original turf retained at completed campus",
+            "baseline": 8000,
+            "alternative": 12000,
+            "delta": 4000,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "final_impervious_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "roof plus other final hard surfaces",
+            "baseline": 28000,
+            "alternative": 24000,
+            "delta": -4000,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "campus_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same authored campus envelope",
+            "baseline": 40000,
+            "alternative": 40000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "roof_area_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same roof footprint",
+            "baseline": 12000,
+            "alternative": 12000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "pv_dc_kwp",
+            "facet": "energy",
+            "unit": "kWp DC",
+            "time_basis": "nameplate power, not annual generation",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "tank_capacity_m3",
+            "facet": "water",
+            "unit": "m³ storage",
+            "time_basis": "static tank capacity",
+            "baseline": 200,
+            "alternative": 200,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "tank_added_nominal_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "additional volume / assumed usable depth",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "additional_pv_cleaning_water_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "not estimated once PV is added",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "additional_controls_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "not estimated for changed water treatment/control",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "public_access_area_m2",
+            "facet": "community",
+            "unit": "m²",
+            "time_basis": "not established; green inside campus is not public access",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "available_network_headroom_mw",
+            "facet": "energy",
+            "unit": "MW",
+            "time_basis": "not assessed for this site",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          }
+        ],
+        "details": {
+          "extra_retained_turf_m2": 4000,
+          "added_irrigation_m3_year": 1200.0,
+          "clearing_area_m2": 28000,
+          "layout_feasibility": "Delivery, emergency access, parking and utility fit unassessed.",
+          "power_basis": "IT and the reference cooling budget unchanged; incremental irrigation pumping not quantified, so revised whole-campus electricity is null."
+        },
+        "goal": null,
+        "unquantified_implications": [
+          "Construction fuel/electricity/material deltas and costs are not calculated for the edit.",
+          "Actual grid capacity, route, outage effects, biodiversity and community consent remain unassessed.",
+          "Irrigation pumping electricity, construction changes, habitat quality and actual public access are not calculated. The same campus still occupies 4 ha."
+        ],
+        "milestone_states": [
+          {
+            "id": "M0",
+            "areas_m2": {
+              "turf_m2": 40000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 537.6439241691463,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 537.6439241691463,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 2918.3560758308536,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M1",
+            "areas_m2": {
+              "turf_m2": 12000,
+              "stripped_not_graded_m2": 28000,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 4000,
+              "stripped_not_graded_m2": -4000,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": null,
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M2",
+            "areas_m2": {
+              "turf_m2": 12000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 28000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 4000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": -4000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1591.8477592472243,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1591.8477592472243,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1864.1522407527757,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M3",
+            "areas_m2": {
+              "turf_m2": 12000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 28000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 4000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": -4000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1591.8477592472243,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1591.8477592472243,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1864.1522407527757,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M4",
+            "areas_m2": {
+              "turf_m2": 12000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 16000,
+              "roof_m2": 12000,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 4000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": -4000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1944.4691287696523,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1944.4691287696523,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1511.5308712303477,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M5",
+            "areas_m2": {
+              "turf_m2": 12000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 12000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 4000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": -4000,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2146.4899504237833,
+              "roof_capture_m3": 200,
+              "water_to_managed_drainage_m3": 1946.4899504237833,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1309.5100495762167,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M6",
+            "areas_m2": {
+              "turf_m2": 12000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 12000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 4000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": -4000,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2146.4899504237833,
+              "roof_capture_m3": 200,
+              "water_to_managed_drainage_m3": 1946.4899504237833,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1309.5100495762167,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": {
+              "facility_electricity_mwh_year": null,
+              "it_electricity_mwh_year": 87600,
+              "grid_import_mwh_year": null,
+              "pv_generation_mwh_year": 0,
+              "grid_import_reduction_percent": null,
+              "cooling_makeup_m3_year": 109500.0,
+              "cooling_evaporation_m3_year": 82125.0,
+              "cooling_blowdown_m3_year": 27375.0,
+              "existing_uses_water_supply_m3_year": 115395.0,
+              "irrigation_supply_m3_year": 4800.0,
+              "additional_pv_cleaning_water_m3_year": 0,
+              "additional_controls_electricity_mwh_year": 0
+            }
+          }
+        ],
+        "visualization": "Before M1 mark a protected strip and leave it intact through preparation. At opening reduce hardstanding accordingly; show the same buildings and a clear campus boundary.",
+        "wider_context": "The proposal retains more original turf but still occupies the same park footprint. Public access and community acceptance are not inferred."
+      }
+    },
+    {
+      "id": "cooling_water_controls",
+      "title": "Improve cooling-water management",
+      "user_examples": [
+        "Waste less cooling water.",
+        "Can we discharge less cooling water?"
+      ],
+      "parameter": {
+        "name": "concentration_ratio",
+        "unit": "ratio",
+        "minimum": 4,
+        "maximum": 6,
+        "default": 6
+      },
+      "milestones": [
+        "M5",
+        "M6"
+      ],
+      "implementation": "Assume suitable treatment and conductivity/blowdown control permit a higher concentration ratio in the evaporative outdoor circuit.",
+      "why_interesting": "Less blowdown reduces make-up supply while the same heat-rejection evaporation remains.",
+      "constraints": [
+        "The range 4–6 is a prepared teaching range, not a verified chemistry limit.",
+        "Feasibility at 6 requires water-quality and treatment assessment.",
+        "Keep evaporation and IT demand fixed for the conditional calculation; negligible drift/leaks.",
+        "Control/treatment electricity and any additional process water remain unquantified; no energy saving is invented."
+      ],
+      "visual": "At M5 add a schematic control/treatment marker. At M6 narrow make-up and blowdown arrows while keeping evaporation visible and unchanged; do not animate literal loop counts.",
+      "wider": "Conditionally lower cooling supply and sanitary blowdown. No drinking-water shortage, treatment-plant capacity relief or river outcome is calculated.",
+      "source_ids": [
+        "B01",
+        "B02",
+        "S03"
+      ],
+      "preview": {
+        "change_id": "cooling_water_controls",
+        "title": "Improve cooling-water management",
+        "status": "conditional_educational_preview",
+        "preview_allowed": true,
+        "parameters": {
+          "concentration_ratio": 6
+        },
+        "engineering_feasibility": "not_established",
+        "source_ids": [
+          "B01",
+          "B02",
+          "S03"
+        ],
+        "primary_metrics": [
+          "cooling_makeup_m3_year",
+          "cooling_blowdown_m3_year",
+          "cooling_evaporation_m3_year",
+          "facility_electricity_mwh_year"
+        ],
+        "metrics": [
+          {
+            "id": "facility_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same full operating-year demand; not a peak",
+            "baseline": 105120.0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "it_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same 10 MW average IT service assumption",
+            "baseline": 87600,
+            "alternative": 87600,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "normal operation; flat-load assumption for PV",
+            "baseline": 105120.0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "pv_generation_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "long-term average regional PV output estimate",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_reduction_percent",
+            "facet": "energy",
+            "unit": "%",
+            "time_basis": "annual grid-import reduction against baseline",
+            "baseline": 0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "cooling_makeup_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling make-up supplied; includes blowdown",
+            "baseline": 109500.0,
+            "alternative": 98550.0,
+            "delta": -10950.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "cooling_evaporation_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling water evaporated",
+            "baseline": 82125.0,
+            "alternative": 82125.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_blowdown_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling sanitary blowdown volume",
+            "baseline": 27375.0,
+            "alternative": 16425.0,
+            "delta": -10950.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "existing_uses_water_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "selected cooling, domestic and irrigation uses only",
+            "baseline": 114195.0,
+            "alternative": 103245.0,
+            "delta": -10950.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "irrigation_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "inherited 300 mm delivered allowance",
+            "baseline": 3600.0,
+            "alternative": 3600.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_generated_runoff_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "same 86.4 mm rain, selected HSG B",
+            "baseline": 2414.6309547995565,
+            "alternative": 2414.6309547995565,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_roof_capture_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "roof-only storage, empty start, no release",
+            "baseline": 200,
+            "alternative": 200,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_managed_drainage_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "volume after roof capture; not peak or flood",
+            "baseline": 2214.6309547995565,
+            "alternative": 2214.6309547995565,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "retained_turf_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "original turf retained at completed campus",
+            "baseline": 8000,
+            "alternative": 8000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "final_impervious_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "roof plus other final hard surfaces",
+            "baseline": 28000,
+            "alternative": 28000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "campus_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same authored campus envelope",
+            "baseline": 40000,
+            "alternative": 40000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "roof_area_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same roof footprint",
+            "baseline": 12000,
+            "alternative": 12000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "pv_dc_kwp",
+            "facet": "energy",
+            "unit": "kWp DC",
+            "time_basis": "nameplate power, not annual generation",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "tank_capacity_m3",
+            "facet": "water",
+            "unit": "m³ storage",
+            "time_basis": "static tank capacity",
+            "baseline": 200,
+            "alternative": 200,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "tank_added_nominal_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "additional volume / assumed usable depth",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "additional_pv_cleaning_water_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "not estimated once PV is added",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "additional_controls_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "not estimated for changed water treatment/control",
+            "baseline": 0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "public_access_area_m2",
+            "facet": "community",
+            "unit": "m²",
+            "time_basis": "not established; green inside campus is not public access",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "available_network_headroom_mw",
+            "facet": "energy",
+            "unit": "MW",
+            "time_basis": "not assessed for this site",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          }
+        ],
+        "details": {
+          "concentration_ratio": 6,
+          "chemistry_feasibility": "not_established",
+          "cooling_makeup_m3_average_day": 270.0,
+          "model_condition": "Fixed evaporation/heat-rejection duty, negligible drift/leaks and suitable chemistry/treatment assumed. No treatment-energy or ancillary process-water estimate."
+        },
+        "goal": null,
+        "unquantified_implications": [
+          "Construction fuel/electricity/material deltas and costs are not calculated for the edit.",
+          "Actual grid capacity, route, outage effects, biodiversity and community consent remain unassessed.",
+          "Water chemistry/treatment feasibility, added treatment electricity and ancillary water are unassessed. Conditional make-up saving is not reduced evaporation or proof of household supply relief."
+        ],
+        "milestone_states": [
+          {
+            "id": "M0",
+            "areas_m2": {
+              "turf_m2": 40000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 537.6439241691463,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 537.6439241691463,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 2918.3560758308536,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M1",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 32000,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": null,
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M2",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 32000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1742.4483071155214,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1742.4483071155214,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1713.5516928844786,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M3",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 32000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1742.4483071155214,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1742.4483071155214,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1713.5516928844786,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M4",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 20000,
+              "roof_m2": 12000,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2095.069676637949,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 2095.069676637949,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1360.9303233620508,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M5",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 16000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2414.6309547995565,
+              "roof_capture_m3": 200,
+              "water_to_managed_drainage_m3": 2214.6309547995565,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1041.3690452004435,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M6",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 16000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2414.6309547995565,
+              "roof_capture_m3": 200,
+              "water_to_managed_drainage_m3": 2214.6309547995565,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1041.3690452004435,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": {
+              "facility_electricity_mwh_year": null,
+              "it_electricity_mwh_year": 87600,
+              "grid_import_mwh_year": null,
+              "pv_generation_mwh_year": 0,
+              "grid_import_reduction_percent": null,
+              "cooling_makeup_m3_year": 98550.0,
+              "cooling_evaporation_m3_year": 82125.0,
+              "cooling_blowdown_m3_year": 16425.0,
+              "existing_uses_water_supply_m3_year": 103245.0,
+              "irrigation_supply_m3_year": 3600.0,
+              "additional_pv_cleaning_water_m3_year": 0,
+              "additional_controls_electricity_mwh_year": null
+            }
+          }
+        ],
+        "visualization": "At M5 add a schematic control/treatment marker. At M6 narrow make-up and blowdown arrows while keeping evaporation visible and unchanged; do not animate literal loop counts.",
+        "wider_context": "Conditionally lower cooling supply and sanitary blowdown. No drinking-water shortage, treatment-plant capacity relief or river outcome is calculated."
+      }
+    }
+  ],
+  "input_examples": [
+    {
+      "id": "solar-10-percent",
+      "user_input": "Could rooftop solar cover 10% of our electricity?",
+      "request": {
+        "change_id": "solar_roof",
+        "parameters": {
+          "solar_zone_m2": 6000
+        },
+        "goal": {
+          "metric": "grid_import_reduction_percent",
+          "value": 10
+        }
+      },
+      "result": {
+        "change_id": "solar_roof",
+        "title": "Add rooftop solar",
+        "status": "conditional_educational_preview",
+        "preview_allowed": true,
+        "parameters": {
+          "solar_zone_m2": 6000
+        },
+        "engineering_feasibility": "not_established",
+        "source_ids": [
+          "B02",
+          "S01",
+          "S02",
+          "S06"
+        ],
+        "primary_metrics": [
+          "pv_generation_mwh_year",
+          "grid_import_mwh_year",
+          "grid_import_reduction_percent"
+        ],
+        "metrics": [
+          {
+            "id": "facility_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same full operating-year demand; not a peak",
+            "baseline": 105120.0,
+            "alternative": 105120.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "it_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same 10 MW average IT service assumption",
+            "baseline": 87600,
+            "alternative": 87600,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "normal operation; flat-load assumption for PV",
+            "baseline": 105120.0,
+            "alternative": 103666.572,
+            "delta": -1453.4279999999999,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "pv_generation_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "long-term average regional PV output estimate",
+            "baseline": 0,
+            "alternative": 1453.4280000000003,
+            "delta": 1453.4280000000003,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "grid_import_reduction_percent",
+            "facet": "energy",
+            "unit": "%",
+            "time_basis": "annual grid-import reduction against baseline",
+            "baseline": 0,
+            "alternative": 1.38263698630137,
+            "delta": 1.38263698630137,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "cooling_makeup_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling make-up supplied; includes blowdown",
+            "baseline": 109500.0,
+            "alternative": 109500.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_evaporation_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling water evaporated",
+            "baseline": 82125.0,
+            "alternative": 82125.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_blowdown_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling sanitary blowdown volume",
+            "baseline": 27375.0,
+            "alternative": 27375.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "existing_uses_water_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "selected cooling, domestic and irrigation uses only",
+            "baseline": 114195.0,
+            "alternative": 114195.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "irrigation_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "inherited 300 mm delivered allowance",
+            "baseline": 3600.0,
+            "alternative": 3600.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_generated_runoff_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "same 86.4 mm rain, selected HSG B",
+            "baseline": 2414.6309547995565,
+            "alternative": 2414.6309547995565,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_roof_capture_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "roof-only storage, empty start, no release",
+            "baseline": 200,
+            "alternative": 200,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_managed_drainage_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "volume after roof capture; not peak or flood",
+            "baseline": 2214.6309547995565,
+            "alternative": 2214.6309547995565,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "retained_turf_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "original turf retained at completed campus",
+            "baseline": 8000,
+            "alternative": 8000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "final_impervious_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "roof plus other final hard surfaces",
+            "baseline": 28000,
+            "alternative": 28000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "campus_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same authored campus envelope",
+            "baseline": 40000,
+            "alternative": 40000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "roof_area_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same roof footprint",
+            "baseline": 12000,
+            "alternative": 12000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "pv_dc_kwp",
+            "facet": "energy",
+            "unit": "kWp DC",
+            "time_basis": "nameplate power, not annual generation",
+            "baseline": 0,
+            "alternative": 900.0000000000001,
+            "delta": 900.0000000000001,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "tank_capacity_m3",
+            "facet": "water",
+            "unit": "m³ storage",
+            "time_basis": "static tank capacity",
+            "baseline": 200,
+            "alternative": 200,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "tank_added_nominal_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "additional volume / assumed usable depth",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "additional_pv_cleaning_water_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "not estimated once PV is added",
+            "baseline": 0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "additional_controls_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "not estimated for changed water treatment/control",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "public_access_area_m2",
+            "facet": "community",
+            "unit": "m²",
+            "time_basis": "not established; green inside campus is not public access",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "available_network_headroom_mw",
+            "facet": "energy",
+            "unit": "MW",
+            "time_basis": "not assessed for this site",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          }
+        ],
+        "details": {
+          "solar_zone_m2": 6000,
+          "module_surface_m2": 4500.0,
+          "specific_yield_kwh_per_kwp_year": 1614.92,
+          "meteo_source": {
+            "radiation_db": "PVGIS-ERA5",
+            "meteo_db": "ERA5",
+            "year_min": 2005,
+            "year_max": 2023,
+            "use_horizon": true,
+            "horizon_db": "DEM-calculated"
+          },
+          "monthly_generation_kwh": [
+            {
+              "month": 1,
+              "energy_kwh": 68292.0
+            },
+            {
+              "month": 2,
+              "energy_kwh": 83655.00000000001
+            },
+            {
+              "month": 3,
+              "energy_kwh": 115371.00000000001
+            },
+            {
+              "month": 4,
+              "energy_kwh": 144360.00000000003
+            },
+            {
+              "month": 5,
+              "energy_kwh": 163944.00000000003
+            },
+            {
+              "month": 6,
+              "energy_kwh": 168813.00000000003
+            },
+            {
+              "month": 7,
+              "energy_kwh": 172458.00000000003
+            },
+            {
+              "month": 8,
+              "energy_kwh": 159759.0
+            },
+            {
+              "month": 9,
+              "energy_kwh": 134712.00000000003
+            },
+            {
+              "month": 10,
+              "energy_kwh": 106794.00000000001
+            },
+            {
+              "month": 11,
+              "energy_kwh": 75726.00000000001
+            },
+            {
+              "month": 12,
+              "energy_kwh": 59544.00000000001
+            }
+          ],
+          "peak_connection_reduction_mw": null,
+          "self_consumption_basis": "Assumed flat 12 MW demand; prepared DC array below demand; no export/storage; regional yield with chosen losses."
+        },
+        "goal": {
+          "target_percent": 10,
+          "achieved_percent": 1.38263698630137,
+          "status": "not_met_by_this_preview",
+          "required_dc_kwp_under_same_yield": 6509.300770316796,
+          "required_solar_zone_m2_under_same_assumptions": 43395.33846877863,
+          "exceeds_prepared_roof_allocation": true,
+          "exceeds_entire_roof_under_same_assumptions": true
+        },
+        "unquantified_implications": [
+          "Construction fuel/electricity/material deltas and costs are not calculated for the edit.",
+          "Actual grid capacity, route, outage effects, biodiversity and community consent remain unassessed.",
+          "PV cleaning water, actual local shade, roof fit/structure and maintenance are not estimated. Existing modelled water uses stay at baseline; no complete revised water total is claimed."
+        ],
+        "milestone_states": [
+          {
+            "id": "M0",
+            "areas_m2": {
+              "turf_m2": 40000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 537.6439241691463,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 537.6439241691463,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 2918.3560758308536,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M1",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 32000,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": null,
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M2",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 32000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1742.4483071155214,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1742.4483071155214,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1713.5516928844786,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M3",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 32000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1742.4483071155214,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1742.4483071155214,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1713.5516928844786,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M4",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 20000,
+              "roof_m2": 12000,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2095.069676637949,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 2095.069676637949,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1360.9303233620508,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M5",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 16000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2414.6309547995565,
+              "roof_capture_m3": 200,
+              "water_to_managed_drainage_m3": 2214.6309547995565,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1041.3690452004435,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M6",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 16000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2414.6309547995565,
+              "roof_capture_m3": 200,
+              "water_to_managed_drainage_m3": 2214.6309547995565,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1041.3690452004435,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": {
+              "facility_electricity_mwh_year": 105120.0,
+              "it_electricity_mwh_year": 87600,
+              "grid_import_mwh_year": 103666.572,
+              "pv_generation_mwh_year": 1453.4280000000003,
+              "grid_import_reduction_percent": 1.38263698630137,
+              "cooling_makeup_m3_year": 109500.0,
+              "cooling_evaporation_m3_year": 82125.0,
+              "cooling_blowdown_m3_year": 27375.0,
+              "existing_uses_water_supply_m3_year": 114195.0,
+              "irrigation_supply_m3_year": 3600.0,
+              "additional_pv_cleaning_water_m3_year": null,
+              "additional_controls_electricity_mwh_year": 0
+            }
+          }
+        ],
+        "visualization": "At M4 show a dashed solar zone; at M5 install panels; at M6 add a solar branch before the grid meter. Keep the IT/support demand unchanged.",
+        "wider_context": "Potentially lower annual electricity bought through the shared system. Grid capacity and neighbourhood outage effects remain unassessed."
+      }
+    },
+    {
+      "id": "tank-double",
+      "user_input": "Double the roof-rain tank.",
+      "request": {
+        "change_id": "roof_tank",
+        "parameters": {
+          "tank_capacity_m3": 400
+        }
+      },
+      "result": {
+        "change_id": "roof_tank",
+        "title": "Enlarge the roof-rain tank",
+        "status": "conditional_educational_preview",
+        "preview_allowed": true,
+        "parameters": {
+          "tank_capacity_m3": 400
+        },
+        "engineering_feasibility": "not_established",
+        "source_ids": [
+          "B01",
+          "S04",
+          "S05"
+        ],
+        "primary_metrics": [
+          "event_roof_capture_m3",
+          "event_managed_drainage_m3",
+          "tank_added_nominal_footprint_m2"
+        ],
+        "metrics": [
+          {
+            "id": "facility_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same full operating-year demand; not a peak",
+            "baseline": 105120.0,
+            "alternative": 105120.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "it_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same 10 MW average IT service assumption",
+            "baseline": 87600,
+            "alternative": 87600,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "normal operation; flat-load assumption for PV",
+            "baseline": 105120.0,
+            "alternative": 105120.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "pv_generation_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "long-term average regional PV output estimate",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_reduction_percent",
+            "facet": "energy",
+            "unit": "%",
+            "time_basis": "annual grid-import reduction against baseline",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_makeup_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling make-up supplied; includes blowdown",
+            "baseline": 109500.0,
+            "alternative": 109500.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_evaporation_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling water evaporated",
+            "baseline": 82125.0,
+            "alternative": 82125.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_blowdown_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling sanitary blowdown volume",
+            "baseline": 27375.0,
+            "alternative": 27375.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "existing_uses_water_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "selected cooling, domestic and irrigation uses only",
+            "baseline": 114195.0,
+            "alternative": 114195.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "irrigation_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "inherited 300 mm delivered allowance",
+            "baseline": 3600.0,
+            "alternative": 3600.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_generated_runoff_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "same 86.4 mm rain, selected HSG B",
+            "baseline": 2414.6309547995565,
+            "alternative": 2414.6309547995565,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_roof_capture_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "roof-only storage, empty start, no release",
+            "baseline": 200,
+            "alternative": 400,
+            "delta": 200,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "event_managed_drainage_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "volume after roof capture; not peak or flood",
+            "baseline": 2214.6309547995565,
+            "alternative": 2014.6309547995565,
+            "delta": -200.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "retained_turf_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "original turf retained at completed campus",
+            "baseline": 8000,
+            "alternative": 8000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "final_impervious_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "roof plus other final hard surfaces",
+            "baseline": 28000,
+            "alternative": 28000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "campus_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same authored campus envelope",
+            "baseline": 40000,
+            "alternative": 40000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "roof_area_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same roof footprint",
+            "baseline": 12000,
+            "alternative": 12000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "pv_dc_kwp",
+            "facet": "energy",
+            "unit": "kWp DC",
+            "time_basis": "nameplate power, not annual generation",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "tank_capacity_m3",
+            "facet": "water",
+            "unit": "m³ storage",
+            "time_basis": "static tank capacity",
+            "baseline": 200,
+            "alternative": 400,
+            "delta": 200,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "tank_added_nominal_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "additional volume / assumed usable depth",
+            "baseline": 0,
+            "alternative": 100.0,
+            "delta": 100.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "additional_pv_cleaning_water_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "not estimated once PV is added",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "additional_controls_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "not estimated for changed water treatment/control",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "public_access_area_m2",
+            "facet": "community",
+            "unit": "m²",
+            "time_basis": "not established; green inside campus is not public access",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "available_network_headroom_mw",
+            "facet": "energy",
+            "unit": "MW",
+            "time_basis": "not assessed for this site",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          }
+        ],
+        "details": {
+          "annual_reuse_savings_m3": null,
+          "initial_storage_m3": 0,
+          "nominal_usable_depth_m": 2,
+          "footprint_basis": "Additional capacity divided by assumed depth, within existing hardstanding; no new impervious-area change.",
+          "operation_basis": "No within-event release or annual reuse; selected normal-operation electricity and water uses are held fixed."
+        },
+        "goal": null,
+        "unquantified_implications": [
+          "Construction fuel/electricity/material deltas and costs are not calculated for the edit.",
+          "Actual grid capacity, route, outage effects, biodiversity and community consent remain unassessed.",
+          "Actual tank fit, construction resources, treatment/reuse, drainage peaks and flood outcomes are not estimated."
+        ],
+        "milestone_states": [
+          {
+            "id": "M0",
+            "areas_m2": {
+              "turf_m2": 40000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 537.6439241691463,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 537.6439241691463,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 2918.3560758308536,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M1",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 32000,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": null,
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M2",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 32000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1742.4483071155214,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1742.4483071155214,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1713.5516928844786,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M3",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 32000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1742.4483071155214,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1742.4483071155214,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1713.5516928844786,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M4",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 20000,
+              "roof_m2": 12000,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2095.069676637949,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 2095.069676637949,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1360.9303233620508,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M5",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 16000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2414.6309547995565,
+              "roof_capture_m3": 400,
+              "water_to_managed_drainage_m3": 2014.6309547995565,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1041.3690452004435,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M6",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 16000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2414.6309547995565,
+              "roof_capture_m3": 400,
+              "water_to_managed_drainage_m3": 2014.6309547995565,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1041.3690452004435,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": {
+              "facility_electricity_mwh_year": 105120.0,
+              "it_electricity_mwh_year": 87600,
+              "grid_import_mwh_year": 105120.0,
+              "pv_generation_mwh_year": 0,
+              "grid_import_reduction_percent": 0,
+              "cooling_makeup_m3_year": 109500.0,
+              "cooling_evaporation_m3_year": 82125.0,
+              "cooling_blowdown_m3_year": 27375.0,
+              "existing_uses_water_supply_m3_year": 114195.0,
+              "irrigation_supply_m3_year": 3600.0,
+              "additional_pv_cleaning_water_m3_year": 0,
+              "additional_controls_electricity_mwh_year": 0
+            }
+          }
+        ],
+        "visualization": "At M4/M5 enlarge a schematic tank; on optional rainfall replay show captured volume and remaining managed drainage. Do not draw an unverified outfall.",
+        "wider_context": "Less volume passes to managed drainage during this event; peak flow, flood protection and annual supply effects are not established."
+      }
+    },
+    {
+      "id": "tank-plateau",
+      "user_input": "Use the largest prepared tank.",
+      "request": {
+        "change_id": "roof_tank",
+        "parameters": {
+          "tank_capacity_m3": 2000
+        }
+      },
+      "result": {
+        "change_id": "roof_tank",
+        "title": "Enlarge the roof-rain tank",
+        "status": "conditional_educational_preview",
+        "preview_allowed": true,
+        "parameters": {
+          "tank_capacity_m3": 2000
+        },
+        "engineering_feasibility": "not_established",
+        "source_ids": [
+          "B01",
+          "S04",
+          "S05"
+        ],
+        "primary_metrics": [
+          "event_roof_capture_m3",
+          "event_managed_drainage_m3",
+          "tank_added_nominal_footprint_m2"
+        ],
+        "metrics": [
+          {
+            "id": "facility_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same full operating-year demand; not a peak",
+            "baseline": 105120.0,
+            "alternative": 105120.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "it_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same 10 MW average IT service assumption",
+            "baseline": 87600,
+            "alternative": 87600,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "normal operation; flat-load assumption for PV",
+            "baseline": 105120.0,
+            "alternative": 105120.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "pv_generation_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "long-term average regional PV output estimate",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_reduction_percent",
+            "facet": "energy",
+            "unit": "%",
+            "time_basis": "annual grid-import reduction against baseline",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_makeup_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling make-up supplied; includes blowdown",
+            "baseline": 109500.0,
+            "alternative": 109500.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_evaporation_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling water evaporated",
+            "baseline": 82125.0,
+            "alternative": 82125.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_blowdown_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling sanitary blowdown volume",
+            "baseline": 27375.0,
+            "alternative": 27375.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "existing_uses_water_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "selected cooling, domestic and irrigation uses only",
+            "baseline": 114195.0,
+            "alternative": 114195.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "irrigation_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "inherited 300 mm delivered allowance",
+            "baseline": 3600.0,
+            "alternative": 3600.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_generated_runoff_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "same 86.4 mm rain, selected HSG B",
+            "baseline": 2414.6309547995565,
+            "alternative": 2414.6309547995565,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_roof_capture_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "roof-only storage, empty start, no release",
+            "baseline": 200,
+            "alternative": 965.7161903780625,
+            "delta": 765.7161903780625,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "event_managed_drainage_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "volume after roof capture; not peak or flood",
+            "baseline": 2214.6309547995565,
+            "alternative": 1448.914764421494,
+            "delta": -765.7161903780625,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "retained_turf_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "original turf retained at completed campus",
+            "baseline": 8000,
+            "alternative": 8000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "final_impervious_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "roof plus other final hard surfaces",
+            "baseline": 28000,
+            "alternative": 28000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "campus_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same authored campus envelope",
+            "baseline": 40000,
+            "alternative": 40000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "roof_area_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same roof footprint",
+            "baseline": 12000,
+            "alternative": 12000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "pv_dc_kwp",
+            "facet": "energy",
+            "unit": "kWp DC",
+            "time_basis": "nameplate power, not annual generation",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "tank_capacity_m3",
+            "facet": "water",
+            "unit": "m³ storage",
+            "time_basis": "static tank capacity",
+            "baseline": 200,
+            "alternative": 2000,
+            "delta": 1800,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "tank_added_nominal_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "additional volume / assumed usable depth",
+            "baseline": 0,
+            "alternative": 900.0,
+            "delta": 900.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "additional_pv_cleaning_water_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "not estimated once PV is added",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "additional_controls_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "not estimated for changed water treatment/control",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "public_access_area_m2",
+            "facet": "community",
+            "unit": "m²",
+            "time_basis": "not established; green inside campus is not public access",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "available_network_headroom_mw",
+            "facet": "energy",
+            "unit": "MW",
+            "time_basis": "not assessed for this site",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          }
+        ],
+        "details": {
+          "annual_reuse_savings_m3": null,
+          "initial_storage_m3": 0,
+          "nominal_usable_depth_m": 2,
+          "footprint_basis": "Additional capacity divided by assumed depth, within existing hardstanding; no new impervious-area change.",
+          "operation_basis": "No within-event release or annual reuse; selected normal-operation electricity and water uses are held fixed."
+        },
+        "goal": null,
+        "unquantified_implications": [
+          "Construction fuel/electricity/material deltas and costs are not calculated for the edit.",
+          "Actual grid capacity, route, outage effects, biodiversity and community consent remain unassessed.",
+          "Actual tank fit, construction resources, treatment/reuse, drainage peaks and flood outcomes are not estimated."
+        ],
+        "milestone_states": [
+          {
+            "id": "M0",
+            "areas_m2": {
+              "turf_m2": 40000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 537.6439241691463,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 537.6439241691463,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 2918.3560758308536,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M1",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 32000,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": null,
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M2",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 32000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1742.4483071155214,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1742.4483071155214,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1713.5516928844786,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M3",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 32000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1742.4483071155214,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1742.4483071155214,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1713.5516928844786,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M4",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 20000,
+              "roof_m2": 12000,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2095.069676637949,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 2095.069676637949,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1360.9303233620508,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M5",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 16000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2414.6309547995565,
+              "roof_capture_m3": 965.7161903780625,
+              "water_to_managed_drainage_m3": 1448.914764421494,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1041.3690452004435,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M6",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 16000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2414.6309547995565,
+              "roof_capture_m3": 965.7161903780625,
+              "water_to_managed_drainage_m3": 1448.914764421494,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1041.3690452004435,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": {
+              "facility_electricity_mwh_year": 105120.0,
+              "it_electricity_mwh_year": 87600,
+              "grid_import_mwh_year": 105120.0,
+              "pv_generation_mwh_year": 0,
+              "grid_import_reduction_percent": 0,
+              "cooling_makeup_m3_year": 109500.0,
+              "cooling_evaporation_m3_year": 82125.0,
+              "cooling_blowdown_m3_year": 27375.0,
+              "existing_uses_water_supply_m3_year": 114195.0,
+              "irrigation_supply_m3_year": 3600.0,
+              "additional_pv_cleaning_water_m3_year": 0,
+              "additional_controls_electricity_mwh_year": 0
+            }
+          }
+        ],
+        "visualization": "At M4/M5 enlarge a schematic tank; on optional rainfall replay show captured volume and remaining managed drainage. Do not draw an unverified outfall.",
+        "wider_context": "Less volume passes to managed drainage during this event; peak flow, flood protection and annual supply effects are not established."
+      }
+    },
+    {
+      "id": "green-strip",
+      "user_input": "Keep an extra 0.4 hectares of grass.",
+      "request": {
+        "change_id": "preserve_turf",
+        "parameters": {
+          "extra_retained_turf_m2": 4000
+        }
+      },
+      "result": {
+        "change_id": "preserve_turf",
+        "title": "Keep a larger grass strip",
+        "status": "conditional_educational_preview",
+        "preview_allowed": true,
+        "parameters": {
+          "extra_retained_turf_m2": 4000
+        },
+        "engineering_feasibility": "not_established",
+        "source_ids": [
+          "B01",
+          "B02",
+          "S04",
+          "S05"
+        ],
+        "primary_metrics": [
+          "retained_turf_m2",
+          "event_managed_drainage_m3",
+          "irrigation_supply_m3_year"
+        ],
+        "metrics": [
+          {
+            "id": "facility_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same full operating-year demand; not a peak",
+            "baseline": 105120.0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "it_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same 10 MW average IT service assumption",
+            "baseline": 87600,
+            "alternative": 87600,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "normal operation; flat-load assumption for PV",
+            "baseline": 105120.0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "pv_generation_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "long-term average regional PV output estimate",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_reduction_percent",
+            "facet": "energy",
+            "unit": "%",
+            "time_basis": "annual grid-import reduction against baseline",
+            "baseline": 0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "cooling_makeup_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling make-up supplied; includes blowdown",
+            "baseline": 109500.0,
+            "alternative": 109500.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_evaporation_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling water evaporated",
+            "baseline": 82125.0,
+            "alternative": 82125.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_blowdown_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling sanitary blowdown volume",
+            "baseline": 27375.0,
+            "alternative": 27375.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "existing_uses_water_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "selected cooling, domestic and irrigation uses only",
+            "baseline": 114195.0,
+            "alternative": 115395.0,
+            "delta": 1200.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "irrigation_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "inherited 300 mm delivered allowance",
+            "baseline": 3600.0,
+            "alternative": 4800.0,
+            "delta": 1200.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "event_generated_runoff_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "same 86.4 mm rain, selected HSG B",
+            "baseline": 2414.6309547995565,
+            "alternative": 2146.4899504237833,
+            "delta": -268.14100437577326,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "event_roof_capture_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "roof-only storage, empty start, no release",
+            "baseline": 200,
+            "alternative": 200,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_managed_drainage_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "volume after roof capture; not peak or flood",
+            "baseline": 2214.6309547995565,
+            "alternative": 1946.4899504237833,
+            "delta": -268.14100437577326,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "retained_turf_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "original turf retained at completed campus",
+            "baseline": 8000,
+            "alternative": 12000,
+            "delta": 4000,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "final_impervious_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "roof plus other final hard surfaces",
+            "baseline": 28000,
+            "alternative": 24000,
+            "delta": -4000,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "campus_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same authored campus envelope",
+            "baseline": 40000,
+            "alternative": 40000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "roof_area_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same roof footprint",
+            "baseline": 12000,
+            "alternative": 12000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "pv_dc_kwp",
+            "facet": "energy",
+            "unit": "kWp DC",
+            "time_basis": "nameplate power, not annual generation",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "tank_capacity_m3",
+            "facet": "water",
+            "unit": "m³ storage",
+            "time_basis": "static tank capacity",
+            "baseline": 200,
+            "alternative": 200,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "tank_added_nominal_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "additional volume / assumed usable depth",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "additional_pv_cleaning_water_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "not estimated once PV is added",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "additional_controls_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "not estimated for changed water treatment/control",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "public_access_area_m2",
+            "facet": "community",
+            "unit": "m²",
+            "time_basis": "not established; green inside campus is not public access",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "available_network_headroom_mw",
+            "facet": "energy",
+            "unit": "MW",
+            "time_basis": "not assessed for this site",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          }
+        ],
+        "details": {
+          "extra_retained_turf_m2": 4000,
+          "added_irrigation_m3_year": 1200.0,
+          "clearing_area_m2": 28000,
+          "layout_feasibility": "Delivery, emergency access, parking and utility fit unassessed.",
+          "power_basis": "IT and the reference cooling budget unchanged; incremental irrigation pumping not quantified, so revised whole-campus electricity is null."
+        },
+        "goal": null,
+        "unquantified_implications": [
+          "Construction fuel/electricity/material deltas and costs are not calculated for the edit.",
+          "Actual grid capacity, route, outage effects, biodiversity and community consent remain unassessed.",
+          "Irrigation pumping electricity, construction changes, habitat quality and actual public access are not calculated. The same campus still occupies 4 ha."
+        ],
+        "milestone_states": [
+          {
+            "id": "M0",
+            "areas_m2": {
+              "turf_m2": 40000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 537.6439241691463,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 537.6439241691463,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 2918.3560758308536,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M1",
+            "areas_m2": {
+              "turf_m2": 12000,
+              "stripped_not_graded_m2": 28000,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 4000,
+              "stripped_not_graded_m2": -4000,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": null,
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M2",
+            "areas_m2": {
+              "turf_m2": 12000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 28000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 4000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": -4000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1591.8477592472243,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1591.8477592472243,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1864.1522407527757,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M3",
+            "areas_m2": {
+              "turf_m2": 12000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 28000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 4000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": -4000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1591.8477592472243,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1591.8477592472243,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1864.1522407527757,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M4",
+            "areas_m2": {
+              "turf_m2": 12000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 16000,
+              "roof_m2": 12000,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 4000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": -4000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1944.4691287696523,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1944.4691287696523,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1511.5308712303477,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M5",
+            "areas_m2": {
+              "turf_m2": 12000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 12000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 4000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": -4000,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2146.4899504237833,
+              "roof_capture_m3": 200,
+              "water_to_managed_drainage_m3": 1946.4899504237833,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1309.5100495762167,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M6",
+            "areas_m2": {
+              "turf_m2": 12000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 12000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 4000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": -4000,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2146.4899504237833,
+              "roof_capture_m3": 200,
+              "water_to_managed_drainage_m3": 1946.4899504237833,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1309.5100495762167,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": {
+              "facility_electricity_mwh_year": null,
+              "it_electricity_mwh_year": 87600,
+              "grid_import_mwh_year": null,
+              "pv_generation_mwh_year": 0,
+              "grid_import_reduction_percent": null,
+              "cooling_makeup_m3_year": 109500.0,
+              "cooling_evaporation_m3_year": 82125.0,
+              "cooling_blowdown_m3_year": 27375.0,
+              "existing_uses_water_supply_m3_year": 115395.0,
+              "irrigation_supply_m3_year": 4800.0,
+              "additional_pv_cleaning_water_m3_year": 0,
+              "additional_controls_electricity_mwh_year": 0
+            }
+          }
+        ],
+        "visualization": "Before M1 mark a protected strip and leave it intact through preparation. At opening reduce hardstanding accordingly; show the same buildings and a clear campus boundary.",
+        "wider_context": "The proposal retains more original turf but still occupies the same park footprint. Public access and community acceptance are not inferred."
+      }
+    },
+    {
+      "id": "cooling-controls",
+      "user_input": "Improve water management in cooling.",
+      "request": {
+        "change_id": "cooling_water_controls",
+        "parameters": {
+          "concentration_ratio": 6
+        }
+      },
+      "result": {
+        "change_id": "cooling_water_controls",
+        "title": "Improve cooling-water management",
+        "status": "conditional_educational_preview",
+        "preview_allowed": true,
+        "parameters": {
+          "concentration_ratio": 6
+        },
+        "engineering_feasibility": "not_established",
+        "source_ids": [
+          "B01",
+          "B02",
+          "S03"
+        ],
+        "primary_metrics": [
+          "cooling_makeup_m3_year",
+          "cooling_blowdown_m3_year",
+          "cooling_evaporation_m3_year",
+          "facility_electricity_mwh_year"
+        ],
+        "metrics": [
+          {
+            "id": "facility_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same full operating-year demand; not a peak",
+            "baseline": 105120.0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "it_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "same 10 MW average IT service assumption",
+            "baseline": 87600,
+            "alternative": 87600,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "normal operation; flat-load assumption for PV",
+            "baseline": 105120.0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "pv_generation_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "long-term average regional PV output estimate",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "grid_import_reduction_percent",
+            "facet": "energy",
+            "unit": "%",
+            "time_basis": "annual grid-import reduction against baseline",
+            "baseline": 0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "cooling_makeup_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling make-up supplied; includes blowdown",
+            "baseline": 109500.0,
+            "alternative": 98550.0,
+            "delta": -10950.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "cooling_evaporation_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling water evaporated",
+            "baseline": 82125.0,
+            "alternative": 82125.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "cooling_blowdown_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "cooling sanitary blowdown volume",
+            "baseline": 27375.0,
+            "alternative": 16425.0,
+            "delta": -10950.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "existing_uses_water_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "selected cooling, domestic and irrigation uses only",
+            "baseline": 114195.0,
+            "alternative": 103245.0,
+            "delta": -10950.0,
+            "status": "calculated_with_assumptions"
+          },
+          {
+            "id": "irrigation_supply_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "inherited 300 mm delivered allowance",
+            "baseline": 3600.0,
+            "alternative": 3600.0,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_generated_runoff_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "same 86.4 mm rain, selected HSG B",
+            "baseline": 2414.6309547995565,
+            "alternative": 2414.6309547995565,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_roof_capture_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "roof-only storage, empty start, no release",
+            "baseline": 200,
+            "alternative": 200,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "event_managed_drainage_m3",
+            "facet": "water",
+            "unit": "m³/event",
+            "time_basis": "volume after roof capture; not peak or flood",
+            "baseline": 2214.6309547995565,
+            "alternative": 2214.6309547995565,
+            "delta": 0.0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "retained_turf_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "original turf retained at completed campus",
+            "baseline": 8000,
+            "alternative": 8000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "final_impervious_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "roof plus other final hard surfaces",
+            "baseline": 28000,
+            "alternative": 28000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "campus_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same authored campus envelope",
+            "baseline": 40000,
+            "alternative": 40000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "roof_area_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "same roof footprint",
+            "baseline": 12000,
+            "alternative": 12000,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "pv_dc_kwp",
+            "facet": "energy",
+            "unit": "kWp DC",
+            "time_basis": "nameplate power, not annual generation",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "tank_capacity_m3",
+            "facet": "water",
+            "unit": "m³ storage",
+            "time_basis": "static tank capacity",
+            "baseline": 200,
+            "alternative": 200,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "tank_added_nominal_footprint_m2",
+            "facet": "land",
+            "unit": "m²",
+            "time_basis": "additional volume / assumed usable depth",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "additional_pv_cleaning_water_m3_year",
+            "facet": "water",
+            "unit": "m³/year",
+            "time_basis": "not estimated once PV is added",
+            "baseline": 0,
+            "alternative": 0,
+            "delta": 0,
+            "status": "unchanged_under_model_assumptions"
+          },
+          {
+            "id": "additional_controls_electricity_mwh_year",
+            "facet": "energy",
+            "unit": "MWh/year",
+            "time_basis": "not estimated for changed water treatment/control",
+            "baseline": 0,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "public_access_area_m2",
+            "facet": "community",
+            "unit": "m²",
+            "time_basis": "not established; green inside campus is not public access",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          },
+          {
+            "id": "available_network_headroom_mw",
+            "facet": "energy",
+            "unit": "MW",
+            "time_basis": "not assessed for this site",
+            "baseline": null,
+            "alternative": null,
+            "delta": null,
+            "status": "not_established"
+          }
+        ],
+        "details": {
+          "concentration_ratio": 6,
+          "chemistry_feasibility": "not_established",
+          "cooling_makeup_m3_average_day": 270.0,
+          "model_condition": "Fixed evaporation/heat-rejection duty, negligible drift/leaks and suitable chemistry/treatment assumed. No treatment-energy or ancillary process-water estimate."
+        },
+        "goal": null,
+        "unquantified_implications": [
+          "Construction fuel/electricity/material deltas and costs are not calculated for the edit.",
+          "Actual grid capacity, route, outage effects, biodiversity and community consent remain unassessed.",
+          "Water chemistry/treatment feasibility, added treatment electricity and ancillary water are unassessed. Conditional make-up saving is not reduced evaporation or proof of household supply relief."
+        ],
+        "milestone_states": [
+          {
+            "id": "M0",
+            "areas_m2": {
+              "turf_m2": 40000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 537.6439241691463,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 537.6439241691463,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 2918.3560758308536,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M1",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 32000,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": null,
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M2",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 32000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1742.4483071155214,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1742.4483071155214,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1713.5516928844786,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M3",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 32000,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 1742.4483071155214,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 1742.4483071155214,
+              "roof_inflow_m3": 0.0,
+              "unpartitioned_non_surface_runoff_residual_m3": 1713.5516928844786,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M4",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 20000,
+              "roof_m2": 12000,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2095.069676637949,
+              "roof_capture_m3": 0,
+              "water_to_managed_drainage_m3": 2095.069676637949,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1360.9303233620508,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": false,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M5",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 16000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2414.6309547995565,
+              "roof_capture_m3": 200,
+              "water_to_managed_drainage_m3": 2214.6309547995565,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1041.3690452004435,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": null
+          },
+          {
+            "id": "M6",
+            "areas_m2": {
+              "turf_m2": 8000,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 12000,
+              "other_impervious_m2": 16000,
+              "landscape_m2": 4000
+            },
+            "area_delta_from_same_baseline_m2": {
+              "turf_m2": 0,
+              "stripped_not_graded_m2": 0,
+              "bare_graded_m2": 0,
+              "roof_m2": 0,
+              "other_impervious_m2": 0,
+              "landscape_m2": 0
+            },
+            "rain_event": {
+              "generated_surface_runoff_m3": 2414.6309547995565,
+              "roof_capture_m3": 200,
+              "water_to_managed_drainage_m3": 2214.6309547995565,
+              "roof_inflow_m3": 965.7161903780625,
+              "unpartitioned_non_surface_runoff_residual_m3": 1041.3690452004435,
+              "note": "One event; no flow routing. Residual is not groundwater recharge."
+            },
+            "edit_visible": true,
+            "annual_operation_metrics": {
+              "facility_electricity_mwh_year": null,
+              "it_electricity_mwh_year": 87600,
+              "grid_import_mwh_year": null,
+              "pv_generation_mwh_year": 0,
+              "grid_import_reduction_percent": null,
+              "cooling_makeup_m3_year": 98550.0,
+              "cooling_evaporation_m3_year": 82125.0,
+              "cooling_blowdown_m3_year": 16425.0,
+              "existing_uses_water_supply_m3_year": 103245.0,
+              "irrigation_supply_m3_year": 3600.0,
+              "additional_pv_cleaning_water_m3_year": 0,
+              "additional_controls_electricity_mwh_year": null
+            }
+          }
+        ],
+        "visualization": "At M5 add a schematic control/treatment marker. At M6 narrow make-up and blowdown arrows while keeping evaporation visible and unchanged; do not animate literal loop counts.",
+        "wider_context": "Conditionally lower cooling supply and sanitary blowdown. No drinking-water shortage, treatment-plant capacity relief or river outcome is calculated."
+      }
+    },
+    {
+      "id": "too-much-roof",
+      "user_input": "Put panels on 20,000 square metres of roof.",
+      "request": {
+        "change_id": "solar_roof",
+        "parameters": {
+          "solar_zone_m2": 20000
+        }
+      },
+      "result": {
+        "status": "exceeds_geometric_bound",
+        "preview_allowed": false,
+        "explanation": "The requested solar zone exceeds the entire 12,000 m² roof in this design.",
+        "metrics": null,
+        "milestone_states": null
+      }
+    },
+    {
+      "id": "unprepared-green",
+      "user_input": "Keep an extra hectare of grass.",
+      "request": {
+        "change_id": "preserve_turf",
+        "parameters": {
+          "extra_retained_turf_m2": 10000
+        }
+      },
+      "result": {
+        "status": "outside_prepared_range",
+        "preview_allowed": false,
+        "explanation": "The request is outside this prepared scenario range. This is not proof that all such real designs are impossible.",
+        "metrics": null,
+        "milestone_states": null
+      }
+    },
+    {
+      "id": "unverified-chemistry",
+      "user_input": "Set the concentration ratio to 20.",
+      "request": {
+        "change_id": "cooling_water_controls",
+        "parameters": {
+          "concentration_ratio": 20
+        }
+      },
+      "result": {
+        "status": "outside_prepared_range",
+        "preview_allowed": false,
+        "explanation": "The request is outside this prepared scenario range. This is not proof that all such real designs are impossible.",
+        "metrics": null,
+        "milestone_states": null
+      }
+    },
+    {
+      "id": "battery",
+      "user_input": "Add a big battery.",
+      "request": {
+        "change_id": "battery",
+        "parameters": {}
+      },
+      "result": {
+        "status": "unsupported_change",
+        "preview_allowed": false,
+        "explanation": "This catalogue contains exactly four prepared actions. Keep other ideas as suggestions, without invented results.",
+        "metrics": null,
+        "milestone_states": null
+      }
+    },
+    {
+      "id": "ambiguous-goal",
+      "user_input": "Make it sustainable.",
+      "request": {
+        "change_id": null,
+        "parameters": {}
+      },
+      "result": {
+        "status": "clarification_required",
+        "preview_allowed": false,
+        "explanation": "Choose a concrete edit: rooftop solar, roof-rain storage, retained grass or cooling-water management.",
+        "metrics": null,
+        "milestone_states": null
+      }
+    },
+    {
+      "id": "stack-changes",
+      "user_input": "Add solar and a larger tank together.",
+      "request": {
+        "change_id": [
+          "solar_roof",
+          "roof_tank"
+        ],
+        "parameters": {}
+      },
+      "result": {
+        "status": "combined_changes_not_supported",
+        "preview_allowed": false,
+        "explanation": "Preview one change against the same baseline; do not add savings from separate previews.",
+        "metrics": null,
+        "milestone_states": null
+      }
+    }
+  ],
+  "display_rules": "Retain metric unit/time basis and status. Null is Not established. Positive/negative delta is not a universal good/bad score. Never sum previews."
+}

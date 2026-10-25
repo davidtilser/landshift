@@ -1,0 +1,113 @@
+{
+  "locale": "en",
+  "examples": [
+    {
+      "id": "solar-10-percent",
+      "user_input": "Could rooftop solar cover 10% of our electricity?",
+      "request": {
+        "change_id": "solar_roof",
+        "parameters": {
+          "solar_zone_m2": 6000
+        },
+        "goal": {
+          "metric": "grid_import_reduction_percent",
+          "value": 10
+        }
+      }
+    },
+    {
+      "id": "tank-double",
+      "user_input": "Double the roof-rain tank.",
+      "request": {
+        "change_id": "roof_tank",
+        "parameters": {
+          "tank_capacity_m3": 400
+        }
+      }
+    },
+    {
+      "id": "tank-plateau",
+      "user_input": "Use the largest prepared tank.",
+      "request": {
+        "change_id": "roof_tank",
+        "parameters": {
+          "tank_capacity_m3": 2000
+        }
+      }
+    },
+    {
+      "id": "green-strip",
+      "user_input": "Keep an extra 0.4 hectares of grass.",
+      "request": {
+        "change_id": "preserve_turf",
+        "parameters": {
+          "extra_retained_turf_m2": 4000
+        }
+      }
+    },
+    {
+      "id": "cooling-controls",
+      "user_input": "Improve water management in cooling.",
+      "request": {
+        "change_id": "cooling_water_controls",
+        "parameters": {
+          "concentration_ratio": 6
+        }
+      }
+    },
+    {
+      "id": "too-much-roof",
+      "user_input": "Put panels on 20,000 square metres of roof.",
+      "request": {
+        "change_id": "solar_roof",
+        "parameters": {
+          "solar_zone_m2": 20000
+        }
+      }
+    },
+    {
+      "id": "unprepared-green",
+      "user_input": "Keep an extra hectare of grass.",
+      "request": {
+        "change_id": "preserve_turf",
+        "parameters": {
+          "extra_retained_turf_m2": 10000
+        }
+      }
+    },
+    {
+      "id": "unverified-chemistry",
+      "user_input": "Set the concentration ratio to 20.",
+      "request": {
+        "change_id": "cooling_water_controls",
+        "parameters": {
+          "concentration_ratio": 20
+        }
+      }
+    },
+    {
+      "id": "battery",
+      "user_input": "Add a big battery.",
+      "request": {
+        "change_id": "battery",
+        "parameters": {}
+      }
+    },
+    {
+      "id": "ambiguous-goal",
+      "user_input": "Make it sustainable.",
+      "request": {
+        "change_id": null,
+        "parameters": {}
+      }
+    },
+    {
+      "id": "stack-changes",
+      "user_input": "Add solar and a larger tank together.",
+      "request": {
+        "change_id": ["solar_roof", "roof_tank"],
+        "parameters": {}
+      }
+    }
+  ]
+}

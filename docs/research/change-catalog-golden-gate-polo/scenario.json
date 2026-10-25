@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "scenario_id": "sf-polo-four-changes-v1",
+  "locale": "en",
+  "as_of": "2026-10-24",
+  "baseline": {
+    "water_scenario": "raw/water-scenario.json",
+    "water_results": "raw/water-results.json",
+    "energy_scenario": "raw/energy-scenario.json",
+    "energy_results": "raw/energy-results.json",
+    "source_ids": ["B01", "B02"]
+  },
+  "solar": {
+    "response": "raw/pvgis-polo-1kw.json",
+    "request": "raw/pvgis-request.json",
+    "source_ids": ["S01", "S02"],
+    "max_solar_zone_m2": {
+      "value": 6000,
+      "unit": "m²",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Half of the 12,000 m² roof reserved as a teaching allocation; remaining roof is held for cooling, access and other needs. Actual layout not validated."
+    },
+    "module_coverage_of_zone": {
+      "value": 0.75,
+      "unit": "fraction",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Module surface within the allocated solar zone; the rest represents spacing/access. No surveyed packing."
+    },
+    "module_dc_kw_per_m2": {
+      "value": 0.2,
+      "unit": "kWp DC/m² module",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Authored 200 Wp/m² nameplate density; not a selected product."
+    },
+    "constant_facility_demand_mw": {
+      "value": 12,
+      "unit": "MW",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Additional flat-load assumption for self-consumption only; baseline is an annual average and does not establish an actual hourly load profile."
+    },
+    "all_modelled_pv_self_consumed": {
+      "value": true,
+      "unit": "boolean",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Prepared array is far below the assumed flat demand; no export/storage credit. Net generation includes the selected PVGIS losses."
+    }
+  },
+  "tank": {
+    "baseline_capacity_m3": 200,
+    "default_capacity_m3": 400,
+    "max_prepared_capacity_m3": 2000,
+    "initial_storage_m3": 0,
+    "usable_depth_m": {
+      "value": 2,
+      "unit": "m",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Authored volume/footprint illustration, not an engineered tank depth."
+    },
+    "expansion_zone_m2": {
+      "value": 1000,
+      "unit": "m²",
+      "kind": "scenario_assumption",
+      "source_ids": [],
+      "note": "Authored reserve within existing hardstanding. Neither available land nor access fit is verified."
+    },
+    "annual_reuse_modelled": false,
+    "source_ids": ["B01"]
+  },
+  "turf": {
+    "default_extra_retained_turf_m2": 4000,
+    "max_prepared_extra_retained_turf_m2": 4000,
+    "source": "proposed_other_impervious",
+    "geometry": "Schematic protected strip inside the same campus; actual footprint, fire access, deliveries and utility fit unassessed.",
+    "irrigation": "Apply the inherited 300 mm/year delivered irrigation allowance to the additional retained turf.",
+    "public_access_changed": false,
+    "source_ids": ["B01", "S04"]
+  },
+  "cooling": {
+    "default_concentration_ratio": 6,
+    "max_prepared_concentration_ratio": 6,
+    "baseline_concentration_ratio": 4,
+    "fixed_evaporation": true,
+    "negligible_drift_and_leaks": true,
+    "water_chemistry_feasibility_established": false,
+    "source_ids": ["B01", "S03"]
+  },
+  "comparison_policy": {
+    "max_simultaneous_changes": 1,
+    "mode": "Alternative design from the same preconstruction baseline; not an operating-building retrofit.",
+    "baseline_immutable": true,
+    "missing_values": "null means Not established, never zero",
+    "scores": "No universal environmental or approval score",
+    "grid_capacity_known": false
+  }
+}
