@@ -11,6 +11,13 @@ export function createButton(
   return button
 }
 
+export function createEdgeButton(
+  label: string,
+  onClick: () => void,
+): HTMLButtonElement {
+  return createButton(label, 'ui-button landing-edge-button', onClick)
+}
+
 export function createBackButton(onClick: () => void): HTMLButtonElement {
   const button = createButton('Back', 'ui-button ui-button-quiet', onClick)
   const arrow = document.createElement('span')
@@ -19,6 +26,51 @@ export function createBackButton(onClick: () => void): HTMLButtonElement {
   button.prepend(arrow)
   button.classList.add('landing-back')
   return button
+}
+
+let contributorDialogCount = 0
+
+/** A modal listing people. Escape and the backdrop both dismiss it. */
+export function createContributorDialog(
+  names: readonly string[],
+): HTMLDialogElement {
+  contributorDialogCount += 1
+  const title = document.createElement('h2')
+  title.id = `contributor-dialog-title-${String(contributorDialogCount)}`
+  title.textContent = 'Our team'
+
+  const dialog = document.createElement('dialog')
+  dialog.className = 'landing-team-dialog'
+  dialog.setAttribute('aria-labelledby', title.id)
+
+  const close = createButton('Close', 'ui-button ui-button-quiet', () => {
+    dialog.close()
+  })
+  const header = document.createElement('div')
+  header.className = 'landing-team-dialog-header'
+  header.append(title, close)
+
+  const list = document.createElement('ul')
+  for (const name of names) {
+    const item = document.createElement('li')
+    item.textContent = name
+    list.append(item)
+  }
+
+  const body = document.createElement('div')
+  body.className = 'landing-team-dialog-body'
+  body.append(header, list)
+  dialog.append(body)
+
+  let pressedBackdrop = false
+  dialog.addEventListener('pointerdown', (event) => {
+    pressedBackdrop = event.target === dialog
+  })
+  dialog.addEventListener('click', (event) => {
+    if (pressedBackdrop && event.target === dialog) dialog.close()
+    pressedBackdrop = false
+  })
+  return dialog
 }
 
 export function createTitle(

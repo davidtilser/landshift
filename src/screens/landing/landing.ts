@@ -11,7 +11,12 @@ import {
   type Scenario,
 } from '../../scenarios/scenarios.ts'
 import { mountCreditsPanel } from '../../ui/creditsPanel.ts'
-import { createBackButton, createButton, createTitle } from './elements.ts'
+import {
+  createBackButton,
+  createContributorDialog,
+  createEdgeButton,
+  createTitle,
+} from './elements.ts'
 import {
   LOCALE_TILT_DEGREES,
   OVERVIEW,
@@ -31,6 +36,7 @@ const GLOW_RISE_MS = 280
 const GLOW_FALL_MS = 820
 
 const TAGLINE = 'How does our Earth develop?'
+const TEAM = ['Rikesh Subedi', 'Marian Hurta', 'David Tilser'] as const
 const EXPLORE_HINT = 'Drag the globe and choose a region'
 /** three-render-objects leaves the camera at Three's default vertical field of view. */
 const CAMERA_FOV_DEGREES = 50
@@ -114,25 +120,25 @@ function placeWordmark(headline: HTMLElement, cell: HTMLElement): void {
   image.style.left = `${margin}px`
   image.style.top = `${margin}px`
   image.style.width = `${width}px`
-  const explore = headline.parentElement?.querySelector('.landing-explore')
-  if (explore instanceof HTMLElement) {
-    explore.style.width = 'auto'
-    const top = margin + height + 18
-    const ideal = frame.left + margin + width / 2
-    const cleared = exploreCenterClearOfEarth(
-      explore,
-      ideal,
-      frame.top + top,
+  const view = headline.parentElement
+  const tagline = view?.querySelector('.landing-tagline')
+  if (tagline instanceof HTMLElement) {
+    const belowEarth = earth.y - frame.top + earth.radius + 18
+    const maxTop = frame.height - tagline.offsetHeight - 12
+    tagline.style.left = `${earth.x - frame.left}px`
+    tagline.style.top = `${Math.min(belowEarth, maxTop)}px`
+  }
+  const buttons = view
+    ? [...view.querySelectorAll<HTMLElement>('.landing-edge-button')]
+    : []
+  if (buttons.length > 0) {
+    placeEdgeBars(
+      buttons,
+      frame.left + margin + width / 2,
+      margin + height + 12,
+      frame,
       earth,
     )
-    const labelWidth = explore.offsetWidth
-    const minCenter = frame.left + labelWidth / 2
-    const right = Math.max(minCenter, cleared) + labelWidth / 2
-    // The left cap sits past the screen so the visible edge is straight.
-    const left = frame.left - explore.offsetHeight / 2 - 4
-    explore.style.left = `${left - frame.left}px`
-    explore.style.width = `${right - left}px`
-    explore.style.top = `${top}px`
   }
   headline.style.setProperty('--cut-x', `${earth.x - frame.left}px`)
   headline.style.setProperty('--cut-y', `${earth.y - frame.top}px`)
@@ -144,15 +150,46 @@ function placeWordmark(headline: HTMLElement, cell: HTMLElement): void {
   else image.addEventListener('load', paint, { once: true })
 }
 
-/** Wordmark center, shifted left when that would crowd the earth. */
-function exploreCenterClearOfEarth(
-  explore: HTMLElement,
+/** Shared right edge for the bars, shifted left when any of them would crowd the earth. */
+function placeEdgeBars(
+  buttons: HTMLElement[],
+  idealCenter: number,
+  top: number,
+  frame: DOMRect,
+  earth: { x: number; y: number; radius: number },
+): void {
+  for (const button of buttons) button.style.width = 'auto'
+  const widest = Math.max(...buttons.map((button) => button.offsetWidth))
+  const barHeight = buttons[0]?.offsetHeight ?? 0
+  const gap = 8
+  let right = Number.POSITIVE_INFINITY
+  for (let index = 0; index < buttons.length; index += 1) {
+    const screenTop = frame.top + top + index * (barHeight + gap)
+    const minCenter = frame.left + widest / 2
+    const center = Math.max(
+      minCenter,
+      centerClearOfEarth(idealCenter, screenTop, widest, barHeight, earth),
+    )
+    right = Math.min(right, center + widest / 2)
+  }
+  const left = frame.left - barHeight / 2 - 4
+  buttons.forEach((button, index) => {
+    button.style.left = `${left - frame.left}px`
+    button.style.width = `${right - left}px`
+    button.style.top = `${top + index * (barHeight + gap)}px`
+  })
+}
+
+/** Button center, shifted left when that would crowd the earth. */
+function centerClearOfEarth(
   ideal: number,
   top: number,
+  width: number,
+  height: number,
   earth: { x: number; y: number; radius: number },
 ): number {
-  const halfW = explore.offsetWidth / 2
-  const halfH = explore.offsetHeight / 2
+  const halfW = width / 2
+  const halfH = height / 2
   if (halfW < 1 || halfH < 1) return ideal
   const cy = top + halfH
   const clearance = (cx: number): number => {
@@ -161,10 +198,10 @@ function exploreCenterClearOfEarth(
     return Math.hypot(earth.x - nearX, earth.y - nearY) - earth.radius
   }
   if (clearance(ideal) >= EARTH_BUTTON_GAP) return ideal
-  let lo = ideal - earth.radius - explore.offsetWidth - EARTH_BUTTON_GAP
+  let lo = ideal - earth.radius - width - EARTH_BUTTON_GAP
   let hi = ideal
   if (clearance(lo) < EARTH_BUTTON_GAP) return lo
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 16; i += 1) {
     const mid = (lo + hi) / 2
     if (clearance(mid) < EARTH_BUTTON_GAP) hi = mid
     else lo = mid
@@ -554,17 +591,21 @@ export function mountLanding(
     state: Extract<LandingState, { screen: 'idle' }>,
     previous: LandingState | null,
   ): void {
-    const explore = createButton('Explore', 'ui-button landing-explore', () => {
+    const explore = createEdgeButton('Explore', () => {
       store.dispatch({ type: 'explore' })
+    })
+    const teamDialog = createContributorDialog(TEAM)
+    const team = createEdgeButton('Our team', () => {
+      teamDialog.showModal()
+    })
+    teamDialog.addEventListener('close', () => {
+      team.focus()
     })
     const wordmark = createWordmark()
     const tagline = document.createElement('p')
     tagline.className = 'landing-tagline'
     tagline.textContent = TAGLINE
-    const intro = document.createElement('div')
-    intro.className = 'landing-intro'
-    intro.append(tagline)
-    showView(wordmark, intro, explore)
+    showView(wordmark, tagline, explore, team, teamDialog)
     const fit = (): void => placeWordmark(wordmark, globeCell)
     const observer = new ResizeObserver(fit)
     observer.observe(globeCell)
