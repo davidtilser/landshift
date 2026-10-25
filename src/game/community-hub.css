@@ -10,9 +10,11 @@
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 22px;
-  background: var(--ls-role-surface);
+  background: var(--ls-role-panel);
   color: var(--ls-role-ink);
-  box-shadow: 0 18px 70px #24104640;
+  box-shadow: 0 18px 70px rgb(0 0 0 / 0.28);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
 }
 .community-hub[hidden] {
   display: none;
@@ -244,6 +246,27 @@
   flex-wrap: wrap;
   gap: 6px 16px;
 }
+html.ls-system-dark .community-action,
+html.ls-system-dark .community-post-actions button {
+  background: transparent;
+  color: var(--ls-role-ink);
+  border-color: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html.ls-system-dark .community-action:hover,
+html.ls-system-dark .community-post-actions button:hover {
+  background: rgb(255 255 255 / 0.14);
+  color: var(--ls-role-ink);
+}
+
+html.ls-system-dark .community-action:active,
+html.ls-system-dark .community-post-actions button:active {
+  background: rgb(255 255 255 / 0.28);
+  color: var(--ls-role-ink);
+}
+
 .community-post-actions button {
   padding: 3px 0;
   font-size: 12px;
@@ -283,7 +306,7 @@
 .community-footer {
   padding: 7px 12px 8px;
   border-top: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
-  background: var(--ls-role-surface);
+  background: transparent;
   flex-shrink: 0;
 }
 .community-status {
@@ -296,7 +319,7 @@
   border: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
   border-radius: 13px;
   overflow: hidden;
-  background: var(--ls-role-surface);
+  background: var(--ls-role-inset);
 }
 .community-reply-target {
   display: flex;

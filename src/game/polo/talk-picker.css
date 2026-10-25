@@ -94,7 +94,7 @@
 .polo-talk-footer {
   padding-top: 12px;
   border-top: 1px solid color-mix(in srgb, var(--ls-role-ink) 22%, transparent);
-  color: var(--ls-role-action);
+  color: var(--ls-role-ink);
   font-size: 12px;
   font-weight: 650;
 }
@@ -116,7 +116,8 @@
 .polo-talk-faces img.is-speaking {
   z-index: 1;
   transform: translateY(-3px);
-  box-shadow: 0 0 0 2px var(--ls-role-action);
+  border-color: var(--ls-role-ink);
+  box-shadow: 0 0 0 2px var(--ls-role-ink);
 }
 .polo-talk-waiting {
   display: grid;
