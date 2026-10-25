@@ -233,7 +233,7 @@ export class Gameplay {
     this.modelDialog = document.createElement('dialog')
     this.modelDialog.className = 'model-dialog'
     this.modelDialog.setAttribute('aria-labelledby', 'model-title')
-    this.modelDialog.innerHTML = `<button class="dialog-close" data-action="close-model" aria-label="Close model explanation">×</button><span class="eyebrow">REAL GEOGRAPHY · SIMPLIFIED RULES</span><h2 id="model-title">What is real?<br>What is a game estimate?</h2><p>Buildings, waterbodies, street trees, parks, and mapped flood hazards come from the downloaded San José pack. The full campus pad is checked for overlaps. Coverage and dates vary; private trees are missing from the street-tree inventory.</p><p>Cars follow the downloaded street lines. People, gatherings and placards are imagined game characters, not observed traffic or a prediction of public opinion. The blue and yellow columns are symbolic water and power gauges, not physical infrastructure or measurements.</p><h3>Our sandbox assumptions</h3><p>This concept uses <strong>24 MW IT capacity at 70% average load</strong>, unrelated to the real applicant's design. Daily direct cooling water = average IT kW × 24 hours × water-use factor ÷ 1,000. Electricity = average IT MW × PUE × weather factor × 8,760 hours. The power figure annualizes the selected scenario; it is not a weather forecast.</p><table><caption>Illustrative cooling coefficients</caption><thead><tr><th>Cooling</th><th>PUE</th><th>Water L/kWh IT</th></tr></thead><tbody>${Object.values(
+    this.modelDialog.innerHTML = `<button class="dialog-close" data-action="close-model" aria-label="Close model explanation">×</button><span class="eyebrow">REAL GEOGRAPHY · SIMPLIFIED RULES</span><h2 id="model-title">What is real?<br>What is a game estimate?</h2><p>Buildings, waterbodies, street trees, parks, and mapped flood hazards come from the downloaded geographic pack. The full campus pad is checked for overlaps. Coverage and dates vary; many park and private trees are missing from the street-tree inventory. Heritage points mark documented places, not surveyed monument footprints. This park scenario is hypothetical; memorial and park impacts cannot be offset by cooling, training or new planting.</p><p>Cars follow the downloaded street lines. People, gatherings and placards are imagined game characters, not observed traffic or a prediction of public opinion. The blue and yellow columns are symbolic water and power gauges, not physical infrastructure or measurements.</p><h3>Our sandbox assumptions</h3><p>This concept uses <strong>24 MW IT capacity at 70% average load</strong>, unrelated to the real applicant's design. Daily direct cooling water = average IT kW × 24 hours × water-use factor ÷ 1,000. Electricity = average IT MW × PUE × weather factor × 8,760 hours. The power figure annualizes the selected scenario; it is not a weather forecast.</p><table><caption>Illustrative cooling coefficients</caption><thead><tr><th>Cooling</th><th>PUE</th><th>Water L/kWh IT</th></tr></thead><tbody>${Object.values(
       COOLING,
     )
       .map(
@@ -392,11 +392,21 @@ export class Gameplay {
     }
     for (const button of this.panel.querySelectorAll<HTMLButtonElement>(
       '[data-voice]',
-    ))
+    )) {
       button.setAttribute(
         'aria-pressed',
         String(button.dataset['voice'] === this.voiceId),
       )
+      const speaker = voices.find((item) => item.id === button.dataset['voice'])
+      if (speaker) {
+        button.textContent = speaker.icon
+        button.setAttribute(
+          'aria-label',
+          'Hear the ' + speaker.name.toLowerCase(),
+        )
+        button.title = speaker.name
+      }
+    }
     const baseline = evaluatePlan(
       this.referenceSite,
       DEFAULT_CHOICES,
@@ -414,14 +424,18 @@ export class Gameplay {
       question.textContent = this.futureReady
         ? 'Ten years. Your choices.'
         : this.activeTab === 'cooling'
-          ? 'Keep the servers cool.'
+          ? this.site.heritage
+            ? 'A data center. Here?'
+            : 'Keep the servers cool.'
           : this.activeTab === 'land'
             ? 'Bring this place to life.'
             : 'Be a good neighbor.'
     if (step)
       step.textContent = this.futureReady
         ? 'YOUR FUTURE'
-        : 'YOUR CITY · ' +
+        : (this.pack.manifest.hypothetical
+            ? 'WHAT IF · HEROES’ GROVE · '
+            : 'YOUR CITY · ') +
           (this.activeTab === 'cooling'
             ? '1'
             : this.activeTab === 'land'
@@ -471,16 +485,19 @@ export class Gameplay {
         WEATHER[this.weather].icon + ' ' + WEATHER[this.weather].title
     const alert = this.metrics.querySelector('#map-alert')
     if (alert) {
-      alert.textContent = this.site.buildings
-        ? '⚠ Building in the way'
-        : this.site.water || this.site.parks
-          ? '⚠ Protect this corridor'
-          : this.site.flood
-            ? '⚑ Flood map: check this spot'
-            : '✓ No mapped footprint conflict'
+      alert.textContent = this.site.heritage
+        ? '⚠ Memorial in the footprint'
+        : this.site.buildings
+          ? '⚠ Building in the way'
+          : this.site.water || this.site.parks
+            ? '⚠ Protect this corridor'
+            : this.site.flood
+              ? '⚑ Flood map: check this spot'
+              : '✓ No mapped footprint conflict'
       alert.classList.toggle(
         'warning',
         Boolean(
+          this.site.heritage ||
           this.site.buildings ||
           this.site.water ||
           this.site.parks ||

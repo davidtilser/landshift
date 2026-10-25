@@ -123,6 +123,7 @@
   transform: none;
   border-radius: 11px;
   padding: 3px;
+  flex-direction: row;
 }
 .has-gameplay .camera-presets button {
   padding: 8px;

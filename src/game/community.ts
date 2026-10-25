@@ -9,7 +9,15 @@ export interface CommunityVoice {
   quote: string
 }
 export interface MiniChallenge {
-  id: 'site' | 'budget' | 'water' | 'nature' | 'share' | 'flood' | 'compare'
+  id:
+    | 'heritage'
+    | 'site'
+    | 'budget'
+    | 'water'
+    | 'nature'
+    | 'share'
+    | 'flood'
+    | 'compare'
   title: string
   target: 'move' | 'cooling' | 'land' | 'people' | 'future'
   celebration: string
@@ -23,24 +31,34 @@ export function communityVoices(
   return [
     {
       id: 'neighbor',
-      name: 'Neighbor',
-      icon: '💧',
-      quote: site.buildings
-        ? 'People already use this place.'
-        : site.water
-          ? 'Please leave room for the river.'
-          : choices.cooling === 'evaporative'
-            ? 'Could we cool it with less water?'
-            : site.flood
-              ? 'Less water used. Flood risk remains.'
-              : 'Less water! What about the extra power?',
+      name:
+        site.heritageContext || site.heritage
+          ? 'Memorial steward'
+          : site.parks
+            ? 'Park neighbor'
+            : 'Neighbor',
+      icon: site.heritageContext || site.heritage ? '🕯️' : '💧',
+      quote: site.heritage
+        ? 'This is a place to remember. Please keep it.'
+        : site.parks
+          ? 'This park is shared space, not spare land.'
+          : site.buildings
+            ? 'People already use this place.'
+            : site.water
+              ? 'Please leave room for the river.'
+              : choices.cooling === 'evaporative'
+                ? 'Could we cool it with less water?'
+                : site.flood
+                  ? 'Less water used. Flood risk remains.'
+                  : 'Less water! What about the extra power?',
     },
     {
       id: 'nature',
       name: 'Nature volunteer',
       icon: '🌱',
-      quote:
-        site.parks || site.water
+      quote: site.heritage
+        ? 'The grove is living habitat and history.'
+        : site.parks || site.water
           ? 'Keep this habitat connected!'
           : !choices.trees && choices.restoration === 'none'
             ? 'Can we make space for wildlife?'
@@ -52,13 +70,15 @@ export function communityVoices(
     },
     {
       id: 'student',
-      name: 'Local student',
-      icon: '🎒',
-      quote: choices.training
-        ? 'Paid training? I could learn new skills!'
-        : choices.access
-          ? 'A green path for us to walk? Yes!'
-          : 'How could young people benefit too?',
+      name: site.heritageContext ? 'Park visitor' : 'Local student',
+      icon: site.heritageContext ? '🚶' : '🎒',
+      quote: site.parks
+        ? 'Where would we walk, meet and play?'
+        : choices.training
+          ? 'Paid training? I could learn new skills!'
+          : choices.access
+            ? 'A green path for us to walk? Yes!'
+            : 'How could young people benefit too?',
     },
   ]
 }
@@ -68,10 +88,19 @@ export function nextChallenge(
   choices: PlanChoices,
   site: SiteContext,
 ): MiniChallenge {
+  if (site.heritage)
+    return {
+      id: 'heritage',
+      title: 'Keep the memorial in place',
+      target: 'move',
+      celebration: 'Memorial point cleared!',
+    }
   if (site.buildings || site.water || site.parks)
     return {
       id: 'site',
-      title: 'Find a clear footprint',
+      title: site.parks
+        ? 'Protect shared park space'
+        : 'Find a clear footprint',
       target: 'move',
       celebration: 'Footprint cleared!',
     }
@@ -124,6 +153,8 @@ export function challengeCompleted(
   site: SiteContext,
 ): boolean {
   switch (id) {
+    case 'heritage':
+      return !site.heritage
     case 'site':
       return !site.buildings && !site.water && !site.parks
     case 'budget':

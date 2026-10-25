@@ -14,6 +14,8 @@ const context: DiscussionContext = {
 }
 const topics: (DiscussionTopic | undefined)[] = [
   undefined,
+  'heritage',
+  'park',
   'water',
   'power',
   'nature',

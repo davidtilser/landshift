@@ -1,11 +1,14 @@
-/* global console */
+/* global console, process */
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { createHash } from 'node:crypto'
 import sharp from 'sharp'
+import { format } from 'prettier'
 
 const root = resolve(import.meta.dirname, '../..')
-const pack = join(root, 'public/data/san-jose-dc04')
+const id = process.argv[2] ?? 'san-jose-dc04'
+if (!/^[a-z0-9-]+$/.test(id)) throw new Error('Invalid pack id')
+const pack = join(root, 'public/data', id)
 const manifest = JSON.parse(await readFile(join(pack, 'manifest.json'), 'utf8'))
 const size = 257
 const bounds = manifest.bounds
@@ -67,8 +70,8 @@ manifest.totalBytes = manifest.artifacts.reduce((s, a) => s + a.bytes, 0)
 await writeFile(join(pack, 'manifest.json'), JSON.stringify(manifest))
 await mkdir(join(root, 'data/manifests'), { recursive: true })
 await writeFile(
-  join(root, 'data/manifests/san-jose-dc04.json'),
-  JSON.stringify(manifest, null, 2) + '\n',
+  join(root, 'data/manifests', id + '.json'),
+  await format(JSON.stringify(manifest), { parser: 'json' }),
 )
 console.log(
   `Prepared ${size} × ${size} local Cesium elevation samples (${(bytes.length / 1024).toFixed(0)} KiB); no new downloads.`,

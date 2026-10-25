@@ -1,7 +1,7 @@
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import './style.css'
 import { readGameLaunch } from '../shared/game-launch.ts'
-import { getScenario, SAN_JOSE_SCENARIO_ID } from '../shared/scenarios.ts'
+import { getScenario, GOLDEN_GATE_SCENARIO_ID } from '../shared/scenarios.ts'
 import { loadDataPack } from './data.ts'
 import { GameScene } from './map.ts'
 import type { OnlineState } from './map.ts'
@@ -46,13 +46,15 @@ function tool(id: string, name: string, label: string): string {
 
 const root = el('#game', HTMLDivElement)
 const launch = readGameLaunch(new URL(window.location.href))
-const scenario = getScenario(launch?.scenarioId ?? SAN_JOSE_SCENARIO_ID)
+const scenario = getScenario(launch?.scenarioId ?? GOLDEN_GATE_SCENARIO_ID)
+const isPark = scenario?.id === GOLDEN_GATE_SCENARIO_ID
+const locationName = isPark ? 'Golden Gate Park' : 'San José'
 root.innerHTML = `
   <main class="studio">
-    <div id="map" aria-label="Interactive 3D map of North San José"></div>
+    <div id="map" aria-label="Interactive 3D map of ${locationName}"></div>
     <header class="topbar">
       <a class="brand" href="./" aria-label="Landshift onboarding"><span class="brand-icon">${icon('leaf', 24)}</span>landshift<span class="brand-dot">.</span></a>
-      <div class="breadcrumbs"><span>California</span><span class="crumb-divider">/</span><span>San José</span><span class="edition">CESIUM 3D</span></div>
+      <div class="breadcrumbs"><span>California</span><span class="crumb-divider">/</span><span>${locationName}</span><span class="edition">CESIUM 3D</span></div>
       <nav class="top-actions" aria-label="Studio actions"><span class="offline-badge"><span></span> <span id="connection-label">Local aerial</span></span>${tool('credits', 'info', 'Data sources and limitations')}<button id="map-layers-toggle" class="text-button" aria-expanded="false">Map layers</button><button id="reset-plan" class="text-button">Reset design ${icon('reset', 15)}</button></nav>
     </header>
     <section class="project-panel" aria-label="Move and rotate the campus">
@@ -74,16 +76,16 @@ root.innerHTML = `
         <label><span><i class="legend-square zoning-key"></i>Zoning context</span><input type="checkbox" data-layer="zoning"></label>
         <label><span><i class="legend-square flood-key"></i>Special flood-hazard areas</span><input type="checkbox" data-layer="flood"></label>
       </div>
-      <div class="map-key"><span class="reference-line"></span>Official project outline</div>
+      <div class="map-key"><span class="reference-line"></span>${isPark ? 'Hypothetical footprint' : 'Official project outline'}</div>
       <button id="layer-credits" class="source-link">Real geography. Transparent assumptions. ${icon('arrow', 13)}</button>
     </aside>
     <div class="view-controls panel" role="group" aria-label="Map navigation">${tool('zoom-in', 'plus', 'Zoom in')}${tool('zoom-out', 'minus', 'Zoom out')}<span class="control-divider"></span>${tool('north', 'compass', 'Face north')}<button id="perspective" class="icon-button view-label" aria-label="Switch to top-down view" aria-pressed="true">3D</button>${tool('home-view', 'expand', 'Frame project site')}</div>
-    <nav class="camera-presets panel" aria-label="Camera views"><button data-camera="neighborhood">Neighborhood</button><button data-camera="site" class="active">Project site</button><button data-camera="street">Close-up</button></nav><div id="cesium-credits"></div><div class="location-chip">${icon('pin', 14)} <span id="coordinates">37.3786° N · 121.9332° W</span><span class="location-divider"></span><span id="zoom-label">CESIUM 3D</span></div>
-    <footer class="bottom-bar"><div class="navigation-hint"><span>${icon('move', 15)} Drag to pan</span><span><kbd>Scroll</kbd> Zoom</span><span><kbd>Right drag</kbd> Orbit & tilt</span><button id="help">More controls</button></div><div class="attribution">CesiumJS · City of San José · Local data + streamed 3D</div></footer>
+    <nav class="camera-presets panel" aria-label="Camera views"><button data-camera="neighborhood">${isPark ? 'Whole park' : 'Neighborhood'}</button><button data-camera="site" ${isPark ? '' : 'class="active"'}>${isPark ? 'Your campus' : 'Project site'}</button>${isPark ? '<button data-camera="memorial">WWI memorial</button>' : ''}<button data-camera="street" ${isPark ? 'class="active"' : ''}>Close-up</button></nav><div id="cesium-credits"></div><div class="location-chip">${icon('pin', 14)} <span id="coordinates">${isPark ? '37.77293° N · 122.46889° W' : '37.3786° N · 121.9332° W'}</span><span class="location-divider"></span><span id="zoom-label">CESIUM 3D</span></div>
+    <footer class="bottom-bar"><div class="navigation-hint"><span>${icon('move', 15)} Drag to pan</span><span><kbd>Scroll</kbd> Zoom</span><span><kbd>Right drag</kbd> Orbit & tilt</span><button id="help">More controls</button></div><div class="attribution">CesiumJS · ${isPark ? 'DataSF · NPS · OSM' : 'City of San José'} · Local data + streamed 3D</div></footer>
     <div id="toast" role="status" aria-live="polite" hidden></div>
     <div id="loading" class="loading-screen"><div class="loading-card"><span class="loading-mark">${icon('leaf', 34)}</span><h2>Welcome to the neighborhood.</h2><p id="loading-message">Opening the 3D planning scene…</p><div class="loading-line"></div></div></div>
-    <dialog id="connect-dialog"><div class="dialog-top"><span class="eyebrow">GOOGLE PHOTOREALISTIC 3D · CESIUM ION</span><button id="close-connect" class="icon-button" aria-label="Close connection settings">${icon('close')}</button></div><h2>A real city.<br>In a new dimension.</h2><p>Connect your Cesium ion account to explore San José with photorealistic buildings, trees and terrain. This view uses an internet connection and your account quota.</p><form id="connect-form"><label for="ion-token">Cesium ion access token</label><input id="ion-token" type="password" autocomplete="off" spellcheck="false" placeholder="Your browser-safe, read-only token" required><p class="field-note">Kept in this tab’s session, never committed to the repository. You can also configure VITE_CESIUM_ION_TOKEN in .env.local.</p><button id="connect-submit" class="primary-button" type="submit">Connect photorealistic 3D ${icon('arrow', 17)}</button><p id="connect-message" role="status"></p></form><a class="account-link" href="https://ion.cesium.com/tokens" target="_blank" rel="noopener noreferrer">Open Cesium ion access tokens ↗</a></dialog>
-    <dialog id="info-dialog"><div class="dialog-top"><span class="eyebrow">BEHIND THE LANDSCAPE</span>${tool('close-dialog', 'close', 'Close information')}</div><h2>A real place.<br>A clearly labeled possibility.</h2><p>This is a local planning sketch around the real San José Data Center 04 proposal. The movable campus is an illustrative alternative, not the applicant’s engineering design.</p><div id="pack-summary"></div><p>Photorealistic mode streams Google 3D Tiles through your Cesium ion account and requires internet. Aerial and landscape views use the local pack. Building heights in local views may be approximations.</p><h3>Move through the neighborhood</h3><div class="keyboard-guide"><span>Pan</span><strong>Drag · arrow keys · W A S D</strong><span>Zoom</span><strong>Scroll · + / −</strong><span>Orbit & tilt</span><strong>Right drag · Shift + arrows</strong><span>Place campus</span><strong>Drag green handle · Move campus, then click</strong><span>Move focused handle</span><strong>Arrow keys · Shift for larger steps</strong><span>Cancel placement</span><strong>Esc</strong></div><h3>Know what the data can tell you</h3><ul id="limitations"></ul><p class="dialog-footnote">Local views use downloaded assets. Photorealistic mode streams Google 3D Tiles with provider attribution; it is not stored in the offline pack. The game uses simplified environmental and social rules. Open “Game estimates” for all assumptions and sources.</p></dialog>
+    <dialog id="connect-dialog"><div class="dialog-top"><span class="eyebrow">GOOGLE PHOTOREALISTIC 3D · CESIUM ION</span><button id="close-connect" class="icon-button" aria-label="Close connection settings">${icon('close')}</button></div><h2>A real city.<br>In a new dimension.</h2><p>Connect your Cesium ion account to explore ${locationName} with photorealistic buildings, trees and terrain. This view uses an internet connection and your account quota.</p><form id="connect-form"><label for="ion-token">Cesium ion access token</label><input id="ion-token" type="password" autocomplete="off" spellcheck="false" placeholder="Your browser-safe, read-only token" required><p class="field-note">Kept in this tab’s session, never committed to the repository. You can also configure VITE_CESIUM_ION_TOKEN in .env.local.</p><button id="connect-submit" class="primary-button" type="submit">Connect photorealistic 3D ${icon('arrow', 17)}</button><p id="connect-message" role="status"></p></form><a class="account-link" href="https://ion.cesium.com/tokens" target="_blank" rel="noopener noreferrer">Open Cesium ion access tokens ↗</a></dialog>
+    <dialog id="info-dialog"><div class="dialog-top"><span class="eyebrow">BEHIND THE LANDSCAPE</span>${tool('close-dialog', 'close', 'Close information')}</div><h2>A real place.<br>A clearly labeled possibility.</h2><p>${isPark ? 'This is a hypothetical data-center placement exercise in Golden Gate Park, starting at the documented Heroes’ Grove WWI memorial point. No actual development proposal or real group’s position is asserted. The monument is a cultural place, not empty land.' : 'This is a local planning sketch around the real San José Data Center 04 proposal. The movable campus is an illustrative alternative, not the applicant’s engineering design.'}</p><div id="pack-summary"></div><p>Photorealistic mode streams Google 3D Tiles through your Cesium ion account and requires internet. Aerial and landscape views use the local pack. Building heights in local views may be approximations.</p><h3>Move through the neighborhood</h3><div class="keyboard-guide"><span>Pan</span><strong>Drag · arrow keys · W A S D</strong><span>Zoom</span><strong>Scroll · + / −</strong><span>Orbit & tilt</span><strong>Right drag · Shift + arrows</strong><span>Place campus</span><strong>Drag green handle · Move campus, then click</strong><span>Move focused handle</span><strong>Arrow keys · Shift for larger steps</strong><span>Cancel placement</span><strong>Esc</strong></div><h3>Know what the data can tell you</h3><ul id="limitations"></ul><p class="dialog-footnote">Local views use downloaded assets. Photorealistic mode streams Google 3D Tiles with provider attribution; it is not stored in the offline pack. The game uses simplified environmental and social rules. Open “Game estimates” for all assumptions and sources.</p></dialog>
   </main>
 `
 
@@ -112,9 +114,10 @@ dialog.addEventListener('click', (event) => {
 async function start(): Promise<void> {
   if (!scenario)
     throw new Error(
-      'This scenario is not available. Return to onboarding and choose San José Data Center 04.',
+      'This scenario is not available. Return to onboarding and choose a prepared location.',
     )
-  const pack = await loadDataPack()
+  const pack = await loadDataPack(scenario.id)
+  root.style.setProperty('--local-aerial', `url("${pack.baseUrl}aerial.jpg")`)
   const grid = await loadElevationGrid(pack.baseUrl)
   let center: LngLat = [...pack.manifest.center]
   let bearing = 28
@@ -292,6 +295,16 @@ async function start(): Promise<void> {
     },
     message: toast,
   })
+  for (const input of document.querySelectorAll<HTMLInputElement>(
+    '[data-layer]',
+  )) {
+    const name = input.dataset['layer']
+    if (
+      (name === 'parcels' || name === 'zoning') &&
+      !pack.layers[name].features.length
+    )
+      input.closest('label')?.setAttribute('hidden', '')
+  }
   const mapLayers = el('.layers-panel', HTMLElement)
   const mapLayersToggle = el('#map-layers-toggle', HTMLButtonElement)
   mapLayers.hidden = true
@@ -304,12 +317,19 @@ async function start(): Promise<void> {
       ? 'Map layers'
       : 'Game choices'
   })
+  if (isPark) {
+    scene.setLayer('trees', false)
+    const treeToggle = document.querySelector<HTMLInputElement>(
+      '[data-layer="trees"]',
+    )
+    if (treeToggle) treeToggle.checked = false
+  }
   update(true)
   el('#loading', HTMLDivElement).hidden = true
 
   const summary = document.createElement('p')
   summary.className = 'pack-facts'
-  summary.textContent = `Local imagery: ${pack.manifest.imageryDate} · Source resolution: 60 cm · Local pack: ${(pack.manifest.totalBytes / 1024 / 1024).toFixed(1)} MiB. Photorealistic mode uses a separate streamed dataset whose imagery dates vary.`
+  summary.textContent = `Local imagery: ${pack.manifest.imageryDate} · ${isPark ? 'Whole-park mosaic; source imagery resampled' : 'Source resolution: 60 cm'} · Local pack: ${(pack.manifest.totalBytes / 1024 / 1024).toFixed(1)} MiB. Photorealistic mode uses a separate streamed dataset whose imagery dates vary.`
   el('#pack-summary', HTMLDivElement).append(summary)
   for (const text of pack.manifest.limitations) {
     if (text.startsWith('No environmental, employment')) continue
@@ -433,7 +453,12 @@ async function start(): Promise<void> {
   ))
     button.addEventListener('click', () => {
       const preset = button.dataset['camera']
-      if (preset !== 'site' && preset !== 'street' && preset !== 'neighborhood')
+      if (
+        preset !== 'site' &&
+        preset !== 'street' &&
+        preset !== 'neighborhood' &&
+        preset !== 'memorial'
+      )
         return
       scene.setCamera(preset)
       for (const item of document.querySelectorAll('[data-camera]'))

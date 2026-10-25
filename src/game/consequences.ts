@@ -20,6 +20,8 @@ export interface SiteContext {
   water: number
   parks: number
   flood: number
+  heritage?: number
+  heritageContext?: boolean
 }
 export interface Consequence {
   id: string
@@ -158,6 +160,10 @@ export function assessSite(
       ),
     }),
     parks: intersectingFeatures(area, pack.layers.parks),
+    heritage: pack.layers.heritage
+      ? intersectingFeatures(area, pack.layers.heritage)
+      : 0,
+    heritageContext: Boolean(pack.layers.heritage?.features.length),
     flood: intersectingFeatures(area, {
       type: 'FeatureCollection',
       features: pack.layers.flood.features.filter(
@@ -249,6 +255,10 @@ export function evaluatePlan(
       (site.water || site.parks ? 20 : 0),
   )
   const blockers: string[] = []
+  if (site.heritage)
+    blockers.push(
+      'The campus covers a documented memorial point. Preserve this place of remembrance; upgrades do not cancel the cultural loss.',
+    )
   if (site.buildings)
     blockers.push(
       'The campus overlaps mapped buildings. Relocate before committing.',
@@ -286,6 +296,14 @@ export function evaluatePlan(
     },
   ]
   const feedback: Consequence[] = []
+  if (site.heritage)
+    feedback.push({
+      id: 'heritage',
+      tone: 'warning',
+      title: 'A memorial is in the footprint',
+      detail:
+        'This footprint covers the documented Heroes’ Grove WWI memorial point. Cooling, training and planting do not replace a community’s place of remembrance. The mapped point is not the monument’s surveyed extent.',
+    })
   if (site.buildings)
     feedback.push({
       id: 'buildings',

@@ -39,6 +39,8 @@ export interface DiscussionProvider {
 }
 
 export type DiscussionTopic =
+  | 'heritage'
+  | 'park'
   | 'water'
   | 'power'
   | 'nature'
@@ -52,6 +54,13 @@ export type DiscussionTopic =
   | 'hello'
   | 'other'
 function topicOf(text: string): DiscussionTopic {
+  if (
+    /memorial|heritage|remember|veteran|history|commemorat|boulder|heroes|gold star|monument/.test(
+      text,
+    )
+  )
+    return 'heritage'
+  if (/park|public space|shared space|recreation/.test(text)) return 'park'
   if (/flood|hazard|safe|storm|rainwater/.test(text)) return 'flood'
   if (/water|cool|drought|dry summer/.test(text)) return 'water'
   if (/power|electric|energy|grid/.test(text)) return 'power'
@@ -103,6 +112,18 @@ export function scriptedDiscussion(
   const result = evaluatePlan(site, choices, year, weather)
   let text: string
   switch (topic) {
+    case 'heritage':
+      text = site.heritage
+        ? /mov(e|ing).*?(memorial|monument|stone)/i.test(question)
+          ? 'Moving a stone is not the same as keeping a memorial. Its setting and meaning matter too. We should hear affected people, not assume agreement.'
+          : 'This memorial marks local WWI remembrance. Its place and grove matter to people. New trees or training cannot replace that history.'
+        : 'A memorial is more than a marker. Its setting and meaning matter, even when a building avoids the mapped point.'
+      break
+    case 'park':
+      text = site.parks
+        ? 'This footprint takes mapped public park space. People use it to walk, play and gather. A new path or training does not replace that loss.'
+        : 'No park overlap appears in these layers. That is not permission to build; ownership, access and neighborhood impacts still need discussion.'
+      break
     case 'water':
       text =
         choices.cooling === 'evaporative'
@@ -114,8 +135,9 @@ export function scriptedDiscussion(
         'Air cooling saves the most water but uses the most power in our game. Hybrid is the middle option.'
       break
     case 'nature':
-      text =
-        site.buildings || site.water || site.parks
+      text = site.heritage
+        ? 'The grove offers habitat and a place to remember. Saplings elsewhere cannot replace this place. Could we protect it and compare another site?'
+        : site.buildings || site.water || site.parks
           ? 'Planting adds habitat, but cannot cancel a mapped footprint conflict. We still need to compare another spot.'
           : site.flood && /rain|flood/i.test(question)
             ? 'A rain garden can slow rainfall and add habitat. It does not remove this mapped flood exposure. We still need to compare locations.'
@@ -131,21 +153,28 @@ export function scriptedDiscussion(
         : 'No flagged flood overlap here. That is not a guarantee of safety; a planner still needs more evidence.'
       break
     case 'training':
-      text = choices.training
-        ? 'Your training card offers 12 fictional places per year. It is not a forecast of real jobs. Who should get to apply?'
-        : 'Paid training could share new skills: 12 fictional places a year for 12 game credits. That is not a forecast of real jobs.'
+      text =
+        site.heritage || site.parks
+          ? 'Training could share skills, but it would not restore a memorial or replace public park space. Job opportunities and protecting a place are different questions.'
+          : choices.training
+            ? 'Your training card offers 12 fictional places per year. It is not a forecast of real jobs. Who should get to apply?'
+            : 'Paid training could share new skills: 12 fictional places a year for 12 game credits. That is not a forecast of real jobs.'
       break
     case 'access':
-      text = choices.access
-        ? 'Your green path shares space beyond the gates. It still needs suitable land and real access permission. Who would use it?'
-        : 'A green path costs 10 game credits and offers space to walk. Real access still needs permission. Would you choose space or skills?'
+      text = site.parks
+        ? 'People already share this park. A new path does not make up for taking existing space away. How could we protect access first?'
+        : choices.access
+          ? 'Your green path shares space beyond the gates. It still needs suitable land and real access permission. Who would use it?'
+          : 'A green path costs 10 game credits and offers space to walk. Real access still needs permission. Would you choose space or skills?'
       break
     case 'benefit':
-      text = choices.training
-        ? 'Training shares skills. A path shares space. Different neighbors might value each differently—who else should we ask?'
-        : choices.access
-          ? 'A path gives people somewhere to walk. Training offers skills instead. There is more than one way to share a benefit.'
-          : 'No training or shared path yet. We could share skills, or a place to walk. Which would help people here?'
+      text = site.parks
+        ? 'The park already offers a shared benefit. Taking it away and adding training is a trade-off, not an automatic improvement.'
+        : choices.training
+          ? 'Training shares skills. A path shares space. Different neighbors might value each differently—who else should we ask?'
+          : choices.access
+            ? 'A path gives people somewhere to walk. Training offers skills instead. There is more than one way to share a benefit.'
+            : 'No training or shared path yet. We could share skills, or a place to walk. Which would help people here?'
       break
     case 'budget':
       text =
@@ -155,6 +184,7 @@ export function scriptedDiscussion(
       break
     case 'site': {
       const conflicts = [
+        site.heritage ? 'a memorial point' : '',
         site.buildings ? 'buildings' : '',
         site.water ? 'water' : '',
         site.parks ? 'a park or trail corridor' : '',
@@ -169,6 +199,7 @@ export function scriptedDiscussion(
     case 'next': {
       const challenge = nextChallenge(choices, site)
       const reasons: Record<MiniChallenge['id'], string> = {
+        heritage: 'A place of remembrance cannot be offset by upgrades.',
         water: 'Watch for the electricity trade-off.',
         nature: 'What would you trade for shade or habitat?',
         share: 'Would you share skills or a place to walk?',

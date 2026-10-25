@@ -31,8 +31,15 @@ const collectionSchema = z.object({
   ),
 })
 const bounds = z.tuple([z.number(), z.number(), z.number(), z.number()])
+const packIdSchema = z.enum(['san-jose-dc04', 'golden-gate-park'])
 const manifestSchema = z.object({
-  id: z.literal('san-jose-dc04'),
+  id: packIdSchema,
+  displayName: z.string().optional(),
+  city: z.string().optional(),
+  hypothetical: z.boolean().optional(),
+  imagerySize: z
+    .tuple([z.number().positive(), z.number().positive()])
+    .optional(),
   version: z.number(),
   preparedAt: z.string(),
   bounds,
@@ -67,19 +74,29 @@ export type LayerName =
   | 'flood'
 export interface DataPack {
   manifest: PackManifest
-  layers: Record<LayerName, FeatureCollection>
+  layers: Record<LayerName, FeatureCollection> & {
+    heritage?: FeatureCollection
+    places?: FeatureCollection
+  }
   baseUrl: string
 }
 
-export async function loadDataPack(): Promise<DataPack> {
-  const baseUrl = `${import.meta.env.BASE_URL}data/san-jose-dc04/`
+export async function loadDataPack(id = 'golden-gate-park'): Promise<DataPack> {
+  const packId = packIdSchema.parse(id)
+  const baseUrl = `${import.meta.env.BASE_URL}data/${packId}/`
   const manifestResponse = await fetch(`${baseUrl}manifest.json`)
   if (!manifestResponse.ok)
     throw new Error(
-      'The San José data pack is missing. Run npm run data:prepare, then reload.',
+      `The ${packId} data pack is missing. Run ${packId === 'golden-gate-park' ? 'npm run data:prepare:golden-gate' : 'npm run data:prepare'}, then reload.`,
     )
   const manifest = manifestSchema.parse(await manifestResponse.json())
-  async function layer(name: LayerName): Promise<FeatureCollection> {
+  if (manifest.id !== packId)
+    throw new Error(
+      'The geographic pack id does not match the selected scenario.',
+    )
+  async function layer(
+    name: LayerName | 'heritage' | 'places',
+  ): Promise<FeatureCollection> {
     const response = await fetch(`${baseUrl}${name}.geojson`)
     if (!response.ok) throw new Error(`Missing local geographic layer: ${name}`)
     return collectionSchema.parse(await response.json())
@@ -111,6 +128,17 @@ export async function loadDataPack(): Promise<DataPack> {
     layer('trails'),
     layer('flood'),
   ])
+  function optionalLayer(
+    name: 'heritage' | 'places',
+  ): Promise<FeatureCollection> {
+    return manifest.datasets.some((dataset) => dataset.id === name)
+      ? layer(name)
+      : Promise.resolve({ type: 'FeatureCollection', features: [] })
+  }
+  const [heritage, places] = await Promise.all([
+    optionalLayer('heritage'),
+    optionalLayer('places'),
+  ])
   if (!project.features.length || !buildings.features.length)
     throw new Error('The geographic pack is incomplete.')
   return {
@@ -129,6 +157,8 @@ export async function loadDataPack(): Promise<DataPack> {
       parks,
       trails,
       flood,
+      heritage,
+      places,
     },
   }
 }

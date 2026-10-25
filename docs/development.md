@@ -20,7 +20,8 @@ The existing onboarding entry point is intentionally left in place. It can move 
 npm install
 npm run dev
 # Onboarding: http://localhost:5173/
-# Game: http://localhost:5173/game.html?scenario=san-jose-dc04
+# Game: http://localhost:5173/game.html?scenario=golden-gate-park
+# Original scenario: http://localhost:5173/game.html?scenario=san-jose-dc04
 ```
 
 Alternatively, `npm run dev:game` opens the game directly. Vite may select a different port if 5173 is occupied; use the URL printed in the terminal.
@@ -42,14 +43,14 @@ window.location.assign(
 )
 ```
 
-`src/shared/scenarios.ts` is the small selection catalog shared by both entry points. `src/shared/game-launch.ts` defines the handoff. Unknown scenario IDs show an unavailable state. Opening `game.html` without a selection defaults to the San José scenario for development.
+`src/shared/scenarios.ts` is the small selection catalog shared by both entry points. `src/shared/game-launch.ts` defines the handoff. Unknown scenario IDs show an unavailable state. Opening `game.html` without a selection defaults to Golden Gate Park for development. Use `GOLDEN_GATE_SCENARIO_ID` in the same launch helper to select it explicitly; the San José ID and pack remain supported.
 
 When both parts are ready, the visible integration work is one start button calling this helper. The page transition reloads the renderer; each page owns its map lifecycle. A seamless single-canvas transition is a separate future decision.
 
 ## Next steps
 
 1. **Repository separation:** independent entry points and shared launch contract (implemented).
-2. **Real geographic pack:** bounded San José pack prepared; see `data/README.md` for reproduction and sharing.
+2. **Real geographic packs:** San José and full Golden Gate Park packs prepared; see `data/README.md` for reproduction, sharing and source limitations.
 3. **Map:** local aerial imagery, terrain, buildings and geographic overlays implemented.
 4. **Placement:** move and rotate an illustrative two-block campus inside the playable boundary; building, tree and special flood-area intersections are shown.
 5. **Learning loop:** cooling, trees, restoration and community choices; weather tests; 0/5/10-year views; fixed-reference comparison and optional reflection (implemented as an illustrative sandbox). See [game rules and assumptions](game-model.md).
@@ -64,7 +65,7 @@ The `predev`, `predev:game` and `prebuild` hooks copy those static resources int
 
 ### Local and photorealistic views
 
-- **Aerial / Landscape:** use the local NAIP imagery, prepared heightmap, OSM-derived buildings and city GIS layers.
+- **Aerial / Landscape:** use the selected pack's local NAIP imagery, prepared heightmap, building footprints and city GIS layers. Golden Gate Park uses official DataSF buildings; San José uses OSM-derived footprints.
 - **Photorealistic 3D:** streams Google 3D Tiles from Cesium ion asset `2275207`. The local globe imagery and OSM buildings are hidden to avoid duplicate surfaces. City inventory overlays and the proposed campus remain independent layers. Cesium's native provider credits remain visible.
 - **No token or a failed connection:** the local scene remains available. The online dataset is not downloaded into the offline pack.
 

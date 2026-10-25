@@ -2,7 +2,7 @@ dist
 package-lock.json
 data/raw
 data/processed
-public/data/san-jose-dc04
+public/data
 public/cesium
 
 # Golden Gate Park frozen source snapshots and deterministic outputs.

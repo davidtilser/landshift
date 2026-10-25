@@ -24,7 +24,10 @@
     "check": "npm run lint && npm run typecheck && npm run format:check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "data:prepare:golden-gate": "node scripts/data/prepare-golden-gate.mjs && node scripts/data/prepare-cesium.mjs golden-gate-park",
+    "data:verify:golden-gate": "node scripts/data/verify-san-jose.mjs golden-gate-park",
+    "data:bundle:golden-gate": "npm run data:verify:golden-gate && tar -czf data/golden-gate-park.tar.gz -C public/data golden-gate-park"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

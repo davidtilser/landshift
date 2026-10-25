@@ -1,6 +1,10 @@
 # Consequence sandbox
 
-The game combines the local San José map with authored teaching rules. It is an operational design sandbox with cooling, planting and restoration choices; the narrower site-preparation presentation in [the experience proposal](san-jose-datacentre-experience.md) remains a separate demo direction.
+The game combines local Golden Gate Park or San José geography with authored teaching rules. It is an operational design sandbox with cooling, planting and restoration choices; the narrower site-preparation presentation in [the experience proposal](san-jose-datacentre-experience.md) remains a separate demo direction.
+
+The default **Heroes’ Grove** scenario places the concept over the WWI memorial boulder's documented NPS point. It is explicitly hypothetical. A memorial steward, nature volunteer and park visitor are fictional roles, not representations of named people or actual groups. The full park and its surroundings are prepared in the local pack; see [data sources and limitations](../data/README.md#golden-gate-park-golden-gate-park).
+
+The first challenge is **Keep the memorial in place**. Cultural remembrance cannot be offset by cooling, new trees, training or a new path. The complete campus pad is checked against the documented point; clearing that point only clears the point intersection, not a surveyed grove boundary. Moving elsewhere inside the park retains the public-space objection. Conversations explain the site's meaning, existing recreation and habitat, and why unrelated benefits do not establish consent. The memorial steward remains the same role after relocation.
 
 ## Playable loop
 
@@ -17,7 +21,7 @@ The main interface is a picture-card deck over the map. Blue water and yellow po
 
 ## What comes from GIS
 
-The complete 184 × 112 m campus pad, including the space between the buildings, is checked against OSM-derived building footprints and water polygons, city park/trail-corridor polygons, the city street-tree inventory, and flood polygons with `SFHATF = T`. Swimming pools are excluded from the waterbody warning. Record fragments with matching IDs are deduplicated.
+The complete 184 × 112 m campus pad, including the space between the buildings, is checked against prepared building footprints and water polygons, city park/trail-corridor polygons, the city street-tree inventory, optional documented heritage points, and flood polygons with `SFHATF = T`. Golden Gate Park uses DataSF buildings; San José uses OSM-derived buildings. Swimming pools are excluded from the waterbody warning. Record fragments with matching IDs are deduplicated.
 
 These are intersections with downloaded data, not verified displacement, current site conditions, permission to build, flood depths, or an exhaustive constraint analysis. City street-tree records exclude many trees on private land. A mapped flood exposure remains visible regardless of restoration. Building, waterbody and park overlaps remain conflicts regardless of upgrades.
 
@@ -67,7 +71,7 @@ The nature cards pair existing model inputs: **Keep it simple** = 0 trees and no
 
 Twelve stylized cars follow nearby polylines from the downloaded city road layer. Twelve walkers circulate around the concept campus or the proposed walking strip. Up to twelve additional characters gather with placards. They are authored roleplay, not live traffic, real residents, polling or a prediction of opposition.
 
-The scripted gathering highlights one unresolved concern, in priority order: mapped water/park footprint conflict; existing-building overlap; water-intensive cooling; no new planting/restoration; no shared benefit. These concerns are not canceled by unrelated upgrades. A quiet scripted crowd does not establish public approval, suitable land ownership or flood safety.
+The scripted gathering highlights one unresolved concern, in priority order: documented memorial-point overlap; mapped water/park footprint conflict; existing-building overlap; water-intensive cooling; no new planting/restoration; no shared benefit. These concerns are not canceled by unrelated upgrades. A quiet scripted crowd does not establish public approval, suitable land ownership or flood safety.
 
 Animation runs at up to 24 frames per second, pauses in hidden tabs, and becomes static under reduced-motion settings. Small illustrated markers keep people and cars readable at game zoom levels; closer views retain their 3D geometry. Character sizes and motions are stylized for legibility. Their geometry and the resource gauges are excluded from terrain-height sampling.
 
@@ -97,7 +101,7 @@ No universal project score combines these values. A four-goal challenge indicato
 1. Drought: direct water ≤ 300 m³/day; heatwave: shade ≥ 45; heavy rain: runoff ≤ 45.
 2. Nature ≥ 55.
 3. Local benefits ≥ 60.
-4. No mapped building/waterbody/park footprint conflicts and spending ≤ 100 credits.
+4. No mapped building/waterbody/park/memorial-point footprint conflicts and spending ≤ 100 credits.
 
 Meeting those targets is not an approval or a verdict that one project is best. Flood warnings remain visible even when all game goals are met. The player can prefer the reference, their alternative, or more evidence.
 

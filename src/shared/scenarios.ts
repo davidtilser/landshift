@@ -7,9 +7,18 @@ export interface ScenarioSummary {
 }
 
 export const SAN_JOSE_SCENARIO_ID = 'san-jose-dc04'
+export const GOLDEN_GATE_SCENARIO_ID = 'golden-gate-park'
 
 // Shared selection metadata. Geographic inputs belong in the local data pack.
 export const scenarios: readonly ScenarioSummary[] = [
+  {
+    id: GOLDEN_GATE_SCENARIO_ID,
+    title: 'Golden Gate Park · Heroes’ Grove',
+    location: 'Heroes’ Grove WWI Memorial, San Francisco',
+    sourceUrl:
+      'https://tile.loc.gov/storage-services/master/pnp/habshaer/ca/ca4300/ca4343/data/ca4343data.pdf',
+    dataStatus: 'prepared',
+  },
   {
     id: SAN_JOSE_SCENARIO_ID,
     title: 'San José Data Center 04',

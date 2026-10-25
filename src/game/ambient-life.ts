@@ -218,6 +218,7 @@ export function neighborReaction(
   choices: PlanChoices,
   site: SiteContext,
 ): { count: number; text: string } {
+  if (site.heritage) return { count: 12, text: 'Protect the memorial' }
   if (site.water || site.parks)
     return {
       count: 12,
@@ -404,6 +405,7 @@ export class AmbientLife {
     const [west, south, east, north] = pack.manifest.bounds
     const paths: RoadPath[] = []
     for (const feature of pack.layers.roads.features) {
+      if (feature.properties?.['motorVehicle'] === false) continue
       const parts =
         feature.geometry.type === 'LineString'
           ? [feature.geometry.coordinates]

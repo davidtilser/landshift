@@ -121,7 +121,7 @@ export class DecisionEffects {
         : [Cartesian3.fromDegrees(lng, lat, ground + 1.1)],
     )
     this.footprintColor = Color.fromCssColorString(
-      site.buildings || site.water || site.parks
+      site.heritage || site.buildings || site.water || site.parks
         ? '#f18f6f'
         : site.flood
           ? '#ead08a'

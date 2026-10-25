@@ -69,7 +69,7 @@ import type { ImageryLayer } from '@cesium/engine'
 
 export type SceneStyle = 'aerial' | 'landscape' | 'reality'
 export type OnlineState = 'local' | 'connecting' | 'online' | 'error'
-export type CameraPreset = 'neighborhood' | 'site' | 'street'
+export type CameraPreset = 'neighborhood' | 'site' | 'street' | 'memorial'
 export interface CameraState {
   lng: number
   lat: number
@@ -321,7 +321,10 @@ export class GameScene {
     this.removeRenderListener = viewer.scene.postRender.addEventListener(() => {
       this.positionHandle()
     })
-    this.setCamera('site', 0)
+    this.setCamera(
+      this.pack.manifest.id === 'golden-gate-park' ? 'street' : 'site',
+      0,
+    )
     this.reportCamera()
   }
 
@@ -410,6 +413,33 @@ export class GameScene {
       Color.fromCssColorString('#dce4cd').withAlpha(0.5),
       true,
     )
+    for (const feature of this.pack.layers.heritage?.features ?? []) {
+      if (feature.geometry.type !== 'Point') continue
+      const [lng, lat] = feature.geometry.coordinates
+      if (lng === undefined || lat === undefined) continue
+      this.group('heritage').entities.add({
+        position: Cartesian3.fromDegrees(lng, lat, this.heightAt(lng, lat)),
+        label: {
+          text: 'WWI memorial',
+          font: '600 12px sans-serif',
+          fillColor: Color.fromCssColorString('#fff2c9'),
+          showBackground: true,
+          backgroundColor: Color.fromCssColorString('#694b3b').withAlpha(0.92),
+          pixelOffset: new Cartesian2(115, 25),
+          heightReference: HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          distanceDisplayCondition: new DistanceDisplayCondition(0, 2500),
+        },
+        point: {
+          pixelSize: 10,
+          color: Color.fromCssColorString('#f5d28d'),
+          outlineColor: Color.fromCssColorString('#5c4534'),
+          outlineWidth: 2,
+          heightReference: HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        },
+      })
+    }
     const local = this.group('buildings')
     for (const feature of this.pack.layers.buildings.features)
       for (const rings of polygonParts(feature)) {
@@ -898,16 +928,26 @@ export class GameScene {
   }
 
   setCamera(preset: CameraPreset, duration = 1.6): void {
-    const [lng, lat] =
-      preset === 'neighborhood' ? this.pack.manifest.center : this.campusCenter
+    const wholePark =
+      preset === 'neighborhood' && this.pack.manifest.id === 'golden-gate-park'
+    const [west, south, east, north] = this.pack.manifest.bounds
+    const [lng, lat] = wholePark
+      ? [(west + east) / 2, (south + north) / 2]
+      : preset === 'neighborhood' || preset === 'memorial'
+        ? this.pack.manifest.center
+        : this.campusCenter
     const angle = (this.campusBearing * Math.PI) / 180
     const targetLng =
       preset === 'street'
         ? lng -
           (Math.sin(angle) * 95) / (111320 * Math.cos((lat * Math.PI) / 180))
         : lng
-    const targetLat =
-      preset === 'street' ? lat - (Math.cos(angle) * 95) / 111320 : lat
+    // Keep the long park visible above the choice deck, with west on the left.
+    const targetLat = wholePark
+      ? lat - 0.013
+      : preset === 'street'
+        ? lat - (Math.cos(angle) * 95) / 111320
+        : lat
     const target = Cartesian3.fromDegrees(
       targetLng,
       targetLat,
@@ -916,8 +956,14 @@ export class GameScene {
         : this.heightAt(lng, lat) - (preset === 'site' ? 65 : 0),
     )
     const ranges: Record<CameraPreset, number> = {
-      neighborhood: 2600,
+      neighborhood: wholePark
+        ? Math.max(
+            5200,
+            (east - west) * 111320 * Math.cos((lat * Math.PI) / 180) * 0.98,
+          )
+        : 2600,
       site: 1050,
+      memorial: 900,
       street:
         550 *
         Math.max(
@@ -928,13 +974,14 @@ export class GameScene {
         ),
     }
     const pitches: Record<CameraPreset, number> = {
-      neighborhood: -43,
+      neighborhood: wholePark ? -75 : -43,
       site: -34,
+      memorial: -43,
       street: -40,
     }
     const options = {
       offset: new HeadingPitchRange(
-        CesiumMath.toRadians(-27),
+        CesiumMath.toRadians(wholePark ? 0 : -27),
         CesiumMath.toRadians(pitches[preset]),
         ranges[preset],
       ),

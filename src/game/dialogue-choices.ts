@@ -38,6 +38,38 @@ export function dialogueChoices(
   context: DiscussionContext,
 ): DialogueChoice[] {
   switch (topic) {
+    case 'heritage':
+      return [
+        say(
+          'Could we move the monument?',
+          'Explore place and remembrance',
+          '🕯️',
+          'heritage',
+        ),
+        say(
+          'What about the living grove?',
+          'Explore habitat and history',
+          '🌳',
+          'nature',
+        ),
+        tryIdea('Keep it. Compare another site', '🧭', 'move'),
+      ]
+    case 'park':
+      return [
+        say(
+          'Could training make up for it?',
+          'Compare different kinds of benefit',
+          '🎒',
+          'training',
+        ),
+        say(
+          'What about nature?',
+          'Public space is living space',
+          '🌱',
+          'nature',
+        ),
+        tryIdea('Explore another footprint', '🧭', 'move'),
+      ]
     case 'water':
       return [
         say(
@@ -138,6 +170,59 @@ export function dialogueChoices(
     case undefined:
     case 'hello':
     case 'other':
+      if (context.site.heritageContext && voice === 'neighbor')
+        return [
+          say(
+            'Why does this memorial matter?',
+            'Hear a memorial steward',
+            '🕯️',
+            'heritage',
+          ),
+          say(
+            'Could we move the monument?',
+            'Explore place and memory',
+            '🧭',
+            'heritage',
+          ),
+          tryIdea('Compare another location', '📍', 'move'),
+        ]
+      if (context.site.heritageContext && voice === 'nature')
+        return [
+          say(
+            'Protect the living grove',
+            'Explore habitat and history',
+            '🌳',
+            'nature',
+          ),
+          say(
+            'What would people lose?',
+            'Hear about shared public space',
+            '🚶',
+            'park',
+          ),
+          say(
+            'Why does the memorial matter?',
+            'Hear the heritage concern',
+            '🕯️',
+            'heritage',
+          ),
+        ]
+      if (context.site.heritageContext && voice === 'student')
+        return [
+          say(
+            'What would park users lose?',
+            'Explore space, access and belonging',
+            '🚶',
+            'park',
+          ),
+          say(
+            'Could training make up for it?',
+            'Compare shared benefits',
+            '🎒',
+            'training',
+          ),
+          tryIdea('Keep the park. Compare sites', '🧭', 'move'),
+        ]
       return voice === 'nature'
         ? [
             say(
