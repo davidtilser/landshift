@@ -24,7 +24,8 @@ import { createRegionList } from './regionList.ts'
 import '../../ui/ui.css'
 import './landing.css'
 
-const HEADLINE = 'Landshift: how our Earth is changing'
+const HEADLINE = 'LandShift'
+const TAGLINE = 'Learn how our Earth is developing'
 const EXPLORE_HINT = 'Drag the globe and choose a region'
 
 let mountCount = 0
@@ -325,7 +326,13 @@ export function mountLanding(
         store.dispatch({ type: 'explore' })
       },
     )
-    showView(createTitle(HEADLINE, 'landing-headline'), explore)
+    const tagline = document.createElement('p')
+    tagline.className = 'landing-tagline'
+    tagline.textContent = TAGLINE
+    const intro = document.createElement('div')
+    intro.className = 'landing-intro'
+    intro.append(tagline, explore)
+    showView(createTitle(HEADLINE, 'landing-headline'), intro)
     globe.highlightMarker(null)
     if (!previous) return
     explore.focus()
@@ -475,6 +482,7 @@ export function mountLanding(
 
     alertRegion.textContent = ''
     panel.className = `landing-panel landing-panel-${layoutFor(next)}`
+    globeCell.classList.toggle('landing-globe-idle', next.screen === 'idle')
     setPaused(next.screen === 'handoff')
     // Locale view hides the globe pills. Explore still shows them; the keyboard list is separate.
     setMarkersShown(next.screen === 'explore')

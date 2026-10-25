@@ -125,7 +125,7 @@ function pillText(members: readonly MemberView[]): string {
   if (members.length === 1) {
     return first.marker.enabled
       ? first.marker.label
-      : `${first.marker.label} \u00b7 Coming soon`
+      : `${first.marker.label} \u00b7 Not unlocked`
   }
   const count = String(members.length)
   const shared = members.every(
@@ -135,7 +135,7 @@ function pillText(members: readonly MemberView[]): string {
     ? `${first.marker.group} \u00b7 ${count}`
     : `${count} regions`
   const enabled = members.some((member) => member.marker.enabled)
-  return enabled ? label : `${label} \u00b7 Coming soon`
+  return enabled ? label : `${label} \u00b7 Not unlocked`
 }
 
 function overlaps(a: PillView, b: PillView): boolean {

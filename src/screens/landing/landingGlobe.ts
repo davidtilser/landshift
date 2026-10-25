@@ -46,7 +46,7 @@ export interface LandingGlobe {
    * Replaces the region pills; an empty list removes them. Pills are pointer-only buttons kept out of
    * the Tab order (the landing screen's hidden region list is the keyboard path) and render only on
    * the visible hemisphere. Enabled pills are highlighted and glow dimly on hover; disabled pills are
-   * muted, read "Coming soon", and never emit clicks. Overlapping pills merge only when they share a group.
+   * muted, read "Not unlocked", and never emit clicks. Overlapping pills merge only when they share a group.
    */
   setMarkers(markers: readonly LandingMarker[]): void
   /** Marks the selected region's pill, or the cluster that contains it; `null` clears it and unknown ids are ignored. */

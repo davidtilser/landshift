@@ -15,11 +15,27 @@
 
 .landing-globe {
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   z-index: 0;
   display: grid;
   /* The globe host is position:fixed; this keeps it, and its pills, under the panel. */
   contain: paint;
+  /* Width is a length in both states so Explore can ease the earth back to center. */
+  transition: width 700ms ease;
+}
+
+/* Idle only: a 120% canvas left-aligned puts the earth's center 10% right of the screen. */
+.landing-globe-idle {
+  width: 120%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-globe {
+    transition: none;
+  }
 }
 
 .landing-globe > * {
@@ -40,17 +56,35 @@
 }
 
 .landing-panel-hero {
-  inset: auto 0 0;
-  display: flex;
-  align-items: flex-end;
-  min-height: 45%;
-  padding: 32px 24px 40px;
+  inset: 0;
+  padding: 0;
+  pointer-events: none;
   background: linear-gradient(
     to top,
-    rgba(4, 5, 10, 0.9),
-    rgba(4, 5, 10, 0.55) 50%,
-    rgba(4, 5, 10, 0)
+    rgba(4, 5, 10, 0.72),
+    rgba(4, 5, 10, 0) 28%
   );
+}
+
+.landing-intro {
+  position: absolute;
+  left: 24px;
+  bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  pointer-events: auto;
+}
+
+.landing-tagline {
+  margin: 0;
+  font-size: min(2rem, 4.6vw);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
 }
 
 .landing-panel-hint {
@@ -83,16 +117,22 @@
 }
 
 .landing-panel-hero .landing-view {
-  gap: 20px;
-  max-width: 40rem;
+  position: absolute;
+  inset: 0;
+  max-width: none;
+  pointer-events: none;
 }
 
 .landing-headline {
+  position: absolute;
+  top: 24px;
+  left: 24px;
   margin: 0;
   font-size: clamp(2rem, 5vw, 3.25rem);
   line-height: 1.1;
   letter-spacing: -0.01em;
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
 }
 
 .landing-hint-bar {
@@ -253,8 +293,9 @@
 }
 
 @media (min-width: 768px) {
-  .landing-panel-hero {
-    padding: 48px 56px 64px;
+  .landing-intro {
+    left: 40px;
+    bottom: 40px;
   }
 
   .landing-panel-hint {
