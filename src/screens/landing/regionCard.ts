@@ -111,13 +111,7 @@ export function createRegionCard(options: RegionCardOptions): RegionCard {
   heading.textContent = 'Choose a scenario'
   parts.push(
     heading,
-    createScenarioList(
-      region,
-      idPrefix,
-      heading.id,
-      onStart,
-      onScenarioHover,
-    ),
+    createScenarioList(region, idPrefix, heading.id, onStart, onScenarioHover),
   )
 
   return { parts, focusTarget }

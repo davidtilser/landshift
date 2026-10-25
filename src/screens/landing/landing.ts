@@ -117,16 +117,16 @@ function placeWordmark(headline: HTMLElement, cell: HTMLElement): void {
   let width = Math.min(earth.radius * 1.85, maxWidth)
   if (width / aspect > maxHeight) width = maxHeight * aspect
   const height = width / aspect
-  image.style.left = `${margin}px`
-  image.style.top = `${margin}px`
-  image.style.width = `${width}px`
+  image.style.left = `${String(margin)}px`
+  image.style.top = `${String(margin)}px`
+  image.style.width = `${String(width)}px`
   const view = headline.parentElement
   const tagline = view?.querySelector('.landing-tagline')
   if (tagline instanceof HTMLElement) {
     const belowEarth = earth.y - frame.top + earth.radius + 18
     const maxTop = frame.height - tagline.offsetHeight - 12
-    tagline.style.left = `${earth.x - frame.left}px`
-    tagline.style.top = `${Math.min(belowEarth, maxTop)}px`
+    tagline.style.left = `${String(earth.x - frame.left)}px`
+    tagline.style.top = `${String(Math.min(belowEarth, maxTop))}px`
   }
   const buttons = view
     ? [...view.querySelectorAll<HTMLElement>('.landing-edge-button')]
@@ -140,11 +140,13 @@ function placeWordmark(headline: HTMLElement, cell: HTMLElement): void {
       earth,
     )
   }
-  headline.style.setProperty('--cut-x', `${earth.x - frame.left}px`)
-  headline.style.setProperty('--cut-y', `${earth.y - frame.top}px`)
-  headline.style.setProperty('--earth-r', `${earth.radius}px`)
+  headline.style.setProperty('--cut-x', `${String(earth.x - frame.left)}px`)
+  headline.style.setProperty('--cut-y', `${String(earth.y - frame.top)}px`)
+  headline.style.setProperty('--earth-r', `${String(earth.radius)}px`)
   const paint = (): void => {
-    requestAnimationFrame(() => pixelateWordmark(image))
+    requestAnimationFrame(() => {
+      pixelateWordmark(image)
+    })
   }
   if (image.complete && image.naturalWidth > 0) paint()
   else image.addEventListener('load', paint, { once: true })
@@ -174,9 +176,9 @@ function placeEdgeBars(
   }
   const left = frame.left - barHeight / 2 - 4
   buttons.forEach((button, index) => {
-    button.style.left = `${left - frame.left}px`
-    button.style.width = `${right - left}px`
-    button.style.top = `${top + index * (barHeight + gap)}px`
+    button.style.left = `${String(left - frame.left)}px`
+    button.style.width = `${String(right - left)}px`
+    button.style.top = `${String(top + index * (barHeight + gap))}px`
   })
 }
 
@@ -247,7 +249,9 @@ function watchPointer(): void {
     if (glowFrame === 0 && glowImage) startWordmarkGlow()
   }
   window.addEventListener('pointermove', onMove, { passive: true })
-  stopPointerWatch = () => window.removeEventListener('pointermove', onMove)
+  stopPointerWatch = () => {
+    window.removeEventListener('pointermove', onMove)
+  }
 }
 
 function startWordmarkGlow(): void {
@@ -291,8 +295,8 @@ function paintWordmark(image: HTMLImageElement, level: number): boolean {
   }
   canvas.style.left = image.style.left
   canvas.style.top = image.style.top
-  canvas.style.width = `${liveWidth}px`
-  canvas.style.height = `${liveHeight}px`
+  canvas.style.width = `${String(liveWidth)}px`
+  canvas.style.height = `${String(liveHeight)}px`
   const block = 1 + (1 - level) * 2.4
   const sample = sampleCanvas ?? document.createElement('canvas')
   sampleCanvas = sample
@@ -305,7 +309,7 @@ function paintWordmark(image: HTMLImageElement, level: number): boolean {
   canvas.width = Math.round(liveWidth)
   canvas.height = Math.round(liveHeight)
   context.imageSmoothingEnabled = false
-  context.filter = `brightness(${0.84 + level * 0.51})`
+  context.filter = `brightness(${String(0.84 + level * 0.51)})`
   context.drawImage(sample, 0, 0, canvas.width, canvas.height)
   image.style.opacity = '0'
   return true
@@ -606,11 +610,15 @@ export function mountLanding(
     tagline.className = 'landing-tagline'
     tagline.textContent = TAGLINE
     showView(wordmark, tagline, explore, team, teamDialog)
-    const fit = (): void => placeWordmark(wordmark, globeCell)
+    const fit = (): void => {
+      placeWordmark(wordmark, globeCell)
+    }
     const observer = new ResizeObserver(fit)
     observer.observe(globeCell)
     fit()
-    stopWordmarkFit = () => observer.disconnect()
+    stopWordmarkFit = () => {
+      observer.disconnect()
+    }
     globe.highlightMarker(null)
     if (!previous) return
     explore.focus()

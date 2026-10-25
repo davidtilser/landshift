@@ -42,13 +42,13 @@ export function createCameraController(globe: GlobeInstance): CameraController {
   }
 
   const clearResumeTimer = (): void => {
-    clearTimeout(resumeTimer)
+    window.clearTimeout(resumeTimer)
     resumeTimer = undefined
   }
 
   const settleFlight = (): void => {
     if (pendingFlight === undefined) return
-    clearTimeout(pendingFlight.timer)
+    window.clearTimeout(pendingFlight.timer)
     const resolve = pendingFlight.resolve
     pendingFlight = undefined
     resolve()
@@ -80,7 +80,7 @@ export function createCameraController(globe: GlobeInstance): CameraController {
   const onInteractionEnd = (): void => {
     interacting = false
     clearResumeTimer()
-    resumeTimer = setTimeout(() => {
+    resumeTimer = window.setTimeout(() => {
       resumeTimer = undefined
       heldByInteraction = false
       applyAutoRotate()
@@ -136,7 +136,7 @@ export function createCameraController(globe: GlobeInstance): CameraController {
       if (duration <= 0) return Promise.resolve()
       return new Promise((resolve) => {
         pendingFlight = {
-          timer: setTimeout(settleFlight, duration),
+          timer: window.setTimeout(settleFlight, duration),
           resolve: () => {
             resolve()
           },
