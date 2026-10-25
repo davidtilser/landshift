@@ -17,19 +17,13 @@ body {
 body {
   margin: 0;
   overflow: hidden;
-  background: radial-gradient(#12bff2, #0269a1);
+  background: #030408;
 }
 
 .globe {
   position: fixed;
   inset: 0;
   overflow: hidden;
-}
-
-@media (min-width: 768px) {
-  .globe canvas {
-    filter: saturate(1.2) drop-shadow(0 0 20px white);
-  }
 }
 
 .harness-controls {

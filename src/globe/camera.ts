@@ -88,7 +88,12 @@ export function createCameraController(globe: GlobeInstance): CameraController {
       setAutoRotate(false)
       freezeCamera()
       const duration = reducedMotion ? 0 : Math.max(0, durationMs)
-      globe.pointOfView(target, duration)
+      // Orbit controls clamp distance every frame, so a lower target would end the flight with a jump.
+      const minAltitude = controls.minDistance / globe.getGlobeRadius() - 1
+      globe.pointOfView(
+        { ...target, altitude: Math.max(target.altitude, minAltitude) },
+        duration,
+      )
       if (duration <= 0) {
         return Promise.resolve()
       }

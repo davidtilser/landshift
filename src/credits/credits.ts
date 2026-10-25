@@ -24,10 +24,18 @@ export const credits: readonly Credit[] = [
     license: 'Public domain',
   },
   {
+    id: 'nasa-gebco-bathymetry',
+    label: 'Bathymetry (GEBCO_08)',
+    holder:
+      'NASA Earth Observatory (Jesse Allen), using GEBCO_08 Grid data, www.gebco.net',
+    url: 'https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/topography-bathymetry-maps/',
+    license: 'Public domain',
+  },
+  {
     id: 'nasa-blue-marble-clouds',
     label: 'Blue Marble clouds',
     holder: 'NASA Goddard Space Flight Center',
-    url: 'https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57747/cloud_combined_2048.jpg',
+    url: 'https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57747/cloud_combined_8192.tif',
     license: 'Public domain (NASA)',
   },
   {
